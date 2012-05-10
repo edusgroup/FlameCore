@@ -7,6 +7,7 @@ use \DIR;
 use \SITE;
 // Engine
 use core\classes\render;
+use core\classes\event as eventCore;
 // ORM
 use ORM\tree\routeTree;
 use ORM\utils\seo as seoOrm;
@@ -84,6 +85,10 @@ class seo extends \core\classes\component\abstr\admin\comp {
         $linkNextUrl = self::post('linkNextUrl');
         $linkNextTitle = self::post('linkNextTitle');
         $method = self::post('method');
+		
+		eventCore::callOffline(event::NAME, event::ITEM_SAVE);
+		
+		(new routeTree())->update('isSave="yes"', 'id='.$actionId);
 
         // Сохраняем выбранные данные
         (new seoOrm())->saveExt(

@@ -312,7 +312,7 @@ wareframe.item.rmClick = function () {
     }
     var blId = wareframe.tree.block.getSelectedItemId();
     var rowsId = wareframe.grid.getCheckedRows(0);
-    HAjax.rmBlockItem({data:{idlist:rowsId, blid:blId }, methodType:'POST'});
+    HAjax.rmBlockItem({data:{idlist:rowsId, blid:blId, acid: wareframe.acId }, methodType:'POST'});
     // func. wareframe.item.rmClick
 }
 

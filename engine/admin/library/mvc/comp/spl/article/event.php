@@ -54,9 +54,10 @@ class event {
             'id',
             ['eventName'=>self::ACTION_TABLE_SAVE]
         );
+		$articleOrm = new articleOrm();
         // Если произошло сохранение
         if ( $isArctileSave ){
-            $articleOrm = new articleOrm();
+            
             $idList = $articleOrm->select('treeId')
                        ->where('urlTpl = ""')
                        ->group('treeId')

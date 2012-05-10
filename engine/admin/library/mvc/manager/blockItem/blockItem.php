@@ -188,6 +188,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $this->view->setRenderType(render::JSON);
 
         $blockItemId = self::getInt('id');
+        $acId = self::getInt('acid');
 
         $eventData = ['biId' => $blockItemId];
         eventsys::callOffline(event::BLOCKITEM, event::CHANGE, $eventData);
@@ -206,6 +207,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
 
         $blockItemSettings = new blockItemSettings();
         $blockItemSettings->save('blockItemId=' . $blockItemId, $saveData);
+		unset($saveData);
 
         $blockItemRegxUrl = new blockItemRegxUrl();
         // Очищаем всё
@@ -230,6 +232,10 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
                 $blockItemRegxUrl->insert($saveData);
             } // foreach
         } // if is_array
+		unset($regxList, $saveData, $contList);
+		
+		$where = $acId ? ' AND id='.$acId : '';
+		(new routeTree())->update('isSave="yes"', 'id != 0'.$where);
 
         $urlTpl = self::post('urlTpl');
         if (is_array($urlTpl)) {
@@ -245,6 +251,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
                 );
             } // foreach
         } // if is_array
+		unset($urlTpl);
 
         self::setVar('json', []);
         // func. saveDataAction

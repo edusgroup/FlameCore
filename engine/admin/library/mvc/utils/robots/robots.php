@@ -61,8 +61,6 @@ class robots extends controllerAbstract {
                 $robotsOrm->update($saveData, 'id='.$id);
             } // foreach
         } // if
-        
-        //filesystem::saveFile($path, 'robots.txt', $data);
         // func. saveDataAction
     }
 

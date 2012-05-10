@@ -1,5 +1,4 @@
 <?php
-
 namespace admin\library\mvc\manager\action;
 
 // ORM

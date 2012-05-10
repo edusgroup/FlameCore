@@ -13,7 +13,7 @@ use \DIR;
  */
 class blockItemSettings extends \core\classes\DB\table {
 
-    const TABLE = 'pr_blockItem_settings';
+    const TABLE = 'pr_blockitem_settings';
 
 // class blockItemSettings
 }

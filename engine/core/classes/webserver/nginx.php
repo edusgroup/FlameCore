@@ -104,7 +104,7 @@ class nginx {
         $render->setVar('vars', $varList);
 
         $webCoreScript = DIR::getCoreScript();
-        $webCoreScript = trim($webCoreScript, '/');
+        $webCoreScript = '/'.trim($webCoreScript, '/');
 
         $render->setVar('siteName', SITE_CONF::NAME);
         $render->setVar('nginxLog', DIR::getSiteNginxLog());

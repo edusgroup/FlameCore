@@ -94,7 +94,7 @@ class eventModel {
                 if ($acProp['varType'] == varibleModel::VARR_TYPE_NONE) {
                     echo "\tError(".__METHOD__."): Not set varible properties in action. AcId: {$acItem['id']}" . PHP_EOL;
                     echo "\tSee: URL '?\$t=manager&\$c=action' and set put varible type in Varbile settings".PHP_EOL;
-                    return;
+                    exit;
                 }
 
                 // Название переменной
@@ -131,7 +131,7 @@ class eventModel {
                         // если её нет, берём следующую переменную
                         if (!$varCompData) {
                             echo "ERROR(" . __METHOD__ . ")" . PHP_EOL . "\tVarible not set in AcId: {$acItem['id']}" . PHP_EOL;
-                            return;
+                            exit;
                         }
                         // Название класса
                         $classFile = $varCompData['className'];
@@ -218,28 +218,28 @@ class eventModel {
             // Если компонент был удалён, то пишем ошибку и берём следующий компонент
             if (!$item['compId']) {
                 print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tComponent {$item['compId']} not found. AcId: $pAcId" . PHP_EOL;
-                continue;
+                exit;
             } // if
             // Если контент был удалён, то пишем ошибку и берём следующий компонент
             if (!$item['statId'] && !$item['varId']) {
                 print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tContId {$item['statId']} not found. AcId: $pAcId" . PHP_EOL;
-                continue;
+                exit;
             } // if
             // Если табличные данные контента были удалёны, то пишем ошибку и берём следующий компонент
             if (!$item['tableId'] && $item['onlyFolder'] && !$item['varId']) {
                 print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tTableId not found. BlockId: {$item['id']}. AcId: $pAcId" . PHP_EOL;
-                continue;
+                exit;
             } // if
             // Если табличные данные контента были удалёны, то пишем ошибку и берём следующий компонент
             if (!$item['methodName']) {
                 print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tMethodName not found. BlockId: {$item['id']}. AcId: $pAcId" . PHP_EOL;
-                continue;
+                exit;
             } // if
 
             $blockId = $item['block_id'];
             if (!$item['ns'] || !$item['classFile']) {
                 echo PHP_EOL . "\t" . 'Notice: blockItem ID: ' . $item['id'] . ' not have prop' . PHP_EOL . PHP_EOL;
-                continue;
+                exit;
             }
             ++$sysnameNum;
             $sysname = $item['sysname'] ? : 'sys_' . $sysnameNum;
@@ -372,7 +372,7 @@ class eventModel {
         $codeBuffer .= $tplBlockCreator->getCodeBuffer();
         // Создаём php файл
 
-        $codeBuffer .= '<? echo microtime(true) - $time ?>';
+        $codeBuffer .= "<? echo '<!-- '.(microtime(true) - \$time).' -->'; ?>";
 
         return $codeBuffer;
         // func. createFileTpl

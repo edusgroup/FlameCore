@@ -64,7 +64,7 @@ class adapter extends adapterAbstract {
      * @return DBHandle 
      */
     public static function connect(\string $p_host, \string $p_user, \string $p_pwd, \string $p_db_name, \string $p_charset) {
-        $handle = mysqli_connect($p_host, $p_user, $p_pwd, $p_db_name);
+        $handle = \mysqli_connect($p_host, $p_user, $p_pwd, $p_db_name);
         if ( !$handle ){
             throw new DBException(1, 'DB not connect');
         }

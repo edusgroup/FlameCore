@@ -8,7 +8,7 @@ namespace ORM\comp\spl\catalogCont;
  * @author Козленко В.Л.
  */
 class catalogCont extends \core\classes\DB\table {
-    const TABLE = 'pr_comp_catalogCont';
+    const TABLE = 'pr_comp_catalogcont';
     // class catalogCont
 }
 

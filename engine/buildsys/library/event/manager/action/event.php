@@ -143,5 +143,3 @@ class event {
 
 // class event
 }
-
-?>

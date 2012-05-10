@@ -17,7 +17,7 @@ include(DIR_CONF . 'conf/DIR.php');
 include(DIR_CONF . 'conf/SITE.php');
 include(DIR_CONF . 'conf/CONSTANT.php');
 
-$siteName = 'SeoForBeginners.lo';
+$siteName = 'seoforbeginners.ru';
 
 include DIR::SITE_CORE.$siteName.'/conf/SITE.php';
 include DIR::SITE_CORE.$siteName.'/conf/DIR.php';
@@ -28,6 +28,7 @@ include DIR::CORE . 'admin/library/function/autoload.php';
 include DIR::CORE . 'core/function/errorHandler.php';
 // Подгрузка драйвера БД
 include DIR::CORE . 'core/classes/DB/adapter/' . CONF::DB_ADAPTER . '/adapter.php';
+umask(0002);
 
 DBCore::addParam('site', \site\conf\DB::$conf);
 
@@ -35,6 +36,12 @@ request::init($argv);
 
 $cmd = request::get('cmd');
 $method = request::get('method');
+if ( !$cmd || !$method ){
+die("Use paramentr
+cmd=event method=run
+cmd=log method=run
+");
+}
 try {
     $className = 'buildsys\library\mvc\\'.$cmd.'\\'.$cmd;
     if (!class_exists($className)){
@@ -45,7 +52,7 @@ try {
     if (!method_exists($controller, $method)){
         throw new \Exception('Method: "'.$method.'" not found', 26);
     }
-    echo "CMD: $className->$method()".PHP_EOL;
+    //echo "CMD: $className->$method()".PHP_EOL;
     $controller->{$method}();
 }catch (\Exception $e) {
     print 'Exception: '. $e->getMessage().PHP_EOL;

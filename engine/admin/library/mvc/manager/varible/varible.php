@@ -7,6 +7,7 @@ use core\classes\mvc\controllerAbstract;
 use core\classes\render;
 use core\classes\filesystem;
 use core\classes\validation\filesystem as filesystemValid;
+use core\classes\event as eventCore;
 // ORM
 use ORM\tree\routeTree;
 use ORM\urlTreePropVar;
@@ -84,6 +85,9 @@ class varible extends controllerAbstract {
         $this->view->setRenderType(render::JSON);
         // action ID
         $acId = self::postInt('acid');
+		(new routeTree())->update('isSave="yes"', 'id='.$acId);
+		eventCore::callOffline(event::NAME, event::ITEM_SAVE);
+		
         // Тип переменной
         $vartype = self::post('varType');
         switch ($vartype) {

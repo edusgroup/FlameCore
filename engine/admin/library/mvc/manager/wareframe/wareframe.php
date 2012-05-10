@@ -265,6 +265,10 @@ class wareframe extends controllerAbstract {
         $list = dhtmlxGrid::rmRows($listId, new blockItem());
         
         $blockId = self::post('blid');
+		
+		$acId = self::postInt('acid');
+		$where = $acId ? ' AND id='.$acId : '';
+		(new routeTree())->update('isSave="yes"', 'id != 0'.$where);
         
         self::setVar('json', array('blid' => $blockId, 'list' => $list));
         // rmBlockItemAction 
