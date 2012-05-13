@@ -4,3 +4,5 @@
 /engine/admin/conf/DIR.php
 /engine/admin/conf/SITE.php
 /.idea
+/buildsys/tmpconf/
+/buildsys/run.bat

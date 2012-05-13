@@ -47,7 +47,7 @@ class word {
                 continue;
             }
             $ord = ord($char);
-			print $ord." ";
+			//print $ord." ";
             if (isset(self::$translitCombi1251[$ord])) {
                 $return .= self::$translitCombi1251[$ord];
             }
