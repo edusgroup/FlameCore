@@ -76,7 +76,7 @@ class model {
 
         $where = implode(',', $childList);
         // Делаем выборку всех статей по детям выбранным в дереве sitemap
-        $select = isset($pQuery['select']) ? $pQuery['select'] : 'a.*, cc.seoName, cc.name category, cc.comp_id compId';
+        $select = isset($pQuery['select']) ? $pQuery['select'] : 'a.*, cc.seoName, cc.name category, cc.comp_id compId, DATE_FORMAT(a.date_add, "%Y-%m-%dT%h:%i+04:00") as dateISO8601';
         $where = isset($pQuery['where']) ? $pQuery['where'] : 'a.isPublic="yes" AND a.isDel=0 AND a.treeId in (' . $where . ')';
         $order = isset($pQuery['order']) ? $pQuery['order'] : 'date_add DESC, id desc';
         $limit = isset($pQuery['limit']) ? $pQuery['limit'] : null;

@@ -4,15 +4,13 @@
     <div class="dd">{comp|article|data|seoDescr}</div>
     <div class="dd">{comp|article|data|seoKeywords}</div>
     <div class="dt">Title</div>
-    <div class="dd">
-        <?=self::textarea('name="title"', self::get('title'))?>
-    </div>
+    <div class="dd"><?=self::textarea('name="title" class="textareabox"', self::get('title'))?></div>
 
     <div class="dt">Description</div>
-    <div class="dd"><?=self::textarea('name="descr"', self::get('descr'))?></div>
+    <div class="dd"><?=self::textarea('name="descr" class="textareabox"', self::get('descr'))?></div>
 
     <div class="dt">Keywords</div>
-    <div class="dd"><?=self::text('name="keywords"', self::get('keywords'))?></div>
+    <div class="dd"><?=self::textarea('name="keywords" class="textareabox"', self::get('keywords'))?></div>
 
     <div class="dt">Компонент</div>
     <div class="dd"><?=self::selectIdName(self::get('complist'), 'name="blCompId"')?></div>

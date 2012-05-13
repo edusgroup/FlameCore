@@ -122,11 +122,19 @@ class model {
                 $id = (int) $item['id'];
                 $saveData = [];
                 if (isset($item['data']['caption'])) {
+					if ( !$item['data']['caption']){
+						throw new \Exception('Заголовок не может быть пустым', 239);
+					}
                     $saveData['caption'] = $item['data']['caption'];
                 }
-                if (isset($item['data']['seoUrl'])) {
+                if (isset($item['data']['seoUrl']) && $item['data']['seoUrl']) {
                     $saveData['seoUrlTmp'] = $item['data']['seoUrl'];
                 }
+				if ( !isset($saveData['seoUrlTmp'])){
+				    $caption = $articleOrm->get('caption', 'id='.$id);
+					$saveData['seoUrlTmp'] = word::wordToUrl($caption);
+				} // if
+				// if isset seoUrl
                 if (isset($item['data']['isPublic'])) {
                     $isPublic = (int) $item['data']['isPublic'];
                     $saveData['isPublic'] = $isPublic ? 'yes' : 'no';

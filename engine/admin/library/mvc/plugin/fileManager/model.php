@@ -71,7 +71,8 @@ class model {
         // получаем старое имя файла
         $file = $upload->getFileOldName($varName, 0);
         // Убрать cp1251, поставить что то другое
-        $file = iconv('utf-8', 'cp1251', $file);
+        //$file = iconv('utf-8', 'cp1251', $file);
+		
         // Получаем чистое имя фйла
         $fileName = filesystem::getName($file);
         // Преобразуем в URL name

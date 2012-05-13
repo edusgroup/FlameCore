@@ -158,6 +158,13 @@ class event {
 
         $artData = serialize($artData);
         filesystem::saveFile($saveDirArticle, 'info.txt', $artData);
+		
+		// Выдача прав на директорию пользователю www
+		// Обязательно в /etc/sudoers должна быть строка
+		// vk ALL=NOPASSWD:/bin/chown -R www\:www /home/www/SiteCoreFlame/[a-zA-Z0-9.]*/data/comp/*
+		if (strToLower(substr(PHP_OS, 0, 3)) !== 'win') {
+			exec('sudo chown -R www:www '.$saveDirArticle);
+		}
         // func. saveDataInfo
     }
 

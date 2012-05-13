@@ -19,6 +19,11 @@
     div.dd2{ padding-left: 50px}
 
     div.submitDiv{margin-top: 20px}
+	
+	textarea.textareabox{
+		width: 300px;
+		height: 50px;
+	}
 </style>
 
 <!-- start panel right column -->

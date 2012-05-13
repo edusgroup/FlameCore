@@ -44,8 +44,10 @@ class event {
             if (!$actionList) {
                 echo 'Allow: /' . PHP_EOL;
             }
-            echo 'Host: ' . SITE_CONF::NAME . PHP_EOL . PHP_EOL;
+            
         } // foreach robots
+		
+		echo 'Host: ' . SITE_CONF::NAME . PHP_EOL . PHP_EOL;
 
         foreach ($actionList as $actionItem) {
             $url = $routeTree->getActionUrlById((int)$actionItem['id']);

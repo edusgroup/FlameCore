@@ -8,7 +8,7 @@
 
     <url>
         <loc><?=$host=self::get('host')?>/</loc>
-        <lastmod><?=$item?$item->date_add:''?></lastmod>
+        <lastmod><?=$item?$item->dateISO8601:''?></lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
@@ -17,7 +17,7 @@
     ?>
     <url>
         <loc><?=$host.$url?></loc>
-        <lastmod><?=$item->date_add?></lastmod>
+        <lastmod><?=$item->dateISO8601?></lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>

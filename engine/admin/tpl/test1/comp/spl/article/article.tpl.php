@@ -78,7 +78,7 @@
 </div>
 <div class="hidden" id="seoBox">
     <div class="dt">Keywords</div>
-    <div class="dd"><input type="text" name="keywords" /></div>
+    <div class="dd"><textarea name="keywords"></textarea></div>
 
     <div class="dt">Описание</div>
     <div class="dd"><textarea rows="5" cols="30" name="descr"></textarea></div>
@@ -140,7 +140,7 @@
 
     article.seoBtnBeforeClose = function(){
         var $seoBox = $('#seoBox');
-        article.articleData['seoKeywords'] = $seoBox.find(':text[name="keywords"]').val();
+        article.articleData['seoKeywords'] = $seoBox.find('textarea[name="keywords"]').val();
         article.articleData['seoDescr'] = $seoBox.find('textarea[name="descr"]').val();
         // func. article.setSeoClick
     }
@@ -215,7 +215,7 @@
             fileManagerCallBack('25', article.articleData['prevImgUrl']);
         }
         var $seoBox = $('#seoBox');
-        $seoBox.find(':text[name="keywords"]').val(article.articleData['seoKeywords']);
+        $seoBox.find('textarea[name="keywords"]').val(article.articleData['seoKeywords']);
         $seoBox.find('textarea[name="descr"]').val(article.articleData['seoDescr']);
 
         CKEDITOR.config.filebrowserBrowseUrl = utils.url({method: 'fileManager', query: {type: 'file', id: id}});

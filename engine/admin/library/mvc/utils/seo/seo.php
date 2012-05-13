@@ -10,6 +10,7 @@ use core\classes\render;
 use core\classes\event as eventCore;
 // ORM
 use ORM\tree\routeTree;
+use ORM\urlTreePropVar;
 use ORM\utils\seo as seoOrm;
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
@@ -44,6 +45,12 @@ class seo extends \core\classes\component\abstr\admin\comp {
     public function loadParamAction(){
         // Action ID ветки
         $actionId = self::getInt('itemid');
+		$actionProp = (new urlTreePropVar())->selectFirst('isRedir, enable', 'acId='.$actionId);
+		if ( $actionProp['isRedir'] || !$actionProp['enable'] ){
+			echo 'Недоступно: ';
+			echo $actionProp['isRedir'] ? 'Редирект' : 'Недоступно';
+			exit;
+		}
 
         $complist = [];
         $methods = ['list'=>[]];
