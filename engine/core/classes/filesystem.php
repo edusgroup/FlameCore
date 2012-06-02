@@ -67,17 +67,17 @@ class filesystem {
         // func. nsToPath
     }
 
-    public static function formatBytes($pSize) {
+    public static function formatBytes($pSize, $pPrecision=2) {
         if ($pSize < 1024)
             return $pSize . ' B';
         elseif ($pSize < 1048576)
-            return round($pSize / 1024, 2) . ' KB';
+            return round($pSize / 1024, $pPrecision) . ' KB';
         elseif ($pSize < 1073741824)
-            return round($pSize / 1048576, 2) . ' MB';
+            return round($pSize / 1048576, $pPrecision) . ' MB';
         elseif ($pSize < 1099511627776)
-            return round($pSize / 1073741824, 2) . ' GB';
+            return round($pSize / 1073741824, $pPrecision) . ' GB';
         else
-            return round($pSize / 1099511627776, 2) . ' TB';
+            return round($pSize / 1099511627776, $pPrecision) . ' TB';
         // func. formatBytes
     }
 

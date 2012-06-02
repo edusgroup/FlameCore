@@ -91,7 +91,7 @@ class action extends controllerAbstract {
         $objJson['treeName'] = self::post('treeName');
 
         $urlTreePropVar = new urlTreePropVar();
-        $urlTreePropVar->insert(array('acId' => $objJson['objId']));
+        $urlTreePropVar->insert(['acId' => $objJson['objId']]);
 
         eventsys::callOffline(
             event::URLTREE, event::ITEM_CRATE, null, $objJson['objId']
@@ -131,7 +131,7 @@ class action extends controllerAbstract {
         $objJson['treeName'] = self::post('treeName');
 
         $urlTreePropVar = new urlTreePropVar();
-        $urlTreePropVar->insert(array('acId' => $objJson['objId']));
+        $urlTreePropVar->insert(['acId' => $objJson['objId']]);
 
         eventsys::callOffline(
             event::URLTREE, event::ITEM_CRATE, null, $objJson['objId']
@@ -178,9 +178,8 @@ class action extends controllerAbstract {
             event::URLTREE, event::ITEM_RM, null, $id
         );
 
-        self::setVar('json', array(
-                                  'id' => $id,
-                                  'treeName' => self::post('treeName')));
+        self::setVar('json', ['id' => $id,
+                              'treeName' => self::post('treeName')]);
         // func. rmObjAction
     }
 
@@ -201,7 +200,7 @@ class action extends controllerAbstract {
 
         $userReg = self::postInt('reguser');
 
-        $data = array();
+        $data = [];
         // Доступе ли экшен
         $data['enable'] = self::postInt('enable', 0);
         // Надо ли делать редирект
@@ -229,11 +228,8 @@ class action extends controllerAbstract {
         model::saveRouteData($data, $acId);
 
         $robotsVal = self::post('robots', 'none');
-
-        $routeTree = new routeTree();
-        $routeTree->update(array(
-                                'isSave' => 'yes',
-                                'robots' => $robotsVal)
+        (new routeTree())->update(['isSave' => 'yes',
+                                  'robots' => $robotsVal]
             , 'id=' . $acId);
 
         // Соотношение пользователя
@@ -244,15 +240,12 @@ class action extends controllerAbstract {
         if ($group) {
             $group = explode(',', $group);
             array_map(function($pGroupId) use($acId, $actGroupRelationOrm) {
-                $actGroupRelationOrm->insert(array(
-                                                  'actionId' => $acId,
-                                                  'groupId' => (int)$pGroupId
-                                             ));
+                $actGroupRelationOrm->insert(['actionId' => $acId,
+                                             'groupId' => (int)$pGroupId]);
             }, $group);
         } // if
 
-        $json = array('ok' => 'ok');
-        self::setVar('json', $json);
+        self::setVar('json', ['ok' => 'ok']);
         // func. saveDataAction
     }
 
@@ -285,7 +278,7 @@ class action extends controllerAbstract {
     public function loadPropTplVar($pLoadData, $routeData, $pAcId) {
         // Формируем доступных список контроллеров для переопределиния на сайте
         $contrPath = SITE_DIR::SITE_CORE . 'core/logic/';
-        $contrList = array();
+        $contrList = [];
         $contrList['list'] = filesystem::dir2array($contrPath);
         array_unshift($contrList['list'], 'Выбрите файл');
         $contrList['list'] = htmlelem::dirList2Select($contrList['list']);
@@ -308,20 +301,35 @@ class action extends controllerAbstract {
 
         self::setVar('propType', $routeData['propType']);
         self::setVar('varCount', $pLoadData['varCount']);
-        $robotsRuleList = array(
-            'list' => array(
+        $robotsRuleList = [
+            'list' => [
                 'none' => 'None',
                 'disallow' => 'Disallow',
                 'allow' => 'Allow'
-            ),
+            ],
             'val' => $routeData['robots']
-        );
+        ];
         self::setVar('robotsRuleList', $robotsRuleList);
         self::setVar('controller', $pLoadData['controller']);
 
         $this->view->setMainTpl('block/action/loadProp.tpl.php');
-
         // func. loadPropTplVar
+    }
+
+    public function setUpdateAction() {
+        $this->view->setRenderType(render::JSON);
+        $all = self::getInt('all');
+        $acId = self::getInt('acid');
+        if ($all){
+            (new routeTree())->update('isSave="yes"', 'id != 0');
+        }else{
+            // ID экшена
+            (new routeTree())->update('isSave="yes"', 'id=' . $acId);
+        }
+        eventsys::callOffline(
+            event::URLTREE, event::PROP_SAVE, null, $acId
+        );
+        // func. setUpdateAction
     }
 
     // class action

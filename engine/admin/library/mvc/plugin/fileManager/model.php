@@ -63,7 +63,9 @@ class model {
             $data['imgsize'] = '';
         }
         $data['name'] = $pFile;
-        $data['filesize'] = filesystem::formatBytes( filesize($pPathDist.$pFile) );
+        $data['md5'] = md5_file($pPathDist.$pFile);
+        $filesize = filesize($pPathDist.$pFile);
+        $data['filesize'] = filesystem::formatBytes( $filesize, 0 );
         return $data;
     }
     

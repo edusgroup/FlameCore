@@ -9,7 +9,7 @@ use core\classes\upload;
 use core\classes\word;
 use core\classes\filesystem;
 use core\classes\image\resize;
-use core\classes\image\imageProp;
+//use core\classes\image\imageProp;
 use core\classes\validation\filesystem as fileValid;
 use core\classes\render;
 // ORM
@@ -33,7 +33,7 @@ class fileManager {
     public function showFile($pContr, $fileDistPath, $filePreviewUrl, $filePublicUrl, $sizeList=array()) {
         $contr = $pContr;
         
-        $filterType = $contr::get('type');
+        $filterType = $contr::get('type', model::FILTER_TYPE_IMG);
         $filter = null;
         switch ($filterType) {
             case model::FILTER_TYPE_IMG:
@@ -46,7 +46,7 @@ class fileManager {
                 $filter = model::FILTER_FLASH;
                 break;
             default:
-                throw new \Exception('Неверный тип фильра', 232);
+                throw new \Exception('Bad type of filter type: '.__METHOD__, 232);
         }
         $contr->setVar('filterType', $filterType);
         

@@ -27,35 +27,42 @@
         <!-- start panel right title -->
         <div class="title corners_top">
             <div class="title_element">
-
-                <a style="margin-left: 10px" href="" title="В начало">
-                    <img src="<? self::res('images/home_16x16.png') ?>" alt="В начало" width="16" height="16" alt="В начало"/>
-                    В начало /
-                </a>
-                <span id="history">{Hisotry}</span>
+                <span><a href="/?$t=manager&$c=site"><?=self::get('$siteName')?></a></span>
             </div>
         </div><!-- end title -->
-        <!-- start panel right content -->
-        <div class="content" id="mainpanel">
 
+        <div>
             <div class="boxmenu corners">
+
                 <ul class="menu-items">
                     <li>
-                        <a href="/?$t=manager&$c=wareframe" id="" title="WF">
+                        <a href="/?$t=manager&$c=wareframe" title="WF">
                             <img src="<?= self::res('images/wf_32.png') ?>" alt="WF" /><span>Wareframe</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/?$t=manager&$c=complist" id="" title="Component List">
+                        <a href="/?$t=manager&$c=complist" title="Component List">
                             <img src="<?= self::res('images/refresh_32.png') ?>" alt="Component List" /><span>Component List</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/?$t=utils&$c=tree" id="" title="Utils">
-                            <img src="<?= self::res('images/refresh_32.png') ?>" alt="Utils" /><span>Utils</span>
+                        <a href="/?$t=utils&$c=tree" title="Utils">
+                            <img src="<?= self::res('images/refresh_32.png') ?>" alt="Utils" /><br /><span>Utils</span>
                         </a>
                     </li>
+                    <li>
+                        <a id="updateAllBtn" title="Обновить все">
+                            <img src="<?= self::res('images/update_32.png') ?>" alt="Update All" /><br /><span>Update All</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/?$t=manager&$c=event" title="События">
+                            <img src="<?= self::res('images/event_32.png') ?>" alt="События" /><br /><span>События</span>
+                        </a>
+                    </li>
+
                 </ul>
+
             </div>
 
 
@@ -74,9 +81,12 @@
                 </div>
 
                 <div class="bothPanel" id="secondPanel">
+
                     <div class="buttonPanel">
                         <img id="saveDataBtn" src="<?= self::res('images/save_24.png') ?>" alt="Сохранить" />
+                        <img id="setUpdateBtn" src="<?= self::res('images/update_24.png') ?>" alt="Обновить" />
                     </div>
+
                     <div id="acParam"></div>
                 </div>
 
@@ -248,6 +258,35 @@
         $('#relationBox').html(relationBox);
         // func. groupBoxBeforeClose
     }
+
+    action.setUpdateBtnClick = function(){
+        if ( !confirm('Добавить на обнавление?') ){
+            return;
+        } // if
+        var query = {
+            acId: action.tree.ac.getSelectedItemId()
+        };
+        HAjax.setUpdate({query: query});
+        // action.setUpdateBtnClick
+    }
+
+    action.setUpdateSuccess = function(pData){
+        if ( pData['error'] ){
+            alert(pData['error']['msg']);
+            return;
+        }
+
+        alert('Успешно');
+        // func. action.setUpdateSuccess
+    }
+
+    action.updateAllBtn = function(pData){
+        if ( !confirm('Добавить всё на обнавление?') ){
+            return;
+        } // if
+        HAjax.setUpdate({query:{ all: 1}});
+        // action.setUpdateBtnClick
+    }
     
     $(document).ready(function(){
         dhtmlxInit.init({
@@ -264,12 +303,15 @@
         
         HAjax.create({
             //loadProp: action.loadPropSuccess,
+            setUpdate: action.setUpdateSuccess,
             saveData: action.saveDataSuccess
         });
         
         // Клик по кнопке создать в панели создания объекта для action
         $('#itemAddSubmit').click(action.itemAddSubmitClick);
         $('#saveDataBtn').click(action.saveDataBtnClick);
+        $('#setUpdateBtn').click(action.setUpdateBtnClick);
+        $('#updateAllBtn').click(action.updateAllBtn);
 
         if ( action.acId != -1 ){
             action.tree.ac.selectItem(action.acId, true);

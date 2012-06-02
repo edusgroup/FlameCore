@@ -319,15 +319,19 @@ blockItem.loadClassMethodSuccess = function (pData) {
         alert(pData['error']['msg']);
         return;
     }
-    // Ощичаем старый набор методом
-    var $methodName = $('#methodName').find('option').remove().end();
-    // Добавляем новый набор методов
-    $.each(pData['method'], function (key, value) {
-        $methodName
-            .append($("<option></option>")
-            .attr("value", value)
-            .text(value));
-    });
+
+    // Если ли данные по методу
+    if ( pData['method'] ){
+        // Ощичаем старый набор методом
+        var $methodName = $('#methodName').find('option').remove().end();
+        // Добавляем новый набор методов
+        $.each(pData['method'], function (key, value) {
+            $methodName
+                .append($("<option></option>")
+                .attr("value", value)
+                .text(value));
+        });
+    } // if method
 
     // Создаём
     if (pData['urlTpl']) {

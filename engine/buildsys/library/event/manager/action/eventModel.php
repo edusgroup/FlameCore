@@ -7,6 +7,7 @@ use \DIR;
 
 // Conf Site
 use \site\conf\SITE as SITE_CONF;
+use \site\conf\DIR as SITE_DIR_CONF;
 
 // Engine
 use core\classes\filesystem;
@@ -161,7 +162,7 @@ class eventModel {
         $render->setMainTpl('index.tpl.php')
             ->setContentType(null);
 
-        $render->setVar('siteConf', DIR::SITE_CORE . SITE_CONF::NAME);
+        $render->setVar('siteConf', SITE_DIR_CONF::SITE_CORE );
         $render->setVar('varList', $varListRender);
         $render->setVar('isUsecompContTree', $isUsecompContTree);
 
@@ -213,40 +214,50 @@ class eventModel {
         $blockItemList = array();
         $blockItemInitList = array();
         $sysnameNum = 0;
+
         // Бегаем по настройкам блоков
         foreach ($blockItemArr as $item) {
             // Если компонент был удалён, то пишем ошибку и берём следующий компонент
             if (!$item['compId']) {
-                print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tComponent {$item['compId']} not found. AcId: $pAcId" . PHP_EOL;
-                exit;
+                echo "ERROR(" . __METHOD__ . "):" . PHP_EOL;
+                echo "\tBlockId({$item['id']}) AcId($pAcId) SysName({$item['sysname']})" . PHP_EOL;
+                echo "\tComponent [{$item['compId']}] not found." . PHP_EOL;
+                continue;
             } // if
+
             // Если контент был удалён, то пишем ошибку и берём следующий компонент
             if (!$item['statId'] && !$item['varId']) {
-                print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tContId {$item['statId']} not found. AcId: $pAcId" . PHP_EOL;
-                exit;
+                echo "ERROR(" . __METHOD__ . "):" . PHP_EOL;
+                echo "\tBlockId({$item['id']}) AcId($pAcId) SysName({$item['sysname']})" . PHP_EOL;
+                echo "\tNot set contId in blockItem.";
+                continue;
             } // if
             // Если табличные данные контента были удалёны, то пишем ошибку и берём следующий компонент
             if (!$item['tableId'] && $item['onlyFolder'] && !$item['varId']) {
-                print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tTableId not found. BlockId: {$item['id']}. AcId: $pAcId" . PHP_EOL;
-                exit;
+                print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tTableId not found. BlockId: [{$item['id']}]. AcId: $pAcId" . PHP_EOL;
+                continue;
             } // if
             // Если табличные данные контента были удалёны, то пишем ошибку и берём следующий компонент
             if (!$item['methodName']) {
-                print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tMethodName not found. BlockId: {$item['id']}. AcId: $pAcId" . PHP_EOL;
-                exit;
+                print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tMethodName not found. BlockId: [{$item['id']}]. AcId: $pAcId" . PHP_EOL;
+                continue;
             } // if
 
             $blockId = $item['block_id'];
             if (!$item['ns'] || !$item['classFile']) {
-                echo PHP_EOL . "\t" . 'Notice: blockItem ID: ' . $item['id'] . ' not have prop' . PHP_EOL . PHP_EOL;
-                exit;
+                echo PHP_EOL . "\t" . 'Notice: blockItem ID: [' . $item['id'] . '] not have prop' . PHP_EOL . PHP_EOL;
+                continue;
             }
             ++$sysnameNum;
             $sysname = $item['sysname'] ? : 'sys_' . $sysnameNum;
 
+            // Имя класс-файла, выбранного в blockItem. Пример: /article.php
             $className = $item['classFile'];
+            // Убераем символ "/" в начале и ".php", т.е. получаем чистое имя файла
             $className = substr($className, 1, strlen($className) - 5);
+            // Заменяем все "/" на "\", т.е. делаем namespace+classname
             $className = str_replace('/', '\\', $className);
+            // Добавляем пристовку namespace компонентов, ns name компонента + названия класса
             $className = 'site\core\comp\\' . $item['ns'] . 'logic\\' . $className;
             $methodName = $item['methodName'];
             $callParam = '(\'' . $sysname . '\');';
@@ -341,7 +352,7 @@ class eventModel {
             } // for
         } // foreach. Бегаем по blockItem у WF
 
-        $codeBuffer .= self::getInitClassCode($blockItemList);
+        $codeBuffer .= self::_getInitClassCode($blockItemList);
         $codeBuffer .= "\n\n?>";
 
         // TODO: Вписать обработку controller
@@ -414,14 +425,16 @@ CODE_STRING;
 
     /**
      * Возвращает блок инициализаций компонентов
-     * Только в случае, если у компонента есть функцию init
+     * Только в случае, если у компонента есть функцию init, добавляет в файла при вызове
      * @static
      * @param $blockItemList
      * @return string
      */
-    public static function getInitClassCode($blockItemList) {
-        $codeBuffer = 'try{';
-        foreach ($blockItemList as $name => $item) {
+    private static function _getInitClassCode($blockItemList) {
+        $codeBuffer = '';
+        // Бегаем по компонентам, смотрим если у них методы init, если да, то ставим
+        // на вызов в файле
+        foreach ($blockItemList as $item) {
             $itemCount = count($item);
             for ($i = 0; $i < $itemCount; $i++) {
                 if (method_exists(new $item[$i]['class'](), 'init')) {
@@ -429,12 +442,15 @@ CODE_STRING;
                 } // if
             } // ofr
         } // foreach
+        // Если ни какого кода нет, то не делает try..catch
+        if ( $codeBuffer ){
+        $codeBuffer = 'try{'.$codeBuffer;
         $codeBuffer .= "}catch(Exception \$ex){
     header('Status: 502 Internal Server Error');
     exit;
-}";
+}";}
         return $codeBuffer;
-        // func. getInitClassCode
+        // func. _getInitClassCode
     }
 
     /**

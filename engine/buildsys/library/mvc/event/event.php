@@ -64,7 +64,7 @@ class event {
             } // if method_exists
         } // for ( $i )
 
-        $eventBuffer->delete('id<='.$idMax);
+        //$eventBuffer->delete('id<='.$idMax);
         // func. run
     }
     // class. event

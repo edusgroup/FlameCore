@@ -15,7 +15,7 @@ use \CONSTANT as CONSTANT;
  */
 class utils {
 
-    public function run() {
+    public function run($pSiteName) {
         // Получаем имя контроллера
         $contrName = trim(request::getVar('$c'));
         // Формируем полное имя класса контроллера

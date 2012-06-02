@@ -58,7 +58,6 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
 
         $acId = self::getInt('acid', '');
         self::setVar('acId', $acId);
-        ;
 
         self::setVar('acParent', (int)($itemData['acId'] == $acId));
 

@@ -22,6 +22,10 @@ abstract class controllerAbstract extends request {
         $this->init();
     }
 
+    public function setSiteName($pSiteName){
+        $this->view->setVar('$siteName', $pSiteName);
+    }
+
     public function setVar(string $pName, $pValue, $pSafe = true) {
         $this->view->setVar($pName, $pValue, $pSafe);
     }

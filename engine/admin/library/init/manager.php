@@ -15,7 +15,7 @@ use \CONSTANT as CONSTANT;
  */
 class manager {
 
-    public function run() {
+    public function run($pSiteName) {
         // Получаем имя контроллера
         $contrName = trim(request::getVar('$c'));
         // Формируем полное имя класса контроллера
@@ -29,6 +29,7 @@ class manager {
         $contrObj = new $contrClassName(DIR::getTplPath('manager'), $themeResUrl);
         // Получаем метод, который хотим вызвать
         $methodName = trim(request::getVar('$m'));
+        $contrObj->setSiteName($pSiteName);
         // Вызываем метод. Методы доступные для вызова должны иметь окончание Action
         $contrObj->callMethod($methodName);
         // Выводим на экран то что получилось

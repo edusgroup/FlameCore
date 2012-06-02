@@ -11,6 +11,7 @@ use ORM\tree\routeTree;
 use ORM\event\eventBuffer;
 // Conf
 use \DIR;
+use \SITE;
 use \site\conf\SITE as SITE_CONF;
 
 /**
@@ -106,7 +107,14 @@ class nginx {
         $webCoreScript = DIR::getCoreScript();
         $webCoreScript = '/'.trim($webCoreScript, '/');
 
-        $render->setVar('siteName', SITE_CONF::NAME);
+        $siteName = SITE_CONF::NAME;
+        // Если это машина разработчика, то нужно изменить адреса с боевого
+        // на локальный. т.е. site.ru -> site.lo
+        if ( SITE::IS_DEVELOPER ){
+            $siteName = preg_replace('/(com|ru|org)$/', 'lo', $siteName);
+        } // if
+        $render->setVar('siteName', $siteName);
+        $render->setVar('fastcgiPass', SITE::FASTCGI_PASS);
         $render->setVar('nginxLog', DIR::getSiteNginxLog());
         $render->setVar('siteRoot', DIR::getSiteRoot());
         $render->setVar('coreScript', $webCoreScript );
@@ -114,7 +122,7 @@ class nginx {
         ob_start();
         $render->render();
         $nginxConfData = ob_get_clean();
-        filesystem::saveFile(DIR::NGINX_CONF, SITE_CONF::NAME . '.conf', $nginxConfData);
+        filesystem::saveFile(DIR::NGINX_CONF, $siteName . '.conf', $nginxConfData);
         // func. createConf
     }
 // class nginx

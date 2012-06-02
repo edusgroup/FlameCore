@@ -23,7 +23,7 @@ class comp {
     
     const DEFAULT_VALUE = 'default';
 
-    public function run() {
+    public function run($pSiteName) {
         // Получаем имя контроллера
         $contId = request::getVarInt('$c');
 
@@ -39,6 +39,7 @@ class comp {
         $contrObj->objProp = $objProp;
         $contrObj->contId = $contId;
         $contrObj->compId = (int) $objProp['compId'];
+        $contrObj->setSiteName($pSiteName);
 
         // Получаем метод, который хотим вызвать
         $methodName = trim(request::getVar('$m'));

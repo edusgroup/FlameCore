@@ -11,6 +11,7 @@ server {
 
 	set $wwwDir <?=self::get('siteRoot')?>;
 	set $coreScriptDir <?=self::get('coreScript')?>;
+	set $fastcgiPass <?=self::get('fastcgiPass')?>;
 
     root $wwwDir;
     #For debug only
@@ -44,16 +45,14 @@ server {
      error_page  404 @error404;
      location @error404 {
          include fastcgi_params;
-         #fastcgi_pass   127.0.0.1:9000;
-		 fastcgi_pass php-fpm;
+		 fastcgi_pass $fastcgiPass;
          fastcgi_param  SCRIPT_FILENAME  $wwwDir/404.php;
      } # location @error404
 
     error_page 500 501 502 503 @error500;
         location @error500 {
         include fastcgi_params;
-        #fastcgi_pass   127.0.0.1:9000;
-		fastcgi_pass php-fpm;
+		fastcgi_pass $fastcgiPass;
         fastcgi_param  SCRIPT_FILENAME  $wwwDir/500.php;
     } # location @error500
 
@@ -63,8 +62,7 @@ server {
 
      location / {
          include fastcgi_params;
-         #fastcgi_pass   127.0.0.1:9000;
-		 fastcgi_pass php-fpm;
+		 fastcgi_pass $fastcgiPass;
          fastcgi_param  DOCUMENT_ROOT    $wwwDir;
          fastcgi_param  SCRIPT_FILENAME  $wwwDir/$fastcgi_script_name;
          fastcgi_param  PATH_TRANSLATED  $wwwDir/$fastcgi_script_name;
@@ -78,8 +76,7 @@ server {
     #}
 
 	location ~ [^/]$ {
-         #fastcgi_pass   127.0.0.1:9000;
-		 fastcgi_pass php-fpm;
+		 fastcgi_pass $fastcgiPass;
          fastcgi_param  SCRIPT_FILENAME  $coreScriptDir/script/redirect.php;
          fastcgi_param  QUERY_STRING	    $1?$query_string;
          include fastcgi_params;
@@ -87,8 +84,7 @@ server {
 
     location ~ /func/ {
         include fastcgi_params;
-        #fastcgi_pass   127.0.0.1:9000;
-		fastcgi_pass php-fpm;
+		fastcgi_pass $fastcgiPass;
         fastcgi_param  DOCUMENT_ROOT    $wwwDir;
         fastcgi_param  SCRIPT_FILENAME  $wwwDir/$fastcgi_script_name;
         fastcgi_param  PATH_TRANSLATED  $wwwDir/$fastcgi_script_name;
@@ -100,8 +96,7 @@ server {
             echo '            #'.$vars[$i]['scriptFile'].'
             location ~ ^'.$vars[$i]['regexp'].'?$ {
                 include fastcgi_params;
-                #fastcgi_pass   127.0.0.1:9000;
-				fastcgi_pass php-fpm;
+				fastcgi_pass $fastcgiPass;
                 fastcgi_param  SCRIPT_FILENAME  $wwwDir'.$vars[$i]['scriptFile'].'index.php;
                 fastcgi_param  QUERY_STRING	'.$vars[$i]['queryString'].'$query_string;
             } # ===============================

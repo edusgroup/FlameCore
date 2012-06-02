@@ -17,12 +17,6 @@ include(DIR_CONF . 'conf/DIR.php');
 include(DIR_CONF . 'conf/SITE.php');
 include(DIR_CONF . 'conf/CONSTANT.php');
 
-$siteName = 'seoforbeginners.ru';
-
-include DIR::SITE_CORE.$siteName.'/conf/SITE.php';
-include DIR::SITE_CORE.$siteName.'/conf/DIR.php';
-include DIR::SITE_CORE.$siteName.'/conf/DB.php';
-
 include DIR::CORE . 'admin/library/function/autoload.php';
 // Костыль для проверки скалярных типо данных в параметрах функции. В PHP 5.4 пофиксят
 include DIR::CORE . 'core/function/errorHandler.php';
@@ -30,9 +24,23 @@ include DIR::CORE . 'core/function/errorHandler.php';
 include DIR::CORE . 'core/classes/DB/adapter/' . CONF::DB_ADAPTER . '/adapter.php';
 umask(0002);
 
-DBCore::addParam('site', \site\conf\DB::$conf);
-
 request::init($argv);
+
+define('SITE_CORE', './../../SiteCoreFlame/');
+
+$siteName = request::get('siteName');;
+$isDirNotExist = !$siteName || !is_dir(SITE_CORE.$siteName);
+if ( $isDirNotExist ){
+    // TODO: Сделать что бы нормально выдавало ошибку в браузере
+    print 'Error: siteName not exists';
+    exit;
+}
+
+include DIR::SITE_CORE.$siteName.'/conf/SITE.php';
+include DIR::SITE_CORE.$siteName.'/conf/DIR.php';
+include DIR::SITE_CORE.$siteName.'/conf/DB.php';
+
+DBCore::addParam('site', \site\conf\DB::$conf);
 
 $cmd = request::get('cmd');
 $method = request::get('method');

@@ -41,12 +41,13 @@ class event {
             if ($robots['cleanParam']) {
                 echo 'Clean-param: ' . $robots['cleanParam'] . PHP_EOL;
             }
-            if (!$actionList) {
+            /*if (!$actionList) {
                 echo 'Allow: /' . PHP_EOL;
-            }
+            }*/
             
         } // foreach robots
-		
+
+        echo 'Disallow:'. PHP_EOL;
 		echo 'Host: ' . SITE_CONF::NAME . PHP_EOL . PHP_EOL;
 
         foreach ($actionList as $actionItem) {

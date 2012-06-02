@@ -24,7 +24,6 @@ class model {
         $articleOrm = new articleOrm();
         // {select},{edit},Заголовок,СЕО URL, Публиковать
         $list = $articleOrm->selectAll('id, 0, "", caption, if(trim(seoUrlTmp)="",seoUrl, seoUrlTmp) as seoUrl,'
-                                      //.'if(isPublic="create",2, if(isPublic="yes", 1, 0)) isPublic',
                                         .'if(isPublic="yes", 1, 0) isPublic',
                                        ['treeId' => $pContId, 'isDel' => 0], 'date_add desc, id desc');
         return ['body' => $list ];
@@ -89,9 +88,9 @@ class model {
 
         $pathPrefix = self::getPath($pCompId, $pCondId, $pArtId);
 
-        $fileDistPath = DIR::FILE_UPLOAD_DATA . $pathPrefix;
+        $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
         $filePreviewPath = DIR::getPreviewImgPath($pathPrefix);
-        $fileResizePath = DIR::IMG_RESIZE_DATA . $pathPrefix;
+        $fileResizePath = DIR::getSiteImgResizePath() . $pathPrefix;
 
         foreach ($pNameList as $name) {
             fileValid::isSafe($name, new \Exception('Неверное имя файла', 234));

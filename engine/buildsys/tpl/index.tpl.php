@@ -10,7 +10,7 @@ use \site\conf\DIR;
 use ORM\tree\compContTree;
 
 // Config DIR
-include '<?=self::get('siteConf')?>/conf/DIR.php';
+include '<?=self::get('siteConf')?>conf/DIR.php';
 include DIR::CORE.'site/function/autoload.php';
 include DIR::CORE.'core/function/errorHandler.php';
 include DIR::CORE.'core/classes/DB/adapter/mysql/adapter.php';

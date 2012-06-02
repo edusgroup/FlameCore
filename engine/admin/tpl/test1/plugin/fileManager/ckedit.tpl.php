@@ -1,7 +1,4 @@
-<?
-
-use core\classes\html\element as siteHTML;
-?><!DOCTYPE html>
+<!DOCTYPE html>
 <html>
     <head>
         <title></title>
@@ -26,7 +23,6 @@ use core\classes\html\element as siteHTML;
             <div>
                 <span id="spanButtonPlaceholder"></span>
                 <input type="button" style="margin-left: 2px; height: 22px; font-size: 8pt;" disabled="disabled" value="Отменить загрузку" id="btnCancel">
-                <!--<img src="<?= self::res('images/home_16x16.png') ?>" alt="Удалить" width="16" height="16" title="Удалить"/>-->
                 <input type="button" value="Удалить" id="btnDelete"/>
             </div>
             <div id="uploadProgress">
@@ -45,17 +41,17 @@ use core\classes\html\element as siteHTML;
 
             <div id="selectSizeDiv">Выбирите размер:</div>
             <div>
-                <? siteHTML::selectIdName(self::get('sizeList'), 'id="imgSizeList"'); ?>
+                <? self::selectIdName(self::get('sizeList'), 'id="imgSizeList"'); ?>
             </div>
             <div><input type="button" value="Выбрать" id="btnImgSelect"/></div>
         </div>
 
-        <!-- 
-        <form enctype="multipart/form-data" id="formTest" method="post">
+
+        <!--<form enctype="multipart/form-data" id="formTest" method="post">
             Send this file: <input name="files" type="file">
             <input type="submit" value="Send File">
-        </form>
-        -->
+        </form>-->
+
         
 
         <script>
@@ -72,7 +68,8 @@ use core\classes\html\element as siteHTML;
                 contrName: '<?=self::get('contrName')?>',
                 callType: '<?=self::get('callType')?>',
                 userQuery: '<?=self::get('userQuery')?>',
-                isSizeListShow: '<?=self::get('isSizeListShow')?>'
+                isSizeListShow: '<?=self::get('isSizeListShow')?>',
+                siteName: '<?=self::get('$siteName')?>'
             };
 
             utils.setType(file.callType);
@@ -80,11 +77,7 @@ use core\classes\html\element as siteHTML;
             HAjax.setContr(file.contrName);
 
             var swfu;
-            file.renameClick = function(){
-                alert('rename');
-                // renameClick
-            }
-            
+
             file.fileDialogComplete = function(numFilesSelected, numFilesQueued) {
                 try {
                     if ( numFilesSelected < 500 ){
@@ -133,7 +126,7 @@ use core\classes\html\element as siteHTML;
                 fileManager.returnInEditor(fileManager.funcNameCallBack, pData['url']);
                 // func. makePreviewUrl
             }
-            
+
             file.btnImgSelect = function(){
                 var sizeId = $("#imgSizeList :selected").val();
                 sizeId = parseInt(sizeId);
@@ -145,7 +138,7 @@ use core\classes\html\element as siteHTML;
                     HAjax.makePreviewUrl({data: {name: name, sizeid: sizeId}, query: file.userQuery});
                 }
                 // func. btnImgSelect
-            } 
+            }
             
             file.btnDeleteClick = function(){
                 if (!confirm('Уверены что хотите удалить?')){
@@ -199,10 +192,12 @@ use core\classes\html\element as siteHTML;
 
                 SWFUploadSettings.file_post_name = 'files';
                 SWFUploadSettings.upload_url = utils.url({method: 'uploadFile', query: file.userQuery});
-                // $('#formTest').attr('action', SWFUploadSettings.upload_url);
+                SWFUploadSettings.upload_url += '&siteName=' + file.siteName;
+                //$('#formTest').attr('action', SWFUploadSettings.upload_url);
                 SWFUploadSettings.file_dialog_complete_handler = file.fileDialogComplete;
-		SWFUploadSettings.button_window_mode = 'opaque';
-                
+		        SWFUploadSettings.button_window_mode = 'opaque';
+		        SWFUploadSettings.debug = false;
+
                 fileUpload.onUploadSuccess = file.onUploadSuccess;
                 swfu = new SWFUpload(SWFUploadSettings);
                 

@@ -86,7 +86,7 @@
     var biCustSettData = {
         contTree: <?= self::get('contTree') ?>,
         blockItemId: <?= self::get('blockItemId') ?>,
-        acId: <?= self::get('acId') ?>,
+        acId: '<?= self::get('acId') ?>',
         custContId: <?= self::get('custContId', 'null') ?>
     };
     
