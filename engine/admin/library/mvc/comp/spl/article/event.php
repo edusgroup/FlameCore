@@ -117,6 +117,7 @@ class event {
         $artData = $pArticleOrm
             ->select('a.id, a.seoUrl, a.treeId, a.caption, a.prevImgUrl, isPublic'
                          . ',cc.seoName, cc.name category, a.seoKeywords, a.seoDescr, a.isCloaking'
+						 . ', DATE_FORMAT(a.date_add, "%Y-%m-%dT%h:%i+04:00") as dateISO8601'
                          . ',DATE_FORMAT(a.date_add, "%d.%m.%y %H:%i") date_add, a.date_add dateunf, a.urlTpl', 'a')
             ->join(compContTree::TABLE . ' cc', 'a.treeId=cc.id')
             ->where('a.id=' . $pId)

@@ -103,8 +103,12 @@ class event {
                     $catBuff['data'] = [];
                 } // if
             } // while
-            $data = serialize($listArr);
-            filesystem::saveFile($saveDir, ++$fileNum . '.txt', $data);
+			
+			// Есть ли что сохранять
+			if ( $listArr ){
+				$data = serialize($listArr);
+				filesystem::saveFile($saveDir, ++$fileNum . '.txt', $data);
+			}
 
             $saveData = ['fileCount' => $fileNum];
             $data = \serialize($saveData);
@@ -113,11 +117,12 @@ class event {
             // TODO: Слить настройки и списки в один файл, меньше будет обращений к файловой системе
             // Досохраняем данные по категориям и создаём настройки
             foreach ($categoryBuffer as $contId => $categoryData) {
-                $fileNum = isset($categoryData['fileNum']) ? 1 + $categoryData['fileNum'] : 1;
+                $fileNum = isset($categoryData['fileNum']) ? $categoryData['fileNum'] : 1;
                 //print $contId.' '.$fileNum.'  '.((boolean)$categoryData['data']).PHP_EOL;
                 if ($categoryData['data']) {
-                    //++$fileNum;
+                    ++$fileNum;
                     $data = \serialize($categoryData['data']);
+					//print $fileNum."\n";
                     filesystem::saveFile($saveDir . $contId . '/', $fileNum . '.txt', $data);
                 } // if
                 $data = \serialize(['fileCount' => $fileNum]);
