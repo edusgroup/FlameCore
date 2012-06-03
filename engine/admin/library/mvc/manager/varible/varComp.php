@@ -44,7 +44,8 @@ class varComp {
         filesystemValid::isSafe($classNameFile, new \Exception('Неверное имя: ' . $classNameFile, 34));
         // Получаем имя класса
         $className = filesystem::getName($classNameFile);
-        $className = 'site\core\comp\\' . $classData['ns'] . 'vars\\' . $storageType . '\\' . $className;
+        //$className = '\core\comp\\' . $classData['ns'] . 'vars\\' . $storageType . '\\' . $className;
+        $className = comp::getFullCompClassName(null, $classData['ns'], 'vars', $className);
         // Получаем методы
         if (!method_exists($className, $methodName)) {
             throw new \Exception('Метод: ' . $methodName . ' не найден', 38);
@@ -88,7 +89,8 @@ class varComp {
         $classData = comp::getClassDataByCompId($pCompId);
         // Получаем имя класса
         $className = filesystem::getName($pClassName);
-        $className = 'site\core\comp\\' . $classData['ns'] . 'vars\\' . $pStorageType . '\\' . $className;
+        //$className = '\core\comp\\' . $classData['ns'] . 'vars\\' . $pStorageType . '\\' . $className;
+        $className = comp::getFullCompClassName(null, $classData['ns'], 'vars', $className);
         
         // Получаем методы
         return get_class_methods(new $className());

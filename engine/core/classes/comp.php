@@ -16,6 +16,10 @@ class comp {
 
     const DEFAULT_VALUE = 'default';
 
+    public static function getFullCompClassName($pType, $pNs, $pDir, $pClassName){
+        return 'core\comp\\' . $pNs .$pDir.'\\'. $pClassName;
+    }
+
     // Получение объекта по настройкам
     public static function getCompObject($pProp, $pCompProp = null) {
         if (!$pProp) {

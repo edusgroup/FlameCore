@@ -16,6 +16,7 @@ use core\classes\mvc\controllerAbstract;
 use core\classes\arrays;
 use core\classes\validation\word;
 use core\classes\filesystem;
+use core\classes\comp;
 
 /**
  * Модель для контроллера blockItem
@@ -70,7 +71,8 @@ class model {
 
         // Получаем информацию по компоненту
         $itemData = self::getCompData($pBlockItemId);
-        $className = 'site\core\comp\\' . $itemData['ns'] . 'logic\\' . $className;
+        //$className = '\core\comp\\' . $itemData['ns'] . 'logic\\' . $className;
+        $className = comp::getFullCompClassName(null, $itemData['ns'], 'logic', $className);
         $compObj = new $className();
 
         $methodList = get_class_methods($compObj);

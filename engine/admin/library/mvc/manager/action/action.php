@@ -319,7 +319,7 @@ class action extends controllerAbstract {
     public function setUpdateAction() {
         $this->view->setRenderType(render::JSON);
         $all = self::getInt('all');
-        $acId = self::getInt('acid');
+        $acId = self::getInt('acId', -1);
         if ($all){
             (new routeTree())->update('isSave="yes"', 'id != 0');
         }else{

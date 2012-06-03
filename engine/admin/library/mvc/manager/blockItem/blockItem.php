@@ -103,10 +103,12 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         dhtmlxTree::clear();
         self::setJson('actionTree', $tree);
 
+
         $nsPath = filesystem::nsToPath($itemData['ns']);
 
         // Дерево с классами сайта для компонента
-        $siteClassPath = DIR::getSiteClassLogic($nsPath);
+        $siteClassPath = DIR::CORE.comp::getFullCompClassName(null, $itemData['ns'], 'logic', '');
+        $siteClassPath = filesystem::nsToPath($siteClassPath);
         $tree = dhtmlxTree::createTreeOfDir($siteClassPath);
         self::setJson('classTree', $tree);
 

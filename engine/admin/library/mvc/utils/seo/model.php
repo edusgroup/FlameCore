@@ -9,6 +9,7 @@ use \SITE;
 // Engine
 use core\classes\render;
 use core\classes\filesystem;
+use core\classes\comp;
 
 // ORM
 use ORM\tree\routeTree;
@@ -79,7 +80,8 @@ class model {
             ->fetchFirst();
 
         $className = substr($seoData['classFile'], 1, strlen($seoData['classFile']) - 5);
-        $className = 'site\core\comp\\' . $seoData['ns'] . 'logic\\' . $className;
+        //$className = '\core\comp\\' . $seoData['ns'] . 'logic\\' . $className;
+        $className = comp::getFullCompClassName(null, $seoData['ns'], 'logic', $className);
         if (!class_exists($className)) {
             new \Exception('Bad class name: [' . __METHOD__ . '(className=>' . $className . ')]', 23);
         }
@@ -96,7 +98,8 @@ class model {
             return;
         }
         $className = substr($pClassName, 1, strlen($pClassName) - 5);
-        $className = 'site\core\comp\\' . $pNs . 'logic\\' . $className;
+        //$className = '\core\comp\\' . $pNs . 'logic\\' . $className;
+        $className = comp::getFullCompClassName(null, $pNs, 'logic', $className);
         $methodList = get_class_methods(new $className());
         $methodList = array_filter($methodList, function($pItem) {
             return substr($pItem, -3) === 'Seo';

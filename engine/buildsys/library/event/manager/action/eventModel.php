@@ -139,15 +139,18 @@ class eventModel {
 
                         $className = filesystem::getName($classFile);
                         // Добавляем в буффер namespace classname и название метода
-                        $nsClassMethod = $varCompData['ns'] . 'vars\\' .
+                        /*$nsClassMethod = $varCompData['ns'] . 'vars\\' .
                             $acProp['storageType'] . '\\' .
-                            $className . '::' . $varCompData['methodName'];
+                            $className*/
+
+                        $nsClassMethod = comp::getFullCompClassName(null, $varCompData['ns'], 'vars', $className);
+                        $nsClassMethod .= '::' . $varCompData['methodName'];
 
                         if ( !$varCompData['contId'] ){
                             echo "NOTICE(" . __METHOD__ . ")" . PHP_EOL . "\tIn varible not set contId AcId: {$acItem['id']}" . PHP_EOL;
                         }
 
-                        $varListRender[$name]['comp'] = '\site\core\comp\\' . $nsClassMethod;
+                        $varListRender[$name]['comp'] = '\core\comp\\' . $nsClassMethod;
                         $varListRender[$name]['contId'] = $varCompData['contId'];
                         $varListRender[$name]['compId'] = $varCompData['compId'];
                     } // if varType == comp
@@ -258,7 +261,8 @@ class eventModel {
             // Заменяем все "/" на "\", т.е. делаем namespace+classname
             $className = str_replace('/', '\\', $className);
             // Добавляем пристовку namespace компонентов, ns name компонента + названия класса
-            $className = 'site\core\comp\\' . $item['ns'] . 'logic\\' . $className;
+            //$className = '\core\comp\\' . $item['ns'] . 'logic\\' . $className;
+            $className = comp::getFullCompClassName(null, $item['ns'], 'logic', $className);
             $methodName = $item['methodName'];
             $callParam = '(\'' . $sysname . '\');';
 
@@ -289,7 +293,7 @@ class eventModel {
             if ($item['varId']) {
                 $varName = $varIdtoName[$item['varId']];
                 $codeTmp .= "\t'varName' => '$varName'," . PHP_EOL;
-            }
+            } // if
 
             $codeTmp .= "\t'contId' => '{$item['statId']}'," . PHP_EOL;
 
@@ -300,7 +304,7 @@ class eventModel {
                     $codeTmp .= "\t'varTableName' => '$varName'," . PHP_EOL;
                 } else {
                     $codeTmp .= "\t'tableId' => '{$item['tableId']}'," . PHP_EOL;
-                }
+                } // if
             } // if onlyFolder
 
             if ($urlTplList) {
@@ -314,7 +318,7 @@ class eventModel {
                     $urlArr = array_reverse($urlArr);
                     $url = implode('/', $urlArr);
                     $codeTmp .= "\t\t'{$urlTpl['name']}'=>'/$url/'," . PHP_EOL;
-                }
+                } // foreach
                 $codeTmp .= "\t]" . PHP_EOL;
             } // if ( $urlTplList )
 
@@ -329,8 +333,8 @@ class eventModel {
                     if (method_exists($contrObj, 'getBlockItemParam')) {
                         $codeTmp .= $contrObj->getBlockItemParam($item['id'], $pAcId);
                     } // if method_exists
-                }
-            } // if custContId
+                } // if $custContId
+            } // if ($item['custContId'] || $item['statId'])
             // ---------------------------------------------------------------------------
 
             $codeTmp .= ");\n";
@@ -491,8 +495,8 @@ CODE_STRING;
             //var_dump($seoData);
             // Составляем запись вида:
             // {ns\name\}\{classname}::{method}({compname},[{param}])
-            $headData .= 'site\core\comp\\' . $seoData['ns'] . 'logic\\'
-                . $seoData['sysname'] . "::{$seoData['method']}('{$seoData['name']}', [" .
+            $headData .= comp::getFullCompClassName(null, $seoData['ns'], 'logic', $seoData['sysname']);
+            $headData .= "::{$seoData['method']}('{$seoData['name']}', [" .
                 "'linkNextTitle'=>'{$seoData['linkNextTitle']}'," .
                 "'linkNextUrl'=>'{$seoData['linkNextUrl']}'" .
                 "]);" . PHP_EOL;
