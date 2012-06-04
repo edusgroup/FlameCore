@@ -32,7 +32,7 @@
             </div>
         </div><!-- end title -->
         <!-- start panel right content -->
-        <div class="content" id="mainpanel">
+        <div class="content">
 
 
             <div class="boxmenu corners">

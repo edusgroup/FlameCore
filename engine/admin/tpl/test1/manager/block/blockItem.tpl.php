@@ -114,6 +114,14 @@
                         </a>
                     </div>
 
+                    <div class="dt">Тип класса</div>
+                    <div class="dd">
+                        <select name="classType" id="classType">
+                            <option value="core">Встроенный</option>
+                            <option value="user">Пользовательский</option>
+                        </select>
+                    </div>
+
                     <div class="dt">Класс компонента</div>
                     <div class="dd">
                         <a id="classBtn" href="#classDlg">
@@ -249,30 +257,6 @@ var blockItem = {
 } // var blockItem
 
 /**
- * OnDbClick по ветке в дереве классов. Выбор класса и подгрузка его методов
- */
-blockItem.classTreeDbClick = function (pItemId, pTree) {
-    // Получаем тип ветки: 1-папка, 0-файл
-    var type = pTree.getUserData(pItemId, 'type');
-    // Выбрать можно только файл
-    if (type != 1) {
-        return false;
-    }
-    // Запоминаем наш выбор
-    blockItem.classFile = pItemId;
-    // Отображаем на странице наш выбор
-    var text = utils.getTreeUrl(pTree, pItemId);
-    $('#classFileText').html(text);
-
-    // Загружаем методы класса
-    HAjax.loadClassMethod({query:{'class':pItemId, blockitemid:blockItem.id }});
-
-    // Закрываем диалоговое окно
-    $.fancybox.close();
-    // func. blockItem.classTreeDbClick
-}
-
-/**
  * OnDbClick по ветке в дереве шаблонов. Выбор шаблона
  */
 blockItem.tplTreeDbClick = function (pItemId, pTree) {
@@ -308,47 +292,6 @@ blockItem.beforeShowClassDlg = function () {
     blockItem.tree.clss.selectItem(blockItem.classFile);
     // func. blockItem.beforeShowClassDlg
 }
-
-/**
- * Callback функция.
- * Обрабатываем методы от класса. Вызывается функцией
- * blockItem.classTreeDbClick
- */
-blockItem.loadClassMethodSuccess = function (pData) {
-    if (pData['error']) {
-        alert(pData['error']['msg']);
-        return;
-    }
-
-    // Если ли данные по методу
-    if ( pData['method'] ){
-        // Ощичаем старый набор методом
-        var $methodName = $('#methodName').find('option').remove().end();
-        // Добавляем новый набор методов
-        $.each(pData['method'], function (key, value) {
-            $methodName
-                .append($("<option></option>")
-                .attr("value", value)
-                .text(value));
-        });
-    } // if method
-
-    // Создаём
-    if (pData['urlTpl']) {
-        var $urlTplBox = $('#urlTplBox').html('');
-        $.each(pData['urlTpl'], function (key, value) {
-            $urlTplBox
-                .append('<div>'
-                + value + ' '
-                + '<img src="' + blockItem.resUrl + 'folder_16.png" '
-                + 'onclick="blockItem.showActionTree(\'' + value + '\')"/> '
-                + '<span id="' + value + 'Text"></span>'
-                + '</div>');
-        }); // each
-    } // if
-    // func. blockItem.loadClassMethodSuccess
-}
-
 
 blockItem.actionTreeDbClick = function (pItemId, pTree) {
     blockItem.urlTplList[blockItem.urlTplCurrent] = pItemId;
@@ -659,34 +602,164 @@ var actionTreeConf = {
     dbClick:blockItem.actionTreeDbClick
 } // var actionTreeConf
 
-/**
- * Конфиг дерева классов
- */
-var classTreeConf = {
-    tree:{ json: <?= self::get('classTree') ?>, id:'classDlg'},
-    dbClick:blockItem.classTreeDbClick
-} // var classTreeConf
+var blockItemData = {
+    treeClassJson: <?= self::get('classTree') ?>,
+    blId : <?= self::get('blockItemId') ?>
+}
+
+var blockItemMvc = (function () {
+    function classTypeObjChange(pEvent) {
+        // Очищаем текст возле папки
+        $('#' + options.classFileText).html('');
+        // Удаляем старое значение из памяти
+        blockItem.classFile = '';
+        // Ощичаем список старых методов по классу
+        $('#' + options.methodNameObj).find('option').remove();
+        // Подгружаем новое дерево
+        HAjax.loadClassTree({
+            data:{
+                classType: pEvent.currentTarget.value,
+                blId: blockItemData.blId
+            }
+        });
+
+        // func. classTypeObjChange
+    }
+
+    /**
+     * OnDbClick по ветке в дереве классов. Выбор класса и подгрузка его методов
+     */
+    function classTreeDbClick(pItemId, pTree) {
+        // Получаем тип ветки: 1-папка, 0-файл
+        var type = pTree.getUserData(pItemId, 'type');
+        // Выбрать можно только файл
+        if (type != 1) {
+            return false;
+        }
+        // Запоминаем наш выбор
+        blockItem.classFile = pItemId;
+        // Отображаем на странице наш выбор
+        var text = utils.getTreeUrl(pTree, pItemId);
+        $('#' + options.classFileText).html(text);
+        // Удаляем все ненужные ветки
+        blockItem.tree.clss.deleteChildItems(0);
+        // Загружаем методы класса
+        HAjax.loadClassMethod({
+            query:{
+                'class': pItemId,
+                blockitemid: blockItemData.blId,
+                classType:  $('#' + options.classTypeObj).val()
+            }
+        });
+
+        // Закрываем диалоговое окно
+        $.fancybox.close();
+        // func. blockItem.classTreeDbClick
+    }
+
+    function loadClassTreeSuccess(pData) {
+        // Получае дерево контента
+        var classTree = blockItem.tree.clss;
+        // Очищаем старое дерево
+        classTree.deleteChildItems(0);
+        // Грузим новое дерево
+        classTree.loadJSONObject(pData['tree']);
+        // func. loadClassTreeSuccess
+    }
+
+    /**
+     * Callback функция.
+     * Обрабатываем методы от класса. Вызывается функцией
+     * blockItem.classTreeDbClick
+     */
+    function loadClassMethodSuccess(pData) {
+        if (pData['error']) {
+            alert(pData['error']['msg']);
+            return;
+        }
+
+        // Если ли данные по методу
+        if (pData['method']) {
+            // Ощичаем старый набор методом
+            var $methodName = $('#methodName').find('option').remove().end();
+            // Добавляем новый набор методов
+            $.each(pData['method'], function (key, value) {
+                $methodName
+                    .append($("<option></option>")
+                    .attr("value", value)
+                    .text(value));
+            });
+        } // if method
+
+        // Создаём
+        if (pData['urlTpl']) {
+            var $urlTplBox = $('#urlTplBox').html('');
+            $.each(pData['urlTpl'], function (key, value) {
+                $urlTplBox
+                    .append('<div>'
+                    + value + ' '
+                    + '<img src="' + blockItem.resUrl + 'folder_16.png" '
+                    + 'onclick="blockItem.showActionTree(\'' + value + '\')"/> '
+                    + '<span id="' + value + 'Text"></span>'
+                    + '</div>');
+            }); // each
+        } // if
+        // func. blockItem.loadClassMethodSuccess
+    }
+
+    function init(pOptions) {
+        options = pOptions;
+
+        $('#' + options.classTypeObj).change(classTypeObjChange);
+
+        HAjax.create({
+            loadClassTree: loadClassTreeSuccess,
+            loadClassMethod: loadClassMethodSuccess
+        });
+
+        // Создаём наши деревья
+        dhtmlxInit.init({
+            'class':{
+                tree:{ json:blockItemData.treeClassJson, id:options.classTreeBox},
+                dbClick:classTreeDbClick
+            } // class
+        });
+        blockItem.tree.clss = dhtmlxInit.tree['class'];
+        // func. init
+    }
+
+    return{
+        init:init,
+        loadClassMethodSuccess: loadClassMethodSuccess
+    }
+})();
 
 /**
  * Событие onReady
  */
 $(document).ready(function () {
+
+    blockItemMvc.init({
+        classTypeObj:'classType',
+        classTreeBox:'classDlg',
+        classFileText:'classFileText',
+        methodNameObj:'methodName'
+    });
+
     // Создаём наши деревья
     dhtmlxInit.init({ 'tpl':tplTreeConf,
         'cont':contTreeConf,
-        'action':actionTreeConf,
-        'class':classTreeConf });
+        'action':actionTreeConf});
     blockItem.tree.tpl = dhtmlxInit.tree['tpl'];
     blockItem.tree.cont = dhtmlxInit.tree['cont'];
-    blockItem.tree.clss = dhtmlxInit.tree['class'];
     blockItem.tree.action = dhtmlxInit.tree['action'];
 
     HAjax.create({
-        loadClassMethod:blockItem.loadClassMethodSuccess,
         loadCompTable:blockItem.loadCompTableSuccess,
         saveData:blockItem.saveDataSuccess
     });
 
+// ==========================================================
     if (blockItem.acParent) {
         // Обработка onClick на кнопке классов
         $('#classBtn').fancybox({
@@ -711,6 +784,7 @@ $(document).ready(function () {
         // Скрываем кнопку очистки статичного контета
         $('#contStatClearBtn').hide();
     } // if blockItem.acParent
+// ==========================================================
 
     // Если у компонента onlyFolder = 1
     if (blockItem.onlyFolder) {
@@ -721,6 +795,7 @@ $(document).ready(function () {
     } else {
         $('.onlyFolder').hide();
     } // if blockItem.onlyFolder
+// ==========================================================
 
     // URL кнопки назад
     var url = utils.url({
@@ -732,6 +807,8 @@ $(document).ready(function () {
     });
     // Кнопка назад
     $('#backBtn').attr('href', url);
+
+// ==========================================================
 
     // URL кнопки частных настроек
     var url = utils.url({
@@ -746,27 +823,31 @@ $(document).ready(function () {
     // Обработка onClick на кнопку сохранения данных
     $('#saveBtn').click(blockItem.saveBtnClick);
 
+// ==========================================================
     // Если есть сохранённые данные, нужно отобразить их на странице
     if (blockItem.saveData) {
         for (var key in blockItem.saveData) {
             blockItem[key] = blockItem.saveData[key];
         }
-        // Отображаем на экране выбранное значение шаблона
+        // ----- Отображаем на экране выбранное значение шаблона
         var text = utils.getTreeUrl(blockItem.tree.tpl, blockItem.tplFile);
         $('#tplFileText').html(text);
-        // Отображаем на экране выбранное значение класса
+
+        // ----- Отображаем на экране выбранное значение класса
         text = utils.getTreeUrl(blockItem.tree.clss, blockItem.classFile);
         $('#classFileText').html(text);
-        // Отображаем на экране выбранное значение статичного контента
-        text = utils.getTreeUrl(blockItem.tree.cont, blockItem.statId);
 
+        // ----- Отображаем на экране выбранное значение статичного контента
+        text = utils.getTreeUrl(blockItem.tree.cont, blockItem.statId);
         if (blockItem.onlyFolder && blockItem.tableId != "" && blockItem.statName != "") {
             text += '/' + (blockItem.statName ? blockItem.statName : '[не найден]');
         }
         $('#statContText').html(text);
 
+        $('#classType').val(blockItem.saveData['classType']);
+
         // Загружуаем методы класса
-        blockItem.loadClassMethodSuccess(blockItem.classData);
+        blockItemMvc.loadClassMethodSuccess(blockItem.classData);
 
         if (blockItem.acParent) {
             // Отображаем на экране выбранное значение метода
@@ -779,6 +860,7 @@ $(document).ready(function () {
         } // if ( blockItem.acParent )
 
     } // if ( blockItem.saveData )
+// ==========================================================
 
     if (blockItem.acId == -1) {
         var html = 'Только при настройке Url Tree';
@@ -788,6 +870,7 @@ $(document).ready(function () {
         $('#varName').val(blockItem.varId);
         $('#varTableName').val(blockItem.varTableId);
     } // if ( blockItem.acId == -1 )
+// ==========================================================
 
     // Если есть сохранёные данные по элемента regexp URL, нужно их отобразить
     if (blockItem.regxList) {
@@ -808,6 +891,7 @@ $(document).ready(function () {
 
         } // for
     } // if ( blockItem.regxList )
+// ==========================================================
 
     var folderImgSrc = 'folder_16.png';
     if (!blockItem.acParent) {

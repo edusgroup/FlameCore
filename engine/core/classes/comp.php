@@ -17,7 +17,11 @@ class comp {
     const DEFAULT_VALUE = 'default';
 
     public static function getFullCompClassName($pType, $pNs, $pDir, $pClassName){
-        return 'core\comp\\' . $pNs .$pDir.'\\'. $pClassName;
+        $prefix = '';
+        if ( $pType == 'user'){
+            $prefix = 'site\\';
+        }
+        return $prefix.'core\comp\\' . $pNs .$pDir.'\\'. $pClassName;
     }
 
     // Получение объекта по настройкам

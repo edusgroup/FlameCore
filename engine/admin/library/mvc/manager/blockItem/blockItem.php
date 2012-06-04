@@ -6,6 +6,7 @@ namespace admin\library\mvc\manager\blockItem;
 use \DIR;
 use \site\conf\SITE as SITE_CONF;
 
+
 // Engine
 use core\classes\validation\word;
 use core\classes\render;
@@ -61,12 +62,15 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
 
         self::setVar('acParent', (int)($itemData['acId'] == $acId));
 
+        $classType = 'core';
+
         $blockItemSettings = new blockItemSettings();
         // Загружаем сохранённые настройки
         $saveData = $blockItemSettings->selectFirst('*', 'blockItemId=' . $blockItemId);
         if ($saveData) {
+            $classType = $saveData['classType'];
             // Загрузаем методы класса компонента
-            $classData = model::getSiteClassData($saveData['classFile'], $blockItemId);
+            $classData = model::getSiteClassData($saveData['classFile'], $blockItemId, $classType);
             self::setJson('classData', $classData);
             $tableOrm = null;
             if ($onlyFolder && isset($saveData['statId'])) {
@@ -106,10 +110,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
 
         $nsPath = filesystem::nsToPath($itemData['ns']);
 
-        // Дерево с классами сайта для компонента
-        $siteClassPath = DIR::CORE.comp::getFullCompClassName(null, $itemData['ns'], 'logic', '');
-        $siteClassPath = filesystem::nsToPath($siteClassPath);
-        $tree = dhtmlxTree::createTreeOfDir($siteClassPath);
+        $tree = model::getClassTree($itemData['ns'], $classType);
         self::setJson('classTree', $tree);
 
         // Дерево с шаблонами сайта для компонента
@@ -155,8 +156,9 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         // Название класса
         $classFile = self::get('class');
         $blockItemId = self::getInt('blockitemid');
+        $classType = self::get('classType');
         // Получаем методы класа
-        $classData = model::getSiteClassData($classFile, $blockItemId);
+        $classData = model::getSiteClassData($classFile, $blockItemId, $classType);
 
         self::setVar('json', $classData);
         // func. loadClassMethodAction
@@ -197,6 +199,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $saveData = [
             'blockItemId' => $blockItemId,
             'tplFile' => self::post('tplFile'),
+            'classType' => self::post('classType'),
             'classFile' => self::post('classFile'),
             'methodName' => self::post('methodName'),
             // Данные по статичному контенту
@@ -287,6 +290,16 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         // func. customSettingsAction
     }
 
+    public function loadClassTreeAction(){
+        $this->view->setRenderType(render::JSON);
+        // Дерево с классами сайта для компонента
+        $blockItemId = self::getInt('blId');
+        $itemData = model::getCompData($blockItemId);
+        $tree = model::getClassTree($itemData['ns'], self::get('classType'));
+        self::setVar('json', ['tree'=>$tree]);
+        // func.loadClassTreeAction
+    }
+
     public function custSettSaveAction() {
         $this->view->setRenderType(render::JSON);
 
@@ -300,7 +313,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $blockItemSettings = new blockItemSettings();
         $blockItemSettings->update(
             'custContId=' . $custContId
-            , 'blockItemId=' . $blockItemId);
+            ,'blockItemId=' . $blockItemId);
 
         // Создаём объекта класса
         $objProp = comp::getCompContProp($custContId);

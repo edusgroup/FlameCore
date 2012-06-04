@@ -10,6 +10,7 @@ use ORM\tree\componentTree;
 // Conf
 use \DIR;
 use \site\conf\SITE as SITE_CONF;
+use site\conf\DIR as SITE_DIR;
 
 // Engine
 use core\classes\mvc\controllerAbstract;
@@ -17,6 +18,9 @@ use core\classes\arrays;
 use core\classes\validation\word;
 use core\classes\filesystem;
 use core\classes\comp;
+
+// Plugin
+use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
 /**
  * Модель для контроллера blockItem
@@ -49,16 +53,26 @@ class model {
         // func. getCompData
     }
 
+    public static function getClassTree($pNs, $pClassType){
+        $siteClassPath = DIR::CORE;
+        if ( $pClassType == 'user' ){
+            $siteClassPath = SITE_DIR::SITE_CORE;
+        } // if
+        $siteClassPath .= comp::getFullCompClassName(null, $pNs, 'logic', '');
+        $siteClassPath = filesystem::nsToPath($siteClassPath);
+        return dhtmlxTree::createTreeOfDir($siteClassPath);
+    }
+
     /**
      * Возвращает методы класса сайта
      * @param string $pClassFile имя класса
      * @param integer $pBlockItemId block Item Id см. табл. blockItem
      * @return array
      */
-    public static function getSiteClassData(string $pClassFile, integer $pBlockItemId) {
+    public static function getSiteClassData(string $pClassFile, integer $pBlockItemId, string $pClassType) {
         // Если Класс не был выбран, возвращаем пустой массив
         if (!$pClassFile) {
-            return array();
+            return [];
         }
         // Убираем начальный слеш и окончание .php
         // TODO: Заменить на норм обработку из класса word
@@ -71,9 +85,10 @@ class model {
 
         // Получаем информацию по компоненту
         $itemData = self::getCompData($pBlockItemId);
-        //$className = '\core\comp\\' . $itemData['ns'] . 'logic\\' . $className;
-        $className = comp::getFullCompClassName(null, $itemData['ns'], 'logic', $className);
-        $compObj = new $className();
+        //$className = '{user\}core\comp\\' . $itemData['ns'] . 'logic\\' . $className;
+
+        $classFullName = comp::getFullCompClassName($pClassType, $itemData['ns'], 'logic', $className);
+        $compObj = new $classFullName();
 
         $methodList = get_class_methods($compObj);
         // Фильтруем методы. Нам нужны только в окончанием Action

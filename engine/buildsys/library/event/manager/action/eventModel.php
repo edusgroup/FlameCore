@@ -205,7 +205,7 @@ class eventModel {
             ->select(
             'bi.id, c.ns, bi.sysname, bi.block_id, bi.compId, c.onlyFolder' .
                 ',bis.tplFile, bis.classFile, bis.methodName' .
-                ',bi.userReg, bi.tplAccess, bis.custContId' .
+                ',bi.userReg, bi.tplAccess, bis.custContId, bis.classType' .
                 ',bis.statId, bis.tableId, bis.varId, bis.varTableId', 'bi')
             ->joinLeftOuter(blockItemSettings::TABLE . ' bis', 'bis.blockItemId=bi.id')
             ->join(componentTree::TABLE . ' c', 'bi.compId=c.id')
@@ -262,7 +262,7 @@ class eventModel {
             $className = str_replace('/', '\\', $className);
             // Добавляем пристовку namespace компонентов, ns name компонента + названия класса
             //$className = '\core\comp\\' . $item['ns'] . 'logic\\' . $className;
-            $className = comp::getFullCompClassName(null, $item['ns'], 'logic', $className);
+            $className = comp::getFullCompClassName($item['classType'], $item['ns'], 'logic', $className);
             $methodName = $item['methodName'];
             $callParam = '(\'' . $sysname . '\');';
 
@@ -349,10 +349,10 @@ class eventModel {
         } // foreach
         // =====================================================================
         // ============ Инициализация компонентов =============================
-        foreach ($blockItemInitList as $name => $item) {
-            $itemCount = count($item);
+        foreach ($blockItemInitList as $name => $obj) {
+            $itemCount = count($obj);
             for ($i = 0; $i < $itemCount; $i++) {
-                $codeBuffer .= 'dbus::$comp[\'' . $name . '\'] = ' . $item[$i];
+                $codeBuffer .= 'dbus::$comp[\'' . $name . '\'] = ' . $obj[$i];
             } // for
         } // foreach. Бегаем по blockItem у WF
 
@@ -369,7 +369,7 @@ class eventModel {
             $blockFileList[':']['id']);
 
         // Данные блока Head
-        $headData = self::getHeadData($pAcId);
+        $headData = self::getHeadData($pAcId, $item['classType']);
         $tplBlockCreator->setHeadData($headData);
         unset($headData);
 
@@ -462,7 +462,7 @@ CODE_STRING;
      * @static
      * @return string
      */
-    public static function getHeadData($pAcId) {
+    public static function getHeadData($pAcId, $pClassType) {
         // Получаем даныне по сео. Настраиваются в Utils->SEO
         $seoData = (new seoOrm())
             ->select(
@@ -495,7 +495,7 @@ CODE_STRING;
             //var_dump($seoData);
             // Составляем запись вида:
             // {ns\name\}\{classname}::{method}({compname},[{param}])
-            $headData .= comp::getFullCompClassName(null, $seoData['ns'], 'logic', $seoData['sysname']);
+            $headData .= comp::getFullCompClassName($pClassType, $seoData['ns'], 'logic', $seoData['sysname']);
             $headData .= "::{$seoData['method']}('{$seoData['name']}', [" .
                 "'linkNextTitle'=>'{$seoData['linkNextTitle']}'," .
                 "'linkNextUrl'=>'{$seoData['linkNextUrl']}'" .
