@@ -7,7 +7,7 @@ use core\classes\DB\table as tableDb;
 use core\classes\event as eventCore;
 
 //Event
-use admin\library\mvc\comp\spl\ioPopular\event;
+use admin\library\mvc\comp\spl\oiPopular\event;
 
 // ORM
 use ORM\comp\spl\objItem\objItem as objItemOrm;

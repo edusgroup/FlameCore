@@ -6,9 +6,11 @@ namespace core\classes\component\abstr\admin;
 use core\classes\request;
 use core\classes\filesystem;
 use core\classes\comp as compCore;
+
 // Conf
 use \DIR;
 use \CONSTANT;
+
 //ORM
 use ORM\tree\componentTree;
 use ORM\tree\compContTree;
@@ -17,19 +19,19 @@ abstract class comp extends \core\classes\mvc\controllerAbstract {
 
     /**
      * Настройки компонента
-     * @var array 
+     * @var array
      */
     public $objProp;
 
     /**
      * ID контента
-     * @var integer 
+     * @var integer
      */
     public $contId;
 
     /**
      * ID компоннета
-     * @var integer 
+     * @var integer
      */
     public $compId;
 
@@ -38,19 +40,23 @@ abstract class comp extends \core\classes\mvc\controllerAbstract {
         // func. __call
     }
 
-    public function getTplFile(){
+    public function getTplFile() {
         $tplType = $this->objProp['tplType'];
-        if ( $tplType == compCore::DEFAULT_VALUE) {
-            return $this->objProp['classname'] . '.tpl.php';
-        }else
-        if ($tplType == 'user') {
-            return 'user/'.$this->objProp['tplUserFile'];
-        } else
-        if ($tplType == 'ext') {
-            return 'ext/'.$this->objProp['tplExtFile'];
-        }else
-        if ($tplType == 'builder') {
-            throw new \Exception('builder no create');
+        $category = $this->objProp['category'];
+        $categoryDir = '';
+        if ( $category ){
+            $categoryDir = 'category/'.$category.'/';
+        }
+        switch ($tplType) {
+            case compCore::DEFAULT_VALUE:
+                $defaultName = !$category ? $this->objProp['classname'] : 'category/'.$category.'/'.$category;
+                return $defaultName . '.tpl.php';
+            case 'user':
+                return $categoryDir.'user/' . $this->objProp['tplUserFile'];
+            case 'ext':
+                return $categoryDir.'ext/' . $this->objProp['tplExtFile'];
+            case 'builder':
+                throw new \Exception('builder no create');
         }
         throw new \Exception('Не известнный тип tplType');
         // func. getTplFile
@@ -69,10 +75,10 @@ abstract class comp extends \core\classes\mvc\controllerAbstract {
      * @param integer $pTableId ID таблицы
      */
     public abstract function getTableOrm();
-    
+
     //public abstract function blockItemShowAction();
-    
-// class comp
+
+    // class comp
 }
 
 ?>

@@ -6,9 +6,11 @@ namespace admin\library\init;
 use core\classes\request;
 use core\classes\filesystem;
 use core\classes\comp as compCore;
+
 // Conf
 use \DIR;
 use \SITE;
+
 // Model
 use admin\library\mvc\manager\complist\model as complistModel;
 
@@ -20,30 +22,30 @@ use admin\library\mvc\manager\complist\model as complistModel;
  * @author Козленко В.Л.
  */
 class comp {
-    
+
     const DEFAULT_VALUE = 'default';
 
     public function run($pSiteName) {
         // Получаем имя контроллера
         $contId = request::getVarInt('$c');
 
-        $objProp = compCore::getCompContProp($contId);
-        if ( !isset($objProp['ns'])){
-            throw new \Exception('ContId: '.$contId.' not found', 345);
+        global $gObjProp;
+        $gObjProp = compCore::getCompContProp($contId);
+        if (!isset($gObjProp['ns'])) {
+            throw new \Exception('ContId: ' . $contId . ' not found', 345);
         }
-        $contrObj = compCore::getCompObject($objProp);
+        $contrObj = compCore::getCompObject($gObjProp);
 
-        $nsPath = filesystem::nsToPath($objProp['ns']);
-        $nsPath = substr($nsPath, 0, strlen($nsPath)-1);
-        
+        $nsPath = filesystem::nsToPath($gObjProp['ns']);
+        $tplPath = DIR::getTplPath('comp/' . $nsPath);
         $themeResUrl = sprintf(DIR::THEME_RES_URL, SITE::THEME_NAME);
-        $contrObj->__construct(DIR::getTplPath('comp/'.$nsPath), $themeResUrl);
+        $contrObj->__construct($tplPath, $themeResUrl);
 
-        $contrObj->objProp = $objProp;
+        $contrObj->objProp = $gObjProp;
         $contrObj->contId = $contId;
-        $contrObj->compId = (int) $objProp['compId'];
+        $contrObj->compId = (int)$gObjProp['compId'];
         $contrObj->setSiteName($pSiteName);
-
+        unset($gObjProp);
         // Получаем метод, который хотим вызвать
         $methodName = trim(request::getVar('$m'));
         // Вызываем метод. Методы доступные для вызова должны иметь окончание Action
@@ -52,7 +54,7 @@ class comp {
         $contrObj->render();
         // func. run
     }
-// class. comp
+    // class. comp
 }
 
 ?>

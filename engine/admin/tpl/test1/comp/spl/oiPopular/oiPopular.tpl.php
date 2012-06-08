@@ -100,19 +100,19 @@
 <div id="routeBox" style="width:250px;height:350px; display: none"></div>
 
 <script type="text/javascript">
-    var ioPopularData = {
+    var oiPopularData = {
         contTree: <?= self::get('contTree') ?>,
-        ioPopular: <?= self::get('ioPopular') ?>,
+        oiPopular: <?= self::get('oiPopular') ?>,
         contid: <?= self::get('contId') ?>
     };
 
-    var contrName = ioPopularData.contid;
+    var contrName = oiPopularData.contid;
     var callType = 'comp';
     utils.setType(callType);
     utils.setContr(contrName);
     HAjax.setContr(contrName);
 
-    var ioPopularMvc = (function () {
+    var oiPopularMvc = (function () {
         var options = {};
         var tree = {};
 
@@ -134,8 +134,8 @@
 
         function routeTreeDbClick(pTreeId, pTree) {
             $.fancybox.close();
-            ioPopularData.tplUrl = utils.getTreeUrlTpl(pTree, pTreeId);
-            $('#' + options.tplUrlText).html(ioPopularData.tplUrl);
+            oiPopularData.tplUrl = utils.getTreeUrlTpl(pTree, pTreeId);
+            $('#' + options.tplUrlText).html(oiPopularData.tplUrl);
             // func. routeTreeDbClick
         }
 
@@ -143,13 +143,13 @@
             dhtmlxInit.init({
                 'contTree':{
                     tree:{
-                        id:'contDiv', json:ioPopularData.contTree
+                        id:'contDiv', json:oiPopularData.contTree
                     }, // tree
                     checkbox:true
                 }, // contTree
                 'routeTree':{
                     tree:{
-                        id:'routeBox', json:ioPopularData.routeTree
+                        id:'routeBox', json:oiPopularData.routeTree
                     }, // tree
                     dbClick:routeTreeDbClick
                 } // routeTree
@@ -160,8 +160,8 @@
             //tree.compcont.setOnCheckHandler(treeContCheck);
             tree.compcont.enableThreeStateCheckboxes(0);
 
-            for (var i in ioPopularData.ioPopular) {
-                var id = ioPopularData.ioPopular[i];
+            for (var i in oiPopularData.oiPopular) {
+                var id = oiPopularData.oiPopular[i];
                 tree.compcont.setCheck(id, 1);
             } // for
             // func. initTrees
@@ -198,11 +198,11 @@
         return {
             init:init
         }
-        // func. ioPopularMvc
+        // func. oiPopularMvc
     })();
 
     $(document).ready(function () {
-        ioPopularMvc.init({
+        oiPopularMvc.init({
             backBtn:'#backBtn',
             saveBtn:'#saveBtn',
             treeDiv:'#treeDiv',

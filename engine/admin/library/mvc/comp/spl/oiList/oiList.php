@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\objItem;
+namespace admin\library\mvc\comp\spl\oiList;
 
 // Conf
 use \DIR;
@@ -10,21 +10,21 @@ use admin\library\mvc\manager\complist\model as complistModel;
 use core\classes\render;
 use core\classes\event as eventCore;
 // ORM
-use ORM\comp\spl\objItem\ioPopular as ioPopularOrm;
-use ORM\comp\spl\objItem\ioPopularProp as ioPopularPropOrm;
+use ORM\comp\spl\ioList\ioList as ioListOrm;
+use ORM\comp\spl\ioList\ioListProp as ioListPropOrm;
 use ORM\tree\compcontTree;
 use ORM\tree\componentTree;
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
-//use ORM\comp\spl\ioPopular\ioPopularCont as ioPopularContOrm;
+//use ORM\comp\spl\ioList\ioListCont as ioListContOrm;
 
 /**
- * Description of ioPopular
+ * Description of ioList
  *
  * @author Козленко В.Л.
  */
-class ioPopular extends \core\classes\component\abstr\admin\comp {
+class oiList extends \core\classes\component\abstr\admin\comp {
 
     public function __construct(string $pTplPath, string $pThemeResUrl) {
         parent::__construct($pTplPath, $pThemeResUrl);
@@ -45,15 +45,16 @@ class ioPopular extends \core\classes\component\abstr\admin\comp {
         $contTree = dhtmlxTree::all($contData, 0);
         self::setJson('contTree', $contTree);
 
-        $ioPopular = (new ioPopularOrm)->selectList('*', 'selContId', 'contId='.$contId);
-        self::setJson('ioPopular', $ioPopular);
+        $artlist = (new ioListOrm)->selectList('*', 'selContId', 'contId='.$contId);
+        self::setJson('artlist', $artlist);
 
         self::setVar('contId', $this->contId);
 
-        $ioPopularProp = ( new ioPopularPropOrm() )->selectFirst('');
-        if ( $ioPopularProp){
-            self::setVar('itemsCount', $ioPopularProp['itemsCount'] );
-            self::setVar('imgWidth', $ioPopularProp['imgWidth']);
+        $ioListProp = ( new ioListPropOrm() )->selectFirst('');
+        if ( $ioListProp){
+            self::setVar('itemsCount', $ioListProp['itemsCount'] );
+            self::setVar('memcacheCount', $ioListProp['memcacheCount']);
+            self::setVar('fileCount', $ioListProp['fileCount']);
         } // if
 
         $tplFile = self::getTplFile();
@@ -76,8 +77,8 @@ class ioPopular extends \core\classes\component\abstr\admin\comp {
             $contId
         );
 
-        $ioPopularOrm = new ioPopularOrm();
-        $ioPopularOrm->delete('contId='.$contId);
+        $ioListOrm = new ioListOrm();
+        $ioListOrm->delete('contId='.$contId);
 
         $selData = self::post('sel');
         $selData = substr($selData, 0, strlen($selData)-1);
@@ -85,15 +86,16 @@ class ioPopular extends \core\classes\component\abstr\admin\comp {
             $selData = explode(',', $selData);
             $selData = array_map('intVal', $selData);
 
-            $ioPopularOrm->insertMulti(['selContId' => $selData]);
-            $ioPopularOrm->update('contId='.$contId, 'contId=0');
+            $ioListOrm->insertMulti(['selContId' => $selData]);
+            $ioListOrm->update('contId='.$contId, 'contId=0');
         } // if selData
 
         $saveData = [
             'itemsCount' => self::postInt('itemsCount'),
-            'imgWidth' => self::postInt('imgWidth')
+            'memcacheCount' => self::postInt('memcacheCount'),
+            'fileCount' => self::postInt('fileCount')
         ];
-        (new ioPopularPropOrm())->saveExt(['contId' => $contId], $saveData);
+        ( new ioListPropOrm() )->saveExt(['contId' => $contId], $saveData);
 
         // func. saveDataAction
     }
@@ -111,7 +113,5 @@ class ioPopular extends \core\classes\component\abstr\admin\comp {
         echo 'Нет данных';
     }
 
-// class ioPopular
+// class oiList
 }
-
-?>

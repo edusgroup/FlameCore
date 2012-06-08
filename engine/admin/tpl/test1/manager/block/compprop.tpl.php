@@ -57,6 +57,10 @@
                         <div class="dd">
                             <label><?= self::checkbox('name="parentLoad" value="1"', self::get('parentLoad') == 1); ?></label>
                         </div>
+                        <div class="dt">Категория</div>
+                        <div class="dd">
+                            <? self::select(self::get('categoryList'), 'name="category"') ?>
+                        </div>
                         
                         <div class="dt">Шаблон админки</div>
                         <div class="dd">

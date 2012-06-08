@@ -7,6 +7,9 @@ use ORM\tree\componentTree;
 use ORM\tree\compContTree;
 use ORM\compprop as compPropOrm;
 
+// Conf
+use \DIR;
+
 /**
  * Класс работы с компонентами. Создание объектов, получение свойств.
  *
@@ -16,18 +19,19 @@ class comp {
 
     const DEFAULT_VALUE = 'default';
 
-    public static function getFullCompClassName($pType, $pNs, $pDir, $pClassName){
+    public static function getFullCompClassName($pType, $pNs, $pDir, $pClassName) {
         $prefix = '';
-        if ( $pType == 'user'){
+        if ($pType == 'user') {
             $prefix = 'site\\';
         }
-        return $prefix.'core\comp\\' . $pNs .$pDir.'\\'. $pClassName;
+        return $prefix . 'core\comp\\' . $pNs . $pDir . '\\' . $pClassName;
     }
 
     // Получение объекта по настройкам
     public static function getCompObject($pProp, $pCompProp = null) {
         if (!$pProp) {
             $pProp['classType'] = self::DEFAULT_VALUE;
+            $pProp['category'] = '';
         }
         if (!$pCompProp) {
             $pCompProp = [
@@ -35,21 +39,26 @@ class comp {
                 'classname' => $pProp['classname']
             ];
         } // if
+        //var_dumP($pProp);
+        if ( $pProp['category'] && $pProp['classType'] != self::DEFAULT_VALUE ){
+            global $gObjProp;
+            $gObjProp['category'] = $pProp['category'].'/'.$pProp['classType'];
+            $pProp['classType'] = self::DEFAULT_VALUE;
+        }
         $className = 'admin\library\mvc\comp\\';
-        if ($pProp['classType'] == self::DEFAULT_VALUE) {
-            $className .= $pCompProp['ns'] . $pCompProp['classname'];
-            return new $className('', '');
-        } else
-            if ($pProp['classType'] == 'user') {
+        switch ($pProp['classType']) {
+            case self::DEFAULT_VALUE:
+                $className .= $pCompProp['ns'] . $pCompProp['classname'];
+                return new $className('', '');
+            case  'user':
                 $file = filesystem::getName($pProp['classUserFile']);
                 $className .= $pCompProp['ns'] . 'user\\' . $file;
                 return new $className('', '');
-            } else
-                if ($pProp['classType'] == 'ext') {
-                    $file = filesystem::getName($pProp['classExtFile']);
-                    $className .= $pCompProp['ns'] . 'ext\\' . $file;
-                    return new $className('', '');
-                }
+            case 'ext':
+                $file = filesystem::getName($pProp['classExtFile']);
+                $className .= $pCompProp['ns'] . 'ext\\' . $file;
+                return new $className('', '');
+        }
         throw new \Exception('Неизвестный classType', 97);
         // func. getCompObject
     }
@@ -89,6 +98,19 @@ class comp {
             $propData = self::getCompPropByContId($pContId);
             $propData['classType'] = self::DEFAULT_VALUE;
             $propData['tplType'] = self::DEFAULT_VALUE;
+            $propData['tplUserFile'] = '';
+            $propData['tplExtFile'] = '';
+            $propData['classUserFile'] = '';
+            $propData['classExtFile'] = '';
+            $nsPath = filesystem::nsToPath($propData['ns']);
+            $categoryDir = DIR::CORE . 'admin/library/mvc/comp/'.$nsPath.'category/';
+            $propData['category'] = '';
+            if ( is_dir($categoryDir)){
+                $propData['category'] = filesystem::getFirstObjectInFolder($categoryDir, filesystem::DIR);
+            }
+            $propData['noProp'] = 1;
+        }else{
+            $propData['noProp'] = 0;
         }
         return $propData;
         // func. getCompContProp

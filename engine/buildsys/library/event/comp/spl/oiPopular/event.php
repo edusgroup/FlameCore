@@ -1,6 +1,6 @@
 <?php
 
-namespace buildsys\library\event\comp\spl\ioPopular;
+namespace buildsys\library\event\comp\spl\oiPopular;
 
 // ORM
 use ORM\event\eventBuffer;
@@ -8,11 +8,11 @@ use ORM\tree\componentTree;
 use ORM\tree\compContTree;
 use ORM\blockItem;
 use ORM\blockItemSettings;
-use ORM\comp\spl\ioPopular\ioPopular as ioPopularOrm;
-use ORM\comp\spl\ioPopular\ioPopularProp as ioPopularPropOrm;
+use ORM\comp\spl\oiPopular\oiPopular as oiPopularOrm;
+use ORM\comp\spl\oiPopular\oiPopularProp as oiPopularPropOrm;
 
 // Event comp
-use admin\library\mvc\comp\spl\ioPopular\event as eventioPopular;
+use admin\library\mvc\comp\spl\oiPopular\event as eventoiPopular;
 use ORM\tree\compContTree as compContTreeOrm;
 use core\classes\filesystem;
 use core\classes\image\resize;
@@ -41,7 +41,7 @@ class event {
 
         $objItemCompId = (new componentTree())->get('id', 'sysname="objItem"');
 
-        $contList = (new ioPopularPropOrm())
+        $contList = (new oiPopularPropOrm())
             ->select('alp.contId, alp.itemsCount, alp.imgWidth, cc.comp_id', 'alp')
             ->join(compContTree::TABLE . ' cc', 'cc.id=alp.contId')
             ->fetchAll();
@@ -57,11 +57,11 @@ class event {
             $imgWidth = (int)$item['imgWidth'];
 
             // Получаем список детей в выбранной группе
-            $ioPopularOrm = new ioPopularOrm();
-            $childList = $ioPopularOrm->selectList('selContId as contId', 'contId', 'contId=' . $item['contId']);
+            $oiPopularOrm = new oiPopularOrm();
+            $childList = $oiPopularOrm->selectList('selContId as contId', 'contId', 'contId=' . $item['contId']);
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
-                $ioPopularOrm,
+                $oiPopularOrm,
                 new compContTreeOrm(),
                 $childList,
                 ['order' => 'dayCount desc, RAND()',
@@ -123,7 +123,7 @@ class event {
             filesystem::saveFile($saveDir, 'data.txt', $data);
         } // foreach
 
-        // func. createioPopular
+        // func. createoiPopular
     }
 
     // class event

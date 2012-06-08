@@ -30,6 +30,11 @@ use ORM\contFile;
 use ORM\comp\spl\objItem\objItem as objItemOrm;
 use ORM\comp\spl\objItem\objItemProp;
 
+// Model
+use admin\library\mvc\comp\spl\objItem\model as objItemModel;
+// Event
+use admin\library\mvc\comp\spl\objItem\event;
+
 /**
  * Description of objItem
  * @see http://fancyapps.com/fancybox/
@@ -56,7 +61,7 @@ trait category{
         self::setVar('caption', $objItemData['caption']);
 
         // Загружаем текст статьи. '' - значаение по умолчанию, false - без десериализации
-        $loadDir = model::getPath($compId, $contId, $objItemId);
+        $loadDir = objItemModel::getPath($compId, $contId, $objItemId);
         $loadDir = DIR::getSiteDataPath($loadDir);
 
         //$text = storage::loadVar($loadDir, 'data', '', false);
@@ -112,7 +117,7 @@ trait category{
         );
 
         // Директория с данными статьи
-        $saveDir = model::getPath($compId, $contId, $objItemId);
+        $saveDir = objItemModel::getPath($compId, $contId, $objItemId);
         $saveDir = DIR::getSiteDataPath($saveDir);
         $seoKeywords = self::post('seoKeywords');
         $seoDescr = self::post('seoDescr');
@@ -130,7 +135,7 @@ trait category{
             , 'id=' . $objItemId);
 
 
-        //$saveDir = model::saveDataInfo($objItemId, $objItemOrm, $compId, $contId);
+        //$saveDir = objItemModel::saveDataInfo($objItemId, $objItemOrm, $compId, $contId);
         // TODO: добавить настройку фильтрации кода HTML
         //class_exists('admin\library\comp\spl\objItem\htmlvalid\full');
         //htmlValid::validate($data);
@@ -162,14 +167,14 @@ trait category{
 
         $fileManager = new fileManager();
 
-        $pathPrefix = model::getPath($compId, $contId, $id);
+        $pathPrefix = objItemModel::getPath($compId, $contId, $id);
         // Получаем директорию куда будет заливать файл
         $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
         $filePublicUrl = DIR::getSiteUploadUrlData() . $pathPrefix;
         $filePreviewUrl = DIR::getPreviewImgUrl($pathPrefix);
 
-        $sizeList = model::getSizeList($contId);
-        $sizeList['list'] = model::makeSelect($sizeList);
+        $sizeList = objItemModel::getSizeList($contId);
+        $sizeList['list'] = objItemModel::makeSelect($sizeList);
 
         self::setVar('contrName', $contId);
         self::setVar('callType', 'comp');
@@ -202,14 +207,14 @@ trait category{
         // Получаем имя файла, которые пришло от пользователя
         //$fileTmpName = $upload->getFileTmpName($varName, 0);
         // Если запись есть, то это дубликат
-        /*$isNew = model::isDublFile($fileTmpName, $contId);
+        /*$isNew = objItemModel::isDublFile($fileTmpName, $contId);
         if ($isNew) {
             self::setVar('json', array('dubl' => 1));
             return;
         }*/
 
-        $fileName = fileManagerModel::getFileNewName($upload, $varName);
-        $pathPrefix = model::getPath($compId, $contId, $id);
+        $fileName = fileManagerobjItemModel::getFileNewName($upload, $varName);
+        $pathPrefix = objItemModel::getPath($compId, $contId, $id);
         // Получаем директорию куда будет заливать файл
         $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
         $filePreviewPath = DIR::getPreviewImgPath($pathPrefix);
@@ -236,7 +241,7 @@ trait category{
         }
 
         // Получам по файлу атрибуты и ссылку на превью
-        $fileData = fileManagerModel::getFileData($fileName, $fileDistPath);
+        $fileData = fileManagerobjItemModel::getFileData($fileName, $fileDistPath);
         self::setVar('json', $fileData);
         // func. uploadFile
     }
@@ -248,7 +253,7 @@ trait category{
         $id = self::getInt('id');
 
         $nameList = self::post('f');
-        model::fileRm($contId, $compId, $id, $nameList);
+        objItemModel::fileRm($contId, $compId, $id, $nameList);
         $idList = array_keys($nameList);
 
         self::setVar('json', ['idlist' => $idList]);
@@ -271,7 +276,7 @@ trait category{
         $name = self::get('name');
         fileValid::isSafe($name, new \Exception('Неверное имя файла', 234));
 
-        $pathPrefix = model::getPath($compId, $contId, $id);
+        $pathPrefix = objItemModel::getPath($compId, $contId, $id);
 
         // Директория, где храняться все файлы и изображения
         $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;

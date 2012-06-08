@@ -56,7 +56,7 @@ class objItem extends \core\classes\component\abstr\admin\comp {
 
         self::setVar('listXML', $listXML, false);
 
-        $this->view->setBlock('panel', 'table/table.tpl.php');
+        $this->view->setBlock('panel', 'table.tpl.php');
         $this->view->setTplPath(DIR::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction

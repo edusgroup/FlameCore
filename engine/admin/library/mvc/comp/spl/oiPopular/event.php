@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\ioPopular;
+namespace admin\library\mvc\comp\spl\oiPopular;
 
 /**
  * Description of event

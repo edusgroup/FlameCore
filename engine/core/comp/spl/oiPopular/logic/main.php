@@ -1,6 +1,6 @@
 <?php
 
-namespace core\comp\spl\ioPopular\logic;
+namespace core\comp\spl\oiPopular\logic;
 
 // Conf
 use site\conf\DIR;
@@ -12,7 +12,7 @@ use core\classes\render;
 use core\classes\userUtils;
 
 /**
- * Description of ioPopular
+ * Description of oiPopular
  *
  * @author Козленко В.Л.
  */
@@ -35,7 +35,7 @@ class main {
         // 1 (байт) количество + 4 * $size размеры блоков
         $last = 1 + 4 * $size;
         // Вытаскиваем блоки. Кодировали мы их в
-        // buildsys\library\event\comp\spl\ioPopular::createArtPopular
+        // buildsys\library\event\comp\spl\oiPopular::createArtPopular
         foreach ($miniData as $key => $item) {
             $miniData[] = substr($data, $last, (int)$item);
             $last += (int)$item;

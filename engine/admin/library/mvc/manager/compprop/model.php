@@ -30,28 +30,28 @@ class model {
    
     public static function checkTplName($pNsPath, $pTplFile){
         // ===== Проверка на существование шаблона
-        filevalid::isSafe($pTplFile, new \Exception('Неверное имя файла: '.$pTplFile, 123));
+        filevalid::isSafe($pTplFile, new \Exception('Bad filename: '.$pTplFile, 123));
         // Получаем директорию где храняться шаблоны компонентов
         $tplPath = DIR::getTplPath('comp');
         // Получаем директорию с пользовательскими шаблонами компонентов
-        $tplPath .= $pNsPath;//.CONSTANT::USER_FOLDER;
+        $tplPath .= $pNsPath.'/';//.CONSTANT::USER_FOLDER;
         // Существует ли класс в ФС
         if ( !is_file($tplPath.$pTplFile)){
-            throw new \Exception('$tplStat - Файл: ' . $pTplFile . ' не найден', 124);
+            throw new \Exception('tplStat - File: ' . $pTplFile . ' not found', 124);
         }
         // func. checkTplName
     }
     
     public static function checkClassName($pNsPath, $pClassFile){
         // ===== Проверка существования класса
-        filevalid::isSafe($pClassFile, new \Exception('Неверное имя файла: '.$pClassFile, 123));
+        filevalid::isSafe($pClassFile, new \Exception('Bad filename: '.$pClassFile, 128));
         // Получаем директорию где храняться классы компонентов
         $classPath = DIR::getCompClassPath();
         // Получаем директорию с пользовательскими классами компонентов
-        $classPath .= $pNsPath;
+        $classPath .= $pNsPath.'/';
         // Существует ли класс в ФС
         if ( !is_file($classPath.$pClassFile)){
-            throw new \Exception('$tplStat - Файл: ' . $pClassFile . ' не найден', 124);
+            throw new \Exception('$tplStat - Файл: ' . $pClassFile . ' не найден', 125);
         }
         // func. checkClassName
     }
