@@ -121,10 +121,10 @@ class filesystem {
         return end($list);
     }
 
-    // TODO: кажется уже есть нативная функция
-    public static function getName(string $pFilename) {
+    public static function getName(string $pFilename){
         $list = explode('.', $pFilename);
-        return array_shift($list);
+        $file = basename(array_shift($list));
+        return $file;
     }
 
     public static function copy($pFileSource, $pPathDist, $pFileName) {

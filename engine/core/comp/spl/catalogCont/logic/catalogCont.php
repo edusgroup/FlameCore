@@ -12,7 +12,7 @@ use core\classes\render;
 use core\classes\userUtils;
 
 /**
- * Description of article
+ * Description of objItem
  *
  * @author Козленко В.Л.
  */

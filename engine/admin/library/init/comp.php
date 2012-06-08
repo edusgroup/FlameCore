@@ -28,6 +28,9 @@ class comp {
         $contId = request::getVarInt('$c');
 
         $objProp = compCore::getCompContProp($contId);
+        if ( !isset($objProp['ns'])){
+            throw new \Exception('ContId: '.$contId.' not found', 345);
+        }
         $contrObj = compCore::getCompObject($objProp);
 
         $nsPath = filesystem::nsToPath($objProp['ns']);

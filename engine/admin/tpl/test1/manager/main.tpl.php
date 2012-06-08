@@ -104,15 +104,15 @@
         <div class="fixed_left_panel corners_right">
             <div class="hidden_left_div">
                 <ul class="list_left">
-                    <li><a href="javascript:();">5 new orders</a></li>
-                    <li><a href="javascript:();">2 new comments</a></li>
-                    <li><a href="javascript:();">1 system error</a></li>
-                    <li><a href="javascript:();">1 new message</a></li>
+                    <li><a href="">5 new orders</a></li>
+                    <li><a href="">2 new comments</a></li>
+                    <li><a href="">1 system error</a></li>
+                    <li><a href="">1 new message</a></li>
 
-                    <li><a href="javascript:();">8 new subscribers</a></li>
-                    <li><a href="javascript:();">4 new articles</a></li>
-                    <li><a href="javascript:();">2 new topics</a></li>
-                    <li><a href="javascript:();">6 new posts</a></li>
+                    <li><a href="">8 new subscribers</a></li>
+                    <li><a href="">4 new objItem</a></li>
+                    <li><a href="">2 new topics</a></li>
+                    <li><a href="">6 new posts</a></li>
                 </ul></div>
             <div class="show_left_div right_arrow"></div>
             <div class="clear"></div></div><!-- end fixed left panel -->
@@ -123,7 +123,7 @@
                 <div class="date float_left">19 / July / 2010</div>
                 <div class="time float_left">18:06</div>
                 <div class="clear"></div>
-                <div class="all_appointments"><a href="javascript:();">View all appointments</a></div>
+                <div class="all_appointments"><a href="">View all appointments</a></div>
 
                 <div class="today_appointments">No appointments today</div>
                 <div id="appointments"></div>

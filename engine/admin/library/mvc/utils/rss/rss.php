@@ -33,7 +33,7 @@ class rss extends controllerAbstract {
         $compcontTree = new compcontTree();
         $contData = $compcontTree->select('cc.*', 'cc')
                      ->join(componentTree::TABLE.' c', 'c.id=cc.comp_id')
-                     ->where('c.sysname="article"')
+                     ->where('c.sysname="objItem"')
                      ->fetchAll();
         
         $contTree = dhtmlxTree::all($contData, 0);

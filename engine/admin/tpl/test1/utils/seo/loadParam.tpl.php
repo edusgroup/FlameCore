@@ -1,8 +1,8 @@
 <div class="left">
     <div class="dt">Примеры</div>
-    <div class="dd">{vars|article|caption}</div>
-    <div class="dd">{comp|article|data|seoDescr}</div>
-    <div class="dd">{comp|article|data|seoKeywords}</div>
+    <div class="dd">{vars|objItem|caption}</div>
+    <div class="dd">{comp|objItem|data|seoDescr}</div>
+    <div class="dd">{comp|objItem|data|seoKeywords}</div>
     <div class="dt">Title</div>
     <div class="dd"><?=self::textarea('name="title" class="textareabox"', self::get('title'))?></div>
 

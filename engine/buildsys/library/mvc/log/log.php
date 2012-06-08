@@ -7,7 +7,7 @@ use \SITE;
 use \DIR;
 
 // Model
-use buildsys\library\event\comp\spl\article\logparse;
+use buildsys\library\event\comp\spl\objItem\logparse;
 
 // Engine
 use core\classes\filesystem;

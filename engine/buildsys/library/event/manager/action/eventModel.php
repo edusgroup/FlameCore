@@ -123,7 +123,7 @@ class eventModel {
                     // Если тип переменной компонент
                     if ($acProp['varType'] == 'comp') {
                         // Получаем настройки переременной
-                        $varCompData = $varComp->select('vc.className, vc.methodName, vc.contId, vc.compId, c.ns', 'vc')
+                        $varCompData = $varComp->select('vc.*, c.ns', 'vc')
                             ->join(componentTree::TABLE . ' c', 'vc.compId=c.id')
                             ->comment(__METHOD__)
                             ->where('acId=' . $pAcId)
@@ -139,18 +139,18 @@ class eventModel {
 
                         $className = filesystem::getName($classFile);
                         // Добавляем в буффер namespace classname и название метода
-                        /*$nsClassMethod = $varCompData['ns'] . 'vars\\' .
-                            $acProp['storageType'] . '\\' .
-                            $className*/
-
-                        $nsClassMethod = comp::getFullCompClassName(null, $varCompData['ns'], 'vars', $className);
+                        $nsClassMethod = comp::getFullCompClassName(
+                            $varCompData['classType'],
+                            $varCompData['ns'],
+                            'vars\\'.$acProp['storageType'],
+                            $className);
                         $nsClassMethod .= '::' . $varCompData['methodName'];
 
                         if ( !$varCompData['contId'] ){
                             echo "NOTICE(" . __METHOD__ . ")" . PHP_EOL . "\tIn varible not set contId AcId: {$acItem['id']}" . PHP_EOL;
                         }
 
-                        $varListRender[$name]['comp'] = '\core\comp\\' . $nsClassMethod;
+                        $varListRender[$name]['comp'] = $nsClassMethod;
                         $varListRender[$name]['contId'] = $varCompData['contId'];
                         $varListRender[$name]['compId'] = $varCompData['compId'];
                     } // if varType == comp
@@ -254,7 +254,7 @@ class eventModel {
             ++$sysnameNum;
             $sysname = $item['sysname'] ? : 'sys_' . $sysnameNum;
 
-            // Имя класс-файла, выбранного в blockItem. Пример: /article.php
+            // Имя класс-файла, выбранного в blockItem. Пример: /objItem.php
             $className = $item['classFile'];
             // Убераем символ "/" в начале и ".php", т.е. получаем чистое имя файла
             $className = substr($className, 1, strlen($className) - 5);
@@ -369,7 +369,8 @@ class eventModel {
             $blockFileList[':']['id']);
 
         // Данные блока Head
-        $headData = self::getHeadData($pAcId, $item['classType']);
+        $classFile = filesystem::getName($item['classFile']);
+        $headData = self::getHeadData($pAcId, $item['classType'], $classFile);
         $tplBlockCreator->setHeadData($headData);
         unset($headData);
 
@@ -462,7 +463,7 @@ CODE_STRING;
      * @static
      * @return string
      */
-    public static function getHeadData($pAcId, $pClassType) {
+    public static function getHeadData($pAcId, $pClassType, $pClassFile) {
         // Получаем даныне по сео. Настраиваются в Utils->SEO
         $seoData = (new seoOrm())
             ->select(
@@ -495,7 +496,7 @@ CODE_STRING;
             //var_dump($seoData);
             // Составляем запись вида:
             // {ns\name\}\{classname}::{method}({compname},[{param}])
-            $headData .= comp::getFullCompClassName($pClassType, $seoData['ns'], 'logic', $seoData['sysname']);
+            $headData .= comp::getFullCompClassName($pClassType, $seoData['ns'], 'logic', $pClassFile);
             $headData .= "::{$seoData['method']}('{$seoData['name']}', [" .
                 "'linkNextTitle'=>'{$seoData['linkNextTitle']}'," .
                 "'linkNextUrl'=>'{$seoData['linkNextUrl']}'" .

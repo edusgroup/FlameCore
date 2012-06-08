@@ -58,7 +58,7 @@ class model {
         if ( $pClassType == 'user' ){
             $siteClassPath = SITE_DIR::SITE_CORE;
         } // if
-        $siteClassPath .= comp::getFullCompClassName(null, $pNs, 'logic', '');
+        $siteClassPath .= comp::getFullCompClassName('', $pNs, 'logic', '');
         $siteClassPath = filesystem::nsToPath($siteClassPath);
         return dhtmlxTree::createTreeOfDir($siteClassPath);
     }
@@ -96,10 +96,10 @@ class model {
             return substr($pItem, -6) == 'Action';
         });
         // Получаем его методы
-        return array(
+        return [
             'method' => $methodList,
             'urlTpl' => isset($compObj::$urlTplList) ? array_keys($compObj::$urlTplList) : null
-        );
+        ];
         // func. getSiteClassData
     }
 

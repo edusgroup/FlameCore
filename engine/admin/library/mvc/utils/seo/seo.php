@@ -64,7 +64,7 @@ class seo extends \core\classes\component\abstr\admin\comp {
             self::setVar('linkNextUrl', $seoData['linkNextUrl']);
             self::setVar('linkNextTitle', $seoData['linkNextTitle']);
 
-            $methods['list'] = model::getMethodSeoList($seoData['ns'], $seoData['classFile']);
+            $methods['list'] = model::getMethodSeoList($seoData['ns'], $seoData['classFile'], $seoData['classType']);
             $methods['val'] =  $seoData['method'];
 
         } // if

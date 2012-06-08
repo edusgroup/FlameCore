@@ -14,7 +14,7 @@ use ORM\comp\spl\form\formData as formDataOrm;
 
 
 /**
- * Description of article
+ * Description of objItem
  *
  * @author Козленко В.Л.
  */

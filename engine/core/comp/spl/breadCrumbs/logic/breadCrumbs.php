@@ -12,7 +12,7 @@ use core\classes\word;
 use core\classes\render;
 
 /**
- * Description of article
+ * Description of objItem
  *
  * @author Козленко В.Л.
  */

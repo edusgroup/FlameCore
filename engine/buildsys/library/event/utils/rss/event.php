@@ -6,9 +6,9 @@ namespace buildsys\library\event\utils\rss;
 use ORM\event\eventBuffer;
 use ORM\utils\rss as rssOrm;
 use ORM\utils\rssProp as rssPropOrm;
-use ORM\comp\spl\article\article as articleOrm;
+use ORM\comp\spl\objItem\objItem as objItemOrm;
 use ORM\tree\compContTree as compContTreeOrm;
-use ORM\comp\spl\article\compArticleProp;
+//use ORM\comp\spl\objItem\objItemProp;
 use ORM\seo\weblogDb;
 
 //Engine
@@ -20,14 +20,14 @@ use core\classes\seo\blog\weblogUpdates;
 // Conf
 use \DIR;
 use \site\conf\SITE as SITE_CONF;
-use admin\library\mvc\comp\spl\article\event as eventArticle;
+use admin\library\mvc\comp\spl\objItem\event as eventObjitem;
 
 // Event
 use admin\library\mvc\utils\rss\event as eventrss;
 
 // Model
-use buildsys\library\event\comp\spl\article\model as eventModelArticle;
-use admin\library\mvc\comp\spl\article\model as articleModel;
+use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
+use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 
 /**
  * Обработчик событий для каталога URL
@@ -49,22 +49,22 @@ class event {
         if (!$childList) {
             return;
         }
-        $handleArticle = eventModelArticle::articleChange(
+        $handleObjitem = eventModelObjitem::objItemChange(
             $eventBuffer,
             $rssOrm,
             new compContTreeOrm(),
             $childList,
             ['limit' => 10]
         );
-        if ($handleArticle && $handleArticle->num_rows == 0) {
+        if ($handleObjitem && $handleObjitem->num_rows == 0) {
             print "ERROR(" . __METHOD__ . ":: Not found Data" . PHP_EOL;
             return;
         }
 
         $list = [];
-        while ($item = $handleArticle->fetch_object()) {
+        while ($item = $handleObjitem->fetch_object()) {
             // Директория с данными статьи
-            $saveDir = articleModel::getPath($item->compId, $item->treeId, $item->id);
+            $saveDir = objItemModel::getPath($item->compId, $item->treeId, $item->id);
             $saveDir = DIR::getSiteDataPath($saveDir);
 
             // Если файл есть, то получаем первых 50 слов

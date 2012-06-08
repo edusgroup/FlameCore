@@ -56,11 +56,14 @@ class varible extends controllerAbstract {
 
         // Получаем список названий, и, если было сохранение, выбранное значение
         $typeList = model::getTypeList();
-        self::setVar('varType', array('list' => $typeList, 'val' => $actData['varType']));
+        self::setVar('varType', [
+                'list' => $typeList,
+                'val' => $actData['varType']]);
 
         // Получаем источников хранения, и, если было сохранение, выбранное значение
         $storageList = model::getStorageList();
-        self::setVar('varStorage', array('list' => $storageList, 'val' => $actData['storageType']));
+        self::setVar('varStorage', ['list' => $storageList,
+                                   'val' => $actData['storageType']]);
 
         switch ($actData['varType']) {
             // Тип переменной дерево
@@ -147,11 +150,17 @@ class varible extends controllerAbstract {
         $this->view->setRenderType(render::JSON);
         // ID компонента. см. табл. component_tree
         $compId = self::getInt('compid');
+
+        $classType = self::get('classType');
+        if ( !in_array($classType, ['user', 'core'])){
+            throw new \Exception('Неверный тип class type: ' . $classType, 35);
+        }
+
         $storageType = self::get('varStorage');
         if (!isset(model::$storageList[$storageType])) {
             throw new \Exception('Неверный тип storage type: ' . $storageType, 33);
         }
-        $fileList = varComp::getFileClassList($compId, $storageType);
+        $fileList = varComp::getFileClassList($compId, $classType, $storageType);
 
         self::setVar('json', $fileList);
         // func. compLoadCompDataAction
@@ -166,12 +175,16 @@ class varible extends controllerAbstract {
         if (!isset(model::$storageList[$storageType])) {
             throw new \Exception('Неверный тип storage type: ' . $storageType, 33);
         }
+        $classType = self::get('classType');
+        if ( !in_array($classType, ['user', 'core'])){
+            throw new \Exception('Неверный тип class type: ' . $classType, 41);
+        }
 
         // Имя выбранно файла классов
         $className = self::get('className');
         filesystemValid::isSafe($className, new \Exception('Неверное имя: ' . $className, 34));
 
-        $methodList = varComp::fileClassToMethod($compId, $storageType, $className);
+        $methodList = varComp::fileClassToMethod($compId, $classType, $storageType, $className);
 
         self::setVar('json', $methodList);
         // func. compLoadMethodDataAction

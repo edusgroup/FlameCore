@@ -5,7 +5,7 @@ namespace buildsys\library\event\comp\utils;
 //ORM
 use ORM\tree\compContTree as compContTreeOrm;
 use ORM\tree\componentTree;
-use ORM\comp\spl\artCom\artCom as artCompOrm;
+use ORM\comp\spl\oiComment\oiComment as oiCommentOrm;
 // Conf
 use \DIR;
 // Engine

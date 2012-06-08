@@ -52,7 +52,7 @@
         varible.saveDataClick();
         return false;
     }
-    
+
     $(document).ready(function(){
         $('#varType').change(varible.typeVarChange);
         $('#saveBtn').click(varible.saveBtnClick);

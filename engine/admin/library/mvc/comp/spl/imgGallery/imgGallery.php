@@ -20,7 +20,7 @@ use admin\library\mvc\plugin\fileManager\model as fileManagerModel;
 // Orm
 use ORM\imgSizeList;
 // Model
-use admin\library\mvc\comp\spl\article\model as articleModel;
+use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 
 /**
  * @author Козленко В.Л.
@@ -46,8 +46,8 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
         $filePublicUrl = DIR::getSiteUploadUrlData() . $pathPrefix;
         $filePreviewUrl = DIR::getPreviewImgUrl($pathPrefix);
 
-        $sizeList = articleModel::getSizeList($contId);
-        $sizeList['list'] = articleModel::makeSelect($sizeList);
+        $sizeList = objItemModel::getSizeList($contId);
+        $sizeList['list'] = objItemModel::makeSelect($sizeList);
 
         self::setVar('contrName', $contId);
         self::setVar('callType', 'comp');
@@ -87,8 +87,8 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
         $filePublicUrl = DIR::getSiteUploadUrlData() . $pathPrefix;
         $filePreviewUrl = DIR::getPreviewImgUrl($pathPrefix);
 
-        $sizeList = articleModel::getSizeList($contId);
-        $sizeList['list'] = articleModel::makeSelect($sizeList);
+        $sizeList = objItemModel::getSizeList($contId);
+        $sizeList['list'] = objItemModel::makeSelect($sizeList);
 
         self::setVar('contrName', $contId);
         self::setVar('callType', 'comp');

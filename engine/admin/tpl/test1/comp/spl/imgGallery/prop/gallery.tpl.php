@@ -62,50 +62,50 @@
 </div>
 
 <script>
-    var articleProp = {
+    var objItemProp = {
         contid: <?= self::get('contId') ?>
     };
     
-    var contrName = articleProp.contid;
+    var contrName = objItemProp.contid;
     var callType = 'comp';
     utils.setType(callType);
     utils.setContr(contrName);
     HAjax.setContr(contrName);
     HAjax.setType(callType);
     
-    articleProp.sizeList = <?= self::get('sizeList') ?>;
-    articleProp.imgSrc = '<?= self::res('images/') ?>';
+    objItemProp.sizeList = <?= self::get('sizeList') ?>;
+    objItemProp.imgSrc = '<?= self::res('images/') ?>';
     
-    articleProp.btnSaveAddSizeClick = function(){
+    objItemProp.btnSaveAddSizeClick = function(){
         var data = $('#formAddSize').serialize();
-        data += '&contid=' + articleProp.contid;
+        data += '&contid=' + objItemProp.contid;
         HAjax.addSize({data: data});
         return false;
-        // func. articleProp.btnSaveAddSizeClick
+        // func. objItemProp.btnSaveAddSizeClick
     }
     
-    articleProp.addSize = function(pData){
+    objItemProp.addSize = function(pData){
         $.fancybox.close();
         if (pData['error']){
             alert(pData['error']['msg']);
             return;
         } // if
         
-        articleProp.addRecordSize(pData);
-        // func. articleProp.addSize
+        objItemProp.addRecordSize(pData);
+        // func. objItemProp.addSize
     }
     
-    articleProp.sizeDeleteClick = function(){
+    objItemProp.sizeDeleteClick = function(){
         if ( !confirm('Уверены что хотите удалить?')){
             return;
         }
         var itemId = $(this).attr('itemid');
-        var data = 'contid='+articleProp.contid+'&itemid='+itemId;
+        var data = 'contid='+objItemProp.contid+'&itemid='+itemId;
         HAjax.delItem({data: data});
-        // func. articleProp.sizeDeleteClick
+        // func. objItemProp.sizeDeleteClick
     }
     
-    articleProp.delItem = function(pData){
+    objItemProp.delItem = function(pData){
         if (pData['error']){
             alert(pData['error']['msg']);
             return;
@@ -113,29 +113,29 @@
         $('#sizeItem'+pData['itemid']).remove();
     }
     
-    articleProp.addRecordSize = function(pItem){
+    objItemProp.addRecordSize = function(pItem){
         $('#sizeList').append(
         '<tr id="sizeItem'+pItem['id']+'">'
             +'<td>'+pItem['name']+' ('+pItem['type']+':'+pItem['val']+')</td>'
-            +'<td><img src="'+articleProp.imgSrc+'del_16.png" class="sizeDel" itemid="'+pItem['id']+'"/></td>'
+            +'<td><img src="'+objItemProp.imgSrc+'del_16.png" class="sizeDel" itemid="'+pItem['id']+'"/></td>'
             +'</tr>'
     );
-        // func. articleProp.addRecordSize
+        // func. objItemProp.addRecordSize
     }
     
-    articleProp.saveBtnClick = function(){
+    objItemProp.saveBtnClick = function(){
         var data = $('#mainForm').serialize();
         HAjax.savePropData({data: data});
-        // func. articleProp.saveBtnClick
+        // func. objItemProp.saveBtnClick
     }
     
-    articleProp.savePropDataSuccess = function(pData){
+    objItemProp.savePropDataSuccess = function(pData){
         if (pData['error']){
             alert(pData['error']['msg']);
             return;
         }
         alert('Данные сохранены');
-        // articleProp.saveDataSuccess
+        // objItemProp.saveDataSuccess
     }
     
     $(document).ready(function(){
@@ -145,24 +145,24 @@
             width: 250
         });
         
-        url = utils.url({type: 'manager', contr: 'compprop', query: {contid: articleProp.contid}});
+        url = utils.url({type: 'manager', contr: 'compprop', query: {contid: objItemProp.contid}});
         $('#backBtn').attr('href', url);
         
-        $('#saveBtn').click(articleProp.saveBtnClick);
+        $('#saveBtn').click(objItemProp.saveBtnClick);
         
-        $('.sizeDel').live('click', articleProp.sizeDeleteClick);
+        $('.sizeDel').live('click', objItemProp.sizeDeleteClick);
         
         HAjax.create({
-            addSize: articleProp.addSize,
-            delItem: articleProp.delItem,
-            savePropData: articleProp.savePropDataSuccess
+            addSize: objItemProp.addSize,
+            delItem: objItemProp.delItem,
+            savePropData: objItemProp.savePropDataSuccess
         });
         
-        for(var i in articleProp.sizeList ){
-            articleProp.addRecordSize(articleProp.sizeList[i]);
+        for(var i in objItemProp.sizeList ){
+            objItemProp.addRecordSize(objItemProp.sizeList[i]);
         }
         
-        $('#btnSaveAddSize').click(articleProp.btnSaveAddSizeClick);
+        $('#btnSaveAddSize').click(objItemProp.btnSaveAddSizeClick);
         // func. $(document).ready
     });
 </script>

@@ -20,6 +20,7 @@ use admin\library\mvc\manager\varible\model;
 use admin\library\mvc\manager\complist\model as complistModel;
 // Conf
 use \DIR;
+use \site\conf\DIR as SITE_DIR;
 
 class varComp {
 
@@ -27,7 +28,10 @@ class varComp {
     public static function saveData($pController, integer $pAcId) {
         // Описание переменной
         $descrip = $pController->post('descrip');
-
+        $classType = $pController->post('classType');
+        if ( !in_array($classType, ['user', 'core'])){
+            throw new \Exception('Неверный тип class type: ' . $classType, 35);
+        }
         // Тип хранилища: db или memcache
         $storageType = $pController->post('varStorage');
         if (!isset(model::$storageList[$storageType])) {
@@ -45,7 +49,7 @@ class varComp {
         // Получаем имя класса
         $className = filesystem::getName($classNameFile);
         //$className = '\core\comp\\' . $classData['ns'] . 'vars\\' . $storageType . '\\' . $className;
-        $className = comp::getFullCompClassName(null, $classData['ns'], 'vars', $className);
+        $className = comp::getFullCompClassName($classType, $classData['ns'], 'vars\\'.$storageType, $className);
         // Получаем методы
         if (!method_exists($className, $methodName)) {
             throw new \Exception('Метод: ' . $methodName . ' не найден', 38);
@@ -53,44 +57,48 @@ class varComp {
         
         $contId = $pController->postInt('contId');
 
-        $saveArr = array(
+        $saveArr = [
             'acId' => $pAcId,
             'compId' => $compId,
             'descrip' => $descrip,
+            'classType' => $classType,
             'className' => $classNameFile,
             'methodName' => $methodName,
             'contId' => $contId
-        );
+        ];
 
         $varCompOrm = new varCompOrm();
         $varCompOrm->save('acId=' . $pAcId, $saveArr);
 
         $urlTreePropVar = new urlTreePropVar();
-        $routeData = array(
+        $routeData = [
             'storageType' => $storageType,
-            'varType' => model::VAR_TYPE_COMP);
+            'varType' => model::VAR_TYPE_COMP];
         $urlTreePropVar->update($routeData, 'acId=' . $pAcId);
 
-        $pController->setVar('json', array('ok' => 1));
+        $pController->setVar('json', ['ok' => 1]);
         // func. saveData
     }
 
-    public static function getFileClassList(integer $pCompId, string $pStorageType) {
+    public static function getFileClassList(integer $pCompId, string $pClassType, string $pStorageType) {
         // Получаем файл для переменной по компоненту
         $classData = comp::getClassDataByCompId($pCompId);
-        $classNamePath = filesystem::nsToPath($classData['ns']);
-        $path = DIR::getVarClassPath($classNamePath, $pStorageType);
-        return filesystem::dir2array($path);
+        $siteClassPath = DIR::CORE;
+        if ( $pClassType == 'user' ){
+            $siteClassPath = SITE_DIR::SITE_CORE;
+        } // if
+        $siteClassPath .= comp::getFullCompClassName('', $classData['ns'], 'vars\\'.$pStorageType, '');
+        $siteClassPath = filesystem::nsToPath($siteClassPath);
+        return filesystem::dir2array($siteClassPath);
         // func.getFileClassList
     }
 
-    public static function fileClassToMethod(integer $pCompId, string $pStorageType, string $pClassName) {
+    public static function fileClassToMethod(integer $pCompId, string $classType, string $pStorageType, string $pClassName) {
         // Получаем директорию с классами переменной по компоненту
         $classData = comp::getClassDataByCompId($pCompId);
         // Получаем имя класса
         $className = filesystem::getName($pClassName);
-        //$className = '\core\comp\\' . $classData['ns'] . 'vars\\' . $pStorageType . '\\' . $className;
-        $className = comp::getFullCompClassName(null, $classData['ns'], 'vars', $className);
+        $className = comp::getFullCompClassName($classType, $classData['ns'], 'vars\\'.$pStorageType, $className);
         
         // Получаем методы
         return get_class_methods(new $className());
@@ -115,16 +123,18 @@ class varComp {
             // Компонент ID
             $pController->setVar('compid', $compId);
 
-            $className = array();
-            $className['list'] = self::getFileClassList($compId, $pStorageType);
+            $className = [];
+            $className['list'] = self::getFileClassList($compId, $data['classType'], $pStorageType);
             $className['val'] = $data['className'];
             $pController->setJson('className', $className);
-            
-            $methodList = array();
-            $methodList['list'] = self::fileClassToMethod($compId, $pStorageType, $data['className']);
+
+            $methodList = [];
+            $methodList['list'] = self::fileClassToMethod($compId, $data['classType'], $pStorageType, $data['className']);
             $methodList['val'] = $data['methodName'];
             $pController->setJson('methodName', $methodList);
-            
+
+            $pController->setJson('classType', $data['classType']);
+
             $pController->setVar('contid', (int)$data['contId']);
             
             $contTree = complistModel::getOnlyContTreeByCompId($compId);
@@ -145,5 +155,3 @@ class varComp {
 
 // class varComp
 }
-
-?>

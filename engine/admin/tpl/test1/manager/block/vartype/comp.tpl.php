@@ -1,4 +1,3 @@
-
 <div class="dt">Компонент:</div>
 <div class="dd">
     <img src="<?= self::res('images/folder_16.png') ?>" id="compBtn"/>
@@ -9,6 +8,14 @@
 <div class="dd">
     <img src="<?= self::res('images/folder_16.png') ?>" id="contBtn"/>
     <span id="contPath"></span>
+</div>
+
+<div class="dt">Тип класса</div>
+<div class="dd">
+    <select name="classType" id="classType">
+        <option value="core">Встроенный</option>
+        <option value="user">Пользовательский</option>
+    </select>
 </div>
 
 <div class="dt">Классы:</div>
@@ -33,6 +40,7 @@
         compId: <?= self::get('compid', 'null') ?>,
         contId: <?= self::get('contid', 'null') ?>,
         className: <?= self::get('className', 'null') ?>,
+        classType: <?= self::get('classType', 'null') ?>,
         methodName: <?= self::get('methodName', 'null') ?>,
         isClassFileLoad: false
     }
@@ -57,10 +65,15 @@
         }
         varComp.compId = itemId;
         $('#compPath').html(utils.getTreeUrl(varComp.tree.comp, itemId));
+        $('#classType').val('core');
         $dialog.close('compDlg');
         
         var varStorage = $('#varStorage').val();
-        HAjax.compLoadCompData({data:{compid: itemId, varStorage: varStorage}});
+        HAjax.compLoadCompData({data:{
+            compid: itemId,
+            varStorage: varStorage,
+            classType: 'core'
+        }});
         // func. compDbClick
     }
 
@@ -89,14 +102,24 @@
     
     varComp.varStorageChange = function(){
         if ( varComp.isClassFileLoad ){
-            HAjax.compLoadCompData({data:{compid: varComp.compId, varStorage: this.value}});
+            HAjax.compLoadCompData({data:{
+                compid: varComp.compId,
+                varStorage: this.value,
+                classType: 'core'
+            }});
         }
         // func. varStorageChange
     }
     
     varComp.classNameChange = function(){
         var varStorage = $('#varStorage').val();
-        var data = {compid: varComp.compId, varStorage: varStorage, className: this.value};
+        var classType = $('#classType').val();
+        var data = {
+            compid: varComp.compId,
+            varStorage: varStorage,
+            className: this.value,
+            classType: classType
+        };
         HAjax.compLoadMethodData({data: data});
         // func. varComp.methodChange
     }
@@ -107,6 +130,7 @@
             return;
         }
         $('#methodName').find('option').remove().end();
+
 
         var $className = $('#className').find('option').remove().end()
                             .append("<option value=''>Выберите файла</option>");
@@ -175,10 +199,95 @@
         tree:{ id: 'contDlg', json: varComp.tree.data.cont }
         ,dbClick: varComp.tree.contDbClick
     }
+
+    var varibleData = {
+
+    }
+
+    var varibleMvc = (function () {
+
+        function classTypeObjChange(pEvent) {
+            // Очищаем текст возле папки
+            $('#' + options.classNameObj).html('');
+            // Ощичаем список старых методов по классу
+            $('#' + options.methodNameObj).find('option').remove();
+            var varStorage = $('#'+options.varStorageObj).val();
+            // Подгружаем новое дерево
+            HAjax.compLoadCompData({data:{
+                compid: varComp.compId,
+                varStorage: varStorage,
+                classType: pEvent.currentTarget.value
+            }});
+
+            // func. classTypeObjChange
+        }
+
+        /**
+         * OnDbClick по ветке в дереве классов. Выбор класса и подгрузка его методов
+         */
+        function classTreeDbClick(pItemId, pTree) {
+            // Получаем тип ветки: 1-папка, 0-файл
+            var type = pTree.getUserData(pItemId, 'type');
+            // Выбрать можно только файл
+            if (type != 1) {
+                return false;
+            }
+            // Запоминаем наш выбор
+            blockItem.classFile = pItemId;
+            // Отображаем на странице наш выбор
+            var text = utils.getTreeUrl(pTree, pItemId);
+            $('#' + options.classFileText).html(text);
+            // Удаляем все ненужные ветки
+            blockItem.tree.clss.deleteChildItems(0);
+            // Загружаем методы класса
+            HAjax.loadClassMethod({
+                query:{
+                    'class': pItemId,
+                    blockitemid: blockItemData.blId,
+                    classType:  $('#' + options.classTypeObj).val()
+                }
+            });
+
+            // Закрываем диалоговое окно
+            $.fancybox.close();
+            // func. blockItem.classTreeDbClick
+        }
+
+        function loadClassListSuccess(pData) {
+            if (pData['error']) {
+                alert(pData['error']['msg']);
+                return;
+            }
+            // func. loadClassTreeSuccess
+        }
+
+        function init(pOptions) {
+            options = pOptions;
+
+            $('#' + options.classTypeObj).change(classTypeObjChange);
+
+            HAjax.create({
+                loadClassTree: loadClassListSuccess
+            });
+            // func. init
+        }
+
+        return{
+            init:init
+        }
+    })();
     
     $(document).ready(function(){
         $('#compBtn').click(varComp.compBtnClick);
         $('#className').change(varComp.classNameChange);
+        $('#classType').val(varComp.classType);
+
+        varibleMvc.init({
+            classTypeObj:'classType',
+            classNameObj:'className',
+            methodNameObj:'methodName',
+            varStorageObj: 'varStorage'
+        });
         
         dhtmlxInit.init({
             'comp': varComp.tree.data.comp,

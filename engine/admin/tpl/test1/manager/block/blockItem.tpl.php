@@ -176,6 +176,8 @@
                         </a>
                     </div>
                     <div class="dd" id="contentList"></div>
+
+
                 </form>
             </div>
         </div>
@@ -615,6 +617,8 @@ var blockItemMvc = (function () {
         blockItem.classFile = '';
         // Ощичаем список старых методов по классу
         $('#' + options.methodNameObj).find('option').remove();
+        // Удаляем все ненужные ветки
+        blockItem.tree.clss.deleteChildItems(0);
         // Подгружаем новое дерево
         HAjax.loadClassTree({
             data:{
@@ -641,8 +645,6 @@ var blockItemMvc = (function () {
         // Отображаем на странице наш выбор
         var text = utils.getTreeUrl(pTree, pItemId);
         $('#' + options.classFileText).html(text);
-        // Удаляем все ненужные ветки
-        blockItem.tree.clss.deleteChildItems(0);
         // Загружаем методы класса
         HAjax.loadClassMethod({
             query:{
@@ -720,7 +722,10 @@ var blockItemMvc = (function () {
         // Создаём наши деревья
         dhtmlxInit.init({
             'class':{
-                tree:{ json:blockItemData.treeClassJson, id:options.classTreeBox},
+                tree:{
+                    json: blockItemData.treeClassJson,
+                    id: options.classTreeBox
+                },
                 dbClick:classTreeDbClick
             } // class
         });

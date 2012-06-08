@@ -30,8 +30,9 @@ class comp {
             $pProp['classType'] = self::DEFAULT_VALUE;
         }
         if (!$pCompProp) {
-            $pCompProp = ['ns' => $pProp['ns'],
-                          'classname' => $pProp['classname']
+            $pCompProp = [
+                'ns' => $pProp['ns'],
+                'classname' => $pProp['classname']
             ];
         } // if
         $className = 'admin\library\mvc\comp\\';
@@ -99,7 +100,7 @@ class comp {
      * ns - namespace. См. ORM compContTree<br/>
      * classname - имя класса. См. ORM compContTree<br/>
      * Пример:<br/>
-     * array('ns'=>'article', 'classname'=>'spl/article', 'compId'=>12)
+     * array('ns'=>'objItem', 'classname'=>'spl/objItem', 'compId'=>12)
      * @param integer $pContId ID контента компонента
      * @return array
      */

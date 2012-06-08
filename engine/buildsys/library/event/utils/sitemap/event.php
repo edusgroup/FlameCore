@@ -5,9 +5,9 @@ namespace buildsys\library\event\utils\sitemap;
 //ORM
 use ORM\event\eventBuffer;
 use ORM\sitemaps as sitemapOrm;
-use ORM\comp\spl\article\article as articleOrm;
+use ORM\comp\spl\objItem\objItem as objItemOrm;
 use ORM\tree\compContTree as compContTreeOrm;
-use ORM\comp\spl\article\compArticleProp;
+//use ORM\comp\spl\objItem\objItemProp;
 
 //Engine
 use core\classes\filesystem;
@@ -17,13 +17,13 @@ use core\classes\DB\tree;
 // Conf
 use \DIR;
 use \site\conf\SITE as SITE_CONF;
-use admin\library\mvc\comp\spl\article\event as eventArticle;
+use admin\library\mvc\comp\spl\objItem\event as eventObjitem;
 
 // Event
 use admin\library\mvc\utils\sitemap\event as eventSitemap;
 
 // Model
-use buildsys\library\event\comp\spl\article\model as eventModelArticle;
+use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
 
 /**
  * Обработчик событий для каталога URL
@@ -46,8 +46,8 @@ class event {
         if (!$childList) {
             return;
         }
-        $handleArticle = eventModelArticle::articleChange($eventBuffer, $sitemapOrm, new compContTreeOrm(), $childList);
-        if ($handleArticle && $handleArticle->num_rows == 0) {
+        $handleObjitem = eventModelObjitem::objItemChange($eventBuffer, $sitemapOrm, new compContTreeOrm(), $childList);
+        if ($handleObjitem && $handleObjitem->num_rows == 0) {
             print "ERROR(" . __METHOD__ . ":: Not found Data" . PHP_EOL;
             return;
         }
@@ -59,7 +59,7 @@ class event {
             ->setContentType(null)
             ->setVar('host', $host)
         //->setVar('hostLastMod', $hostLastMod)
-            ->setVar('handleArt', $handleArticle)
+            ->setVar('handleArt', $handleObjitem)
             ->setMainTpl('sitemap.tpl.php')
             ->render();
         $codeData = ob_get_clean();
