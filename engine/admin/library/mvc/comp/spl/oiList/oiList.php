@@ -10,17 +10,17 @@ use admin\library\mvc\manager\complist\model as complistModel;
 use core\classes\render;
 use core\classes\event as eventCore;
 // ORM
-use ORM\comp\spl\ioList\ioList as ioListOrm;
-use ORM\comp\spl\ioList\ioListProp as ioListPropOrm;
+use ORM\comp\spl\oiList\oiList as oiListOrm;
+use ORM\comp\spl\oiList\oiListProp as oiListPropOrm;
 use ORM\tree\compcontTree;
 use ORM\tree\componentTree;
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
-//use ORM\comp\spl\ioList\ioListCont as ioListContOrm;
+//use ORM\comp\spl\oiList\oiListCont as oiListContOrm;
 
 /**
- * Description of ioList
+ * Description of oiList
  *
  * @author Козленко В.Л.
  */
@@ -45,16 +45,16 @@ class oiList extends \core\classes\component\abstr\admin\comp {
         $contTree = dhtmlxTree::all($contData, 0);
         self::setJson('contTree', $contTree);
 
-        $artlist = (new ioListOrm)->selectList('*', 'selContId', 'contId='.$contId);
+        $artlist = (new oiListOrm)->selectList('*', 'selContId', 'contId='.$contId);
         self::setJson('artlist', $artlist);
 
         self::setVar('contId', $this->contId);
 
-        $ioListProp = ( new ioListPropOrm() )->selectFirst('');
-        if ( $ioListProp){
-            self::setVar('itemsCount', $ioListProp['itemsCount'] );
-            self::setVar('memcacheCount', $ioListProp['memcacheCount']);
-            self::setVar('fileCount', $ioListProp['fileCount']);
+        $oiListProp = ( new oiListPropOrm() )->selectFirst('');
+        if ( $oiListProp){
+            self::setVar('itemsCount', $oiListProp['itemsCount'] );
+            self::setVar('memcacheCount', $oiListProp['memcacheCount']);
+            self::setVar('fileCount', $oiListProp['fileCount']);
         } // if
 
         $tplFile = self::getTplFile();
@@ -77,8 +77,8 @@ class oiList extends \core\classes\component\abstr\admin\comp {
             $contId
         );
 
-        $ioListOrm = new ioListOrm();
-        $ioListOrm->delete('contId='.$contId);
+        $oiListOrm = new oiListOrm();
+        $oiListOrm->delete('contId='.$contId);
 
         $selData = self::post('sel');
         $selData = substr($selData, 0, strlen($selData)-1);
@@ -86,8 +86,8 @@ class oiList extends \core\classes\component\abstr\admin\comp {
             $selData = explode(',', $selData);
             $selData = array_map('intVal', $selData);
 
-            $ioListOrm->insertMulti(['selContId' => $selData]);
-            $ioListOrm->update('contId='.$contId, 'contId=0');
+            $oiListOrm->insertMulti(['selContId' => $selData]);
+            $oiListOrm->update('contId='.$contId, 'contId=0');
         } // if selData
 
         $saveData = [
@@ -95,7 +95,7 @@ class oiList extends \core\classes\component\abstr\admin\comp {
             'memcacheCount' => self::postInt('memcacheCount'),
             'fileCount' => self::postInt('fileCount')
         ];
-        ( new ioListPropOrm() )->saveExt(['contId' => $contId], $saveData);
+        ( new oiListPropOrm() )->saveExt(['contId' => $contId], $saveData);
 
         // func. saveDataAction
     }

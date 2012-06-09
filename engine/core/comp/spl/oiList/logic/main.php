@@ -1,6 +1,6 @@
 <?php
 
-namespace core\comp\spl\ioList\logic;
+namespace core\comp\spl\oiList\logic;
 
 // Conf
 use site\conf\DIR;
@@ -51,13 +51,13 @@ class main {
         $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/' . $num . '.txt';
 
         $data = @file_get_contents($file);
-        $ioList = null;
+        $oiList = null;
         if (!$data) {
             return;
         }
-        $ioList = \unserialize($data);
+        $oiList = \unserialize($data);
         //var_dump($data);
-        if ($ioList) {
+        if ($oiList) {
 
             $tpl = userUtils::getCompTpl($comp);
 
@@ -70,7 +70,7 @@ class main {
             $nsPath = $comp['nsPath'];
             $tplFile = DIR::SITE_CORE . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
             (new render($tplFile, ''))
-                ->setVar('ioList', $ioList)
+                ->setVar('oiList', $oiList)
                 ->setVar('paginationList', $paginationList)
                 //->setVar('pagionationUrlParam', $paginationUrlTpl)
                 ->setVar('pagionationUrlParam', [])
@@ -81,7 +81,7 @@ class main {
                 ->setMainTpl($tpl)
                 ->setContentType(null)
                 ->render();
-        } // if ($ioList)
+        } // if ($oiList)
         // func. fileArtList
     }
 
@@ -116,11 +116,11 @@ class main {
 
         $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/' . $categoryId . '/' . $pageNum . '.txt';
         $data = file_get_contents($file);
-        $ioList = null;
+        $oiList = null;
         if ($data) {
-            $ioList = \unserialize($data);
+            $oiList = \unserialize($data);
         }
-        if ($ioList) {
+        if ($oiList) {
             $tpl = userUtils::getCompTpl($comp);
 
             $paginationList = self::getPaginationList($pageNum, $prop['fileCount']);
@@ -131,7 +131,7 @@ class main {
             $nsPath = $comp['nsPath'];
             $tplFile = DIR::SITE_CORE . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
             (new render($tplFile, ''))
-                ->setVar('ioList', $ioList)
+                ->setVar('oiList', $oiList)
                 ->setVar('paginationList', $paginationList)
                 ->setVar('paginationUrlTpl', $paginationUrlTpl)
                 ->setVar('categoryUrlTpl', $categoryUrlTpl)

@@ -1,6 +1,6 @@
 <?php
 
-namespace buildsys\library\event\comp\spl\ioLaster;
+namespace buildsys\library\event\comp\spl\oiLaster;
 
 // ORM
 use ORM\event\eventBuffer;
@@ -8,11 +8,11 @@ use ORM\tree\componentTree;
 use ORM\tree\compContTree;
 use ORM\blockItem;
 use ORM\blockItemSettings;
-use ORM\comp\spl\ioLaster\ioLaster as ioLasterOrm;
-use ORM\comp\spl\ioLaster\ioLasterProp as ioLasterPropOrm;
+use ORM\comp\spl\oiLaster\oiLaster as oiLasterOrm;
+use ORM\comp\spl\oiLaster\oiLasterProp as oiLasterPropOrm;
 use ORM\tree\compContTree as compContTreeOrm;
 // Event comp
-use admin\library\mvc\comp\spl\ioLaster\event as eventioLaster;
+use admin\library\mvc\comp\spl\oiLaster\event as eventoiLaster;
 use core\classes\filesystem;
 // Conf
 use \DIR;
@@ -34,7 +34,7 @@ class event {
         }
         //$objItemCompId = (new componentTree())->get('id', 'sysname="objItem"');
 
-        $contList = (new ioLasterPropOrm())
+        $contList = (new oiLasterPropOrm())
             ->select('alp.contId, alp.itemsCount, cc.comp_id', 'alp')
             ->join(compContTree::TABLE.' cc', 'cc.id=alp.contId')
             ->fetchAll();
@@ -49,14 +49,14 @@ class event {
             $itemsCount = $item['itemsCount'];
 
             // Получаем список детей в выбранной группе
-            $ioLasterOrm = new ioLasterOrm();
-            $childList = $ioLasterOrm->selectList(
+            $oiLasterOrm = new oiLasterOrm();
+            $childList = $oiLasterOrm->selectList(
                 'selContId as contId',
                 'contId',
                 'contId='.$item['contId']);
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
-                $ioLasterOrm,
+                $oiLasterOrm,
                 new compContTreeOrm(),
                 $childList,
                 ['limit'=>$itemsCount]);
@@ -79,7 +79,7 @@ class event {
             filesystem::saveFile($saveDir, 'list.txt', $data);
             unset($data);
         } // foreach
-        // func. createioLaster
+        // func. createoiLaster
     }
 
 // class event

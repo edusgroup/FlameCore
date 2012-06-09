@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\objItem;
+namespace admin\library\mvc\comp\spl\objItem\category\article;
 
 // ORM
 use ORM\comp\spl\objItem\objItem as objItemOrm;
@@ -28,19 +28,10 @@ use admin\library\mvc\comp\spl\objItem\model as objItemModel;
  * @author Козленко В.Л.
  */
 class event {
-    const NAME = 'objItem';
+    const NAME = 'article';
     /**
-     * Сохранение названия, seo названия и доступности публикации
+     * Сохранение самой статьи
      */
-    const ACTION_TABLE_SAVE = 'objItem:tableSave';
-    /**
-     * Удаление статьи
-     */
-    const ACTION_DELETE = 'objItem:tableDelete';
-    /**
-     * Изменение кастом параметров в дереве статьи
-     * см. функ. compProp
-     */
-    const ACTOIN_CUSTOM_PROP_SAVE = 'objItem::propCustSave';
+    const ACTION_SAVE = 'article:save';
     // class. event
 }

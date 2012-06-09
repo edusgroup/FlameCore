@@ -49,8 +49,8 @@ abstract class comp extends \core\classes\mvc\controllerAbstract {
         }
         switch ($tplType) {
             case compCore::DEFAULT_VALUE:
-                $defaultName = !$category ? $this->objProp['classname'] : 'category/'.$category.'/'.$category;
-                return $defaultName . '.tpl.php';
+                $defaultName = !$category ? $this->objProp['classname'] : ('category/'.$category.'/'.$category);
+                  return $defaultName . '.tpl.php';
             case 'user':
                 return $categoryDir.'user/' . $this->objProp['tplUserFile'];
             case 'ext':

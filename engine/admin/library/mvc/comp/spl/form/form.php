@@ -45,7 +45,8 @@ class form extends \core\classes\component\abstr\admin\comp {
            $classList['val'] = $loadData['action'].'.php';
         } // if
 
-        $classList['list'] = filesystem::dir2array(DIR::getSiteClassCore($nsPath).'action/', filesystem::FILE);
+        $compLogicDir = DIR::CORE . 'core/comp/spl/form/action/';
+        $classList['list'] = filesystem::dir2array($compLogicDir, filesystem::FILE);
         self::setVar('classList', $classList);
 
         $tplFile = self::getTplFile();
@@ -72,7 +73,8 @@ class form extends \core\classes\component\abstr\admin\comp {
         if ( !fileValid::isSafe($action) ){
             throw new \Exception('Bad file name: '.$action);
         }
-        if ( !is_file(DIR::getSiteClassCore($nsPath).'action/'.$action)){
+        $compLogicDir = DIR::CORE . 'core/comp/spl/form/action/';
+        if ( !is_file($compLogicDir.$action)){
             throw new \Exception('File not exists: '.$action);
         }
         $action = substr($action, 0, strlen($action) - 4 );

@@ -1,6 +1,6 @@
 <?php
 
-namespace core\comp\spl\ioList\vars\memcache;
+namespace core\comp\spl\oiList\vars\memcache;
 
 /**
  * Description of table

@@ -3,7 +3,7 @@
 namespace ORM\comp\spl\oiPopular;
 
 /**
- * Description of ioLasterProp
+ * Description of oiLasterProp
  *
  * @author Козленко В.Л.
  */

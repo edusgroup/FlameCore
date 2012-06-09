@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\ioLaster;
+namespace admin\library\mvc\comp\spl\oiLaster;
 
 /**
  * Description of event
@@ -8,11 +8,11 @@ namespace admin\library\mvc\comp\spl\ioLaster;
  * @author Козленко В.Л.
  */
 class event {
-    const NAME = 'artlast';
+    const NAME = 'oiLaster';
     /**
      * Сохранение списка каталог
      */
-    const ACTION_SAVE = 'artlast:save';
+    const ACTION_SAVE = 'oiLaster:save';
 
 // class. event
 }

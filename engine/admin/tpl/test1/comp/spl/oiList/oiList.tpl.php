@@ -105,19 +105,19 @@
 <div id="routeBox" style="width:250px;height:350px; display: none"></div>
 
 <script type="text/javascript">
-    var ioListData = {
+    var oiListData = {
         contTree: <?= self::get('contTree') ?>,
         catalog: <?= self::get('artlist') ?>,
         contid: <?= self::get('contId') ?>
     };
 
-    var contrName = ioListData.contid;
+    var contrName = oiListData.contid;
     var callType = 'comp';
     utils.setType(callType);
     utils.setContr(contrName);
     HAjax.setContr(contrName);
 
-    var ioListMvc = (function () {
+    var oiListMvc = (function () {
         var options = {};
         var tree = {};
         //var treeCheckSel = [];
@@ -140,8 +140,8 @@
 
         function routeTreeDbClick(pTreeId, pTree) {
             $.fancybox.close();
-            ioListData.tplUrl = utils.getTreeUrlTpl(pTree, pTreeId);
-            $('#' + options.tplUrlText).html(ioListData.tplUrl);
+            oiListData.tplUrl = utils.getTreeUrlTpl(pTree, pTreeId);
+            $('#' + options.tplUrlText).html(oiListData.tplUrl);
             // func. routeTreeDbClick
         }
 
@@ -149,13 +149,13 @@
             dhtmlxInit.init({
                 'contTree':{
                     tree:{
-                        id:'contDiv', json:ioListData.contTree
+                        id:'contDiv', json:oiListData.contTree
                     }, // tree
                     checkbox:true
                 }, // contTree
                 'routeTree':{
                     tree:{
-                        id:'routeBox', json:ioListData.routeTree
+                        id:'routeBox', json:oiListData.routeTree
                     }, // tree
                     dbClick:routeTreeDbClick
                 } // routeTree
@@ -166,8 +166,8 @@
             //tree.compcont.setOnCheckHandler(treeContCheck);
             tree.compcont.enableThreeStateCheckboxes(0);
 
-            for (var i in ioListData.catalog) {
-                var id = ioListData.catalog[i];
+            for (var i in oiListData.catalog) {
+                var id = oiListData.catalog[i];
                 tree.compcont.setCheck(id, 1);
             } // for
             // func. initTrees
@@ -211,7 +211,7 @@
 
     $(document).ready(function () {
 
-        ioListMvc.init({
+        oiListMvc.init({
             backBtn:'#backBtn',
             saveBtn:'#saveBtn',
             treeDiv:'#treeDiv',

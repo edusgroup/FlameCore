@@ -1,6 +1,6 @@
 <?php
 
-namespace core\comp\spl\ioLaster\logic;
+namespace core\comp\spl\oiLaster\logic;
 
 // Conf
 use site\conf\DIR;
@@ -11,7 +11,7 @@ use core\classes\render;
 use core\classes\userUtils;
 
 /**
- * Description of ioLaster
+ * Description of oiLaster
  *
  * @author Козленко В.Л.
  */

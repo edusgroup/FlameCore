@@ -3,11 +3,11 @@
 namespace ORM\comp\spl\form;
 
 /**
- * Description of ioLaster
+ * Description of oiLaster
  *
  * @author Козленко В.Л.
  */
 class form extends \core\classes\DB\table {
     const TABLE = 'pr_comp_form';
-// class ioList
+// class oiList
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\ioLaster;
+namespace admin\library\mvc\comp\spl\oiLaster;
 
 // Conf
 use \DIR;
@@ -10,21 +10,21 @@ use admin\library\mvc\manager\complist\model as complistModel;
 use core\classes\render;
 use core\classes\event as eventCore;
 // ORM
-use ORM\comp\spl\ioLaster\ioLaster as ioLasterOrm;
-use ORM\comp\spl\ioLaster\ioLasterProp as ioLasterPropOrm;
+use ORM\comp\spl\oiLaster\oiLaster as oiLasterOrm;
+use ORM\comp\spl\oiLaster\oiLasterProp as oiLasterPropOrm;
 use ORM\tree\compcontTree;
 use ORM\tree\componentTree;
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
-//use ORM\comp\spl\ioLaster\ioLasterCont as ioLasterContOrm;
+//use ORM\comp\spl\oiLaster\oiLasterCont as oiLasterContOrm;
 
 /**
- * Description of ioLaster
+ * Description of oiLaster
  *
  * @author Козленко В.Л.
  */
-class ioLaster extends \core\classes\component\abstr\admin\comp {
+class oiLaster extends \core\classes\component\abstr\admin\comp {
 
     public function __construct(string $pTplPath, string $pThemeResUrl) {
         parent::__construct($pTplPath, $pThemeResUrl);
@@ -45,14 +45,14 @@ class ioLaster extends \core\classes\component\abstr\admin\comp {
         $contTree = dhtmlxTree::all($contData, 0);
         self::setJson('contTree', $contTree);
 
-        $ioLaster = (new ioLasterOrm)->selectList('*', 'selContId', 'contId='.$contId);
-        self::setJson('ioLaster', $ioLaster);
+        $oiLaster = (new oiLasterOrm)->selectList('*', 'selContId', 'contId='.$contId);
+        self::setJson('oiLaster', $oiLaster);
 
         self::setVar('contId', $this->contId);
 
-        $ioLasterProp = ( new ioLasterPropOrm() )->selectFirst('', 'contId='.$contId);
-        if ( $ioLasterProp){
-            self::setVar('itemsCount', $ioLasterProp['itemsCount'] );
+        $oiLasterProp = ( new oiLasterPropOrm() )->selectFirst('', 'contId='.$contId);
+        if ( $oiLasterProp){
+            self::setVar('itemsCount', $oiLasterProp['itemsCount'] );
         } // if
 
         $tplFile = self::getTplFile();
@@ -75,8 +75,8 @@ class ioLaster extends \core\classes\component\abstr\admin\comp {
             $contId
         );
 
-        $ioLasterOrm = new ioLasterOrm();
-        $ioLasterOrm->delete('contId='.$contId);
+        $oiLasterOrm = new oiLasterOrm();
+        $oiLasterOrm->delete('contId='.$contId);
 
         $selData = self::post('sel');
         $selData = substr($selData, 0, strlen($selData)-1);
@@ -84,14 +84,14 @@ class ioLaster extends \core\classes\component\abstr\admin\comp {
             $selData = explode(',', $selData);
             $selData = array_map('intVal', $selData);
 
-            $ioLasterOrm->insertMulti(['selContId' => $selData]);
-            $ioLasterOrm->update('contId='.$contId, 'contId=0');
+            $oiLasterOrm->insertMulti(['selContId' => $selData]);
+            $oiLasterOrm->update('contId='.$contId, 'contId=0');
         } // if selData
 
         $saveData = [
             'itemsCount' => self::postInt('itemsCount')
         ];
-        ( new ioLasterPropOrm() )->saveExt(['contId' => $contId], $saveData);
+        ( new oiLasterPropOrm() )->saveExt(['contId' => $contId], $saveData);
 
         // func. saveDataAction
     }
@@ -109,5 +109,5 @@ class ioLaster extends \core\classes\component\abstr\admin\comp {
         echo 'Нет данных';
     }
 
-    // class ioLaster
+    // class oiLaster
 }

@@ -3,7 +3,7 @@
 namespace ORM\comp\spl\oiComment;
 
 /**
- * Description of ioList
+ * Description of oiList
  *
  * @author Козленко В.Л.
  */

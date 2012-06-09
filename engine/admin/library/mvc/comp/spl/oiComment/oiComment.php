@@ -149,7 +149,7 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
         // func. blockItemShowAction
     }
 
-// class ioList
+// class oiList
 }
 
 ?>

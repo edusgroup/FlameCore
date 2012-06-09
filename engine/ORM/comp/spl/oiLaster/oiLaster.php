@@ -1,13 +1,13 @@
 <?php
 
-namespace ORM\comp\spl\ioLaster;
+namespace ORM\comp\spl\oiLaster;
 
 /**
- * Description of ioLaster
+ * Description of oiLaster
  *
  * @author Козленко В.Л.
  */
-class ioLaster extends \core\classes\DB\table {
-    const TABLE = 'pr_comp_iolaster';
-// class ioList
+class oiLaster extends \core\classes\DB\table {
+    const TABLE = 'pr_comp_oiLaster';
+// class oiList
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace core\comp\spl\ioList\vars\db;
+namespace core\comp\spl\oiList\vars\db;
 
 // Conf
 use site\conf\DIR;
@@ -27,14 +27,14 @@ class number {
 		//print $file;
         $data = file_get_contents($file);
         if ($data) {
-            $ioListProp = \unserialize($data);
+            $oiListProp = \unserialize($data);
             
-            if ( $num <= $ioListProp['fileCount'] && $num > 1 ){
-                $ioListProp['num'] = $num;
-                $ioListProp['id'] = $pContId;
-                $ioListProp['prevVarName'] = $pPrevVarName;
-                $ioListProp['caption'] = 'Страница '.$num;
-                return $ioListProp;
+            if ( $num <= $oiListProp['fileCount'] && $num > 1 ){
+                $oiListProp['num'] = $num;
+                $oiListProp['id'] = $pContId;
+                $oiListProp['prevVarName'] = $pPrevVarName;
+                $oiListProp['caption'] = 'Страница '.$num;
+                return $oiListProp;
             } // if
         } // if $data        
         return false;

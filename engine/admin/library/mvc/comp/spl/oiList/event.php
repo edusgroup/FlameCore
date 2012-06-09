@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\ioList;
+namespace admin\library\mvc\comp\spl\oiList;
 
 /**
  * Description of event

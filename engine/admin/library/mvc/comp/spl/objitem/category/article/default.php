@@ -33,7 +33,7 @@ use ORM\comp\spl\objItem\objItemProp;
 // Model
 use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 // Event
-use admin\library\mvc\comp\spl\objItem\event;
+use admin\library\mvc\comp\spl\objItem\category\article\event;
 
 /**
  * Description of objItem
@@ -213,7 +213,7 @@ trait category{
             return;
         }*/
 
-        $fileName = fileManagerobjItemModel::getFileNewName($upload, $varName);
+        $fileName = fileManagerModel::getFileNewName($upload, $varName);
         $pathPrefix = objItemModel::getPath($compId, $contId, $id);
         // Получаем директорию куда будет заливать файл
         $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
@@ -241,7 +241,7 @@ trait category{
         }
 
         // Получам по файлу атрибуты и ссылку на превью
-        $fileData = fileManagerobjItemModel::getFileData($fileName, $fileDistPath);
+        $fileData = fileManagerModel::getFileData($fileName, $fileDistPath);
         self::setVar('json', $fileData);
         // func. uploadFile
     }

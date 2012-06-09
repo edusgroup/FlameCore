@@ -140,7 +140,6 @@
     })();
     
     $(document).ready(function(){
-        s
         oiCommentMvc.init({
             backBtn: '#backBtn',
             saveBtn: '#saveBtn',

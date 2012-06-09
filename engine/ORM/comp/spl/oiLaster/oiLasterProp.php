@@ -1,13 +1,13 @@
 <?php
 
-namespace ORM\comp\spl\ioLaster;
+namespace ORM\comp\spl\oiLaster;
 
 /**
- * Description of ioLasterProp
+ * Description of oiLasterProp
  *
  * @author Козленко В.Л.
  */
-class ioLasterProp extends \core\classes\DB\table {
+class oiLasterProp extends \core\classes\DB\table {
     const TABLE = 'pr_comp_oilaster_prop';
     // class catalogContProp
 }

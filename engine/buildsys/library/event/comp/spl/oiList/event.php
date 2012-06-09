@@ -1,6 +1,6 @@
 <?php
 
-namespace buildsys\library\event\comp\spl\ioList;
+namespace buildsys\library\event\comp\spl\oiList;
 
 // ORM
 use ORM\event\eventBuffer;
@@ -8,11 +8,11 @@ use ORM\tree\componentTree;
 use ORM\tree\compContTree;
 use ORM\blockItem;
 use ORM\blockItemSettings;
-use ORM\comp\spl\ioList\ioList as ioListOrm;
-use ORM\comp\spl\ioList\ioListProp as ioListPropOrm;
+use ORM\comp\spl\oiList\oiList as oiListOrm;
+use ORM\comp\spl\oiList\oiListProp as oiListPropOrm;
 
 // Event comp
-use admin\library\mvc\comp\spl\ioList\event as eventArtList;
+use admin\library\mvc\comp\spl\oiList\event as eventArtList;
 use ORM\tree\compContTree as compContTreeOrm;
 use core\classes\filesystem;
 
@@ -39,7 +39,7 @@ class event {
 
         $objItemCompId = (new componentTree())->get('id', 'sysname="objItem"');
 
-        $contList = (new ioListPropOrm())
+        $contList = (new oiListPropOrm())
             ->select('alp.contId, alp.itemsCount, cc.comp_id', 'alp')
             ->join(compContTree::TABLE . ' cc', 'cc.id=alp.contId')
             ->fetchAll();
@@ -52,9 +52,9 @@ class event {
             $saveDir = DIR::getSiteDataPath($saveDir);
 
             // Получаем список детей в выбранной группе
-            $ioListOrm = new ioListOrm();
-            $childList = $ioListOrm->selectList('selContId as contId', 'contId', 'contId=' . $item['contId']);
-            $handleObjitem = eventModelObjitem::objItemChange($pEventBuffer, $ioListOrm, new compContTreeOrm(), $childList);
+            $oiListOrm = new oiListOrm();
+            $childList = $oiListOrm->selectList('selContId as contId', 'contId', 'contId=' . $item['contId']);
+            $handleObjitem = eventModelObjitem::objItemChange($pEventBuffer, $oiListOrm, new compContTreeOrm(), $childList);
             if (!$handleObjitem || $handleObjitem->num_rows == 0) {
                 return;
             }

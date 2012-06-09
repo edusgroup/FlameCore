@@ -52,7 +52,7 @@
             <div class="content">
 
                 <div class="items">
-                    <form id="formCont">
+                    <form id="mainForm">
                         <div class="dt">Наследовать от родителя</div>
                         <div class="dd">
                             <label><?= self::checkbox('name="parentLoad" value="1"', self::get('parentLoad') == 1); ?></label>
@@ -124,44 +124,133 @@
     HAjax.setContr(contrName);
     HAjax.setType(callType);
     
-    var compprop = {
+    var compPropData = {
+        // ContId
         contid: <?= self::get('contId') ?>,
+        // Есть ли расширенные настройки
         extSettings: <?= self::get('extSettings') ?>
-    };
-    
-    compprop.saveBtnClick = function(){
-        var data = $('#formCont').serialize();
-        HAjax.saveData({data: data, methodType: 'POST', query: {contid: compprop.contid}});
-        return false;
     }
-    
-    compprop.saveData = function(pData){
-        if ( pData['error'] ){
-            alert(pData['error']['msg']);
-            return;
+
+    var compPropMvc = (function(){
+        var options = {};
+
+        function saveBtnClick(){
+            var data = $('#'+options.mainForm).serialize();
+            HAjax.saveData({
+                data: data,
+                methodType: 'POST',
+                query: {
+                    contid: compPropData.contid
+                }
+            });
+            return false;
+            // func. saveBtnClick
         }
-        url = utils.url({type: 'comp', contr: compprop.contid, method: 'compProp'});
-        $('#extendsSettings').toggle(pData['extSettings']==1).attr('href', url);
-        
-        if ( pData['ok'] ){
+
+        function selectCategoryChange(pEvent){
+            var category = pEvent.currentTarget.value;
+            HAjax.loadCategoryData({data:{
+                contid: compPropData.contid,
+                category: category
+            }});
+            // Ощичаем старый набор методом
+            $(options.classExtSelObj).find('option').remove().end();
+            $(options.classUserSelObj).find('option').remove().end();
+            $(options.tplExtSelObj).find('option').remove().end();
+            $(options.tplUserSelObj).find('option').remove().end();
+            // func. selectCategoryChange
+        }
+
+        function loadCategoryDataSuccess(pData){
+            if ( pData['error'] ){
+                alert(pData['error']['msg']);
+                return;
+            }
+            var $select = $(options.classExtSelObj);
+            $.each(pData['classExtList'], function(key, value) {
+                $select.append($("<option></option>").attr("value",value).text(value));
+            });
+            var $select = $(options.classUserSelObj);
+            $.each(pData['classUserList'], function(key, value) {
+                $select.append($("<option></option>").attr("value",value).text(value));
+            });
+            var $select = $(options.tplExtSelObj);
+            $.each(pData['tplExtFile'], function(key, value) {
+                $select.append($("<option></option>").attr("value",value).text(value));
+            });
+            var $select = $(options.tplUserSelObj);
+            $.each(pData['tplUserList'], function(key, value) {
+                $select.append($("<option></option>").attr("value",value).text(value));
+            });
+
+            // func. loadCategoryDataSuccess
+        }
+
+        function saveData(pData){
+            if ( pData['error'] ){
+                alert(pData['error']['msg']);
+                return;
+            }
+            var url = utils.url({
+                type: 'comp',
+                contr: compPropData.contid,
+                method: 'compProp'
+            });
+            $('#'+options.extSettBtn).toggle(pData['extSettings']==1).attr('href', url);
+
             alert('Данные сохранены');
+            // func. saveData
         }
-    }
-    
+
+        function init(pOptions){
+            options = pOptions;
+
+            // Если расширенные настройки
+            if ( compPropData.extSettings == 1 ){
+                // Если есть, то формируем URL для ссылки
+                var url = utils.url({
+                    type: 'comp',
+                    contr: compPropData.contid,
+                    method: 'compProp'
+                });
+                $('#'+options.extSettBtn).attr('href', url).show();
+                // if extSettings
+            }
+
+            // Ссылка для кнопки Назад
+            $('#'+options.backBtn).attr('href', utils.url({
+                contr: 'complist',
+                query: {
+                    contid: compPropData.contid
+                }
+            }));
+
+            $('#'+options.saveBtn).click(saveBtnClick);
+            $(options.categorySelObj).change(selectCategoryChange);
+
+            HAjax.create({
+                saveData: saveData,
+                loadCategoryData: loadCategoryDataSuccess
+            });
+            // func. init
+        }
+
+        return {
+            init: init
+        }
+    })();
+
     $(document).ready(function(){
-        var url = '';
-        if ( compprop.extSettings == 1 ){
-            url = utils.url({type: 'comp', contr: compprop.contid, method: 'compProp'});
-            $('#extendsSettings').attr('href', url).show();
-        }
-        
-        url = utils.url({contr: 'complist', query: {contid: compprop.contid}});
-        $('#backBtn').attr('href', url);
-        
-        $('#saveBtn').click(compprop.saveBtnClick);
-        
-        HAjax.create({
-            saveData: compprop.saveData
+        compPropMvc.init({
+            backBtn: 'backBtn',
+            saveBtn: 'saveBtn',
+            mainForm: 'mainForm',
+            categorySelObj: 'select[name="category"]',
+            classExtSelObj: 'select[name="classExt"]',
+            classUserSelObj: 'select[name="classUser"]',
+            tplExtSelObj: 'select[name="tplExt"]',
+            tplUserSelObj: 'select[name="tplUser"]',
+            extSettBtn: 'extendsSettings'
         });
     });
 </script>

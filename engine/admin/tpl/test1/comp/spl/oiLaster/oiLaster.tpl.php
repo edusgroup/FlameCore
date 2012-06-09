@@ -98,19 +98,19 @@
 <div id="routeBox" style="width:250px;height:350px; display: none"></div>
 
 <script type="text/javascript">
-    var ioLasterData = {
+    var oiLasterData = {
         contTree: <?= self::get('contTree') ?>,
-        ioLaster: <?= self::get('ioLaster') ?>,
+        oiLaster: <?= self::get('oiLaster') ?>,
         contid: <?= self::get('contId') ?>
     };
 
-    var contrName = ioLasterData.contid;
+    var contrName = oiLasterData.contid;
     var callType = 'comp';
     utils.setType(callType);
     utils.setContr(contrName);
     HAjax.setContr(contrName);
 
-    var ioLasterMvc = (function () {
+    var oiLasterMvc = (function () {
         var options = {};
         var tree = {};
 
@@ -132,8 +132,8 @@
 
         function routeTreeDbClick(pTreeId, pTree) {
             $.fancybox.close();
-            ioLasterData.tplUrl = utils.getTreeUrlTpl(pTree, pTreeId);
-            $('#' + options.tplUrlText).html(ioLasterData.tplUrl);
+            oiLasterData.tplUrl = utils.getTreeUrlTpl(pTree, pTreeId);
+            $('#' + options.tplUrlText).html(oiLasterData.tplUrl);
             // func. routeTreeDbClick
         }
 
@@ -141,13 +141,13 @@
             dhtmlxInit.init({
                 'contTree':{
                     tree:{
-                        id:'contDiv', json:ioLasterData.contTree
+                        id:'contDiv', json:oiLasterData.contTree
                     }, // tree
                     checkbox:true
                 }, // contTree
                 'routeTree':{
                     tree:{
-                        id:'routeBox', json:ioLasterData.routeTree
+                        id:'routeBox', json:oiLasterData.routeTree
                     }, // tree
                     dbClick:routeTreeDbClick
                 } // routeTree
@@ -158,8 +158,8 @@
             //tree.compcont.setOnCheckHandler(treeContCheck);
             tree.compcont.enableThreeStateCheckboxes(0);
 
-            for (var i in ioLasterData.ioLaster) {
-                var id = ioLasterData.ioLaster[i];
+            for (var i in oiLasterData.oiLaster) {
+                var id = oiLasterData.oiLaster[i];
                 tree.compcont.setCheck(id, 1);
             } // for
             // func. initTrees
@@ -194,11 +194,11 @@
         return {
             init:init
         }
-        // func. ioLasterMvc
+        // func. oiLasterMvc
     })();
 
     $(document).ready(function () {
-        ioLasterMvc.init({
+        oiLasterMvc.init({
             backBtn:'#backBtn',
             saveBtn:'#saveBtn',
             treeDiv:'#treeDiv',
