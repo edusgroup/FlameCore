@@ -74,8 +74,9 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             self::setJson('classData', $classData);
             $tableOrm = null;
             if ($onlyFolder && isset($saveData['statId'])) {
-                $objProp = comp::getCompContProp((int)$saveData['statId']);
-                $contrObj = comp::getCompObject($objProp);
+                global $gObjProp;
+                $gObjProp = comp::getCompContProp((int)$saveData['statId']);
+                $contrObj = comp::getCompObject($gObjProp);
                 $tableOrm = $contrObj->getTableOrm();
                 $statName = $tableOrm->get('caption', 'id=' . (int)$saveData['tableId']);
                 self::setVar('statName', $statName);
@@ -171,10 +172,9 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
     public function loadCompTableAction() {
         $this->view->setRenderType(render::JSON);
         $contId = self::getInt('contid');
-
-        $objProp = comp::getCompContProp($contId);
-        $contrObj = comp::getCompObject($objProp);
-
+        global $gObjProp;
+        $gObjProp = comp::getCompContProp($contId);
+        $contrObj = comp::getCompObject($gObjProp);
         if (!method_exists($contrObj, 'getTableData')) {
             throw new \Exception(' getTableData не найден: ' . $contId, 24);
         }
@@ -316,8 +316,9 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             ,'blockItemId=' . $blockItemId);
 
         // Создаём объекта класса
-        $objProp = comp::getCompContProp($custContId);
-        $contrObj = comp::getCompObject($objProp);
+        global $gObjProp;
+        $gObjProp = comp::getCompContProp($custContId);
+        $contrObj = comp::getCompObject($gObjProp);
 
         if (!method_exists($contrObj, 'blockItemSave')) {
             throw new \Exception(' getTableData не найден', 24);

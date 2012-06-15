@@ -61,7 +61,8 @@
                     <div class="dd">
                         <select id="oiCommentType" name="type">
                             <option value="objItem">Статьи</option>
-                            <option value="imggallery">Галлерия изображений</option>
+                            <option value="image">Изображение</option>
+                            <option value="video">Видео</option>
                         </select>
                     </div>
 

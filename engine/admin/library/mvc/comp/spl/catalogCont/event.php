@@ -12,9 +12,7 @@ class event {
     /**
      * Сохранение списка каталог
      */
-    const ACTION_SAVE = 'catalogcont:save';
+    const ACTION_SAVE = 'catalogCont:save';
 
 // class. event
 }
-
-?>

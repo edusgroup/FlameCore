@@ -87,7 +87,7 @@ class varComp {
         if ( $pClassType == 'user' ){
             $siteClassPath = SITE_DIR::SITE_CORE;
         } // if
-        $siteClassPath .= comp::getFullCompClassName('', $classData['ns'], 'vars\\'.$pStorageType, '');
+        $siteClassPath .= comp::getFullCompClassName($pClassType, $classData['ns'], 'vars\\'.$pStorageType, '');
         $siteClassPath = filesystem::nsToPath($siteClassPath);
         return filesystem::dir2array($siteClassPath);
         // func.getFileClassList
@@ -99,7 +99,6 @@ class varComp {
         // Получаем имя класса
         $className = filesystem::getName($pClassName);
         $className = comp::getFullCompClassName($classType, $classData['ns'], 'vars\\'.$pStorageType, $className);
-        
         // Получаем методы
         return get_class_methods(new $className());
         // func. fileClassToMethod
@@ -111,32 +110,32 @@ class varComp {
      * @param integer $pActionId 
      */
     public static function show($pController, integer $pActionId, string $pStorageType, $pInclude = null) {
-
         $varCompOrm = new varCompOrm();
         // Получаем сохранёные данные
         $data = $varCompOrm->selectFirst('*', 'acId=' . $pActionId);
         // Есть ли сохранёные данные
         if ($data) {
             $compId = (int) $data['compId'];
+            $classType = $data['classType'];
             // Описание
             $pController->setVar('descrip', $data['descrip']);
             // Компонент ID
             $pController->setVar('compid', $compId);
 
             $className = [];
-            $className['list'] = self::getFileClassList($compId, $data['classType'], $pStorageType);
+            $className['list'] = self::getFileClassList($compId, $classType, $pStorageType);
             $className['val'] = $data['className'];
             $pController->setJson('className', $className);
 
             $methodList = [];
-            $methodList['list'] = self::fileClassToMethod($compId, $data['classType'], $pStorageType, $data['className']);
+            $methodList['list'] = $className['list'] ? self::fileClassToMethod($compId, $classType, $pStorageType, $data['className']) : [];
             $methodList['val'] = $data['methodName'];
             $pController->setJson('methodName', $methodList);
 
-            $pController->setJson('classType', $data['classType']);
+            $pController->setJson('classType', $classType);
 
             $pController->setVar('contid', (int)$data['contId']);
-            
+
             $contTree = complistModel::getOnlyContTreeByCompId($compId);
             $pController->setJson('contTree', $contTree);
         } // if ($data)

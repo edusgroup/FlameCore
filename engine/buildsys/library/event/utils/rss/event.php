@@ -57,7 +57,7 @@ class event {
             ['limit' => 10]
         );
         if ($handleObjitem && $handleObjitem->num_rows == 0) {
-            print "ERROR(" . __METHOD__ . ":: Not found Data" . PHP_EOL;
+            print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
             return;
         }
 

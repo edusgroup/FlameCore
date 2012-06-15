@@ -32,7 +32,7 @@ use admin\library\mvc\comp\spl\objItem\model as objItemModel;
  */
 class event {
 
-    public static function createArtPopular($pUserData, $pEventBuffer, $pEventList) {
+    public static function createObjItemPopular($pUserData, $pEventBuffer, $pEventList) {
         // Если ли вообще какая то активность по списку
         $isData = $pEventBuffer->selectFirst('id', 'eventName in (' . $pEventList . ')');
         if (!$isData) {

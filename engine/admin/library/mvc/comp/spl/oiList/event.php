@@ -8,11 +8,11 @@ namespace admin\library\mvc\comp\spl\oiList;
  * @author Козленко В.Л.
  */
 class event {
-    const NAME = 'artlist';
+    const NAME = 'oiList';
     /**
      * Сохранение списка каталог
      */
-    const ACTION_SAVE = 'artlist:save';
+    const ACTION_SAVE = 'oiList:save';
 
 // class. event
 }

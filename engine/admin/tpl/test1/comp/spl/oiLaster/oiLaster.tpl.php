@@ -79,6 +79,7 @@
             </div>
 
             <div class="content">
+                <h6>Последние добавл. объекты</h6>
                 <div class="bothpanel">
                     <div id="contDiv" class="treePanel"></div>
                     <div id="propBox">

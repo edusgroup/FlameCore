@@ -77,7 +77,6 @@ class log {
                 */
                 logparse::insertUrl($arr[0][self::URL]);
             } // if
-
         } // while
         fclose($fr);
 

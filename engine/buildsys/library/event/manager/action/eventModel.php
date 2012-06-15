@@ -68,7 +68,7 @@ class eventModel {
         // TODO: по хорошему лучше сделать процедурой в БД, что бы меньше фильровать
         // тут
         $pathUrl = $pRouteTree->getActionUrlById($pAcId);
-        $varList = array();
+        $varList = [];
 
         foreach ($pathUrl as $item) {
             if ($item['propType'] == 1) {
@@ -77,11 +77,11 @@ class eventModel {
         } // foreach
         unset($item);
         // Буффер для доступных переменных
-        $varListRender = array();
+        $varListRender = [];
         $varTree = new varTree();
         $varComp = new varComp();
         $isUsecompContTree = false;
-        $varIdtoName = array();
+        $varIdtoName = [];
         // Если есть переменные, то нужно их обработать
         if ($varList) {
 
@@ -103,7 +103,7 @@ class eventModel {
                 $varIdtoName[$acProp['acId']] = $name;
 
                 // Буффер для переменных, для рендера
-                $varListRender[$name] = array();
+                $varListRender[$name] = [];
                 // Тип переменной: tree или comp
                 $varListRender[$name]['type'] = $acProp['varType'];
                 // Если переменная имеет тип дерево
@@ -188,14 +188,15 @@ class eventModel {
             ->comment(__METHOD__)
             ->fetchAll();
 
-        $blockFileList = array();
+        $blockFileList = [];
         // Бегаем по блокам WF, строим удобный для нас массив
         // $blockFileList[blockId] = [file="", id=""]
         foreach ($wfArr as $item) {
             $blockId = $item['block'] . ':' . $item['file_id'];
-            $blockFileList[$blockId] = array(
+            $blockFileList[$blockId] = [
                 'file' => $item['file'],
-                'id' => $item['id']);
+                'id' => $item['id']
+            ];
         } // foreach
         unset($item);
 
@@ -214,12 +215,13 @@ class eventModel {
             ->comment(__METHOD__)
             ->fetchAll();
 
-        $blockItemList = array();
-        $blockItemInitList = array();
+        $blockItemList = [];
+        $blockItemInitList = [];
         $sysnameNum = 0;
 
         // Бегаем по настройкам блоков
         foreach ($blockItemArr as $item) {
+            //print $item['classType']."\n";
             // Если компонент был удалён, то пишем ошибку и берём следующий компонент
             if (!$item['compId']) {
                 echo "ERROR(" . __METHOD__ . "):" . PHP_EOL;
@@ -327,8 +329,9 @@ class eventModel {
                 $custContId = (int)($item['custContId'] ? : $item['statId']);
                 if ($custContId) {
                     // Создаём объекта класса компонента, который стоит в blockItem
-                    $objProp = comp::getCompContProp($custContId);
-                    $contrObj = comp::getCompObject($objProp);
+                    global $gObjProp;
+                    $gObjProp = comp::getCompContProp($custContId);
+                    $contrObj = comp::getCompObject($gObjProp);
 
                     if (method_exists($contrObj, 'getBlockItemParam')) {
                         $codeTmp .= $contrObj->getBlockItemParam($item['id'], $pAcId);
@@ -341,12 +344,14 @@ class eventModel {
 
             $blockItemInitList[$sysname][] = $codeTmp;
 
-            $blockItemList[$blockId][] = array(
+            $blockItemList[$blockId][] = [
                 'class' => $className,
                 'method' => $methodName,
                 'callParam' => $callParam
-            );
+            ];
         } // foreach
+
+
         // =====================================================================
         // ============ Инициализация компонентов =============================
         foreach ($blockItemInitList as $name => $obj) {
@@ -369,8 +374,8 @@ class eventModel {
             $blockFileList[':']['id']);
 
         // Данные блока Head
-        $classFile = filesystem::getName($item['classFile']);
-        $headData = self::getHeadData($pAcId, $item['classType'], $classFile);
+
+        $headData = self::getHeadData($pAcId);
         $tplBlockCreator->setHeadData($headData);
         unset($headData);
 
@@ -463,17 +468,21 @@ CODE_STRING;
      * @static
      * @return string
      */
-    public static function getHeadData($pAcId, $pClassType, $pClassFile) {
+    public static function getHeadData($pAcId) {
         // Получаем даныне по сео. Настраиваются в Utils->SEO
         $seoData = (new seoOrm())
             ->select(
             's.title, s.descr, s.keywords, bi.sysname name, s.linkNextUrl, '
-                . 's.linkNextTitle, c.ns, c.sysname, s.method', 's')
+                . 's.linkNextTitle, c.ns, c.sysname, s.method, bis.classFile, bis.classType', 's')
             ->joinLeftOuter(blockItem::TABLE . ' bi', 'bi.id = s.blItemId')
             ->joinLeftOuter(componentTree::TABLE . ' c', 'c.id=bi.compId')
+            ->joinLeftOuter(blockItemSettings::TABLE . ' bis', 'bis.blockItemId=bi.id')
             ->where('s.acId=' . $pAcId)
             ->comment(__METHOD__)
             ->fetchFirst();
+        if ( $seoData ){
+            return '<!-- '.__METHOD__.'() | No DATA -->';
+        }
         // Заголовок
         $title = $seoData['title'];
         // Ключевые слова
@@ -493,10 +502,11 @@ CODE_STRING;
         ";
 
         if ($seoData['sysname']) {
+            $classFile = filesystem::getName($seoData['classFile']);
             //var_dump($seoData);
             // Составляем запись вида:
             // {ns\name\}\{classname}::{method}({compname},[{param}])
-            $headData .= comp::getFullCompClassName($pClassType, $seoData['ns'], 'logic', $pClassFile);
+            $headData .= comp::getFullCompClassName($seoData['classType'], $seoData['ns'], 'logic', $classFile);
             $headData .= "::{$seoData['method']}('{$seoData['name']}', [" .
                 "'linkNextTitle'=>'{$seoData['linkNextTitle']}'," .
                 "'linkNextUrl'=>'{$seoData['linkNextUrl']}'" .

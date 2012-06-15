@@ -86,8 +86,8 @@ class model {
             ->where($where)
             ->order($order)
             ->limit($limit)
+            ->comment(__METHOD__)
             ->query();
-
         return $handleObjitem;
         // func. isobjItemChange
     }

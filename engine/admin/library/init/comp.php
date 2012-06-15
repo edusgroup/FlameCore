@@ -40,7 +40,7 @@ class comp {
         $tplPath = DIR::getTplPath('comp/' . $nsPath);
         $themeResUrl = sprintf(DIR::THEME_RES_URL, SITE::THEME_NAME);
         $contrObj->__construct($tplPath, $themeResUrl);
-
+        //var_dump($gObjProp);
         $contrObj->objProp = $gObjProp;
         $contrObj->contId = $contId;
         $contrObj->compId = (int)$gObjProp['compId'];

@@ -8,12 +8,12 @@ namespace admin\library\mvc\comp\spl\oiPopular;
  * @author Козленко В.Л.
  */
 class event {
-    const NAME = 'artpopular';
+    const NAME = 'oiPopular';
     /**
      * Сохранение списка каталог
      */
-    const ACTION_SAVE = 'artpopular:save';
-    const DATE_UPDATE = 'artpopular:update';
+    const ACTION_SAVE = 'oiPopular:save';
+    const DATE_UPDATE = 'oiPopular:update';
 
 // class. event
 }

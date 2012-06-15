@@ -39,14 +39,14 @@ class oiList extends \core\classes\component\abstr\admin\comp {
         $compcontTree = new compcontTree();
         $contData = $compcontTree->select('cc.*', 'cc')
             ->join(componentTree::TABLE.' c', 'c.id=cc.comp_id')
-            ->where('c.sysname="objItem"')
+            ->where('c.sysname="objItem" AND cc.isDel="no"')
             ->fetchAll();
 
         $contTree = dhtmlxTree::all($contData, 0);
         self::setJson('contTree', $contTree);
 
-        $artlist = (new oiListOrm)->selectList('*', 'selContId', 'contId='.$contId);
-        self::setJson('artlist', $artlist);
+        $oiList = (new oiListOrm)->selectList('*', 'selContId', 'contId='.$contId);
+        self::setJson('oiList', $oiList);
 
         self::setVar('contId', $this->contId);
 

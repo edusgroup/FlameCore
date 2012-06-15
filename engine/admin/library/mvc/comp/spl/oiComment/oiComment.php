@@ -84,7 +84,8 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
      * @param $pContr
      */
     public function blockItemSave(integer $pBlockItemId, $pContr){
-        $save = ['tplListFile' => $pContr::post('tplListItemId'),
+        $save = [
+            'tplListFile' => $pContr::post('tplListItemId'),
             'tplComFile' => $pContr::post('tplComItemId'), 
             'actionId' => $pContr::postInt('varName'),
             'blockItemId' => $pBlockItemId
@@ -133,7 +134,6 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
             $treeUrl = $routeTree->getTreeUrlById(routeTree::TABLE, $acId);
             if ($treeUrl) {
                 $varList = varModel::getVarList($routeTree, $treeUrl);
-                //array_unshift($varList, array('name' => '---', 'id' => -1));
                 self::setVar('varList', ['list' => $varList]);
             } // if
         } // if ($acId)

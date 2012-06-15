@@ -80,6 +80,7 @@
 
 
             <div class="content">
+                <h6>Агрегация объектов</h6>
                 <div class="bothpanel">
                     <div id="contDiv" class="treePanel"></div>
                     <div id="propBox">
@@ -107,7 +108,7 @@
 <script type="text/javascript">
     var oiListData = {
         contTree: <?= self::get('contTree') ?>,
-        catalog: <?= self::get('artlist') ?>,
+        catalog: <?= self::get('oiList') ?>,
         contid: <?= self::get('contId') ?>
     };
 

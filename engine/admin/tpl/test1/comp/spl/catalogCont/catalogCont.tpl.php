@@ -83,6 +83,7 @@
 
 
             <div class="content">
+                <h6>Создание каталога ссылок для объектов</h6>
                 <!-- <div id="treeDiv" style="width: 200px; height: 300px"></div> -->
                 <div>
                     <div class="dt">Шаблон ссылки</div>

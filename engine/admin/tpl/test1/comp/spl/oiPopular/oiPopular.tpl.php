@@ -47,7 +47,7 @@
         <!-- end title -->
         <!-- start panel right content -->
         <div class="content" id="mainpanel">
-
+            <h6>Популярные объекты</h6>
             <div class="boxmenu corners">
                 <ul class="menu-items">
 

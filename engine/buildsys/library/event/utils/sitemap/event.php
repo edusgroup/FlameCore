@@ -48,7 +48,7 @@ class event {
         }
         $handleObjitem = eventModelObjitem::objItemChange($eventBuffer, $sitemapOrm, new compContTreeOrm(), $childList);
         if ($handleObjitem && $handleObjitem->num_rows == 0) {
-            print "ERROR(" . __METHOD__ . ":: Not found Data" . PHP_EOL;
+            print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
             return;
         }
         // Загружаем шаблон sitemap и производим построение списки

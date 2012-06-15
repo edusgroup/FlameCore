@@ -53,6 +53,7 @@ class catalogCont extends \core\classes\component\abstr\admin\comp {
         self::setJson('tplUrl', $catalogContProp['urltpl']);
 
         $tplFile = self::getTplFile();
+        //print $tplFile;
         $this->view->setBlock('panel', $tplFile);
         $this->view->setTplPath(DIR::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
