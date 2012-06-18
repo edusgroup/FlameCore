@@ -308,7 +308,7 @@ trait category{
 
     public function blockItemShowAction() {
         $this->view->setRenderType(render::NONE);
-        echo 'Нет данных';
+        echo 'article::blockItemShowAction() | No settings in this';
     }
 
     // class objItem

@@ -19,6 +19,15 @@ class comp {
 
     const DEFAULT_VALUE = 'default';
 
+    /**
+     * Получение молного имени класса компонента
+     * @static
+     * @param $pType Тип данных: 'user' или ''
+     * @param $pNs namespace класса
+     * @param $pDir дополнительная под директория, если есть, иначе передовать пустою строку
+     * @param $pClassName имя класса
+     * @return string полное имя класса с namespace
+     */
     public static function getFullCompClassName($pType, $pNs, $pDir, $pClassName) {
         $prefix = '';
         if ($pType == 'user') {

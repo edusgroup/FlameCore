@@ -105,7 +105,8 @@ class nginx {
         $render->setVar('vars', $varList);
 
         $webCoreScript = DIR::getCoreScript();
-        $webCoreScript = '/'.trim($webCoreScript, '/');
+        //$webCoreScript = '/'.trim($webCoreScript, '/');
+        $webCoreScript = trim($webCoreScript, '/');
 
         $siteName = SITE_CONF::NAME;
         // Если это машина разработчика, то нужно изменить адреса с боевого

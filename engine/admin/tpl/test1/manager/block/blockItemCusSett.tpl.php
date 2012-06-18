@@ -150,7 +150,7 @@
      
         function init(pOptions){
             options = pOptions;
-            
+
             // Кнопка Назад
             $(options.backBtn).attr('href', utils.url({
                 contr:'blockItem',

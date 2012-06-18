@@ -187,6 +187,9 @@ class eventModel {
             ->order('file_id, id')
             ->comment(__METHOD__)
             ->fetchAll();
+        if ( !$wfArr){
+            return "WF[$wfId] is empty";
+        }
 
         $blockFileList = [];
         // Бегаем по блокам WF, строим удобный для нас массив
@@ -480,7 +483,7 @@ CODE_STRING;
             ->where('s.acId=' . $pAcId)
             ->comment(__METHOD__)
             ->fetchFirst();
-        if ( $seoData ){
+        if ( !$seoData ){
             return '<!-- '.__METHOD__.'() | No DATA -->';
         }
         // Заголовок
@@ -502,10 +505,8 @@ CODE_STRING;
         ";
 
         if ($seoData['sysname']) {
-            $classFile = filesystem::getName($seoData['classFile']);
-            //var_dump($seoData);
-            // Составляем запись вида:
-            // {ns\name\}\{classname}::{method}({compname},[{param}])
+            $classFile = substr($seoData['classFile'], 1, strlen($seoData['classFile']) - 5);
+            $classFile = str_replace('/', '\\', $classFile);
             $headData .= comp::getFullCompClassName($seoData['classType'], $seoData['ns'], 'logic', $classFile);
             $headData .= "::{$seoData['method']}('{$seoData['name']}', [" .
                 "'linkNextTitle'=>'{$seoData['linkNextTitle']}'," .
@@ -525,9 +526,9 @@ CODE_STRING;
         } // if
         foreach ($data[1] as $item) {
             $code = explode('|', $item);
-            $varname = array_shift($code);
+            $varName = array_shift($code);
             $code = implode("']['", $code);
-            $code = "'.dbus::$" . $varname . "['" . $code . "'].'";
+            $code = "'.dbus::$" . $varName . "['" . $code . "'].'";
             $pWord = str_replace('{' . $item . '}', $code, $pWord);
         } // foreach
         return $pWord;

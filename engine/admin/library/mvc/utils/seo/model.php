@@ -80,9 +80,9 @@ class model {
             ->fetchFirst();
 
         $className = substr($seoData['classFile'], 1, strlen($seoData['classFile']) - 5);
-        //$className = '\core\comp\\' . $seoData['ns'] . 'logic\\' . $className;
+        $className = str_replace('/', '\\', $className);
         $className = comp::getFullCompClassName($seoData['classType'], $seoData['ns'], 'logic', $className);
-
+        //exit;
         if (!class_exists($className)) {
             new \Exception('Bad class name: [' . __METHOD__ . '(className=>' . $className . ')]', 23);
         }
@@ -99,8 +99,9 @@ class model {
             return;
         }
         $className = substr($pClassName, 1, strlen($pClassName) - 5);
-        //$className = '\core\comp\\' . $pNs . 'logic\\' . $className;
+        $className = str_replace('/', '\\', $className);
         $className = comp::getFullCompClassName($pClassType, $pNs, 'logic', $className);
+
         $methodList = get_class_methods(new $className());
         $methodList = array_filter($methodList, function($pItem) {
             return substr($pItem, -3) === 'Seo';

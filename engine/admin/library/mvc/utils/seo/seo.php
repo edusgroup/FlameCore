@@ -30,7 +30,6 @@ class seo extends \core\classes\component\abstr\admin\comp {
     }
 
     public function indexAction() {
-
         self::setVar('contId', $this->contId);
 
         $tree = dhtmlxTree::createTreeOfTable(new routeTree());

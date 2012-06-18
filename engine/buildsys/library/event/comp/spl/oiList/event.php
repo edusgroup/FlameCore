@@ -118,7 +118,6 @@ class event {
             // Досохраняем данные по категориям и создаём настройки
             foreach ($categoryBuffer as $contId => $categoryData) {
                 $fileNum = isset($categoryData['fileNum']) ? $categoryData['fileNum'] : 1;
-                //print $contId.' '.$fileNum.'  '.((boolean)$categoryData['data']).PHP_EOL;
                 if ($categoryData['data']) {
                     ++$fileNum;
                     $data = \serialize($categoryData['data']);

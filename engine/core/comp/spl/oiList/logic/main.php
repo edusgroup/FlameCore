@@ -55,12 +55,10 @@ class main {
         if (!$data) {
             return;
         }
-        $oiList = \unserialize($data);
+        $oiListData = \unserialize($data);
         //var_dump($data);
-        if ($oiList) {
-
+        if ($oiListData) {
             $tpl = userUtils::getCompTpl($comp);
-
             $paginationList = self::getPaginationList($num, $prop['fileCount']);
 
             // Шаблон ссылки для пагинации
@@ -70,7 +68,7 @@ class main {
             $nsPath = $comp['nsPath'];
             $tplFile = DIR::SITE_CORE . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
             (new render($tplFile, ''))
-                ->setVar('oiList', $oiList)
+                ->setVar('oiListData', $oiListData)
                 ->setVar('paginationList', $paginationList)
                 //->setVar('pagionationUrlParam', $paginationUrlTpl)
                 ->setVar('pagionationUrlParam', [])
@@ -81,7 +79,7 @@ class main {
                 ->setMainTpl($tpl)
                 ->setContentType(null)
                 ->render();
-        } // if ($oiList)
+        } // if ($oiListData)
         // func. fileArtList
     }
 

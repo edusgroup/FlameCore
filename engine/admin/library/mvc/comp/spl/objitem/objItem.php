@@ -232,11 +232,6 @@ class objItem extends \core\classes\component\abstr\admin\comp {
         // savePropDataAction 
     }
 
-    public function blockItemShowAction() {
-        $this->view->setRenderType(render::NONE);
-        echo 'Нет данных';
-    }
-
     // class objItem
 }
 

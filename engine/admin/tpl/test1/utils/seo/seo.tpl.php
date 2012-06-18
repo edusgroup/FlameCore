@@ -73,7 +73,7 @@
 
             <div>
                 @TODO CREATE SHOW MSGBOX<br/>
-
+                <h6>Seo Data</h6>
 
                 <div class="bothPanel">
                     <div class="treePanel left" id="acTreeBox"></div>

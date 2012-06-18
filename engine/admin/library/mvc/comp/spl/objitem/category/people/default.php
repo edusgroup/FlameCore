@@ -18,4 +18,9 @@ trait category{
         //$this->view->setMainTpl('main.tpl.php');
     }
 
+    public function blockItemShowAction() {
+        $this->view->setRenderType(render::NONE);
+        echo 'people::blockItemShowAction() | No settings in this';
+    }
+
 }
