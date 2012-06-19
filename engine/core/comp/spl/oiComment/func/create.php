@@ -47,11 +47,15 @@ class create {
 
     public function save() {
         $blockItemId = request::getInt('blockItemId');
-        $acticleId = request::getInt('acticleId');
+        $objItemId = request::getInt('objItemId');
 
         // Текст комментария
         $comment = request::postSafe('comment');
         $author = request::postSafe('author');
+        // Если ни чего нет и
+        if ( !$comment ){
+            return;
+        }
 
         //$commentPostId = request::postInt('comment_post_ID');
         // ID родителя комментария, т.е. к какому комментарию он относится
@@ -77,22 +81,19 @@ class create {
         // Тип комментариев
         $oiCommentType = $oiCommentData['type'];
 
-
         $oiCommentOrm = new oiCommentOrm();
-
         $comList = $oiCommentOrm->selectFirst(
             'id',
-            ['type' => $oiCommentType, 'objId' => $acticleId]
+            ['type' => $oiCommentType, 'objId' => $objItemId]
         );
         $isFirst = !(boolean)$comList;
         unset($comList);
-
 
         $oiCommentOrm->insert(['userName' => $author,
                            'comment' => $comment,
                            'tree_id' => $parentId,
                            'type' => $oiCommentType,
-                           'objId' => $acticleId
+                           'objId' => $objItemId
                            ]);
         $newId = $oiCommentOrm->insertId();
 
@@ -113,7 +114,7 @@ class create {
         // Формируем правильное дерево 
         $comList = $oiCommentOrm->selectAll(
             'id, tree_id',
-            ['type' => $oiCommentType, 'objId' => $acticleId],
+            ['type' => $oiCommentType, 'objId' => $objItemId],
             'tree_id, date_add');
 
         $idString = '';
@@ -139,8 +140,8 @@ class create {
             ->render();
 
         $data = ob_get_clean();
-        $acticleId = word::idToSplit($acticleId);
-        $folder = DIR::APP_DATA . 'comp/' . $oiCommentData['compId'] . '/' . $oiCommentType . '/' . $acticleId;
+        $objItemId = word::idToSplit($objItemId);
+        $folder = DIR::APP_DATA . 'comp/' . $oiCommentData['compId'] . '/' . $oiCommentType . '/' . $objItemId;
         filesystem::saveFile($folder, 'comm.html', $data);
         // func. save
     }

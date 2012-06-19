@@ -26,11 +26,21 @@ server {
         location ~* \.(jpg|jpeg|gif|png|swf|tiff|swf|flv)$ {
             gzip off;
         }
-
-        location ~ /res/core/ {
-            root $coreScriptDir;
-        }
 	}
+
+    location ^~ /webcore/ {
+        location ~ /webcore/func/ {
+            include fastcgi_params;
+            fastcgi_pass $fastcgiPass;
+            fastcgi_param  SCRIPT_FILENAME  $coreScriptDir$fastcgi_script_name;
+            # Not remove, if remove, utils web script don't work
+            fastcgi_param  DOCUMENT_ROOT    $wwwDir;
+            access_log on;
+        } # location ~ /func/
+
+        access_log off;
+        root $coreScriptDir;
+    }
 
     location ^~ /robots.txt {
         gzip off;
@@ -65,7 +75,6 @@ server {
 		 fastcgi_pass $fastcgiPass;
          fastcgi_param  DOCUMENT_ROOT    $wwwDir;
          fastcgi_param  SCRIPT_FILENAME  $wwwDir/$fastcgi_script_name;
-         fastcgi_param  PATH_TRANSLATED  $wwwDir/$fastcgi_script_name;
 	 } # location /
 
     #location /nginx_status {
@@ -77,7 +86,7 @@ server {
 
 	location ~ [^/]$ {
 		 fastcgi_pass $fastcgiPass;
-         fastcgi_param  SCRIPT_FILENAME  $coreScriptDir/script/redirect.php;
+         fastcgi_param  SCRIPT_FILENAME  $coreScriptDir/webcore/script/redirect.php;
          fastcgi_param  QUERY_STRING	    $1?$query_string;
          include fastcgi_params;
 	} # location ~ [^/]$

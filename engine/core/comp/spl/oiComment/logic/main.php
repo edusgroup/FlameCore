@@ -23,9 +23,9 @@ class main {
 
         $tpl = userUtils::getCompTpl($comp);
         
-        $acticleId = dbus::$vars[$comp['varible']]['id'];
+        $objItemId = dbus::$vars[$comp['varible']]['id'];
         
-        $splitId = word::idToSplit($acticleId);
+        $splitId = word::idToSplit($objItemId);
         $commFile = DIR::APP_DATA . 'comp/' . $comp['compId'] . '/' . $comp['type'] . '/'.$splitId.'/comm.html';
 
         $nsPath = $comp['nsPath'];
@@ -34,13 +34,13 @@ class main {
         $render->setMainTpl($tpl)
                 ->setContentType(null)
                 ->setVar('blockItemId', $comp['blockItemId'])
-                ->setVar('acticleId', $acticleId)
+                ->setVar('objItemId', $objItemId)
                 ->setVar('commFile', $commFile)
                 ->render();
     }
     
     public static function init(){
-        dbus::addJsDyn('/res/core/js/comp/spl/oiComment/comments.js');
+        dbus::addJsDyn('/webcore/res/js/comp/spl/oiComment/comments.js');
         // func. init
     }
 
