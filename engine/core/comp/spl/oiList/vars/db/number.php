@@ -14,6 +14,14 @@ use core\classes\dbus;
  */
 class number {
 
+    /**
+     * @static
+     * @param $pNum Номер страницы
+     * @param $pPrevVarName
+     * @param $pContId
+     * @param $pCompId
+     * @return array|bool|mixed
+     */
     public static function checkByNum($pNum, $pPrevVarName, $pContId, $pCompId){
         $num = (int)$pNum;
         if ( $num == 1 ){
@@ -24,7 +32,6 @@ class number {
             $categoryId = dbus::$vars[$pPrevVarName]['id'] . '/';
         }
         $file = DIR::APP_DATA.'comp/'.$pCompId.'/'.$pContId.'/'.$categoryId.'prop.txt';
-		//print $file;
         $data = file_get_contents($file);
         if ($data) {
             $oiListProp = \unserialize($data);
@@ -33,7 +40,9 @@ class number {
                 $oiListProp['num'] = $num;
                 $oiListProp['id'] = $pContId;
                 $oiListProp['prevVarName'] = $pPrevVarName;
+//                dbus::$vars[$pPrevVarName]['num'] = $num;
                 $oiListProp['caption'] = 'Страница '.$num;
+                //var_dump($oiListProp);
                 return $oiListProp;
             } // if
         } // if $data        

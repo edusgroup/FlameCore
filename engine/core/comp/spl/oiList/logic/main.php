@@ -49,7 +49,6 @@ class main {
         } // if
 
         $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/' . $num . '.txt';
-
         $data = @file_get_contents($file);
         $oiList = null;
         if (!$data) {
@@ -107,18 +106,19 @@ class main {
         $data = @file_get_contents($file);
         if ($data) {
             $prop = \unserialize($data);
+            unset($data);
         }else{
             echo 'No found settings file data';
             return;
         } // if
-
         $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/' . $categoryId . '/' . $pageNum . '.txt';
         $data = file_get_contents($file);
-        $oiList = null;
+        $oiListData = null;
         if ($data) {
-            $oiList = \unserialize($data);
+            $oiListData = \unserialize($data);
+            unset($data);
         }
-        if ($oiList) {
+        if ($oiListData) {
             $tpl = userUtils::getCompTpl($comp);
 
             $paginationList = self::getPaginationList($pageNum, $prop['fileCount']);
@@ -129,7 +129,7 @@ class main {
             $nsPath = $comp['nsPath'];
             $tplFile = DIR::SITE_CORE . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
             (new render($tplFile, ''))
-                ->setVar('oiList', $oiList)
+                ->setVar('oiListData', $oiListData)
                 ->setVar('paginationList', $paginationList)
                 ->setVar('paginationUrlTpl', $paginationUrlTpl)
                 ->setVar('categoryUrlTpl', $categoryUrlTpl)
