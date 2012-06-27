@@ -24,10 +24,11 @@ class filesystem {
      * Папки начинающиеся с "." пропускаються
      * @param string $pDir путь к директории
      * @param integer $pFileType тип объекта<br/>
-     * filesystem::FILE-выберать только файлы<br/> 
-     * filesystem:DIR-выберать только директории<br/>
-     * filesystem:ALL - все опиции
-     * @param string $pFilter Фильтр по Регекспу или просто строка
+     * <b>filesystem::FILE</b> - выберать только файлы<br/>
+     * <b>filesystem:DIR</b> - выберать только директории<br/>
+     * <b>filesystem:ALL</b> - все опиции
+     * @param string $pFilter Regexp фильтр на имя объекта.<br/>
+     * Пример <b>/\.php$/i</b>
      * @return array нумерованный массив
      *
      */
@@ -60,6 +61,49 @@ class filesystem {
         }
         return $return;
         // func. dir2array
+    }
+
+
+    /**
+     * Получение списка объектов рекурсивно
+     * @static
+     * @param string $pDir  путь к директории
+     * @param string $pFilter  Regexp фильтр на имя объекта.<br/>
+     * Пример <b>/\.php$/i</b>
+     * @return array
+     */
+    public static function rDir2Arr(string $pDir, $pFilter = null) {
+        $list = [];
+        foreach (scandir($pDir) as $item) {
+            // Выкидываем системные папки
+            if ($item == '.' || $item == '..'){
+                continue;
+            }
+            // Имя оъекта в папке
+            $item = $pDir . "/" . $item;
+            if ( is_dir($item)){
+                $tmpList = self::rDir2Arr($item, $pFilter);
+                $list = array_merge($list, $tmpList);
+            }else{
+                $isAdd = true;
+                // Еслть ли фильтр
+                if ($pFilter) {
+                    // Regexp ли это
+                    if ($pFilter[0] != '/') {
+                        $isAdd = $pFilter == $item;
+                    } else {
+                        $isAdd = preg_match($pFilter, $item);
+                    }
+                } // if ($pFilter)
+                // Нужно ли добавлять
+                if ( $isAdd ){
+                    $list[] = $item;
+                }
+            } // if else is_dir($item)
+        } // foreach
+
+        return $list;
+        // func. rDir2Arr
     }
     
     public static function nsToPath($pNs) {
@@ -117,8 +161,9 @@ class filesystem {
      * Результат: jpg
      */
     public static function getExt(string $pFilename) {
-        $list = explode('.', $pFilename);
-        return end($list);
+        //$list = explode('.', $pFilename);
+        //return end($list);
+        return substr(strrchr($filename, '.'), 1);
     }
 
     public static function getName(string $pFilename){

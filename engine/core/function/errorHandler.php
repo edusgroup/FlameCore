@@ -24,5 +24,3 @@ function errorHandler( $code, $message, $file, $line ) {
 }
 
 set_error_handler('errorHandler');
-
-?>

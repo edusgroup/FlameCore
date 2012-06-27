@@ -60,6 +60,11 @@
                             <img src="<?= self::res('images/event_32.png') ?>" alt="События" /><br /><span>События</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="/?$t=manager&$c=tplvar" title="Переменные">
+                            <img src="<?= self::res('images/refresh_32.png') ?>" alt="Переменные" /><br /><span>Переменные</span>
+                        </a>
+                    </li>
 
                 </ul>
 
