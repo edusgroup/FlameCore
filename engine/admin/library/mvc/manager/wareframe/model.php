@@ -8,6 +8,7 @@ use \site\conf\SITE as SITE_CONF;
 
 // Engine
 use core\classes\valid;
+use core\classes\tplParser\tplBlockParser;
 
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
@@ -110,7 +111,7 @@ class model {
             }
         }
         $tplBlockParser = new tplBlockParser($file);
-        return $tplBlockParser->list;
+        return $tplBlockParser->getBlockList();
     }
 
     public static function makeTree(integer $pWfId, $pActionId) {

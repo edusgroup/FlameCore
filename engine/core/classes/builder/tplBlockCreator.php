@@ -3,7 +3,7 @@
 namespace core\classes\builder;
 
 /**
- * Description of tplBlockParser
+ * Description of tplBlockCreator
  *
  * @author Козленко В.Л.
  */
@@ -114,7 +114,7 @@ class tplBlockCreator {
         // func. start
     }
 
-    // class tplBlockParser
+    // class tplBlockCreator
 }
 
 ?>
