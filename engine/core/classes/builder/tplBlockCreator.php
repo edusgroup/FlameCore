@@ -66,7 +66,7 @@ class tplBlockCreator {
     }
 
     public function varible($pName, $pTitle = ''){
-        isset($this->_varibleList[$pName])?$this->_varibleList[$pName]:'';
+        echo isset($this->_varibleList[$pName])?$this->_varibleList[$pName]:'';
         // func. varible
     }
 
