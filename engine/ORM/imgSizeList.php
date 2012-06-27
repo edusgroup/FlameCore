@@ -12,5 +12,3 @@ class imgSizeList extends \core\classes\DB\table {
     const TABLE = 'pr_imgsize_list';
 
 }
-
-?>

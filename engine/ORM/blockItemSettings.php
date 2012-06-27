@@ -17,5 +17,3 @@ class blockItemSettings extends \core\classes\DB\table {
 
 // class blockItemSettings
 }
-
-?>

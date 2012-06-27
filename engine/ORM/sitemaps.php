@@ -8,9 +8,7 @@ namespace ORM;
  * @author Козленко В.Л.
  */
 class sitemaps extends \core\classes\DB\table{
-    
-    const TABLE = 'pr_sitemaps';
-    
-}
 
-?>
+    const TABLE = 'pr_sitemaps';
+
+}

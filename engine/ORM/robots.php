@@ -11,5 +11,3 @@ class robots extends \core\classes\DB\table {
 
     const TABLE = 'pr_robots';
 }
-
-?>

@@ -14,6 +14,7 @@ use core\classes\filesystem;
 use core\classes\builder\tplBlockCreator;
 use core\classes\render;
 use core\classes\comp;
+use core\classes\arrays;
 
 // ORM
 use ORM\urlTreePropVar;
@@ -27,6 +28,7 @@ use ORM\urlTplList as urlTplListOrm;
 use ORM\tree\routeTree;
 use ORM\tree\componentTree;
 use ORM\blockItem\relation as biGroupRelationOrm;
+use ORM\tplvar as tplvarOrm;
 
 // Model
 use admin\library\mvc\manager\varible\model as varibleModel;
@@ -367,6 +369,17 @@ class eventModel {
         $codeBuffer .= self::_getInitClassCode($blockItemList);
         $codeBuffer .= "\n\n?>";
 
+        // получаем значение выставленных переменных для шаблонов сайта
+        $tplVarList = (new tplvarOrm())->sql('select * from (
+              select name, value
+              from '.tplvarOrm::TABLE.'
+              where acid='.$pAcId.' or acid is null
+              order by acid desc
+              ) t
+              group by t.name')->fetchAll();
+
+        $tplVarList = arrays::dbQueryToAssoc($tplVarList);
+
         // TODO: Вписать обработку controller
         // Включаем шаблонизатор, что бы получить код страницы
         $tplSitePath = DIR::getSiteTplPath();
@@ -381,6 +394,8 @@ class eventModel {
         $headData = self::getHeadData($pAcId);
         $tplBlockCreator->setHeadData($headData);
         unset($headData);
+
+        $tplBlockCreator->setVaribleList($tplVarList);
 
         $scriptStaticData = self::getScriptStaticData();
         $scriptDynData = self::getScriptDynData();

@@ -9,5 +9,3 @@ namespace ORM;
 class contFile extends \core\classes\DB\table {
     const TABLE = 'pr_cont_file';
 }
-
-?>

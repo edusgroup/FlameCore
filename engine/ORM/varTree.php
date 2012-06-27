@@ -11,5 +11,3 @@ class varTree extends \core\classes\DB\table {
 
     const TABLE = 'pr_var_tree';
 }
-
-?>

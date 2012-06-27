@@ -50,19 +50,19 @@
                     </li>
                 </ul>
             </div>
-                <h6>Список переменных</h6>
-                <div>
-                    <?foreach(self::get('varList') as $name => $title ){?>
-                        <p><?=$title?:$name?></p>
-                        <input type="text" name="<?=$name?>"/>
-                    <?}?>
-                </div>
+
 
             <div class="content">
-
+                <h6>Список переменных</h6>
                 <form id="mainForm">
-
-
+                    <div>
+                        <?
+                        $saveData = self::get('saveData', []);
+                        foreach(self::get('varList') as $name => $title ){?>
+                        <p><?=$title?:$name?></p>
+                        <input type="text" name="var[<?=$name?>]" value="<?=isset($saveData[$name])?$saveData[$name]:''?>"/>
+                        <?}?>
+                    </div>
                 </form>
 
             </div><!-- end panel right content -->
@@ -72,7 +72,7 @@
 
 
 <script type="text/javascript">
-    var contrName = 'blockItem';
+    var contrName = 'tplvar';
     var callType = 'manager';
     utils.setType(callType);
     utils.setContr(contrName);
@@ -80,7 +80,7 @@
     HAjax.setType(callType);
    
     var tplVarData = {
-
+        acId: "<?=self::get('acid')?>"
     };
     
     var tplVarMvc = (function(){
@@ -88,12 +88,12 @@
 
         // Клик по кноке Сохранить
         function saveBtnClick(){
-            var data = $(options.mainForm).serialize();
+            var data = $('#'+options.mainForm).serialize();
             
-            HAjax.dataSave({
+            HAjax.saveData({
                 data: data,
                 query:{
-
+                    acid: tplVarData.acId
                 }, 
                 methodType: 'POST'
             });
@@ -101,7 +101,7 @@
         }
         
         // callback сохранения данных
-        function dataSaveSuccess(pData){
+        function saveDataSuccess(pData){
             if ( pData['error'] ){
                 alert(pData['error']['msg']);
                 return;
@@ -115,14 +115,14 @@
             options = pOptions;
 
             // Кнопка Назад
-            $(options.backBtn).attr('href', utils.url({
+            $('#'+options.backBtn).attr('href', utils.url({
                 contr:'action'
             }));
             // Кнопка Сохранить
-            $(options.saveBtn).click(saveBtnClick);
+            $('#'+options.saveBtn).click(saveBtnClick);
 
             HAjax.create({
-                dataSave: dataSaveSuccess
+                saveData: saveDataSuccess
             });
             // func. init
         }
@@ -135,9 +135,9 @@
     $(document).ready(function(){
         
         tplVarMvc.init({
-            backBtn: '#backBtn',
-            saveBtn: '#saveBtn',
-            mainForm: '#mainForm'
+            backBtn: 'backBtn',
+            saveBtn: 'saveBtn',
+            mainForm: 'mainForm'
         });         
     }); // $(document).ready
 

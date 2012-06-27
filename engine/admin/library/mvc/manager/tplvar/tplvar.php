@@ -7,13 +7,15 @@ use core\classes\filesystem;
 use core\classes\mvc\controllerAbstract;
 use core\classes\render;
 use core\classes\tplParser\tplBlockParser;
+use core\classes\arrays;
 
 // Conf
 use \DIR;
 use \SITE;
 // ORM
 use ORM\blockfile as blockFileOrm;
-use ORM\tree\wareframeTree as wfTreeOrm;
+use ORM\tplvar as tplvarOrm;
+//use ORM\tree\wareframeTree as wfTreeOrm;
 
 /**
  * Страница Выбор файла
@@ -26,30 +28,42 @@ class tplvar extends controllerAbstract {
 	}
 
 	public function indexAction(){
-        $actionId = self::getInt('acid', null);
+        $actionId = self::getInt('acid', '');
+        self::setVar('acid', $actionId);
 
         // Получаем список файлов для WF или по всему сайту
         $blockFileOrm = new blockFileOrm();
         // Если action ID не задано, то показываем переменные по всему сайту
-        if ( $actionId != null ){
+        if ( $actionId != '' ){
             $blockFileOrm
                 ->select('bftmp.file', 'bf')
                 ->join(blockFileOrm::TABLE.' bftmp', 'bftmp.wf_id = bf.wf_id')
                 ->where('bf.action_id='.$actionId);
+
+            $saveData = (new tplvarOrm())->selectAll('name, value', 'acId='.$actionId);
         }else{
             $blockFileOrm->select('file', 'bf');
+            $saveData = (new tplvarOrm())->selectAll('name, value', 'acId is null');
         }
+        // Список всех шаблонов сайта по WF
         $blockFileList = $blockFileOrm->comment(__METHOD__)->fetchAll();
 
+        // Директория, где храняться шаблоны
         $tplDir = DIR::getSiteTplPath();
         $tplBlockParser = new tplBlockParser('');
-
         $varibleList = [];
         // Бегаем по всем файлам
         foreach($blockFileList as $item){
             $tplBlockParser->parseBlock($tplDir.$item['file']);
             $varibleList = array_merge($varibleList, $tplBlockParser->getVaribleList());
         }
+
+
+        // Есть ли сохранённые данные
+        if ( $saveData ){
+            $saveData = arrays::dbQueryToAssoc($saveData);
+            self::setVar('saveData', $saveData);
+        } // if ( $saveData )
 
         self::setVar('varList', $varibleList);
 
@@ -60,15 +74,28 @@ class tplvar extends controllerAbstract {
 
     public function saveDataAction(){
         $this->view->setRenderType(render::JSON);
-        $siteName = self::get('siteName');
-        $path = '../FlameCore/buildsys/';
-        if ( strToLower(substr(PHP_OS, 0, 3)) === 'win' ){
-            $path = str_replace('/', DIRECTORY_SEPARATOR, $path );
-            $file = 'run.bat "cmd=event method=run siteName='.$siteName.'"';
-        }else{
-            $file = 'run.sh cmd=event method=run siteName='.$siteName;
-        } // if
-        exec( $path.$file );
+
+        $actionId = self::getInt('acid', null);
+        $varibleList = self::post('var');
+        if ( is_array($varibleList)){
+            $tplvarOrm = new tplvarOrm();
+            if ( $actionId != null ){
+                $tplvarOrm->delete('acid='.$actionId);
+            }else{
+                $tplvarOrm->delete('acid is null');
+            }
+
+            foreach( $varibleList as $name => $val ){
+                if ( !$val ){
+                    continue;
+                }
+                $tplvarOrm->insert(['name'=>$name,
+                                   'value'=>$val,
+                                   'acId' => $actionId]);
+            } // foreach
+
+        } // if is_array
+
         // func. saveDataAction
     }
 

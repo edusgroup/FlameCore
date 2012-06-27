@@ -15,5 +15,3 @@ class blockItemRegxUrl extends \core\classes\DB\table {
 
 // class blockItemRegxUrl
 }
-
-?>

@@ -22,10 +22,15 @@ class tplBlockCreator {
     // Данные блока script
     private $scriptStaticData = '';
     private $scriptDynData = '';
+    private $_varibleList = [];
 
     public function setHeadData($pData) {
         $this->headData = $pData;
         // func. setHeadData
+    }
+
+    public function setVaribleList($pVarList){
+        $this->_varibleList = $pVarList;
     }
 
     public function setScriptData($pStaic, $pDyn) {
@@ -58,6 +63,11 @@ class tplBlockCreator {
 
     public function __call($pName, $pParam) {
 
+    }
+
+    public function varible($pName, $pTitle = ''){
+        isset($this->_varibleList[$pName])?$this->_varibleList[$pName]:'';
+        // func. varible
     }
 
     protected function block($pName, $pTitle = '') {

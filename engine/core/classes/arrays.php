@@ -25,5 +25,14 @@ class arrays {
         return false;
         // func. searchPreg
     }
+
+    public static function dbQueryToAssoc($pListArr, $name='name', $val='value'){
+        $return = [];
+        foreach( $pListArr as $item){
+            $return[$item[$name]] = $item[$val];
+        } // foreach
+        return $return;
+        // func. dbQueryToAssoc
+    }
 // class arrays
 }

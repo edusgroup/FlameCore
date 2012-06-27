@@ -14,5 +14,3 @@ class compprop extends \core\classes\DB\table {
 
 // class compprop
 }
-
-?>

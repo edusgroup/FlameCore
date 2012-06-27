@@ -12,5 +12,3 @@ class users extends \core\classes\DB\table {
     const TABLE = 'pr_users';
 
 }
-
-?>

@@ -15,5 +15,3 @@ class urlTreePropVar extends \core\classes\DB\table {
         return $pId == -1 ? '' : (int) self::get('wf_id', 'acId=' . $pId);
     }
 }
-
-?>
