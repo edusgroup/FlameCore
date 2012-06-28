@@ -8,6 +8,7 @@ server {
     server_name  <?=self::get('siteName')?>;
 
     access_log  <?=self::get('nginxLog')?>access.log  main;
+    error_log   <?=self::get('nginxLog')?>error.log;
 
 	set $wwwDir <?=self::get('siteRoot')?>;
 	set $coreScriptDir <?=self::get('coreScript')?>;
