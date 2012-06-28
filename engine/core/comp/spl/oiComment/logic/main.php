@@ -29,7 +29,7 @@ class main {
         $commFile = DIR::APP_DATA . 'comp/' . $comp['compId'] . '/' . $comp['type'] . '/'.$splitId.'/comm.html';
 
         $nsPath = $comp['nsPath'];
-        $tplFile = DIR::SITE_CORE . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
+        $tplFile = DIR::TPL . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
         $render = new render($tplFile, '');
         $render->setMainTpl($tpl)
                 ->setContentType(null)

@@ -34,7 +34,7 @@ class breadCrumbs {
 
         $tpl = $std['tpl'];
         $nsPath = $std['nsPath'];
-        $tplFile = DIR::SITE_CORE . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
+        $tplFile = DIR::TPL . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
         $render = new render($tplFile, '');
         $render->setMainTpl($tpl)
             ->setVar('breadcrumbs', $breadcrumbs)

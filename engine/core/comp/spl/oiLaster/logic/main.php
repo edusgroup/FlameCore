@@ -33,7 +33,7 @@ class main {
         if ($list) {
             $tpl = userUtils::getCompTpl($comp);
             $nsPath = $comp['nsPath'];
-            $tplFile = DIR::SITE_CORE . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
+            $tplFile = DIR::TPL . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
             (new render($tplFile, ''))
                 ->setVar('list', $list)
                 ->setMainTpl($tpl)

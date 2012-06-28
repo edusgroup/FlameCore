@@ -35,7 +35,7 @@ class article {
 
         $nsPath = $comp['nsPath'];
         // Директорию, где храняться шаблоны компонента
-        $tplFile = DIR::SITE_CORE . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
+        $tplFile = DIR::TPL . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
         $render = new render($tplFile, '');
         // Настройки статьи
         $render->setVar('infoData', $infoData);

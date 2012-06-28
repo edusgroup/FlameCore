@@ -65,7 +65,7 @@ class main {
             $categoryUrlTpl = isset($comp['urlTpl']['category'])?$comp['urlTpl']['category']:'';
 
             $nsPath = $comp['nsPath'];
-            $tplFile = DIR::SITE_CORE . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
+            $tplFile = DIR::TPL . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
             (new render($tplFile, ''))
                 ->setVar('oiListData', $oiListData)
                 ->setVar('paginationList', $paginationList)
@@ -127,7 +127,7 @@ class main {
             $paginationUrlTpl = isset($comp['urlTpl']['pageNav'])?$comp['urlTpl']['pageNav']:'';
             $categoryUrlTpl = isset($comp['urlTpl']['category'])?$comp['urlTpl']['category']:'';
             $nsPath = $comp['nsPath'];
-            $tplFile = DIR::SITE_CORE . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
+            $tplFile = DIR::TPL . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
             (new render($tplFile, ''))
                 ->setVar('oiListData', $oiListData)
                 ->setVar('paginationList', $paginationList)
