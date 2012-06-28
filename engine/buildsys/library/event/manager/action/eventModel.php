@@ -439,7 +439,7 @@ CODE_STRING;
             }
 
             setTimeout(function(){
-                $import('/res/js/template.js');
+                //$import('/res/js/template.js');
                 <?php
             $dbusHeadCount = count(dbus::$head['jsDyn']);
             for( $i = 0; $i < $dbusHeadCount; $i++ ){
@@ -564,5 +564,3 @@ CODE_STRING;
 
     // class eventModel
 }
-
-?>
