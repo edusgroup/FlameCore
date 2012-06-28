@@ -5,9 +5,11 @@ namespace admin\library\mvc\manager\wareframe;
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 use admin\library\mvc\plugin\dhtmlx\model\grid as dhtmlxGrid;
+
 // Conf
 use \site\conf\SITE as SITE_CONF;
 use \DIR;
+
 // Engine
 use core\classes\filesystem;
 use core\classes\valid;
@@ -24,6 +26,7 @@ use ORM\tree\wareframeTree;
 use ORM\tree\routeTree;
 use ORM\urlTreePropVar;
 use ORM\tree\compContTree;
+
 // Event
 use admin\library\mvc\manager\blockItem\event as eventBlockItem;
 
@@ -35,7 +38,7 @@ use admin\library\mvc\manager\blockItem\event as eventBlockItem;
 class wareframe extends controllerAbstract {
 
     public function init() {
-        
+
     }
 
     public function indexAction() {
@@ -45,14 +48,14 @@ class wareframe extends controllerAbstract {
         self::setVar('acId', $acId);
 
         $urlTreePropVar = new urlTreePropVar();
-        $wfId = $urlTreePropVar->getWFId($acId?:-1);
+        $wfId = $urlTreePropVar->getWFId($acId ? : -1);
         //if ( !$wfId )
         //    throw new \Exception('WF не найден', 25);
         self::setVar('wfId', $wfId);
-        
+
         $blockId = self::get('blid');
         if ($blockId) {
-            blockItem::validBlockId($blockId, new \Exception('Неверный формат block_id' , 90));
+            blockItem::validBlockId($blockId, new \Exception('Неверный формат block_id', 90));
             self::setVar('blId', $blockId);
         }
 
@@ -82,15 +85,6 @@ class wareframe extends controllerAbstract {
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }
-
-    /*public function testAction() {
-        $this->view->setRenderType(render::JSON);
-        $blockItem = new blockItem();
-        $data = $blockItem->getList(-1, 230, 61);
-        $grid = dhtmlxGrid::createGridOfArray($data);
-        self::setVar('json', $grid);
-        // func. testAction
-    }*/
 
     /**
      * Добавляем папку. AJAX
@@ -135,25 +129,22 @@ class wareframe extends controllerAbstract {
 
     /**
      * Удалиние ветки в дереве страниц
-     * @return void 
+     * @return void
      */
     public function rmObjAction() {
         $this->view->setRenderType(render::JSON);
         if (!self::isPost())
             return;
         $id = self::postInt('id', -1);
-        $rmList = dhtmlxTree::remove(new wareframeTree(), $id);
-        /* self::initStorage(ADMIN_CONF::STORAGE_TYPE);
-          model::clearStorage($rmList); */
-        self::setVar('json', array(
-            'id' => $id,
-            'treeName' => self::post('treeName')));
+        dhtmlxTree::remove(new wareframeTree(), $id);
+        self::setVar('json', ['id' => $id,
+                             'treeName' => self::post('treeName') ]);
         // func. rmObjAction
     }
 
     /**
      * Загрузка дерева блоков
-     * @return void 
+     * @return void
      */
     public function loadBlockTreeAction() {
         $this->view->setRenderType(render::JSON);
@@ -169,15 +160,19 @@ class wareframe extends controllerAbstract {
     }
 
     /**
-     * Сохранение блоков в WF
-     * @return type 
+     * Сохранение блоков(добавленных шаблонов в дерево WF)<br/>
+     * Функция типа: JSON <br/>
+     * Входящие параметры: <br/>
+     *
+     * @return type
      */
     public function saveBlockAction() {
         $this->view->setRenderType(render::JSON);
-        if ( !self::isPost()){
+        if (!self::isPost()) {
             return;
         }
 
+        // Все файлы в формате JSON
         $file = self::post('file');
         $rmList = self::post('del');
 
@@ -185,13 +180,15 @@ class wareframe extends controllerAbstract {
         $wfId = self::postInt('wfid');
         $wareframeTree = new wareframeTree();
         $wareframeTree->isExists($wfId, new \Exception('wf not found', 33));
-        
-        $eventData = array('acId'=>$acId, 'wfId'=>$wfId);
+
+        $eventData = ['acId' => $acId, 'wfId' => $wfId];
         eventsys::callOffline(eventBlockItem::BLOCKITEM, eventBlockItem::CHANGE, $eventData);
 
-        $json = array();
+        $routeTreeWhere = $acId ? 'id='.$acId : 'id != 0';
+        (new routeTree())->update(['isSave' => 'yes'], $routeTreeWhere);
+
+        $json = ['ok' => 'ok'];
         $json['new'] = model::saveBlock($wfId, $acId, $file, $rmList);
-        $json['ok'] = 'ok';
 
         self::setVar('json', $json);
         // func. saveBlockAction
@@ -200,24 +197,34 @@ class wareframe extends controllerAbstract {
     /**
      * Парсинг файла темлейта и получение из него блоков.<br/>
      * Используется на событии onDbClick на fsTree
-     * Возвращает в формате:<br/> 
+     * Возвращает в формате:<br/>
      * {list:['blockname1', 'blockname2'], file:'filename', id:id}
      */
     public function tplToBlockAction() {
         $this->view->setRenderType(render::JSON);
         $file = self::get('file', '');
-        
-        $json = array();
+
+        $json = ['file' => $file];
         $json['list'] = model::tplBlockParser($file, new \Exception('Файл не достпен для чтения', 70));
-        $json['file'] = $file;
         $json['id'] = self::get('id');
         $json['fileId'] = self::get('fileId');
         self::setVar('json', $json);
         // func. tplToBlockAction
     }
-    
-    public function saveBlockItemAction(){
+
+    /**
+     * Сохранение данных по таблице с компонентами в Wareframe<br/>
+     * Функция типа: JSON <br/>
+     * Входящие параметры: <br/>
+     * <b>data</b> json - Формат данных: [{id:val, data:{compId:val, name:val, sysname:val}], {...}]
+     * acid
+     * blid
+     * wfid
+     */
+    public function saveBlockItemAction() {
         $this->view->setRenderType(render::JSON);
+        // Данные для сохранения. JSON
+        // Формат данных: [{id:val, data:{compId:val, name:val, sysname:val}], {...}]
         $data = self::post('data');
         // action id. см. таблицу url_tree
         // если значение пришло null, мы находим в общей WF
@@ -228,53 +235,53 @@ class wareframe extends controllerAbstract {
         $eventData = ['acId' => $acId,
                       'blId' => $blId,
                       'wfId' => $wfId];
+        // Выставление события, о том что блок изменился
         eventsys::callOffline(eventBlockItem::BLOCKITEM, eventBlockItem::CHANGE, $eventData);
-        
+
         $listId = model::saveBlockItem($data, $acId, $blId, $wfId);
 
+        // Если было изменён порядок следования компонентов
         $position = self::post('position');
         model::changeBlockItemPosition($position, $listId);
-        
-        $json = array();
-        $json['listid'] = $listId;
-        $json['blid'] = $blId;
+
+        $json = ['blid' => $blId, 'listid' => $listId];
         self::setVar('json', $json);
         // func. saveBlockItemAction
     }
-    
-    public function loadBlockItemAction(){
+
+    public function loadBlockItemAction() {
         $this->view->setRenderType(render::NONE);
         header('Content-Type: text/xml; charset=UTF-8');
-        
+
         $acId = self::getInt('acid', null);
         $blId = self::get('blid');
         $wfId = self::getInt('wfid');
 
         $blockItemList = model::getBlockItemList($acId, $blId, $wfId);
 
-        $data = array('body' => $blockItemList);
+        $data = ['body' => $blockItemList];
         $listXML = dhtmlxGrid::createXMLOfArray($data, null, ['acId']);
 
         echo $listXML;
         // func. loadBlockItemAction
     }
-    
-    public function rmBlockItemAction(){
+
+    public function rmBlockItemAction() {
         $this->view->setRenderType(render::JSON);
         $listId = self::post('idlist');
         eventsys::callOffline(eventBlockItem::BLOCKITEM, eventBlockItem::DELETE, $listId);
         $list = dhtmlxGrid::rmRows($listId, new blockItem());
-        
+
         $blockId = self::post('blid');
-		
-		$acId = self::postInt('acid');
-		$where = $acId ? ' AND id='.$acId : '';
-		(new routeTree())->update('isSave="yes"', 'id != 0'.$where);
-        
-        self::setVar('json', array('blid' => $blockId, 'list' => $list));
+
+        $acId = self::postInt('acid');
+        $where = $acId ? ' AND id=' . $acId : '';
+        (new routeTree())->update('isSave="yes"', 'id != 0' . $where);
+
+        self::setVar('json', ['blid' => $blockId, 'list' => $list]);
         // rmBlockItemAction 
     }
-// class wareframe
+    // class wareframe
 }
 
 ?>

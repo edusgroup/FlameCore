@@ -81,7 +81,10 @@ class model {
             $fileDist['block'] = $data['block'];
             $fileDist['action_id'] = $pActionId;
             //$fileDist['fileId'] = $fileId;
-            $newId = $blockfile->save(array('id' => $fileId), $fileDist);
+            $newId = $blockfile->save(
+                ['id' => $fileId],
+                $fileDist
+            );
             if ($newId) {
                 $file2id[$fileId] = $newId;
             } // if
@@ -283,8 +286,18 @@ class model {
         // func. makeTree
     }
 
+    /**
+     * @static
+     * @param $pData данные для сохранения, в формате JSON.<br/>
+     * Формат данных $pData = [{id:val, data:{compId:val, name:val, sysname:val}], {...}]
+     * @param $pAcId action Id
+     * @param $pBlId
+     * @param $pWfId wareframe ID
+     * @return array
+     * @throws \Exception
+     */
     public static function saveBlockItem($pData, $pAcId, $pBlId, $pWfId) {
-        $return = array();
+        $return = [];
         // Парсим данны
         $data = json_decode($pData, true);
         if ($data) {

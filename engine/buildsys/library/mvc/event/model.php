@@ -12,5 +12,3 @@ class model {
     
     // class. model
 }
-
-?>

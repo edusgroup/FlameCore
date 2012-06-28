@@ -71,4 +71,3 @@ try {
 }
 
 //print "\n<br style='clear:both'/>Use:".''.memory_get_usage().'<br/>Max:'.memory_get_peak_usage().'<br/>';
-?>

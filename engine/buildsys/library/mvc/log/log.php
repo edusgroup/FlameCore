@@ -14,9 +14,9 @@ use core\classes\filesystem;
 
 
 /**
- * Description of event
+ * Обработка пополярности объектов. Парсинг лога nginx
  * Параметры запуска:<br/>
- * run.php cmd=log method=run
+ * run.php cmd=log method=run site=sitename.ru
  *
  * @author Козленко В.Л.
  */
@@ -61,6 +61,7 @@ class log {
         // Создаём вспомогательную таблицу для статей
         logparse::createTable();
         // URL шаблона статьи
+        // TODO: сделать управление из админки
         logparse::setTitleRegexp('#/blog/[^/]+/([^/]+)/#');
 
         // Открываем файл лога на парсинг

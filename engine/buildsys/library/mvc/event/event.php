@@ -14,7 +14,7 @@ use \SITE;
 /**
  * Description of event
  * Параметры запуска:<br/>
- * run.php cmd=event method=run
+ * run.php cmd=event method=run site=sitename.ru
  *
  * @author Козленко В.Л.
  */
@@ -64,10 +64,8 @@ class event {
             } // if method_exists
         } // for ( $i )
 
-        //$eventBuffer->delete('id<='.$idMax);
+        $eventBuffer->delete('id<='.$idMax);
         // func. run
     }
     // class. event
 }
-
-?>
