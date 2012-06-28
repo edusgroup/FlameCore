@@ -48,7 +48,7 @@ class main {
         if ($list) {
             $tpl = userUtils::getCompTpl($comp);
             $nsPath = $comp['nsPath'];
-            $tplFile = DIR::TPL . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
+            $tplFile = DIR::TPL . 'comp/' . $nsPath;
             (new render($tplFile, ''))
                 ->setVar('list', $list)
                 ->setVar('miniData', $miniData)

@@ -100,7 +100,7 @@ class create {
         // ======= Создаём код Комментария
         // Преобразуем NameSpace имя в путь папки
         $nsPath = filesystem::nsToPath($oiCommentData['ns']);
-        $tplDir = DIR::TPL . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
+        $tplDir = DIR::TPL . 'comp/' . $nsPath;
         // Создаём шаблон
         $render = new render($tplDir, '');
         $render->setMainTpl($tplComFile)

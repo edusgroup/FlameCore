@@ -31,7 +31,7 @@ class menu {
         if ($menuTree) {
             $tpl = $std['tpl'];
             $nsPath = $std['nsPath'];
-            $tplFile = DIR::TPL . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
+            $tplFile = DIR::TPL . 'comp/' . $nsPath;
             $render = new render($tplFile, '');
             $render->setVar('menuTree', $menuTree);
             $render->setMainTpl($tpl)

@@ -29,7 +29,7 @@ class main {
         if ($dataList) {
             $tpl = userUtils::getCompTpl($comp);
             $nsPath = $comp['nsPath'];
-            $tplFile = DIR::TPL . 'tpl/' . SITE::THEME_NAME . '/comp/' . $nsPath;
+            $tplFile = DIR::TPL . 'comp/' . $nsPath;
             (new render($tplFile, ''))
                 ->setVar('list', $dataList)
                 ->setVar('href', DIR::URL_IMG_RESIZE_PUBLIC.$prefix)
