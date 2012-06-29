@@ -47,10 +47,10 @@
         </div>
 
 
-        <!--<form enctype="multipart/form-data" id="formTest" method="post">
+        <form enctype="multipart/form-data" id="formTest" method="post">
             Send this file: <input name="files" type="file">
             <input type="submit" value="Send File">
-        </form>-->
+        </form>
 
         
 
@@ -193,7 +193,7 @@
                 SWFUploadSettings.file_post_name = 'files';
                 SWFUploadSettings.upload_url = utils.url({method: 'uploadFile', query: file.userQuery});
                 SWFUploadSettings.upload_url += '&siteName=' + file.siteName;
-                //$('#formTest').attr('action', SWFUploadSettings.upload_url);
+                $('#formTest').attr('action', SWFUploadSettings.upload_url);
                 SWFUploadSettings.file_dialog_complete_handler = file.fileDialogComplete;
 		        SWFUploadSettings.button_window_mode = 'opaque';
 		        SWFUploadSettings.debug = false;
