@@ -163,7 +163,7 @@ class filesystem {
     public static function getExt(string $pFilename) {
         //$list = explode('.', $pFilename);
         //return end($list);
-        return substr(strrchr($filename, '.'), 1);
+        return substr(strrchr($pFilename, '.'), 1);
     }
 
     public static function getName(string $pFilename){
