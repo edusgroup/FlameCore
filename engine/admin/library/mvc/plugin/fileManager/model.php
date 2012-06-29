@@ -48,15 +48,15 @@ class model {
     }
     
     public static function getFileData(string $pFile, string $pPathDist) {
-        $data = array();
+        $data = [];
         $ext = filesystem::getExt($pFile);
-        if (in_array($ext, array('jpg', 'png', 'gif'))) {
+        if (in_array($ext, ['jpg', 'png', 'gif', 'jpeg'])) {
             $data['preview'] = $pFile;
             $data['type'] = 'img';
             $imageProp = new imageProp($pPathDist.$pFile);
             $data['imgsize'] = $imageProp->getWidth().'x'.$imageProp->getHeight();
         } else {
-            $extImgPath = DIR::TPL_RES . 'fileManager/img/ext/';
+            $extImgPath = '/res/plugin/fileManager/img/ext/';
             $extImgFile = $extImgPath . $ext . '.png';
             $data['preview'] = is_file($extImgFile) ? $extImgFile : $extImgPath . 'default.png';
             $data['type'] = 'file';
