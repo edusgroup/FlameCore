@@ -59,10 +59,10 @@ class breadCrumbs extends \core\classes\component\abstr\admin\comp {
         self::setVar('contId', $contId);
 
         // Список компонентов wareframe
-        $compList = [];
+        //$compList = [];
 
         // Получаем сохранённые данные
-        $name = (new breadCrumbsOrm())->get('name', ['acId' => $actionId, 'contId'=>$contId] );
+        $name = (new breadCrumbsOrm())->get('name', ['acId' => $actionId, 'contId' => $contId] );
         if ( $name ){
             self::setVar('name', $name);
         }

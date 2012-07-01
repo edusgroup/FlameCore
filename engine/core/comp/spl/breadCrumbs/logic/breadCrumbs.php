@@ -42,6 +42,5 @@ class breadCrumbs {
             ->render();
         // renderFile
     }
-
     // class menu
 }
