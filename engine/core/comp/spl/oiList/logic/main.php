@@ -21,6 +21,11 @@ class main {
         'pageNav' => null,
         'category' => null
     );
+	
+	private static $_paginationList;
+	private static $_paginationUrlTpl;
+	private static $_paginationUrlParam = [];
+	private static $_paginationPageNum;
 
     /**
      * Вывод всего списка ( без категорий )
@@ -31,14 +36,14 @@ class main {
         $compId = $comp['compId'];
         $contId = $comp['contId'];
 
-        // Если есть num, то это ID каталога и мы на страницы с номером страницы
+        // Если есть pageNum, то это ID каталога и мы на страницы с номером страницы
         if ( isset($comp['varName'])){
             $varName = $comp['varName'];
             // Номер страницы
-            $num = dbus::$vars[$varName]['num'];
+            $pageNum = dbus::$vars[$varName]['num'];
             $prop = dbus::$vars[$varName];
         }else{
-            $num = 1;
+            $pageNum = 1;
             // Если data нет, это загружаем настроки
             $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/prop.txt';
             $data = @file_get_contents($file);
@@ -48,7 +53,7 @@ class main {
             $prop = \unserialize($data);
         } // if
 
-        $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/' . $num . '.txt';
+        $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/' . $pageNum . '.txt';
         $data = @file_get_contents($file);
         $oiList = null;
         if (!$data) {
@@ -58,22 +63,22 @@ class main {
         //var_dump($data);
         if ($oiListData) {
             $tpl = userUtils::getCompTpl($comp);
-            $paginationList = self::getPaginationList($num, $prop['fileCount']);
+            self::$_paginationList = self::getPaginationList($pageNum, $prop['fileCount']);
 
             // Шаблон ссылки для пагинации
-            $paginationUrlTpl = isset($comp['urlTpl']['pageNav'])?$comp['urlTpl']['pageNav']:'';
+            self::$_paginationUrlTpl = isset($comp['urlTpl']['pageNav'])?$comp['urlTpl']['pageNav']:'';
+			self::$_paginationPageNum = $pageNum;
             $categoryUrlTpl = isset($comp['urlTpl']['category'])?$comp['urlTpl']['category']:'';
 
             $nsPath = $comp['nsPath'];
             $tplFile = DIR::TPL . 'comp/' . $nsPath;
             (new render($tplFile, ''))
                 ->setVar('oiListData', $oiListData)
-                ->setVar('paginationList', $paginationList)
-                //->setVar('pagionationUrlParam', $paginationUrlTpl)
+                ->setVar('paginationList', self::$_paginationList)
                 ->setVar('pagionationUrlParam', [])
-                ->setVar('paginationUrlTpl', $paginationUrlTpl)
+                ->setVar('paginationUrlTpl', self::$_paginationUrlTpl)
                 ->setVar('categoryUrlTpl', $categoryUrlTpl)
-                ->setVar('pageNum', $num)
+                ->setVar('pageNum', $pageNum)
                 ->setVar('objItemDir', DIR::APP_DATA)
                 ->setMainTpl($tpl)
                 ->setContentType(null)
@@ -121,19 +126,22 @@ class main {
         if ($oiListData) {
             $tpl = userUtils::getCompTpl($comp);
 
-            $paginationList = self::getPaginationList($pageNum, $prop['fileCount']);
-
+            self::$_paginationList = self::getPaginationList($pageNum, $prop['fileCount']);
+			
             // Шаблон ссылки для пагинации
-            $paginationUrlTpl = isset($comp['urlTpl']['pageNav'])?$comp['urlTpl']['pageNav']:'';
+            self::$_paginationUrlTpl = isset($comp['urlTpl']['pageNav'])?$comp['urlTpl']['pageNav']:'';
+			self::$_paginationUrlParam = [$catName];
+			self::$_paginationPageNum = $pageNum;
+			
             $categoryUrlTpl = isset($comp['urlTpl']['category'])?$comp['urlTpl']['category']:'';
             $nsPath = $comp['nsPath'];
             $tplFile = DIR::TPL . 'comp/' . $nsPath;
             (new render($tplFile, ''))
                 ->setVar('oiListData', $oiListData)
-                ->setVar('paginationList', $paginationList)
-                ->setVar('paginationUrlTpl', $paginationUrlTpl)
+                ->setVar('paginationList', self::$_paginationList)
+                ->setVar('paginationUrlTpl', self::$_paginationUrlTpl)
                 ->setVar('categoryUrlTpl', $categoryUrlTpl)
-                ->setVar('pagionationUrlParam', [$catName])
+                ->setVar('pagionationUrlParam', self::$_paginationUrlParam)
                 ->setVar('pageNum', $pageNum)
                 ->setVar('objItemDir', DIR::APP_DATA)
                 ->setMainTpl($tpl)
@@ -142,6 +150,21 @@ class main {
         } // if
         // func. renderByCategory
     }
+	
+	public static function paginationDataAction($pName){
+		$comp = dbus::$comp[$pName];
+		$nsPath = $comp['nsPath'];
+		$tplFile = DIR::TPL . 'comp/' . $nsPath;
+		$tpl = userUtils::getCompTpl($comp);
+		(new render($tplFile, ''))
+                ->setVar('paginationList', self::$_paginationList)
+                ->setVar('paginationUrlTpl', self::$_paginationUrlTpl)
+                ->setVar('pagionationUrlParam', self::$_paginationUrlParam)
+                ->setVar('pageNum', self::$_paginationPageNum)
+                ->setMainTpl($tpl)
+                ->setContentType(null)
+                ->render();
+	}
 
     /**
      * @static
@@ -163,14 +186,16 @@ class main {
 
         // Если страница не первая, то показываем теги
         if ($pageNum > 1 && isset($pParam['linkNextTitle']) ){
-            echo '<link rel="prev" title="'.sprintf($pParam['linkNextTitle'], $pageNum-1).'"'
-                .' href="'.sprintf($pageNavTplUrl, $pageNum-1).'" />'.PHP_EOL;
+			$title = sprintf($pParam['linkNextTitle'], $pageNum-1);
+			$href = sprintf($pageNavTplUrl, $pageNum-1);
+            echo '<link rel="prev" title="'.$title.'" href="'.$href.'" />'.PHP_EOL;
         }
 
         // Если страница не самая последняя показывает теги
         if (( $pageNum != $fileCount || !$fileCount ) && isset($pParam['linkNextTitle'])){
-            echo '<link rel="next" title="'.sprintf($pParam['linkNextTitle'], $pageNum+1).'"'
-                .' href="'.sprintf($pageNavTplUrl, $pageNum+1).'" />'.PHP_EOL;
+			$title = sprintf($pParam['linkNextTitle'], $pageNum+1);
+			$href = sprintf($pageNavTplUrl, $pageNum+1);
+            echo '<link rel="next" title="'.$title.'" href="'.$href.'" />'.PHP_EOL;
         }
         // func. setListSeo
     }
@@ -191,14 +216,16 @@ class main {
 
         // Если страница не первая, то показываем теги
         if ($pageNum > 1 && $pParam['linkNextTitle'] ){
-            echo '<link rel="prev" title="'.sprintf($pParam['linkNextTitle'], $catCap, $pageNum-1).'"'
-                .' href="'.sprintf($pageNavTplUrl, $catName, $pageNum-1).'" />'.PHP_EOL;
+			$title = sprintf($pParam['linkNextTitle'], $catCap, $pageNum-1);
+			$href = sprintf($pageNavTplUrl, $catName, $pageNum-1);
+            echo '<link rel="prev" title="'.$title.'" href="'.$href.'" />'.PHP_EOL;
         } // if
 
         // Если страница не самая последняя показывает теги
         if (( $pageNum != $fileCount || !$fileCount ) && $pParam['linkNextTitle'] ){
-            echo '<link rel="next" title="'.sprintf($pParam['linkNextTitle'], $catCap, $pageNum+1).'"'
-                .' href="'.sprintf($pageNavTplUrl, $catName, $pageNum+1).'" />'.PHP_EOL;
+			$title = sprintf($pParam['linkNextTitle'], $catCap, $pageNum+1);
+			$href = sprintf($pageNavTplUrl, $catName, $pageNum+1);
+            echo '<link rel="next" title="'.$title.'" href="'.$href.'" />'.PHP_EOL;
         } // if
         // func. setListCategorySeo
     }
