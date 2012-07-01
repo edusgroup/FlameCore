@@ -75,38 +75,38 @@ class event {
             $miniDescrData = '';
             $listArr = [];
             $i = 1;
-            while ($artItem = $handleObjitem->fetch_object()) {
+            while ($objItemObj = $handleObjitem->fetch_object()) {
                 // TODO: Надо как то реализовать через общее хранилище картинок
                 // Что бы всё было через апи, что бы было межсерверно
 
                 // Обработка превью картинок. Отсекаем http://{hostname}/
                 // TODO: Тут костыль, надо переделать хранение картинок для статей, превью
-                if ($artItem->prevImgUrl) {
-                    $imgFile = substr($artItem->prevImgUrl, 7 + 1 + strlen(SITE_CONF::NAME));
+                if ($objItemObj->prevImgUrl) {
+                    $imgFile = substr($objItemObj->prevImgUrl, 7 + 1 + strlen(SITE_CONF::NAME));
 
                     // Формируем имя файла, в который будет сохранять картинку
-                    $resizeFile = 'comp/' . $objItemCompId . '/'.$artItem->treeId.'/'.word::idToSplit($artItem->id).'artpopular/';
+                    $resizeFile = 'comp/' . $objItemCompId . '/'.$objItemObj->treeId.'/'.word::idToSplit($objItemObj->id).'artpopular/';
                     $fileResizePath = DIR::getSiteImgResizePath();
                     filesystem::mkdir($fileResizePath . $resizeFile);
                     $resizeFile .= $i . '.' . filesystem::getExt($imgFile);
                     $resize = new resize();
                     $resize->setWidth($imgWidth);
                     $resize->resize(DIR::getSiteRoot() . $imgFile, $fileResizePath . $resizeFile);
-                    $artItem->prevImgUrl = DIR::getSiteImgResizeUrl() . $resizeFile.'?'.time();
+                    $objItemObj->prevImgUrl = DIR::getSiteImgResizeUrl() . $resizeFile.'?'.time();
                 } // if $artItem->prevImgUrl
 
                 // ----------------------------------------
-                $url = sprintf($artItem->urlTpl, $artItem->seoName, $artItem->seoUrl);
+                $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
                 $listArr[] = [
-                    'caption' => $artItem->caption,
+                    'caption' => $objItemObj->caption,
                     'url' => $url,
-                    'prevImgUrl' => $artItem->prevImgUrl
+                    'prevImgUrl' => $objItemObj->prevImgUrl
                 ];
                 // ----------------------------------------
                 // Теперь нужно сгенерить файл со списком новостей и их мини описаниями
                 // Будем всё упаковывать бинарно
                 // Директория с данными статьи
-                $objItemDataDir = objItemModel::getPath($artItem->compId, $artItem->treeId, $artItem->id);
+                $objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
                 $miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
                 if (is_readable($miniDescrFile)) {
                     $data = file_get_contents($miniDescrFile);

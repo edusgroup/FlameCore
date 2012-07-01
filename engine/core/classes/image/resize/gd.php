@@ -2,7 +2,7 @@
 namespace core\classes\image;
 
 /**
- *  
+ * @author Козленко В.Л.
  */
 class resize {
     // TODO: Добавить описание констант
@@ -180,10 +180,10 @@ class resize {
         $width = $this->imageProp->getWidth();// imagesx($img);
         $height = $this->imageProp->getHeight();
         
-        $this->data = (object) array('xNew' => 0, 'yNew' => 0
+        $this->data = (object) ['xNew' => 0, 'yNew' => 0
                     , 'widthNew' => $this->width, 'heightNew' => $this->height
                     , 'xOld' => 0, 'yOld' => 0
-                    , 'widthOld' => $width, 'heightOld' => $height);
+                    , 'widthOld' => $width, 'heightOld' => $height];
         // func. _initSize
     }
 
@@ -202,5 +202,3 @@ class resize {
     }
 // class resize
 }
-
-?>

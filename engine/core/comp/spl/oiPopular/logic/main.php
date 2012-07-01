@@ -28,7 +28,7 @@ class main {
         if (!$data) {
             return;
         }
-        //unpack("c1d/i*int", $miniDescrHead);
+
         // Получаем количество данных в файле
         $size = unpack('c1c', substr($data, 0, 1))['c'];
         $miniData = unpack('i' . $size . 'int', substr($data, 1));

@@ -82,11 +82,31 @@
                 <h6>Последние добавл. объекты</h6>
                 <div class="bothpanel">
                     <div id="contDiv" class="treePanel"></div>
-                    <div id="propBox">
+                    <div id="propBox" style="border-left: 1px solid blue ; padding-left: 5px">
                         <div class="dt">Количество элементов</div>
-                        <div
-                            class="dd"><?=self::text('id="itemsCount" name="itemsCount"', self::get('itemsCount', 10))?></div>
-                    </div>
+                        <div class="dd" style="margin-bottom: 5px">
+                            <?=self::text('id="itemsCount" name="itemsCount"', self::get('itemsCount', 10))?>
+                        </div>
+
+                        <div class="dt">Тип сжатия</div>
+                        <div class="dd" style="margin-bottom: 5px">
+                            <select name="resizeType">
+                                <option value="prop">Пропорционально</option>
+                                <option value="square">Квадрат.По центру</option>
+                            </select>
+                        </div>
+
+                        <div class="dt">Размер превью по ширине</div>
+                        <div class="dd" style="margin-bottom: 5px">
+                            <?=self::text('name="previewWidth"', self::get('previewWidth', 128))?>
+                        </div>
+
+                        <div class="dt">Добавлять миниописание?</div>
+                        <div class="dd" style="margin-bottom: 5px">
+                            <?=self::checkbox('name="isAddMiniText" value="1"', self::get('isAddMiniText'))?>
+                        </div>
+                   </div>
+
                 </div>
             </div>
             <!-- end panel right content -->
@@ -102,7 +122,8 @@
     var oiLasterData = {
         contTree: <?= self::get('contTree') ?>,
         oiLaster: <?= self::get('oiLaster') ?>,
-        contid: <?= self::get('contId') ?>
+        contid: <?= self::get('contId') ?>,
+        resizeType: '<?= self::get('resizeType') ?>'
     };
 
     var contrName = oiLasterData.contid;
@@ -119,7 +140,10 @@
         function saveBtnClick() {
             var sel = tree.compcont.getAllCheckedBranches();
             var propData = '';
-            $('#' + options.propBox + ' :text').each(function (pNum, pItem) {
+            $('#' + options.propBox + ' input').each(function (pNum, pItem) {
+                propData += '&' + pItem.name + '=' + pItem.value;
+            });
+            $('#' + options.propBox + ' select').each(function (pNum, pItem) {
                 propData += '&' + pItem.name + '=' + pItem.value;
             });
 
@@ -189,6 +213,9 @@
             HAjax.create({
                 saveData:saveDataSuccess
             });
+
+            $('select[name="resizeType"]').val(oiLasterData.resizeType);
+
             // func. init
         }
 

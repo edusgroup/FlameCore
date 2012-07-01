@@ -26,34 +26,36 @@ use admin\library\mvc\comp\spl\objItem\model as objItemModel;
  */
 class event {
 
-    public static function createArtLast($pUserData, $pEventBuffer, $pEventList) {
+    public static function createOIList($pUserData, $pEventBuffer, $pEventList) {
         // Если ли вообще какая то активность по списку
         $isData = $pEventBuffer->selectFirst('id', 'eventName in (' . $pEventList . ')');
         if (!$isData) {
             return;
         }
-        //$objItemCompId = (new componentTree())->get('id', 'sysname="objItem"');
 
+        $objItemCompId = (new componentTree())->get('id', 'sysname="objItem"');
+
+        // Получаем список всех oiLast, по которым были сохранения
         $contList = (new oiLasterPropOrm())
-            ->select('alp.contId, alp.itemsCount, cc.comp_id', 'alp')
+            ->select('alp.*, cc.comp_id', 'alp')
             ->join(compContTree::TABLE.' cc', 'cc.id=alp.contId')
             ->fetchAll();
 
-        // Бегаем по сохранённым группам
-        foreach( $contList as $item ){
+        // Бегаем по сохранённым группам oiLast
+        foreach( $contList as $oiLasterItemProp ){
 
             // Директория к данным группы
-            $saveDir = 'comp/' . $item['comp_id'] . '/' . $item['contId'] . '/';
+            $saveDir = 'comp/' . $oiLasterItemProp['comp_id'] . '/' . $oiLasterItemProp['contId'] . '/';
             $saveDir = DIR::getSiteDataPath($saveDir);
 
-            $itemsCount = $item['itemsCount'];
+            $itemsCount = $oiLasterItemProp['itemsCount'];
 
             // Получаем список детей в выбранной группе
             $oiLasterOrm = new oiLasterOrm();
             $childList = $oiLasterOrm->selectList(
                 'selContId as contId',
                 'contId',
-                'contId='.$item['contId']);
+                'contId='.$oiLasterItemProp['contId']);
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
                 $oiLasterOrm,
@@ -64,19 +66,41 @@ class event {
                 return;
             }
 
+            $miniDescrHead = '';
+            $miniDescrData = '';
             $listArr = [];
-            while($objItemItem = $handleObjitem->fetch_object()){
-                $url = sprintf($objItemItem->urlTpl, $objItemItem->seoName, $objItemItem->seoUrl);
+            $fileNum=1;
+            while($objItemObj = $handleObjitem->fetch_object()){
+
+                $objItemObj = eventModelObjitem::createMiniPreview(
+                    $objItemObj,
+                    $objItemCompId,
+                    $oiLasterItemProp['previewWidth'],
+                    $fileNum,
+                    $oiLasterItemProp['resizeType'],
+                    'oiLaster'
+                );
+
+                $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
                 $listArr[] = [
-                    'caption' => $objItemItem->caption,
-                    'id' => $objItemItem->id,
+                    'caption' => $objItemObj->caption,
+                    'id' => $objItemObj->id,
                     'url' => $url,
-                    'dateAdd' => $objItemItem->date_add,
-                    'prevImgUrl' => $objItemItem->prevImgUrl
+                    'dateAdd' => $objItemObj->date_add,
+                    'prevImgUrl' => $objItemObj->prevImgUrl
                 ];
+
+                if ( $oiLasterItemProp['isAddMiniText']){
+                    eventModelObjitem::createBinaryMiniDesc($objItemObj, $miniDescrHead, $miniDescrData);
+                }
+
+                ++$fileNum;
             } // while
-            $data = serialize($listArr);
-            filesystem::saveFile($saveDir, 'list.txt', $data);
+
+            $miniDescrHead = pack('c', $fileNum - 1) . $miniDescrHead;
+            $data = $miniDescrHead . $miniDescrData . serialize($listArr);
+            //print $saveDir."\n";
+            filesystem::saveFile($saveDir, 'data.txt', $data);
             unset($data);
         } // foreach
         // func. createoiLaster

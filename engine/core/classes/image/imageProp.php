@@ -8,7 +8,7 @@ use core\classes\filesystem;
  * Description of manger
  * TODO: перименовать в properties Image
  *
- * @author Владимир
+ * @author Козленко В.Л.
  */
 class imageProp {
 

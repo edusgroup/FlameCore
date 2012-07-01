@@ -9,9 +9,19 @@ use ORM\tree\componentTree;
 
 //Engine
 use core\classes\DB\tree;
+use core\classes\image\resize;
+use core\classes\word;
+use core\classes\filesystem;
 
 // Event
 use admin\library\mvc\comp\spl\objItem\event as eventObjitem;
+
+// Conf
+use \DIR;
+use \site\conf\SITE as SITE_CONF;
+
+// Model
+use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 
 /**
  *
@@ -19,6 +29,51 @@ use admin\library\mvc\comp\spl\objItem\event as eventObjitem;
  * @author Козленко В.Л.
  */
 class model {
+
+    /**
+     * Создаёт минипревью для изображения. Используется в агригирующих компонентах:<br/>
+     * oiLaster, oiPopular
+     */
+    public static function createMiniPreview($pObjItemObj, $pCompId, $pImgPreviewWidth, $pFileNum, $pResizeType, $pFolderName){
+        // Обработка превью картинок. Отсекаем http://{hostname}/
+        // TODO: Тут костыль, надо переделать хранение картинок для статей, превью
+        if ($pObjItemObj->prevImgUrl) {
+            $imgFile = substr($pObjItemObj->prevImgUrl, 7 + 1 + strlen(SITE_CONF::NAME));
+
+            // Формируем имя файла, в который будет сохранять картинку
+            $resizeFile = 'comp/' . $pCompId . '/'.$pObjItemObj->treeId.'/'.word::idToSplit($pObjItemObj->id).$pFolderName.'/';
+            $fileResizePath = DIR::getSiteImgResizePath();
+            filesystem::mkdir($fileResizePath . $resizeFile);
+            $resizeFile .= $pFileNum . '.' . filesystem::getExt($imgFile);
+            $resize = new resize();
+            $resize->setWidth($pImgPreviewWidth);
+            $resize->setType($pResizeType == 'prop' ? resize::PROPORTIONAL : resize::SQUARE);
+            $resize->resize(DIR::getSiteRoot() . $imgFile, $fileResizePath . $resizeFile);
+            //print $fileResizePath . $resizeFile." $pResizeType".PHP_EOL;
+            $pObjItemObj->prevImgUrl = DIR::getSiteImgResizeUrl() . $resizeFile.'?'.time();
+        } // if $pObjItemObj->prevImgUrl
+        return $pObjItemObj;
+        // func. createMiniPreview
+    }
+
+    public static function createBinaryMiniDesc($objItemObj, &$miniDescrHead, &$miniDescrData){
+        // ----------------------------------------
+        // Теперь нужно сгенерить файл со списком новостей и их мини описаниями
+        // Будем всё упаковывать бинарно
+        // Директория с данными статьи
+        $objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
+        $miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
+        if (is_readable($miniDescrFile)) {
+            $data = file_get_contents($miniDescrFile);
+            $miniDescrHead .= pack('i', strlen($data));
+            $miniDescrData .= $data;
+        } else {
+            $miniDescrHead .= pack('i', 0);
+        } // if
+        // func. createBinaryMiniDesc
+    }
+
+
     private static function _rGetChildList($sitemapOrm, $compContTreeOrm, &$pChildList, $pContId) {
         $childList = $compContTreeOrm->selectList('id', 'id', 'tree_id=' . $pContId);
         foreach ($childList as $contId) {

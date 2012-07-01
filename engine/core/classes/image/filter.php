@@ -5,7 +5,7 @@ namespace core\classes\image;
 /**
  * Description of filter
  *
- * @author Владимир
+ * @author Козленко В.Л.
  */
 class filter implements \core\classes\interfaces\filter {
 
