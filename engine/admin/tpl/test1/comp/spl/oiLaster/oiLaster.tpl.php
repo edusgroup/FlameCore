@@ -101,7 +101,7 @@
                             <?=self::text('name="previewWidth"', self::get('previewWidth', 128))?>
                         </div>
 
-                        <div class="dt">Добавлять миниописание?</div>
+                        <div class="dt">Добавлять мини описание?</div>
                         <div class="dd" style="margin-bottom: 5px">
                             <?=self::checkbox('name="isAddMiniText" value="1"', self::get('isAddMiniText'))?>
                         </div>

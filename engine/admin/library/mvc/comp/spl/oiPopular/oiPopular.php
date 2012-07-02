@@ -51,9 +51,11 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
         self::setVar('contId', $this->contId);
 
         $oiPopularProp = ( new oiPopularPropOrm() )->selectFirst('');
+
         if ( $oiPopularProp){
-            self::setVar('itemsCount', $oiPopularProp['itemsCount'] );
-            self::setVar('imgWidth', $oiPopularProp['imgWidth']);
+            foreach( $oiPopularProp as $key => $val ){
+                self::setVar($key, $val );
+            }
         } // if
 
         $tplFile = self::getTplFile();
@@ -91,7 +93,9 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
 
         $saveData = [
             'itemsCount' => self::postInt('itemsCount'),
-            'imgWidth' => self::postInt('imgWidth')
+            'resizeType' => self::post('resizeType'),
+            'previewWidth' => self::postInt('previewWidth'),
+            'isAddMiniText' => self::postInt('isAddMiniText')
         ];
         (new oiPopularPropOrm())->saveExt(['contId' => $contId], $saveData);
 

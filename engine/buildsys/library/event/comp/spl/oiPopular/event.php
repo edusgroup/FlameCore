@@ -42,23 +42,22 @@ class event {
         $objItemCompId = (new componentTree())->get('id', 'sysname="objItem"');
 
         $contList = (new oiPopularPropOrm())
-            ->select('alp.contId, alp.itemsCount, alp.imgWidth, cc.comp_id', 'alp')
+            ->select('alp.*, cc.comp_id', 'alp')
             ->join(compContTree::TABLE . ' cc', 'cc.id=alp.contId')
             ->fetchAll();
 
         // Бегаем по сохранённым группам
-        foreach ($contList as $item) {
+        foreach ($contList as $oiPopularObjItem) {
 
             // Директория к данным группы
-            $saveDir = 'comp/' . $item['comp_id'] . '/' . $item['contId'] . '/';
+            $saveDir = 'comp/' . $oiPopularObjItem['comp_id'] . '/' . $oiPopularObjItem['contId'] . '/';
             $saveDir = DIR::getSiteDataPath($saveDir);
 
-            $itemsCount = $item['itemsCount'];
-            $imgWidth = (int)$item['imgWidth'];
+            $itemsCount = $oiPopularObjItem['itemsCount'];
 
             // Получаем список детей в выбранной группе
             $oiPopularOrm = new oiPopularOrm();
-            $childList = $oiPopularOrm->selectList('selContId as contId', 'contId', 'contId=' . $item['contId']);
+            $childList = $oiPopularOrm->selectList('selContId as contId', 'contId', 'contId=' . $oiPopularObjItem['contId']);
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
                 $oiPopularOrm,
@@ -74,26 +73,17 @@ class event {
             $miniDescrHead = '';
             $miniDescrData = '';
             $listArr = [];
-            $i = 1;
+            $fileNum = 1;
             while ($objItemObj = $handleObjitem->fetch_object()) {
-                // TODO: Надо как то реализовать через общее хранилище картинок
-                // Что бы всё было через апи, что бы было межсерверно
 
-                // Обработка превью картинок. Отсекаем http://{hostname}/
-                // TODO: Тут костыль, надо переделать хранение картинок для статей, превью
-                if ($objItemObj->prevImgUrl) {
-                    $imgFile = substr($objItemObj->prevImgUrl, 7 + 1 + strlen(SITE_CONF::NAME));
-
-                    // Формируем имя файла, в который будет сохранять картинку
-                    $resizeFile = 'comp/' . $objItemCompId . '/'.$objItemObj->treeId.'/'.word::idToSplit($objItemObj->id).'artpopular/';
-                    $fileResizePath = DIR::getSiteImgResizePath();
-                    filesystem::mkdir($fileResizePath . $resizeFile);
-                    $resizeFile .= $i . '.' . filesystem::getExt($imgFile);
-                    $resize = new resize();
-                    $resize->setWidth($imgWidth);
-                    $resize->resize(DIR::getSiteRoot() . $imgFile, $fileResizePath . $resizeFile);
-                    $objItemObj->prevImgUrl = DIR::getSiteImgResizeUrl() . $resizeFile.'?'.time();
-                } // if $artItem->prevImgUrl
+                $objItemObj = eventModelObjitem::createMiniPreview(
+                    $objItemObj,
+                    $objItemCompId,
+                    $oiPopularObjItem['previewWidth'],
+                    $fileNum,
+                    $oiPopularObjItem['resizeType'],
+                    'oiPopular'
+                );
 
                 // ----------------------------------------
                 $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
@@ -102,23 +92,14 @@ class event {
                     'url' => $url,
                     'prevImgUrl' => $objItemObj->prevImgUrl
                 ];
-                // ----------------------------------------
-                // Теперь нужно сгенерить файл со списком новостей и их мини описаниями
-                // Будем всё упаковывать бинарно
-                // Директория с данными статьи
-                $objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
-                $miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
-                if (is_readable($miniDescrFile)) {
-                    $data = file_get_contents($miniDescrFile);
-                    $miniDescrHead .= pack('i', strlen($data));
-                    $miniDescrData .= $data;
-                } else {
-                    $miniDescrHead .= pack('i', 0);
-                } // if
-                $i++;
+
+                if ( $oiPopularObjItem['isAddMiniText']){
+                    eventModelObjitem::createBinaryMiniDesc($objItemObj, $miniDescrHead, $miniDescrData);
+                }
+                $fileNum++;
             } // while
-            $miniDescrHead = pack('c', $i - 1) . $miniDescrHead;
-            //var_dump(unpack("c1d/i*int", $miniDescrHead));
+
+            $miniDescrHead = pack('c', $fileNum - 1) . $miniDescrHead;
             $data = $miniDescrHead . $miniDescrData . serialize($listArr);
             filesystem::saveFile($saveDir, 'data.txt', $data);
         } // foreach

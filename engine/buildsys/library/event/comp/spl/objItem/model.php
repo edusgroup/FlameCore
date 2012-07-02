@@ -35,6 +35,9 @@ class model {
      * oiLaster, oiPopular
      */
     public static function createMiniPreview($pObjItemObj, $pCompId, $pImgPreviewWidth, $pFileNum, $pResizeType, $pFolderName){
+        // TODO: Надо как то реализовать через общее хранилище картинок
+        // Что бы всё было через апи, что бы было межсерверно
+
         // Обработка превью картинок. Отсекаем http://{hostname}/
         // TODO: Тут костыль, надо переделать хранение картинок для статей, превью
         if ($pObjItemObj->prevImgUrl) {
