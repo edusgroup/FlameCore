@@ -78,6 +78,7 @@ class event {
 
                 $objItemObj = eventModelObjitem::createMiniPreview(
                     $objItemObj,
+                    $oiPopularObjItem['contId'],
                     $objItemCompId,
                     $oiPopularObjItem['previewWidth'],
                     $fileNum,

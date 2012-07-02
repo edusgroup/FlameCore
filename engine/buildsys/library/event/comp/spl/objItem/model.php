@@ -34,7 +34,7 @@ class model {
      * Создаёт минипревью для изображения. Используется в агригирующих компонентах:<br/>
      * oiLaster, oiPopular
      */
-    public static function createMiniPreview($pObjItemObj, $pCompId, $pImgPreviewWidth, $pFileNum, $pResizeType, $pFolderName){
+    public static function createMiniPreview($pObjItemObj, $pContId, $pCompId, $pImgPreviewWidth, $pFileNum, $pResizeType, $pFolderName){
         // TODO: Надо как то реализовать через общее хранилище картинок
         // Что бы всё было через апи, что бы было межсерверно
 
@@ -45,6 +45,7 @@ class model {
 
             // Формируем имя файла, в который будет сохранять картинку
             $resizeFile = 'comp/' . $pCompId . '/'.$pObjItemObj->treeId.'/'.word::idToSplit($pObjItemObj->id).$pFolderName.'/';
+            $resizeFile .= $pContId .'/';
             $fileResizePath = DIR::getSiteImgResizePath();
             filesystem::mkdir($fileResizePath . $resizeFile);
             $resizeFile .= $pFileNum . '.' . filesystem::getExt($imgFile);

@@ -74,6 +74,7 @@ class event {
 
                 $objItemObj = eventModelObjitem::createMiniPreview(
                     $objItemObj,
+                    $oiLasterItemProp['contId'],
                     $objItemCompId,
                     $oiLasterItemProp['previewWidth'],
                     $fileNum,
