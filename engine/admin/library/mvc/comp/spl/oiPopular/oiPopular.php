@@ -50,8 +50,9 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
 
         self::setVar('contId', $this->contId);
 
-        $oiPopularProp = ( new oiPopularPropOrm() )->selectFirst('');
-
+        // Получаем количество элементов для списка, которые было ранее сохранено
+        $oiPopularProp = ( new oiPopularPropOrm() )->selectFirst('*', 'contId='.$contId);
+        // Передаём все сохранённые переменные из настроек в шаблоны
         if ( $oiPopularProp){
             foreach( $oiPopularProp as $key => $val ){
                 self::setVar($key, $val );
@@ -95,7 +96,8 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
             'itemsCount' => self::postInt('itemsCount'),
             'resizeType' => self::post('resizeType'),
             'previewWidth' => self::postInt('previewWidth'),
-            'isAddMiniText' => self::postInt('isAddMiniText')
+            'isAddMiniText' => self::postInt('isAddMiniText'),
+            'isCreatePreview' => self::postInt('isCreatePreview')
         ];
         (new oiPopularPropOrm())->saveExt(['contId' => $contId], $saveData);
 

@@ -33,8 +33,6 @@ class event {
             return;
         }
 
-        $objItemCompId = (new componentTree())->get('id', 'sysname="objItem"');
-
         // Получаем список всех oiLast, по которым были сохранения
         $contList = (new oiLasterPropOrm())
             ->select('alp.*, cc.comp_id', 'alp')
@@ -72,15 +70,17 @@ class event {
             $fileNum=1;
             while($objItemObj = $handleObjitem->fetch_object()){
 
-                $objItemObj = eventModelObjitem::createMiniPreview(
-                    $objItemObj,
-                    $oiLasterItemProp['contId'],
-                    $objItemCompId,
-                    $oiLasterItemProp['previewWidth'],
-                    $fileNum,
-                    $oiLasterItemProp['resizeType'],
-                    'oiLaster'
-                );
+                if ( $oiLasterItemProp['isCreatePreview']){
+                    // Создаём превью
+                    $objItemObj = eventModelObjitem::createMiniPreview(
+                        $objItemObj,
+                        $oiLasterItemProp['contId'],
+                        $oiLasterItemProp['comp_id'],
+                        $oiLasterItemProp['previewWidth'],
+                        $fileNum,
+                        $oiLasterItemProp['resizeType']
+                    );
+                } // if isCreatePreview
 
                 $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
                 $listArr[] = [

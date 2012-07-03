@@ -55,11 +55,11 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
 
         // Получаем количество элементов для списка, которые было ранее сохранено
         $oiLasterProp = ( new oiLasterPropOrm() )->selectFirst('*', 'contId='.$contId);
+        // Передаём все сохранённые переменные из настроек в шаблоны
         if ( $oiLasterProp){
-            self::setVar('itemsCount', $oiLasterProp['itemsCount'] );
-            self::setVar('previewWidth', $oiLasterProp['previewWidth'] );
-            self::setVar('resizeType', $oiLasterProp['resizeType'] );
-            self::setVar('isAddMiniText', $oiLasterProp['isAddMiniText'] );
+            foreach( $oiLasterProp as $key => $val ){
+                self::setVar($key, $val );
+            }
         } // if
 
         // Получаем названия шаблона. Настраиваеться в настройках компонента
@@ -117,7 +117,8 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
             'itemsCount' => self::postInt('itemsCount'),
             'resizeType' => self::post('resizeType'),
             'previewWidth' => self::postInt('previewWidth'),
-            'isAddMiniText' => self::postInt('isAddMiniText')
+            'isAddMiniText' => self::postInt('isAddMiniText'),
+            'isCreatePreview' => self::postInt('isCreatePreview')
         ];
         // Сохраняем данные
         ( new oiLasterPropOrm() )->saveExt(['contId' => $contId], $saveData);

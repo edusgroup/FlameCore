@@ -82,29 +82,36 @@
                 <h6>Последние добавл. объекты</h6>
                 <div class="bothpanel">
                     <div id="contDiv" class="treePanel"></div>
-                    <div id="propBox" style="border-left: 1px solid blue ; padding-left: 5px">
-                        <div class="dt">Количество элементов</div>
-                        <div class="dd" style="margin-bottom: 5px">
-                            <?=self::text('id="itemsCount" name="itemsCount"', self::get('itemsCount', 10))?>
-                        </div>
+                    <div style="border-left: 1px solid blue ; padding-left: 5px">
+                        <form id="propBox">
+                            <div class="dt">Количество элементов</div>
+                            <div class="dd" style="margin-bottom: 5px">
+                                <?=self::text('id="itemsCount" name="itemsCount"', self::get('itemsCount', 10))?>
+                            </div>
 
-                        <div class="dt">Тип сжатия</div>
-                        <div class="dd" style="margin-bottom: 5px">
-                            <select name="resizeType">
-                                <option value="prop">Пропорционально</option>
-                                <option value="square">Квадрат.По центру</option>
-                            </select>
-                        </div>
+                            <div class="dt">Тип сжатия</div>
+                            <div class="dd" style="margin-bottom: 5px">
+                                <select name="resizeType">
+                                    <option value="prop">Пропорционально</option>
+                                    <option value="square">Квадрат.По центру</option>
+                                </select>
+                            </div>
 
-                        <div class="dt">Размер превью по ширине</div>
-                        <div class="dd" style="margin-bottom: 5px">
-                            <?=self::text('name="previewWidth"', self::get('previewWidth', 128))?>
-                        </div>
+                            <div class="dt">Размер превью по ширине</div>
+                            <div class="dd" style="margin-bottom: 5px">
+                                <?=self::text('name="previewWidth"', self::get('previewWidth', 128))?>
+                            </div>
 
-                        <div class="dt">Добавлять мини описание?</div>
-                        <div class="dd" style="margin-bottom: 5px">
-                            <?=self::checkbox('name="isAddMiniText" value="1"', self::get('isAddMiniText'))?>
-                        </div>
+                            <div class="dt">Добавлять мини описание?</div>
+                            <div class="dd" style="margin-bottom: 5px">
+                                <?=self::checkbox('name="isAddMiniText" value="1"', self::get('isAddMiniText'))?>
+                            </div>
+
+                            <div class="dt">Создовать превью?</div>
+                            <div class="dd" style="margin-bottom: 5px">
+                                <?=self::checkbox('name="isCreatePreview" value="1"', self::get('isCreatePreview'))?>
+                            </div>
+                        </form>
                    </div>
 
                 </div>
@@ -139,16 +146,10 @@
         // Клик по кноке Сохранить
         function saveBtnClick() {
             var sel = tree.compcont.getAllCheckedBranches();
-            var propData = '';
-            $('#' + options.propBox + ' input').each(function (pNum, pItem) {
-                propData += '&' + pItem.name + '=' + pItem.value;
-            });
-            $('#' + options.propBox + ' select').each(function (pNum, pItem) {
-                propData += '&' + pItem.name + '=' + pItem.value;
-            });
+            var propData = $('#' + options.propBox).serialize();
 
             HAjax.saveData({
-                data:'sel=' + sel + propData,
+                data:'sel=' + sel + '&' + propData,
                 methodType:'POST'
             });
             return false;

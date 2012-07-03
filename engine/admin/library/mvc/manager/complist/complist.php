@@ -20,6 +20,9 @@ use core\classes\word;
 use \DIR;
 use \site\conf\SITE as SITE_CONF;
 
+// Event
+use admin\library\mvc\manager\complist\event as eventCompList;
+
 /**
  * Управление и отображение компонентами
  *
@@ -147,7 +150,7 @@ class complist extends \core\classes\mvc\controllerAbstract {
         $compId = $contData['compId'];
         $className = $contData['classname'];
 
-        eventCore::callOffline($className, 'tree:delete', ['compId' => $compId], $contId);
+        eventCore::callOffline($className, eventCompList::DELETE, ['compId' => $compId], $contId);
 
         $compContTree = new compContTree();
         $compContTree->update('isDel="yes"', 'id=' . $contId);

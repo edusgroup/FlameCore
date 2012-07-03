@@ -34,7 +34,7 @@ class model {
      * Создаёт минипревью для изображения. Используется в агригирующих компонентах:<br/>
      * oiLaster, oiPopular
      */
-    public static function createMiniPreview($pObjItemObj, $pContId, $pCompId, $pImgPreviewWidth, $pFileNum, $pResizeType, $pFolderName){
+    public static function createMiniPreview($pObjItemObj, $pContId, $pCompId, $pImgPreviewWidth, $pFileNum, $pResizeType){
         // TODO: Надо как то реализовать через общее хранилище картинок
         // Что бы всё было через апи, что бы было межсерверно
 
@@ -42,12 +42,12 @@ class model {
         // TODO: Тут костыль, надо переделать хранение картинок для статей, превью
         if ($pObjItemObj->prevImgUrl) {
             $imgFile = substr($pObjItemObj->prevImgUrl, 7 + 1 + strlen(SITE_CONF::NAME));
-
             // Формируем имя файла, в который будет сохранять картинку
-            $resizeFile = 'comp/' . $pCompId . '/'.$pObjItemObj->treeId.'/'.word::idToSplit($pObjItemObj->id).$pFolderName.'/';
-            $resizeFile .= $pContId .'/';
+            $resizeFile = 'comp/'.$pCompId.'/'.$pContId.'/'.$pObjItemObj->treeId.'/'.word::idToSplit($pObjItemObj->id).'/';
+
             $fileResizePath = DIR::getSiteImgResizePath();
             filesystem::mkdir($fileResizePath . $resizeFile);
+            //print $fileResizePath . $resizeFile;
             $resizeFile .= $pFileNum . '.' . filesystem::getExt($imgFile);
             $resize = new resize();
             $resize->setWidth($pImgPreviewWidth);

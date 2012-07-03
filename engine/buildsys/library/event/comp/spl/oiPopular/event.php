@@ -39,8 +39,6 @@ class event {
             return;
         }
 
-        $objItemCompId = (new componentTree())->get('id', 'sysname="objItem"');
-
         $contList = (new oiPopularPropOrm())
             ->select('alp.*, cc.comp_id', 'alp')
             ->join(compContTree::TABLE . ' cc', 'cc.id=alp.contId')
@@ -76,15 +74,17 @@ class event {
             $fileNum = 1;
             while ($objItemObj = $handleObjitem->fetch_object()) {
 
-                $objItemObj = eventModelObjitem::createMiniPreview(
-                    $objItemObj,
-                    $oiPopularObjItem['contId'],
-                    $objItemCompId,
-                    $oiPopularObjItem['previewWidth'],
-                    $fileNum,
-                    $oiPopularObjItem['resizeType'],
-                    'oiPopular'
-                );
+                if ( $oiPopularObjItem['isCreatePreview']){
+                    // Создаём превью
+                    $objItemObj = eventModelObjitem::createMiniPreview(
+                        $objItemObj,
+                        $oiPopularObjItem['contId'],
+                        $oiPopularObjItem['comp_id'],
+                        $oiPopularObjItem['previewWidth'],
+                        $fileNum,
+                        $oiPopularObjItem['resizeType']
+                    );
+                } // if isCreatePreview
 
                 // ----------------------------------------
                 $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);

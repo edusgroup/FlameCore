@@ -6,11 +6,16 @@ namespace buildsys\library\event\comp\utils;
 use ORM\tree\compContTree as compContTreeOrm;
 use ORM\tree\componentTree;
 use ORM\comp\spl\oiComment\oiComment as oiCommentOrm;
+
 // Conf
 use \DIR;
+
 // Engine
 use core\classes\filesystem;
 use core\classes\userUtils;
+
+// Event
+use admin\library\mvc\manager\complist\event as eventCompList;
 
 /**
  * @author Козленко В.Л.
@@ -18,7 +23,7 @@ use core\classes\userUtils;
 class gc {
     public static function clearResurse($pUserData, $pEventBuffer, $pEventList) {
         // Если ли вообще какая то активность по списку
-        $isData = $pEventBuffer->selectFirst('id', 'eventName = "tree:delete"');
+        $isData = $pEventBuffer->selectFirst('id', 'eventName = "'.eventCompList::DELETE.'"');
         if (!$isData) {
             return;
         }
@@ -44,7 +49,7 @@ class gc {
 
         // Удаление комментариев, если они есть для удаления
         $whereIdList = implode(',', $whereIdList);
-        $compContTree->delete('id in ('.$whereIdList.')');
+        $compContTree->delete('id in (' . $whereIdList . ')');
 
         // func. clearResurse
     }
