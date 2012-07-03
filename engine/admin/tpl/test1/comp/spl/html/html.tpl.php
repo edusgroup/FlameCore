@@ -1,6 +1,13 @@
 <script src="res/plugin/classes/utils.js" type="text/javascript"></script>
 
 <style>
+    div .dt {
+        font-weight: bold
+    }
+
+    div .dd {
+        padding-left: 25px
+    }
 </style>
 
 <!-- start panel right column -->
@@ -42,9 +49,16 @@
                 </ul>
             </div>
             <div>
-                <p>Введите HTML код:</p>
-                <textarea style="width: 600px; height: 200px;" name="htmlCode"><?=self::get('htmlCode')?></textarea>
+                <form id="mainForm">
+                    <div class="dt">Название:</div>
+                    <div class="dd"><?=self::text('name="caption"', self::get('caption'))?></div>
 
+                    <div class="dt">Только текст?</div>
+                    <div class="dd"><?=self::checkbox('name="isOnlyText"', self::get('isOnlyText'))?></div>
+
+                    <div class="dt">Введите HTML код:</div>
+                    <div class="dd"><textarea style="width: 600px; height: 200px;" name="htmlCode"><?=self::get('htmlCode')?></textarea></div>
+                </form>
             </div><!-- end panel right content -->
         </div><!-- end panel right content -->
     </div><!-- end panel right panel -->
@@ -70,7 +84,7 @@
 
         // Клик по кноке Сохранить
         function saveBtnClick(){
-            var data = 'htmlCode='+$('textarea[name="'+options.htmlCodeElemName+'"]').val();
+            var data = $('#'+options.mainForm).serialize();
             HAjax.saveData({method: 'saveData', data: data, methodType: 'POST'});
             // func. saveBtnClick
         }
@@ -114,7 +128,7 @@
         htmlMvc.init({
             backBtn: '#backBtn',
             saveBtn: '#saveBtn',
-            htmlCodeElemName: 'htmlCode'
+            mainForm: 'mainForm'
         });
     }); // $(document).ready
 
