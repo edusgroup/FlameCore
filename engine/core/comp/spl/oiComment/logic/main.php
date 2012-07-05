@@ -26,7 +26,7 @@ class main {
         $objItemId = dbus::$vars[$comp['varible']]['id'];
         
         $splitId = word::idToSplit($objItemId);
-        $commFile = DIR::APP_DATA . 'comp/' . $comp['compId'] . '/' . $comp['type'] . '/'.$splitId.'/comm.html';
+        $commFile = DIR::APP_DATA . 'comp/' . $comp['compId'] . '/' . $comp['type'] . '/'. $splitId.'comm.html';
 
         $nsPath = $comp['nsPath'];
         $tplFile = DIR::TPL . 'comp/' . $nsPath;

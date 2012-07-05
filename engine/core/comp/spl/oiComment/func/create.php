@@ -80,7 +80,7 @@ class create {
         $tplComFile = substr($oiCommentData['tplComFile'], 1);
         // Тип комментариев
         $oiCommentType = $oiCommentData['type'];
-
+		
         $oiCommentOrm = new oiCommentOrm();
         $comList = $oiCommentOrm->selectFirst(
             'id',
@@ -107,8 +107,7 @@ class create {
             ->setVar('author', $author)
             ->setVar('comment', $comment)
             ->setVar('id', $newId)
-            ->setVar('isFirst', $isFirst)
-            ->setVar('dateAdd', date("d-m-y H:i"))
+            ->setVar('isFirst', $isFirst)            ->setVar('dateAdd', date("d-m-y H:i"))
             ->render();
 
         // Формируем правильное дерево 

@@ -29,34 +29,32 @@ var oiComment = (function(){
             // Если commentId не задан, то это просто добавление комментария
             if ( !commentId ){
                 var $commentsBox = $('#'+commentsBox);
-                var $ul = $commentsBox.find('ul.level1:first');
-                // Есть ли уже комментарии
-                if ( $ul.length > 0 ){
-                    $ul.append('<li></li>').find('li:last').html(html);
-                }else{
-                    $commentsBox.append('<ul class=""level1"><li></li></u>').find('li:last').html(html);
-                } // if
+				$('#'+commentsBox+' .level-0:first').parent().append(html+'</li>');
             }else{
                 // Комментарии уже есть, нужно найти куда прикрипеть текущий
                 var id = 'comment-'+commentId;
 
-                var $parent = $('#'+id).parent();
+                var $parent = $('#'+id);
                 var $children = $parent.find('ul.children:first');
-                // Есть ли у блока уже комментарии
+                // Есть ли у блока уже комментарии: $children.length == 1 комментарии есть, $children.length = 0 их нет
                 if ( $children.length > 0 ){
                     // Есть комментарии, добавляем под ними
-                    $children.append('<li></li>').find('li:last').html(html);
+					$children.append(html+'</li>');
                 }else{
                     // Нету, добавляем новые
-                    $parent.append('<ul class="children"><li></li></ul>').find('ul:last li:first').html(html);
-                } // if
-                $('#'+respondBox).appendTo($('#comments'));
+					$('#'+id).append('<ul class="children">'+html+'</li></ul>');
+                } // if*/
+
             } // if
+			// Возвращаем обратно Блок с полями комментария
+			$('#'+respondBox).appendTo($('#'+commentsBox));
+			
             var respond = $('#'+respondBox);
+			//$("#"+commentsBox+" .reply > a").click(replyBtnClick);
             respond.find('input[name="author"]').val('');
             respond.find("[name=parentId]").val(0);
             commentId = null;
-            $('#comment').val('');
+            respond.find('textarea[name="comment"]').val('');
             //document.location.href = '#comment-'+commentId;
         });
         
@@ -68,14 +66,15 @@ var oiComment = (function(){
         options = $.extend(options, pOptions);
     }
     
-    function replyBtnClick(){
+    function replyBtnClick(pEvent){
         var id = $(this).attr('rel');
         var respond = $('#'+respondBox);
         $('#cancelBtn').show();
 			
         respond.find("[name=parentId]").val(id);
         respond.appendTo($("#comment-"+id));
-	commentId = id;			
+		commentId = id;			
+		document.location.href = '#'+respondBox;
         return false;
         // func. replyBtnClick
     }
@@ -84,7 +83,7 @@ var oiComment = (function(){
         $('#cancelBtn').hide();
         var respond = $('#'+respondBox);
         respond.find("[name=parentId]").val(0);
-        respond.appendTo($('#comments'));
+        respond.appendTo($('#'+commentsBox));
         commentId = null;
         return false;
         // func. cancelBtnClick
@@ -94,9 +93,9 @@ var oiComment = (function(){
         // Бок с полями комментария
         var respond = $('#'+respondBox);
         // Сохранение комментария
-        respond.find('form:first').submit(saveCommnents).find('input[placeholder]').placeholder();
-
-        $("#comments p.reply > a").click(replyBtnClick);
+        respond.find('form:first').submit(saveCommnents);//.find('input[placeholder]').placeholder();
+        $("#"+commentsBox+" .reply > a").click(replyBtnClick);
+        $("#"+commentsBox+" .reply > a").live('click', replyBtnClick);
         $('#cancelBtn').click(cancelBtnClick);
         respond.find('input[name=parentId]').val(0);
         //$('#cancelBtn').hide();

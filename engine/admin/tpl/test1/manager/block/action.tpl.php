@@ -90,6 +90,7 @@
                     <div class="buttonPanel">
                         <img id="saveDataBtn" src="<?= self::res('images/save_24.png') ?>" alt="Сохранить" />
                         <img id="setUpdateBtn" src="<?= self::res('images/update_24.png') ?>" alt="Обновить" />
+                        <img id="varTplActBtn" src="<?= self::res('images/edit_24.png') ?>" alt="Переменные" />
                     </div>
 
                     <div id="acParam"></div>
@@ -263,6 +264,16 @@
         $('#relationBox').html(relationBox);
         // func. groupBoxBeforeClose
     }
+	
+	/**
+	настройка переменных в шаблонах
+	*/
+	action.varTplActBtnClick = function(){
+		var acId = action.tree.ac.getSelectedItemId();
+		var url = utils.url({contr:'tplvar', query: {acId: acId}});
+        utils.go(url);
+		// func. action.varibleActBtnClick
+	}
 
     action.setUpdateBtnClick = function(){
         if ( !confirm('Добавить на обнавление?') ){
@@ -317,6 +328,7 @@
         $('#saveDataBtn').click(action.saveDataBtnClick);
         $('#setUpdateBtn').click(action.setUpdateBtnClick);
         $('#updateAllBtn').click(action.updateAllBtn);
+        $('#varTplActBtn').click(action.varTplActBtnClick);
 
         if ( action.acId != -1 ){
             action.tree.ac.selectItem(action.acId, true);
