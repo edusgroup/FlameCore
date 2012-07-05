@@ -53,6 +53,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         self::setVar('descr', $itemData['name']);
         self::setVar('sysname', $itemData['sysname']);
         self::setVar('compname', $itemData['compname']);
+		
         // Важный параметр. Есть ли у компонента разделение на таблицу
         $onlyFolder = (int)$itemData['onlyFolder'];
         self::setVar('onlyfolder', $onlyFolder);
@@ -62,6 +63,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
 
         self::setVar('acParent', (int)($itemData['acId'] == $acId));
 
+		// Тип класса по умолчанию
         $classType = 'core';
 
         $blockItemSettings = new blockItemSettings();
