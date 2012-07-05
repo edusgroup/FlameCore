@@ -96,7 +96,10 @@ class event {
 
                 if ( $oiPopularObjItem['isAddMiniText']){
                     eventModelObjitem::createBinaryMiniDesc($objItemObj, $miniDescrHead, $miniDescrData);
-                }
+                }else{
+					$miniDescrHead .= pack('i', 0);
+				}
+				
                 $fileNum++;
             } // while
 

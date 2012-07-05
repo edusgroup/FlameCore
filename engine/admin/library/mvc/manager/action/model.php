@@ -41,7 +41,7 @@ class model {
                         case 2: $charPref = '';break;
                         default : $charPref = '';
                     }
-                    $pDist['text'] = $charPref.$pDist['text'];
+                    $pDist['text'] = $charPref.$pDist['text'].'['.$pSource[$pNum]['id'].']';
                     // funct. endBrunch
                 };
         $actTree = dhtmlxTree::createTreeOfTable($pRouteTree, 'isDel=0');
