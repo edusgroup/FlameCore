@@ -34,12 +34,22 @@ class menu extends \core\classes\component\abstr\admin\comp {
     public function indexAction() {
         $contId = $this->contId;
         $compId = $this->compId;
+
+        $pathPrefix = 'comp/' . $compId . '/' . $contId . '/';
+        $loadDir = DIR::getSiteDataPath($pathPrefix);
         
         $compTree = dhtmlxTree::createTreeOfTable(new menuOrm(), 'contId='.$contId);
         self::setJson('menuTree', $compTree);
 
         self::setVar('contId', $contId, -1);
         self::setVar('compId', $compId, -1);
+
+        $saveData = filesystem::loadFileContentUnSerialize($loadDir . 'private.txt');
+        if ( $saveData ){
+            foreach( $saveData as $key=>$item){
+                self::setVar($key, $item);
+            } // foreach
+        } // if $saveData
 
         $tplFile = self::getTplFile();
         $this->view->setBlock('panel', $tplFile);
@@ -100,6 +110,10 @@ class menu extends \core\classes\component\abstr\admin\comp {
         
         $contId = $this->contId;
         $compId = $this->compId;
+
+        // Папка, куда будем сохранять данные
+        $pathPrefix = 'comp/' . $compId . '/' . $contId . '/';
+        $saveDir = DIR::getSiteDataPath($pathPrefix);
         
         // ID элемента дерева меню, чьи данные обрабатываем
         $menuId = self::postInt('menuid');
@@ -130,6 +144,24 @@ class menu extends \core\classes\component\abstr\admin\comp {
         // Сохраняем данные по настройкам меню
         $menuOrm = new menuOrm();
         $menuOrm->save('id=' . $menuId, $data);
+
+        // Заголовок
+        $caption = self::post('caption');
+
+        // Данные для паблика, т.е. те данные которые будут запрашиваться для сайта
+        // из-за этого их меньше
+        $dataPublic = [
+            'caption' => $caption
+        ];
+        $dataPublic = \serialize($dataPublic);
+        filesystem::saveFile($saveDir, 'public.txt', $dataPublic);
+
+        // Данные для настроек, т.е. для админки, запоминаем что было введено
+        $dataPrivate = [
+            'caption' => $caption
+        ];
+        $dataPrivate = \serialize($dataPrivate);
+        filesystem::saveFile($saveDir, 'private.txt', $dataPrivate);
 
         self::setVar('json', 'ok');
         // func. saveDataAction

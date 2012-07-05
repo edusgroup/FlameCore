@@ -236,8 +236,15 @@ class filesystem {
         return rmdir($dir);
     }
 
+    /**
+     * Выводи файл в поток вывода. Медленная функция использует is_readable.<br/>
+     * Не рекомендуется для public
+     * @static
+     * @param $pFilename
+     * @return mixed
+     */
     public static function printFile($pFilename) {
-        if (!is_file($pFilename))
+        if (!is_readable($pFilename))
             return;
         $fr = fopen($pFilename, 'r');
         if (!$fr)
@@ -365,6 +372,32 @@ class filesystem {
             }
         }
         return $filename;
+    }
+
+    /**
+     * Получает содержимое файла. Медленная функция использует is_readable.<br/>
+     * Не рекомендуется для public
+     * @static
+     * @param $pFilename
+     */
+    public static function loadFileContent($pFilename){
+        return is_readable($pFilename) ? file_get_contents($pFilename) : '';
+        // func. loadFileContent
+    }
+
+    /**
+     * Получает содержимое файла. Медленная функция использует is_readable.<br/>
+     * Не рекомендуется для public
+     * @static
+     * @param $pFilename
+     */
+    public static function loadFileContentUnSerialize($pFilename){
+        if ( !is_readable($pFilename) ){
+           return null;
+        }
+        $data = file_get_contents($pFilename);
+        return \unserialize($data);
+        // func. loadFileContent
     }
 // class. filesystem
 }

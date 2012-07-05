@@ -54,7 +54,7 @@
                     <div class="dd"><?=self::text('name="caption"', self::get('caption'))?></div>
 
                     <div class="dt">Только текст?</div>
-                    <div class="dd"><?=self::checkbox('name="isOnlyText"', self::get('isOnlyText'))?></div>
+                    <div class="dd"><?=self::checkbox('name="isOnlyText" value="1"', self::get('isOnlyText'))?></div>
 
                     <div class="dt">Введите HTML код:</div>
                     <div class="dd"><textarea style="width: 600px; height: 200px;" name="htmlCode"><?=self::get('htmlCode')?></textarea></div>

@@ -68,7 +68,7 @@
         </div>
         <!-- end title -->
         <!-- start panel right content -->
-        <div class="content" id="mainpanel">
+        <div>
 
 
             <div class="boxmenu corners">
@@ -90,6 +90,11 @@
 
             <div class="content" id="mainpanel">
                 <form id="menuForm">
+
+                    <div class="dt">Название:</div>
+                    <div class="dd"><?=self::text('name="caption"', self::get('caption'))?></div>
+
+
                     <table>
                         <tr class="bold">
                             <td class="vmiddle img_button" style="width: 200px">

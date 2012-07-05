@@ -81,19 +81,26 @@
                 </ul>
             </div>
 
-
             <div class="content">
-                <h6>Создание каталога ссылок для объектов</h6>
-                <!-- <div id="treeDiv" style="width: 200px; height: 300px"></div> -->
-                <div>
-                    <div class="dt">Шаблон ссылки</div>
-                    <div class="dd">
-                        <a href="#routeBox" id="tplUrlBtn">
-                            <img src="<?= self::res('images/folder_16.png') ?>" alt="Шаблон ссылки"/>
-                            <span id="tplUrlText"></span>
-                        </a>
+                <form id="mainForm">
+                    <h6>Создание каталога ссылок для объектов</h6>
+                    <div class="bothpanel">
+                        <div>
+                            <div class="dt">Шаблон ссылки</div>
+                            <div class="dd">
+                                <a href="#routeBox" id="tplUrlBtn">
+                                    <img src="<?= self::res('images/folder_16.png') ?>" alt="Шаблон ссылки"/>
+                                    <span id="tplUrlText"></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="dt">Название:</div>
+                            <div class="dd"><?=self::text('name="caption"', self::get('caption'))?></div>
+                        </div>
                     </div>
-                </div>
+                </form>
+                <div style="clear:both; padding-bottom: 10px;"></div>
                 <div class="bothpanel">
                     <div id="contDiv" class="treePanel"></div>
                     <div>
@@ -134,9 +141,9 @@
         // Клик по кноке Сохранить
         function saveBtnClick() {
             var sel = tree.compcont.getAllCheckedBranches();
-
+            var data = $('#'+options.mainForm).serialize();
             HAjax.saveData({
-                data:'sel=' + sel + '&urltpl=' + catalogContData.tplUrl,
+                data:'sel=' + sel + '&urltpl=' + catalogContData.tplUrl + '&'+data,
                 methodType:'POST'
             });
             // func. saveBtnClick
@@ -222,7 +229,8 @@
             saveBtn: '#saveBtn',
             treeDiv: '#treeDiv',
             tplUrlBtn: 'tplUrlBtn',
-            tplUrlText: 'tplUrlText'
+            tplUrlText: 'tplUrlText',
+            mainForm: 'mainForm'
         });
     }); // $(document).ready
 
