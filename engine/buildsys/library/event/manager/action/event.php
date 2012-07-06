@@ -80,7 +80,7 @@ class event {
                 filesystem::saveFile($folder, 'index.php', 'Debug only. Creating: '.$folder);
             }
         } // for $i
-        
+
         nginx::createConf($routeTree);
 
         $idList = array_map(function($pItem){

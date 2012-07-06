@@ -124,7 +124,7 @@ class event {
             filesystem::saveFile($saveDir, 'data.txt', $data);
         } // foreach ($contList as $rndObj)
 
-        exit;
+        //exit;
 
         // func. createoiRandom
     }
