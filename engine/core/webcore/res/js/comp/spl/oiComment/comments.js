@@ -29,7 +29,11 @@ var oiComment = (function(){
             // Если commentId не задан, то это просто добавление комментария
             if ( !commentId ){
                 var $commentsBox = $('#'+commentsBox);
-				$('#'+commentsBox+' .level-0:first').parent().append(html+'</li>');
+				if ( dbus.oiComment.param.noComment ){
+					$commentsBox.html(html+'</li>');
+				}else{
+					$('#'+commentsBox+' .level-0:first').parent().append(html+'</li>');
+				}
             }else{
                 // Комментарии уже есть, нужно найти куда прикрипеть текущий
                 var id = 'comment-'+commentId;

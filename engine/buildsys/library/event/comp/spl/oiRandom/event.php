@@ -54,7 +54,7 @@ class event {
                 $oiRandomOrm,
                 new compContTreeOrm(),
                 $childList,
-                ['order'=>'rand()', 'limit'=>100]
+                ['order'=>'rand()', 'limit'=>30*$rndObj['itemsCount']]
             );
             if (!$handleObjitem || $handleObjitem->num_rows == 0) {
                 return;
@@ -70,6 +70,7 @@ class event {
             $listArr = [];
             $arrCount = 1;
             $fileNum = 1;
+			$listCount = 0;
             while ($objItemObj = $handleObjitem->fetch_object()) {
 
                 if ( $rndObj['isCreatePreview']){
@@ -86,34 +87,36 @@ class event {
 
                 // ----------------------------------------
                 $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
-                $listArr[] = [
+                $listArr[$listCount] = [
                     'caption' => $objItemObj->caption,
                     'url' => $url,
-                    'prevImgUrl' => $objItemObj->prevImgUrl
+                    'prevImgUrl' => $objItemObj->prevImgUrl,
+					'miniDesck' => ''
                 ];
 
                 if ( $rndObj['isAddMiniText']){
-                    eventModelObjitem::createBinaryMiniDesc($objItemObj, $miniDescrHead, $miniDescrData);
-                }
+					$objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
+					$miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
+					if (is_readable($miniDescrFile)) {
+						$listArr[$listCount]['miniDesck'] = file_get_contents($miniDescrFile);
+					}
+                } // if ( isAddMiniText )
 
                 if ( $rndObj['itemsCount'] == $arrCount ){
-                    $miniDescrHead = pack('c', $arrCount - 1) . $miniDescrHead;
-                    $data = $miniDescrHead . $miniDescrData . serialize($listArr);
+                    $data = serialize($listArr);
                     filesystem::saveFile($saveDir, 'rnd'.$fileNum.'.txt', $data);
                     ++$fileNum;
                     $arrCount = 0;
-                    $miniDescrHead = '';
-                    $miniDescrData = '';
                     $listArr = [];
                 } // if
 
-                $arrCount++;
+                ++$arrCount;
+				++$listCount;
 
             }// while
 
             if ( $listArr ){
-                $miniDescrHead = pack('c', $arrCount - 1) . $miniDescrHead;
-                $data = $miniDescrHead . $miniDescrData . serialize($listArr);
+				$data = serialize($listArr);
                 filesystem::saveFile($saveDir, 'rnd'.$fileNum.'.txt', $data);
             }
 

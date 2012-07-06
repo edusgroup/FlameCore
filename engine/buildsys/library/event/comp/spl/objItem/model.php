@@ -60,7 +60,7 @@ class model {
         // func. createMiniPreview
     }
 
-    public static function createBinaryMiniDesc($objItemObj, &$miniDescrHead, &$miniDescrData){
+    /*public static function createBinaryMiniDesc($objItemObj, &$miniDescrHead, &$miniDescrData){
         // ----------------------------------------
         // Теперь нужно сгенерить файл со списком новостей и их мини описаниями
         // Будем всё упаковывать бинарно
@@ -75,7 +75,7 @@ class model {
             $miniDescrHead .= pack('i', 0);
         } // if
         // func. createBinaryMiniDesc
-    }
+    }*/
 
 
     private static function _rGetChildList($sitemapOrm, $compContTreeOrm, &$pChildList, $pContId) {

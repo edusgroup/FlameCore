@@ -188,6 +188,7 @@ class render extends html\element{
             return;
         fpassthru($fr);
         fclose($fr);
+		return true;
     }
 
     /**
