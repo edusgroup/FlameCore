@@ -60,7 +60,8 @@ class event {
                 new compContTreeOrm(),
                 $childList,
                 ['limit'=>$itemsCount]);
-            if ( $handleObjitem->num_rows == 0){
+			
+            if ( !$handleObjitem || $handleObjitem->num_rows == 0){
                 return;
             }
 
@@ -88,21 +89,22 @@ class event {
                     'id' => $objItemObj->id,
                     'url' => $url,
                     'dateAdd' => $objItemObj->date_add,
-                    'prevImgUrl' => $objItemObj->prevImgUrl
+                    'prevImgUrl' => $objItemObj->prevImgUrl,
+					'miniDesck' => ''
                 ];
 
                 if ( $oiLasterItemProp['isAddMiniText']){
-                    eventModelObjitem::createBinaryMiniDesc($objItemObj, $miniDescrHead, $miniDescrData);
-                }else{
-					$miniDescrHead .= pack('i', 0);
-				}
+					$objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
+					$miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
+					if (is_readable($miniDescrFile)) {
+						$listArr[$listCount]['miniDesck'] = file_get_contents($miniDescrFile);
+					}
+                } // if ( isAddMiniText )
 
                 ++$fileNum;
             } // while
 
-            $miniDescrHead = pack('c', $fileNum - 1) . $miniDescrHead;
-            $data = $miniDescrHead . $miniDescrData . serialize($listArr);
-            //print $saveDir."\n";
+            $data = serialize($listArr);
             filesystem::saveFile($saveDir, 'data.txt', $data);
             unset($data);
         } // foreach

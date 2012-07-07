@@ -91,20 +91,22 @@ class event {
                 $listArr[] = [
                     'caption' => $objItemObj->caption,
                     'url' => $url,
-                    'prevImgUrl' => $objItemObj->prevImgUrl
+                    'prevImgUrl' => $objItemObj->prevImgUrl,
+					'miniDesck' => ''
                 ];
 
                 if ( $oiPopularObjItem['isAddMiniText']){
-                    eventModelObjitem::createBinaryMiniDesc($objItemObj, $miniDescrHead, $miniDescrData);
-                }else{
-					$miniDescrHead .= pack('i', 0);
-				}
+					$objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
+					$miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
+					if (is_readable($miniDescrFile)) {
+						$listArr[$listCount]['miniDesck'] = file_get_contents($miniDescrFile);
+					}
+                } // if ( isAddMiniText )
 				
                 $fileNum++;
             } // while
 
-            $miniDescrHead = pack('c', $fileNum - 1) . $miniDescrHead;
-            $data = $miniDescrHead . $miniDescrData . serialize($listArr);
+            $data = serialize($listArr);
             filesystem::saveFile($saveDir, 'data.txt', $data);
         } // foreach
 

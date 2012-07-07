@@ -41,26 +41,7 @@ class main {
         if (!$data) {
             return;
         }
-
-        // Получаем количество данных в файле
-        $size = unpack('c1c', substr($data, 0, 1))['c'];
-        $miniData = unpack('i' . $size . 'int', substr($data, 1));
-		//var_dump($miniData);
-        // 1 (байт) количество + 4 * $size размеры блоков
-        $last = 1 + 4 * $size;
-        // Вытаскиваем блоки. Кодировали мы их в
-        // buildsys\library\event\comp\spl\oiLaster::createOILaster
-        foreach ($miniData as $key => $item) {
-            $miniData[] = substr($data, $last, (int)$item);
-			//print $item."<br/>";
-            $last += (int)$item;
-            unset($miniData[$key]);
-        } // foreach
-		
-		
-        $data = substr($data, $last);
         $list = \unserialize($data);
-
         // Преобразум данные в список
         unset($data);
         if ($list) {
@@ -71,7 +52,6 @@ class main {
             $tplPath = DIR::TPL . 'comp/' . $nsPath;
             (new render($tplPath, ''))
                 ->setVar('list', $list)
-                ->setVar('miniData', $miniData)
                 ->setMainTpl($tpl)
                 ->setContentType(null)
                 ->render();

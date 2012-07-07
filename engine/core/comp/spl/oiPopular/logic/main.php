@@ -28,21 +28,6 @@ class main {
         if (!$data) {
             return;
         }
-
-        // Получаем количество данных в файле
-        $size = unpack('c1c', substr($data, 0, 1))['c'];
-        $miniData = unpack('i' . $size . 'int', substr($data, 1));
-        // 1 (байт) количество + 4 * $size размеры блоков
-        $last = 1 + 4 * $size;
-        // Вытаскиваем блоки. Кодировали мы их в
-        // buildsys\library\event\comp\spl\oiPopular::createArtPopular
-        foreach ($miniData as $key => $item) {
-            $miniData[] = substr($data, $last, (int)$item);
-            $last += (int)$item;
-            unset($miniData[$key]);
-        } // foreach
-
-        $data = substr($data, $last);
         $list = \unserialize($data);
         unset($data);
         if ($list) {
@@ -51,7 +36,6 @@ class main {
             $tplFile = DIR::TPL . 'comp/' . $nsPath;
             (new render($tplFile, ''))
                 ->setVar('list', $list)
-                ->setVar('miniData', $miniData)
                 ->setMainTpl($tpl)
                 ->setContentType(null)
                 ->render();
