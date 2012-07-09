@@ -117,7 +117,7 @@ class event {
             // TODO: Слить настройки и списки в один файл, меньше будет обращений к файловой системе
             // Досохраняем данные по категориям и создаём настройки
             foreach ($categoryBuffer as $contId => $categoryData) {
-                $fileNum = isset($categoryData['fileNum']) ? $categoryData['fileNum'] : 1;
+                $fileNum = isset($categoryData['fileNum']) ? $categoryData['fileNum'] : 0;
                 if ($categoryData['data']) {
                     ++$fileNum;
                     $data = \serialize($categoryData['data']);

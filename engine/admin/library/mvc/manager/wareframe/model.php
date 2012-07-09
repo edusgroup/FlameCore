@@ -151,17 +151,17 @@ class model {
         // Хранить значение: {'имя_файла: ['блок', 'блок']}
         $blockListCache = array();
         // Результирующий массив для dxhtml
-        $treeData = array();
+        $treeData = [];
 
         // Текущий номер ветки. 
         // С добавлением каждой ветки(блока) это переменная увеличивается
         $blockNum = 0;
-        $blockId2Num = array();
+        $blockId2Num = [];
 
         $rootTreeId = isset($blockLoadList[0]) ? $blockLoadList[0]['id'] : -1;
 
         // Содержит значение: {'blockId'=>'blockIdParent'}
-        $file2id = array();
+        $file2id = [];
 
         // Бегае по загруженным данным
         $listCount = count($blockLoadList);
@@ -188,7 +188,8 @@ class model {
             $blockList = $blockListCache[$loadFilename];
             // Если null то файла нет, генерим ошибку
             if ($blockList === null) {
-                throw new \Exception('File not found ' . $loadFilename . ' Id: ' . $loadFileId);
+                //throw new exception\wareframe('File not found ' . $loadFilename . ' Id: ' . $loadFileId, 234);
+				continue;
             } // if
 
             // TODO: сделать проверку на изменение название шаблона
@@ -197,7 +198,7 @@ class model {
             $fileTreeId = $loadBlockName == '' ? 0 : $loadFileId;
 
             // Если в шаблоне блоков нет, то это пустой шаблон
-            $emptyBlock = $blockList === array();
+            $emptyBlock = $blockList === [];
             if ($emptyBlock) {
                 $blockList[0] = $loadFilename;
             } // if
@@ -218,7 +219,7 @@ class model {
                 }
 
                 // Формируем ветку дерева
-                $treeData[$blockNum] = array(
+                $treeData[$blockNum] = [
                     'name' => $brunchName, // Название ветки
                     'item_type' => $itemType, // Тип дерева
                     'id' => $blockId, // ID ветки
@@ -226,7 +227,7 @@ class model {
                     'block' => $bNameSys, // системное имя
                     'acId' => $loadAcId, // Action Id,
                     'fileId' => $loadFileId
-                );
+                ];
                 //print $loadFileId."<br/>";
                 // Запоминаем какой id блока к какому родителю(id блока) соотвествует
                 $file2id[$blockId] = $fileTreeId ? : $rootTreeId;
@@ -269,12 +270,24 @@ class model {
                 $pDist['im0'] = 'folderClosed.gif';
             } // if
             // TODO: Перевести на норм userData через настройки дерева
-            $pDist['userdata'][] = array('name' => 'blockName', 'content' => $pSource[$pNum]['block']);
-            $pDist['userdata'][] = array('name' => 'acId', 'content' => $pSource[$pNum]['acId']);
-            $pDist['userdata'][] = array('name' => 'fileId', 'content' => $pSource[$pNum]['fileId']);
+            $pDist['userdata'][] = [
+				'name' => 'blockName', 
+				'content' => $pSource[$pNum]['block']
+			];
+            $pDist['userdata'][] = [
+				'name' => 'acId', 
+				'content' => $pSource[$pNum]['acId']
+			];
+            $pDist['userdata'][] = [
+				'name' => 'fileId', 
+				'content' => $pSource[$pNum]['fileId']
+			];
 
             if (isset($pSource[$pNum]['file'])) {
-                $pDist['userdata'][] = array('name' => 'file', 'content' => $pSource[$pNum]['file']);
+                $pDist['userdata'][] = [
+					'name' => 'file', 
+					'content' => $pSource[$pNum]['file']
+				];
             } // if
             // funct. endBrunch
         };
@@ -282,7 +295,7 @@ class model {
         $tree = dhtmlxTree::all($treeData, 0);
         dhtmlxTree::clear();
 
-        return array('tree' => $tree /*, 'root' => $rootTreeId*/);
+        return ['tree' => $tree ];
         // func. makeTree
     }
 

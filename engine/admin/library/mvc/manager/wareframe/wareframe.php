@@ -67,8 +67,14 @@ class wareframe extends controllerAbstract {
             // В дереве блоках ни чего не показываем
             self::setJson('blockTree', '');
         } else {
-            $data = model::makeTree($wfId, $acId);
-            self::setJson('blockTree', $data['tree']);
+			//try{
+				$data = model::makeTree($wfId, $acId);
+				
+			//}catch(exception\wareframe $ex){
+				//self::setVar('errMsg', $ex->getMessage());
+			//	$data['tree'] = [];
+			//}
+			self::setJson('blockTree', $data['tree']);
             //self::setVar('rootTreeId', $data['root']);
             self::setJson('wfTree', '');
         }

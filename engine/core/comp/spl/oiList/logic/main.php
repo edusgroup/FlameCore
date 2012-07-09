@@ -147,7 +147,9 @@ class main {
                 ->setMainTpl($tpl)
                 ->setContentType(null)
                 ->render();
-        } // if
+        }else{
+			echo '<span style="color: red">Error: <br/>'.$file.'<br/> empty or not found</a>';
+		}// if
         // func. renderByCategory
     }
 	

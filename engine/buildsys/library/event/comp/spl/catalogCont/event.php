@@ -76,6 +76,12 @@ class event {
                 ->comment(__METHOD__)
                 ->fetchAll();
             $prop = $catalogContPropOrm->selectFirst('urltpl', 'contId=' . $contId);
+
+			if ( !$prop['urltpl'] || $prop['urltpl'] == 'null' ){
+				echo 'Error: urltpl not found ('.__METHOD__.')'.PHP_EOL;
+				continue;
+			}
+			
             foreach ($data as &$item) {
                 $item['url'] = sprintf($prop['urltpl'], $item['seoName']);
                 unset($item['seoName']);
