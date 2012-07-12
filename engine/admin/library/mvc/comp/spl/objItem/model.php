@@ -18,6 +18,7 @@ use core\classes\event as eventCore;
 // Conf
 use \DIR;
 
+
 class model {
 
     public static function getList(integer $pContId) {
@@ -106,6 +107,14 @@ class model {
         // func. fileRm
     }
 
+    /**
+     * Сохранение названия, seoUrl, публикации из таблицы itemObj
+     * @static
+     * @param $pData
+     * @param $pContId
+     * @return array
+     * @throws \Exception
+     */
     public static function saveTableItemData($pData, $pContId) {
         $return = array();
         // Парсим данны
@@ -158,5 +167,3 @@ class model {
 
 // class model
 }
-
-?>

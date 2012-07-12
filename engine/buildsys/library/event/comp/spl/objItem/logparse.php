@@ -11,6 +11,7 @@ use admin\library\mvc\comp\spl\oiPopular\event;
 
 // ORM
 use ORM\comp\spl\objItem\objItem as objItemOrm;
+use ORM\comp\spl\objItem\article\article as articleOrm;
 
 /**
  * Получение популярных статей<br/>
@@ -70,19 +71,12 @@ class logparse {
         // Группируем записи, только по тем у которых id не равен NULL
         // т.е. это точно статьи и сумируем их количество, обновялем в таблице
         // поле с количеством просмотров
-        (new objItemOrm())->update('dayCount=0');
-        self::$tableDb->sql('UPDATE
-                  ' . objItemOrm::TABLE . ' a
-                JOIN (
-                 SELECT la.id
-                     , count(1) as `count`
-                FROM
-                  ' . self::TABLE . ' la
-                WHERE
-                  la.id is not NULL
-                GROUP BY la.id
-                ) la on a.id = la.id
-                SET a.dayCount = la.`count`')->query();
+        (new articleOrm())->update('dayCount=0');
+        self::$tableDb->sql('UPDATE ' . articleOrm::TABLE . ' a '.
+                'JOIN ( SELECT la.id, count(1) as `count` FROM '.
+                self::TABLE . ' la WHERE la.id is not NULL GROUP BY la.id '.
+                ') la on a.itemObjId = la.id '.
+                ' SET a.dayCount = la.`count`')->query();
 
         self::$tableDb->drop(self::TABLE);
 

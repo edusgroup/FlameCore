@@ -8,10 +8,5 @@ namespace ORM\event;
  * @author Козленко В.Л.
  */
 class eventBuffer extends \core\classes\DB\table {
-
     const TABLE = 'pr_event_buffer';
-
-
 }
-
-?>

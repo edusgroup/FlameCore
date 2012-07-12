@@ -20,7 +20,7 @@ class adapter extends adapterAbstract {
      * Комментарий к запросу
      * @var string 
      */
-    public $comment;
+    protected $_comment;
 
     /**
      * Производит дисконнект от БД
@@ -183,7 +183,7 @@ class adapter extends adapterAbstract {
     
         
     public function comment(string $pText){
-        $this->comment = $pText;
+        $this->_comment = $pText;
         return $this;
     }
 
@@ -195,13 +195,14 @@ class adapter extends adapterAbstract {
     public function query($pSql=null) {
         $sql = $pSql ?: $this->sSQL;
        
-        if ( $this->comment ){
-            $sql .= '#' . $this->comment;
+        if ( $this->_comment ){
+            $sql .= '#' . $this->_comment;
         }
         $result = $this->getHandle()->query($sql);
         if (!$result){
             throw new DBException($this->getHandle()->error . "\nSQL: " . $sql, $this->getHandle()->errno);
         }
+        $this->_comment = '';
         $this->sSQL = '';
         return $result;
     }
@@ -215,5 +216,3 @@ class adapter extends adapterAbstract {
     }
 
 }
-
-?>

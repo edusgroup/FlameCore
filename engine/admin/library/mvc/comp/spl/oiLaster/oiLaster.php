@@ -41,7 +41,7 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
         // Выбераем дерево objItem
         $contData = $compcontTree->select('cc.*', 'cc')
             ->join(componentTree::TABLE.' c', 'c.id=cc.comp_id')
-            ->where('c.sysname="objItem"')
+            ->where('c.sysname="objItem" AND cc.isDel="no"')
             ->fetchAll();
         // Преобразуем масси в dhtmlTree
         $contTree = dhtmlxTree::all($contData, 0);

@@ -6,9 +6,7 @@ namespace buildsys\library\event\utils\rss;
 use ORM\event\eventBuffer;
 use ORM\utils\rss as rssOrm;
 use ORM\utils\rssProp as rssPropOrm;
-use ORM\comp\spl\objItem\objItem as objItemOrm;
 use ORM\tree\compContTree as compContTreeOrm;
-//use ORM\comp\spl\objItem\objItemProp;
 use ORM\seo\weblogDb;
 
 //Engine
@@ -51,12 +49,13 @@ class event {
         }
         $handleObjitem = eventModelObjitem::objItemChange(
             $eventBuffer,
+            [articleOrm::TABLE],
             $rssOrm,
             new compContTreeOrm(),
             $childList,
             ['limit' => 10]
         );
-        if ($handleObjitem && $handleObjitem->num_rows == 0) {
+        if (!$handleObjitem || $handleObjitem->num_rows == 0) {
             print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
             return;
         }
@@ -79,11 +78,11 @@ class event {
             unset($data);
 
             $list[] = [
-                'url' => sprintf($item->urlTpl, $item->seoName, $item->seoUrl)
-            , 'category' => $item->category
-            , 'date_add' => $item->date_add
-            , 'caption' => $item->caption
-            , 'descr' => $descr];
+                'url' => sprintf($item->urlTpl, $item->seoName, $item->seoUrl),
+                'category' => $item->category,
+                'date_add' => $item->date_add,
+                'caption' => $item->caption,
+                'descr' => $descr];
         } // while
 
         // Загружаем шаблон rss и производим построение списки
@@ -127,5 +126,3 @@ class event {
 
     // class event
 }
-
-?>

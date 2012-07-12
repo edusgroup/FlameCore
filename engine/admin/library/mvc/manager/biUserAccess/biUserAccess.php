@@ -70,10 +70,10 @@ class biUserAccess extends controllerAbstract {
         if ($group) {
             $group = explode(',', $group);
             array_map(function($pGroupId)use($blockItemId, $biGroupOrm) {
-                        $biGroupOrm->insert(array(
+                        $biGroupOrm->insert([
                             'biId' => $blockItemId,
                             'groupId' => (int) $pGroupId
-                        ));
+                        ]);
                     }, $group);
         } // if
         
@@ -81,15 +81,13 @@ class biUserAccess extends controllerAbstract {
         $userReg = self::postInt('userReg');
         
         $blockItemOrm = new blockItemOrm();
-        $blockItemOrm->update(array(
+        $blockItemOrm->update([
             'userReg' => $userReg,
             'tplAccess' => $tpl
-        ), 'id='.$blockItemId);
+        ], 'id='.$blockItemId);
         
         // func. saveDataAction
     }
 
 // class biUserAccess
 }
-
-?>

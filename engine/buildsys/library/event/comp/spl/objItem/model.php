@@ -6,12 +6,14 @@ use ORM\event\eventBuffer;
 use ORM\comp\spl\objItem\objItem as objItemOrm;
 use ORM\tree\compContTree as compContTreeOrm;
 use ORM\tree\componentTree;
+use ORM\event\eventBuffer as eventBufferOrm;
 
 //Engine
 use core\classes\DB\tree;
 use core\classes\image\resize;
 use core\classes\word;
 use core\classes\filesystem;
+use core\classes\DB\table as tableDb;
 
 // Event
 use admin\library\mvc\comp\spl\objItem\event as eventObjitem;
@@ -78,7 +80,7 @@ class model {
     }*/
 
 
-    private static function _rGetChildList($sitemapOrm, $compContTreeOrm, &$pChildList, $pContId) {
+    private static function _rGetChildList($sitemapOrm, compContTreeOrm $compContTreeOrm, &$pChildList, $pContId) {
         $childList = $compContTreeOrm->selectList('id', 'id', 'tree_id=' . $pContId);
         foreach ($childList as $contId) {
             self::_rGetChildList($sitemapOrm, $compContTreeOrm, $pChildList, $contId);
@@ -87,7 +89,16 @@ class model {
         // func. _rGetChildList
     }
 
-    public static function objItemChange($eventBufferOrm, $pTreeTableOrm, $compContTreeOrm, $childList, $pQuery = null) {
+    /**
+     * @static
+     * @param eventBufferOrm $eventBufferOrm
+     * @param tableDb $pTreeTableOrm таблица, где храниться записи, какие категории были выбраны в дереве
+     * @param compContTreeOrm $compContTreeOrm дерево контента
+     * @param array $childList список выделенных веток в дереве контента
+     * @param array $pQuery доп настройки
+     * @return bool|\core\classes\DB\adapter\type
+     */
+    public static function objItemChange(eventBufferOrm  $eventBufferOrm, array $pTableJoinList, tableDb $pTreeTableOrm, compContTreeOrm $compContTreeOrm, array $childList, $pQuery = null) {
         $where = [];
         // Если не было изменений, в статьях,
         // может были изменений UrlTpl для статей
@@ -135,20 +146,29 @@ class model {
 
         $where = implode(',', $childList);
         // Делаем выборку всех статей по детям выбранным в дереве sitemap
-        $select = isset($pQuery['select']) ? $pQuery['select'] : 'a.*, cc.seoName, cc.name category, cc.comp_id compId, DATE_FORMAT(a.date_add, "%Y-%m-%dT%h:%i+04:00") as dateISO8601';
-        $where = isset($pQuery['where']) ? $pQuery['where'] : 'a.isPublic="yes" AND a.isDel=0 AND a.treeId in (' . $where . ')';
+        $selectDefault = 'i.*, cc.seoName, cc.name category, cc.comp_id compId, DATE_FORMAT(i.date_add, "%Y-%m-%dT%h:%i+04:00") as dateISO8601';
+
+        foreach($pTableJoinList as $num=>$tableName){
+           $selectDefault .= ',a'.$num.'.*';
+        };
+
+        $select = isset($pQuery['select']) ? $pQuery['select'] : $selectDefault;
+        $where = isset($pQuery['where']) ? $pQuery['where'] : 'i.isPublic="yes" AND i.isDel=0 AND i.treeId in (' . $where . ')';
         $order = isset($pQuery['order']) ? $pQuery['order'] : 'date_add DESC, id desc';
         $limit = isset($pQuery['limit']) ? $pQuery['limit'] : null;
-        $handleObjitem = (new objItemOrm())
-            ->select($select, 'a')
-            ->join(compContTreeOrm::TABLE . ' cc', 'cc.id=a.treeId')
+        $handleObjitem = (new objItemOrm())->select($select, 'i');
+
+        foreach($pTableJoinList as $num=>$tableName){
+            $handleObjitem->joinLeftOuter($tableName.' a'.$num, 'a'.$num.'.itemObjId=i.id');
+        }
+
+        return $handleObjitem->join(compContTreeOrm::TABLE . ' cc', 'cc.id=i.treeId')
             ->where($where)
             ->order($order)
             ->limit($limit)
             ->comment(__METHOD__)
             ->query();
-        return $handleObjitem;
-        // func. isobjItemChange
+        // func. objItemChange
     }
     // class. model
 }

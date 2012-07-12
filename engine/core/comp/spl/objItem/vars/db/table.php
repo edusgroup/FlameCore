@@ -1,7 +1,7 @@
 <?php
 namespace core\comp\spl\objItem\vars\db;
 
-use ORM\comp\spl\objItem\objItem;
+use ORM\comp\spl\objItem\objItem as objItemOrm;
 // Engine
 use core\classes\dbus;
 
@@ -13,8 +13,7 @@ use core\classes\dbus;
 class table {
     public static function getIdByName($pName, $pPrevVarName){
         $categoryId = dbus::$vars[$pPrevVarName]['id'];
-        $objItem = new objItem();
-        return $objItem->selectFirst(
+        return (new objItemOrm())->selectFirst(
                 'id, caption, seoUrl',
                 ['seoUrl'=>$pName,
                 'treeId' => $categoryId,
@@ -24,5 +23,3 @@ class table {
     }
 // class table
 }
-
-?>

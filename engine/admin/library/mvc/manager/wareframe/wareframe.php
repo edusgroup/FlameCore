@@ -191,7 +191,7 @@ class wareframe extends controllerAbstract {
         eventsys::callOffline(eventBlockItem::BLOCKITEM, eventBlockItem::CHANGE, $eventData);
 
         $routeTreeWhere = $acId ? 'id='.$acId : 'id != 0';
-        (new routeTree())->update(['isSave' => 'yes'], $routeTreeWhere);
+        (new routeTree())->update('isSave="yes"', $routeTreeWhere);
 
         $json = ['ok' => 'ok'];
         $json['new'] = model::saveBlock($wfId, $acId, $file, $rmList);

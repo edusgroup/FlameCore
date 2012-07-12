@@ -4,7 +4,6 @@ namespace buildsys\library\event\comp\spl\oiPopular;
 
 // ORM
 use ORM\event\eventBuffer;
-use ORM\tree\componentTree;
 use ORM\tree\compContTree;
 use ORM\blockItem;
 use ORM\blockItemSettings;
@@ -65,13 +64,13 @@ class event {
                 'limit' => $itemsCount]
             );
             if ($handleObjitem && $handleObjitem->num_rows == 0) {
-                return;
+                print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
+                continue;
             }
 
-            $miniDescrHead = '';
-            $miniDescrData = '';
             $listArr = [];
             $fileNum = 1;
+            $listCount = 0;
             while ($objItemObj = $handleObjitem->fetch_object()) {
 
                 if ( $oiPopularObjItem['isCreatePreview']){
@@ -103,7 +102,8 @@ class event {
 					}
                 } // if ( isAddMiniText )
 				
-                $fileNum++;
+                ++$fileNum;
+                ++$listCount;
             } // while
 
             $data = serialize($listArr);

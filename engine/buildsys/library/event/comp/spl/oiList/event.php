@@ -4,16 +4,12 @@ namespace buildsys\library\event\comp\spl\oiList;
 
 // ORM
 use ORM\event\eventBuffer;
-use ORM\tree\componentTree;
-use ORM\tree\compContTree;
-use ORM\blockItem;
-use ORM\blockItemSettings;
 use ORM\comp\spl\oiList\oiList as oiListOrm;
 use ORM\comp\spl\oiList\oiListProp as oiListPropOrm;
-
-// Event comp
-use admin\library\mvc\comp\spl\oiList\event as eventArtList;
 use ORM\tree\compContTree as compContTreeOrm;
+use ORM\tree\componentTree as componentTreeOrm;
+
+// Engine
 use core\classes\filesystem;
 
 // Conf
@@ -21,7 +17,6 @@ use \DIR;
 
 // Model
 use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
-use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 
 /**
  * Обработчик событий для меню
@@ -30,55 +25,57 @@ use admin\library\mvc\comp\spl\objItem\model as objItemModel;
  */
 class event {
 
-    public static function createArtList($pUserData, $pEventBuffer, $pEventList) {
+    public static function createArtList($pUserData, eventBuffer $pEventBuffer, $pEventList) {
         // Если ли вообще какая то активность по списку
         $isData = $pEventBuffer->selectFirst('id', 'eventName in (' . $pEventList . ')');
         if (!$isData) {
             return;
         }
 
-        $objItemCompId = (new componentTree())->get('id', 'sysname="objItem"');
+        $objItemCompId = (new componentTreeOrm())->get('id', 'sysname="objItem"');
 
         $contList = (new oiListPropOrm())
-            ->select('alp.contId, alp.itemsCount, cc.comp_id', 'alp')
-            ->join(compContTree::TABLE . ' cc', 'cc.id=alp.contId')
+            ->select('alp.*, cc.comp_id', 'alp')
+            ->join(compContTreeOrm::TABLE . ' cc', 'cc.id=alp.contId')
             ->fetchAll();
 
         // Бегаем по сохранённым группам
-        foreach ($contList as $item) {
+        foreach ($contList as $oiListItemProp) {
 
             // Директория к данным группы
-            $saveDir = 'comp/' . $item['comp_id'] . '/' . $item['contId'] . '/';
+            $saveDir = 'comp/' . $oiListItemProp['comp_id'] . '/' . $oiListItemProp['contId'] . '/';
             $saveDir = DIR::getSiteDataPath($saveDir);
+
+            // Получаем подтип objItem и создаём его класс
+            $categoryObjItem = $oiListItemProp['category'];
+            $objItemCategory = '\admin\library\mvc\comp\spl\objItem\category\\'.$categoryObjItem.'\event';
+            $objItemCatEvent = new $objItemCategory();
 
             // Получаем список детей в выбранной группе
             $oiListOrm = new oiListOrm();
-            $childList = $oiListOrm->selectList('selContId as contId', 'contId', 'contId=' . $item['contId']);
-            $handleObjitem = eventModelObjitem::objItemChange($pEventBuffer, $oiListOrm, new compContTreeOrm(), $childList);
+            $childList = $oiListOrm->selectList('selContId as contId', 'contId', 'contId=' . $oiListItemProp['contId']);
+            $handleObjitem = eventModelObjitem::objItemChange(
+                $pEventBuffer,
+                $objItemCatEvent::getTable(),
+                $oiListOrm,
+                new compContTreeOrm(),
+                $childList
+            );
+            // Если данных нет, то переходим к след обработке oiList
             if (!$handleObjitem || $handleObjitem->num_rows == 0) {
-                return;
+                print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
+                continue;
             }
 
             $categoryBuffer = [];
 
-            $itemsCount = $item['itemsCount'];
-            //print $itemsCount;
+            // Получаем какое должно быть количество объектов в файле
+            $itemsCount = $oiListItemProp['itemsCount'];
             $listArr = [];
             $fileNum = 0;
             while ($objItemItem = $handleObjitem->fetch_object()) {
-                $url = sprintf($objItemItem->urlTpl, $objItemItem->seoName, $objItemItem->seoUrl);
-                $artData = [
-                    'caption' => $objItemItem->caption,
-                    'id' => $objItemItem->id,
-                    'url' => $url,
-                    'idSplit' => objItemModel::getPath($objItemCompId, $objItemItem->treeId, $objItemItem->id),
-                    // Название категории, к которой пренадлежит статья
-                    'category' => $objItemItem->category,
-                    // Сео название категории
-                    'seoName' => $objItemItem->seoName,
-                    'dateAdd' => $objItemItem->date_add,
-                    'prevImgUrl' => $objItemItem->prevImgUrl
-                ];
+                $artData = $objItemCatEvent::getOIListArray($objItemItem, $objItemCompId);
+
                 $catBuff = &$categoryBuffer[$objItemItem->treeId];
 
                 $catBuff['data'][] = $artData;
@@ -90,9 +87,6 @@ class event {
                     $listArr = [];
                     filesystem::saveFile($saveDir, $fileNum . '.txt', $data);
                 } // if
-
-                //print $objItemItem->treeId."\n";
-                //print_r($catBuff);
 
                 // Если накопили достаточно, то сохраняем списки по категории
                 if (count($catBuff['data']) == $itemsCount) {
@@ -129,8 +123,6 @@ class event {
             } // foreach
             unset($data, $categoryBuffer);
         } // foreach
-
-        //echo __METHOD__.' END' . PHP_EOL;
 
         // func. createArtList
     }

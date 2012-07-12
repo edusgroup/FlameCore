@@ -5,9 +5,7 @@ namespace buildsys\library\event\utils\sitemap;
 //ORM
 use ORM\event\eventBuffer;
 use ORM\sitemaps as sitemapOrm;
-use ORM\comp\spl\objItem\objItem as objItemOrm;
 use ORM\tree\compContTree as compContTreeOrm;
-//use ORM\comp\spl\objItem\objItemProp;
 
 //Engine
 use core\classes\filesystem;
@@ -46,7 +44,13 @@ class event {
         if (!$childList) {
             return;
         }
-        $handleObjitem = eventModelObjitem::objItemChange($eventBuffer, $sitemapOrm, new compContTreeOrm(), $childList);
+        $handleObjitem = eventModelObjitem::objItemChange(
+            $eventBuffer,
+            [articleOrm::TABLE],
+            $sitemapOrm,
+            new compContTreeOrm(),
+            $childList
+        );
         if ($handleObjitem && $handleObjitem->num_rows == 0) {
             print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
             return;
@@ -58,7 +62,6 @@ class event {
         (new render($buildTpl, ''))
             ->setContentType(null)
             ->setVar('host', $host)
-        //->setVar('hostLastMod', $hostLastMod)
             ->setVar('handleArt', $handleObjitem)
             ->setMainTpl('sitemap.tpl.php')
             ->render();
@@ -74,5 +77,3 @@ class event {
 
     // class event
 }
-
-?>

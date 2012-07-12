@@ -28,6 +28,7 @@ use ORM\imgSizeList;
 use ORM\tree\compContTree;
 use ORM\contFile;
 use ORM\comp\spl\objItem\objItem as objItemOrm;
+use ORM\comp\spl\objItem\article\article as articleOrm;
 use ORM\comp\spl\objItem\objItemProp;
 
 // Model
@@ -36,56 +37,82 @@ use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 use admin\library\mvc\comp\spl\objItem\category\article\event;
 
 /**
- * Description of objItem
+ * Логика по управлению обычной статьёй
  * @see http://fancyapps.com/fancybox/
  * @author Козленко В.Л.
  */
 trait category{
 
+    /**
+     * Внешний вид страница по управлению статьями
+     * @throws \Exception
+     */
     public function itemAction() {
         $contId = $this->contId;
         self::setVar('contId', $contId);
         $compId = $this->compId;
 
-        // TODO: Вставить проверку на существование $objItemId
+        // ID статьи
         $objItemId = self::getInt('id');
         self::setVar('objItemId', $objItemId, -1);
 
-        $objItemOrm = new objItemOrm();
-        $objItemData = $objItemOrm->selectFirst('prevImgUrl, caption, seoKeywords, seoDescr, isCloaking', 'id=' . $objItemId);
+        // Получаем параметры статьи и ранее сохранёные настройки (если они есть)
+        $objItemData = (new objItemOrm())
+            ->select('a.*, i.*', 'i')
+            ->joinLeftOuter(articleOrm::TABLE.' a', 'a.itemObjId=i.id')
+            ->where('i.id=' . $objItemId)
+            ->fetchFirst();
+
+        // Если данных нет, то статьи не существует
         if ( !$objItemData){
             throw new \Exception('Item Id: '.$objItemId.' not found', 234);
         }
 
+        // Все параметры статьи
         self::setJson('objItemData', $objItemData);
+        // Заголовок статьи
         self::setVar('caption', $objItemData['caption']);
 
-        // Загружаем текст статьи. '' - значаение по умолчанию, false - без десериализации
+        // Получаем путь до папки, где храняться данные статьи
         $loadDir = objItemModel::getPath($compId, $contId, $objItemId);
         $loadDir = DIR::getSiteDataPath($loadDir);
 
-        //$text = storage::loadVar($loadDir, 'data', '', false);
         $textData = '';
         if (is_readable($loadDir . 'data.txt')) {
             $textData = file_get_contents($loadDir . 'data.txt');
-        }
+        } // if
         if (is_readable($loadDir . 'kat.txt')) {
             $textKat = file_get_contents($loadDir . 'kat.txt');
             if ($textKat) {
                 $textData = $textKat . '<hr />' . $textData;
             } // if
-        } // if
+        } // if is_readable
         self::setVar('text', $textData);
 
         if (is_readable($loadDir . 'minidescr.txt')) {
             self::setVar('miniDescrText', file_get_contents($loadDir . 'minidescr.txt'));
-        } // if
+        } // if is_readable
 
         // Загружаем данные клоакинга
         if ($objItemData['isCloaking']) {
             self::setVar('cloakingText', file_get_contents($loadDir . 'cloak.txt'));
         }
 
+        /*$handleObjitem = \buildsys\library\event\comp\spl\objItem\model::objItemChange(
+            new \ORM\event\eventBuffer(),
+            [articleOrm::TABLE],
+            new \ORM\comp\spl\oiList\oiList(),
+            new \ORM\tree\compContTree(),
+            (new \ORM\comp\spl\oiList\oiList())->selectList('selContId as contId', 'contId', 'contId=7')
+        );
+
+        while ($objItemItem = $handleObjitem->fetch_object()) {
+            //print_r($objItemItem);
+            //echo '<br/>';
+        }*/
+
+        // Получаем шаблон админки, который нужно отобразить.
+        // Шаблоны можно задавать в настройках компонента
         $tplFile = self::getTplFile();
 
         $this->view->setBlock('panel', $tplFile);
@@ -127,15 +154,12 @@ trait category{
 
         // Сохраняем превью изображения для статьи
         $prevImgUrl = self::post('prevImgUrl');
-        $objItemOrm = new objItemOrm();
-        $objItemOrm->update(['prevImgUrl' => $prevImgUrl,
+        (new articleOrm())->update(['prevImgUrl' => $prevImgUrl,
                             'seoKeywords' => $seoKeywords,
                             'isCloaking' => trim($cloakingText) != '',
                             'seoDescr' => $seoDescr]
-            , 'id=' . $objItemId);
+            , 'itemObjId=' . $objItemId);
 
-
-        //$saveDir = objItemModel::saveDataInfo($objItemId, $objItemOrm, $compId, $contId);
         // TODO: добавить настройку фильтрации кода HTML
         //class_exists('admin\library\comp\spl\objItem\htmlvalid\full');
         //htmlValid::validate($data);
@@ -226,5 +250,3 @@ trait category{
 
     // class objItem
 }
-
-?>

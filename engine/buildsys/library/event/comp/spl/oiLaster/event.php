@@ -56,19 +56,21 @@ class event {
                 'contId='.$oiLasterItemProp['contId']);
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
+                [articleOrm::TABLE],
                 $oiLasterOrm,
                 new compContTreeOrm(),
                 $childList,
-                ['limit'=>$itemsCount]);
+                ['limit'=>$itemsCount]
+            );
 			
             if ( !$handleObjitem || $handleObjitem->num_rows == 0){
-                return;
+                print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
+                continue;
             }
 
-            $miniDescrHead = '';
-            $miniDescrData = '';
             $listArr = [];
             $fileNum=1;
+            $listCount = 0;
             while($objItemObj = $handleObjitem->fetch_object()){
 
                 if ( $oiLasterItemProp['isCreatePreview']){
@@ -84,7 +86,7 @@ class event {
                 } // if isCreatePreview
 
                 $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
-                $listArr[] = [
+                $listArr[$listCount] = [
                     'caption' => $objItemObj->caption,
                     'id' => $objItemObj->id,
                     'url' => $url,
@@ -102,6 +104,7 @@ class event {
                 } // if ( isAddMiniText )
 
                 ++$fileNum;
+                ++$listCount;
             } // while
 
             $data = serialize($listArr);

@@ -19,35 +19,9 @@ abstract class adapterAbstract {
      */
     public abstract function disconnect();
 
-    /**
-     * Производит коннект к БД
-     */
-    //public static abstract function connect(\string $p_host, \string $p_user, \string $p_pwd, \string $p_db_name, \string $p_charset);
-    
     public function setConnectionName($pName){
         $this->connectionName = $pName;
     }
-
-    /*public function init(array $pParam) {
-        $this->connect(
-                $pParam[self::HOST], 
-                $pParam[self::USER], 
-                $pParam[self::PWD], 
-                $pParam[self::NAME], 
-                $pParam[self::CHARSET]
-        );
-        return $this;
-    }*/
-
-    /*public function setConnect($pDBHandle = NULL) {
-       if (!$pDBHandle) {
-            $pDBHandle = Registry::get('db', true)->getHandle();
-        }
-        if (!$pDBHandle)
-            throw new \Exception('Нет подключения к БД', 23);
-        $this->dbHandle = $pDBHandle;
-    }*/
-
 
     /**
      * Получает одну запись из БД
@@ -73,5 +47,3 @@ abstract class adapterAbstract {
 class DBException extends \Exception {
     
 }
-
-?>

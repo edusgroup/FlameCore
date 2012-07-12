@@ -49,6 +49,10 @@ class objItem extends \core\classes\component\abstr\admin\comp {
 
     }
 
+    /**
+     * Отображение таблицы с объектами.<br/>
+     * Управление названием, публикацией, seo названием
+     */
     public function indexAction() {
         $contId = $this->contId;
         self::setVar('contId', $contId);
@@ -145,6 +149,9 @@ class objItem extends \core\classes\component\abstr\admin\comp {
         // func. addSizeAction
     }
 
+    /**
+     * Выставление флага на удаление объекта objItem
+     */
     public function rmTableItemAction() {
         $this->view->setRenderType(render::JSON);
         $rowsId = self::post('rowsId');
@@ -165,7 +172,6 @@ class objItem extends \core\classes\component\abstr\admin\comp {
         $objItemOrm = new objItemOrm();
         $where = implode(',', $userData);
         $objItemOrm->update('isDel=1', 'id in (' . $where . ')');
-        //$list = dhtmlxGrid::rmRows($rowsId, new objItemOrm());
         self::setVar('json', [0 => 'ok', 'list' => $userData]);
         // func. rmTableItemAction
     }
@@ -188,10 +194,8 @@ class objItem extends \core\classes\component\abstr\admin\comp {
     }
 
     public function getTableOrm() {
-        //$objItemOrm = new objItemOrm();
-        //return $objItemOrm->get('caption','id='.$pTableId);
         return new objItemOrm();
-        // func. getTableItemName
+        // func. getTableOrm
     }
 
     /**

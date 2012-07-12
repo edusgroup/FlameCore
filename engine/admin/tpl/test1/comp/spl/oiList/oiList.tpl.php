@@ -78,21 +78,26 @@
                 </ul>
             </div>
 
-
             <div class="content">
                 <h6>Агрегация объектов</h6>
                 <div class="bothpanel">
                     <div id="contDiv" class="treePanel"></div>
-                    <div id="propBox">
-                        <div class="dt">Количество элементов</div>
-                        <div
-                            class="dd"><?=self::text('id="itemsCount" name="itemsCount"', self::get('itemsCount', 10))?></div>
+                    <div style="border-left: 1px solid blue ; padding-left: 5px">
+                        <form id="propBox">
+                            <div class="dt">Количество элементов</div>
+                            <div class="dd"><?=self::text('name="itemsCount"', self::get('itemsCount', 10))?></div>
 
-                        <div class="dt">Порог для memcache</div>
-                        <div class="dd"><?=self::text('name="memcacheCount"', self::get('memcacheCount', 0))?></div>
+                            <div class="dt">Порог для memcache</div>
+                            <div class="dd"><?=self::text('name="memcacheCount"', self::get('memcacheCount', 0))?></div>
 
-                        <div class="dt">Порог для файлов</div>
-                        <div class="dd"><?=self::text('name="fileCount"', self::get('fileCount', 0))?></div>
+                            <div class="dt">Порог для файлов</div>
+                            <div class="dd"><?=self::text('name="fileCount"', self::get('fileCount', 0))?></div>
+
+                            <div class="dt">Категория objItem</div>
+                            <div class="dd">
+                                <? self::select(self::get('categoryList'), 'name="category"') ?>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -121,19 +126,14 @@
     var oiListMvc = (function () {
         var options = {};
         var tree = {};
-        //var treeCheckSel = [];
-        //var treeCheckDel = [];
 
         // Клик по кноке Сохранить
         function saveBtnClick() {
             var sel = tree.compcont.getAllCheckedBranches();
-            var propData = '';
-            $('#' + options.propBox + ' :text').each(function (pNum, pItem) {
-                propData += '&' + pItem.name + '=' + pItem.value;
-            });
+            var propData = $('#' + options.propBox).serialize();
 
             HAjax.saveData({
-                data:'sel=' + sel + propData,
+                data:'sel=' + sel + '&'+propData,
                 methodType:'POST'
             });
             // func. saveBtnClick
@@ -164,7 +164,6 @@
             tree.compcont = dhtmlxInit.tree['contTree'];
             tree.route = dhtmlxInit.tree['routeBox'];
 
-            //tree.compcont.setOnCheckHandler(treeContCheck);
             tree.compcont.enableThreeStateCheckboxes(0);
 
             for (var i in oiListData.catalog) {
@@ -180,8 +179,7 @@
                 alert(pData['error']['msg']);
                 return;
             }
-            //treeCheckDel = [];
-            //treeCheckSel = [];
+
             alert('Данные успешно сохранены');
             // func. saveDataSuccess
         }

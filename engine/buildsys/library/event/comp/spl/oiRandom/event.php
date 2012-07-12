@@ -4,7 +4,6 @@ namespace buildsys\library\event\comp\spl\oiRandom;
 
 // ORM
 use ORM\event\eventBuffer;
-use ORM\tree\componentTree;
 use ORM\tree\compContTree;
 use ORM\blockItem;
 use ORM\blockItemSettings;
@@ -57,7 +56,8 @@ class event {
                 ['order'=>'rand()', 'limit'=>30*$rndObj['itemsCount']]
             );
             if (!$handleObjitem || $handleObjitem->num_rows == 0) {
-                return;
+                print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
+                continue;
             }
 
             // Директория к данным группы
