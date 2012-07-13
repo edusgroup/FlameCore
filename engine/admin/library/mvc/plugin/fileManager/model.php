@@ -88,8 +88,5 @@ class model {
         $fileName = $fileName . '.' . $fileExt;
         return $fileName;//array($fileName, $fileExt);
     }
-
+    // class fileManager(model)
 }
-
-// class fileManager(model)
-?>

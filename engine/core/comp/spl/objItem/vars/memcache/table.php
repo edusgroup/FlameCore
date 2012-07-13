@@ -11,5 +11,3 @@ class table {
     }
 // class table
 }
-
-?>

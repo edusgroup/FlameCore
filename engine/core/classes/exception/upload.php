@@ -8,5 +8,3 @@ namespace core\classes\exception;
  */
 class upload extends \Exception{
 }
-
-?>

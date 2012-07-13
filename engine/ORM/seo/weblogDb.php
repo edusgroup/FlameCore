@@ -12,5 +12,3 @@ class weblogDb extends \core\classes\DB\table {
     const TABLE = 'pr_weblog_db';
 
 }
-
-?>

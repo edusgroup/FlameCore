@@ -12,5 +12,3 @@ class relation extends \core\classes\DB\table {
     const TABLE = 'pr_bi_group_relation';
 
 }
-
-?>

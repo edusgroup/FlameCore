@@ -13,5 +13,3 @@ class event {
     const ACTION_SAVE = 'imgGallery:save';
     const ACTION_RM = 'imgGallery:rm';
 }
-
-?>

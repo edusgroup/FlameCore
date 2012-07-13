@@ -9,5 +9,3 @@ class event {
     const NAME = 'robots';
     const ITEM_SAVE = 'robots:save';
 }
-
-?>

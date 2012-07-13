@@ -13,5 +13,3 @@ class eventClass extends \core\classes\DB\table {
 
 
 }
-
-?>

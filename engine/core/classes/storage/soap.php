@@ -13,5 +13,3 @@
 class soap {
     //put your code here
 }
-
-?>

@@ -6,6 +6,7 @@ namespace buildsys\library\event\utils\sitemap;
 use ORM\event\eventBuffer;
 use ORM\sitemaps as sitemapOrm;
 use ORM\tree\compContTree as compContTreeOrm;
+use ORM\comp\spl\objItem\article\article as articleOrm;
 
 //Engine
 use core\classes\filesystem;

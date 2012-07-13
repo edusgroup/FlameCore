@@ -11,5 +11,3 @@ class catalogContProp extends \core\classes\DB\table {
     const TABLE = 'pr_comp_catalogcont_prop';
     // class catalogContProp
 }
-
-?>

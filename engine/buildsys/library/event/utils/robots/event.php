@@ -72,5 +72,3 @@ class event {
 
     // class event
 }
-
-?>

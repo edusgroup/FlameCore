@@ -86,5 +86,3 @@ class htmlTable extends \core\classes\render {
     }
 
 }
-
-?>

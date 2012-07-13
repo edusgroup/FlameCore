@@ -16,5 +16,3 @@ class number {
 
 // class table
 }
-
-?>

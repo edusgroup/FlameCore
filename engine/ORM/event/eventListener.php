@@ -13,5 +13,3 @@ class eventListener extends \core\classes\DB\table {
 
 
 }
-
-?>

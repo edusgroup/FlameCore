@@ -55,5 +55,3 @@ class model {
 
 // class model
 }
-
-?>

@@ -8,6 +8,7 @@ use ORM\utils\rss as rssOrm;
 use ORM\utils\rssProp as rssPropOrm;
 use ORM\tree\compContTree as compContTreeOrm;
 use ORM\seo\weblogDb;
+use ORM\comp\spl\objItem\article\article as articleOrm;
 
 //Engine
 use core\classes\filesystem;

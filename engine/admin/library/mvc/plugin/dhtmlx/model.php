@@ -31,5 +31,3 @@ class model {
 
 // class dhtmlx
 }
-
-?>

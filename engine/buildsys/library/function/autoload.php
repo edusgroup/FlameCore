@@ -33,4 +33,3 @@ $shutdown = function() {
          };
 
 register_shutdown_function($shutdown);
-?>

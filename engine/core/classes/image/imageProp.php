@@ -81,5 +81,3 @@ class imageProp {
     }
 // class imageProp
 }
-
-?>

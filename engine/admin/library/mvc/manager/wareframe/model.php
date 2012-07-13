@@ -381,5 +381,3 @@ class model {
 
     // class model
 }
-
-?>

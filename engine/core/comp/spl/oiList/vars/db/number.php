@@ -52,5 +52,3 @@ class number {
 
 // class number
 }
-
-?>

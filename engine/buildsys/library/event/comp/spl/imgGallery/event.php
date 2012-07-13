@@ -152,5 +152,3 @@ class event {
 
     // class event
 }
-
-?>

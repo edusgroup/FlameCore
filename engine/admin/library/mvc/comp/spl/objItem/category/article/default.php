@@ -33,6 +33,7 @@ use ORM\comp\spl\objItem\objItemProp;
 
 // Model
 use admin\library\mvc\comp\spl\objItem\model as objItemModel;
+
 // Event
 use admin\library\mvc\comp\spl\objItem\category\article\event;
 
@@ -248,5 +249,5 @@ trait category{
         echo 'article::blockItemShowAction() | No settings in this';
     }
 
-    // class objItem
+    // class category ( itemObj->article )
 }

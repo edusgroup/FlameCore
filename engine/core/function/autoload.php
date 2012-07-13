@@ -11,4 +11,3 @@ $autoload = function ($pClassName) {
         };
 
 spl_autoload_register($autoload);
-?>

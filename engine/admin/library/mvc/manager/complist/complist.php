@@ -161,5 +161,3 @@ class complist extends \core\classes\mvc\controllerAbstract {
     }
     // class complist
 }
-
-?>

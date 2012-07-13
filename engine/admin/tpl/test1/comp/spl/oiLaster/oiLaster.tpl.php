@@ -111,6 +111,11 @@
                             <div class="dd" style="margin-bottom: 5px">
                                 <?=self::checkbox('name="isCreatePreview" value="1"', self::get('isCreatePreview'))?>
                             </div>
+
+                            <div class="dt">Категория objItem</div>
+                            <div class="dd">
+                                <? self::select(self::get('categoryList'), 'name="category"') ?>
+                            </div>
                         </form>
                    </div>
 

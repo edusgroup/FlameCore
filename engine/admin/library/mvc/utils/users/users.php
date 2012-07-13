@@ -56,5 +56,3 @@ class users extends controllerAbstract {
 
 // class users
 }
-
-?>

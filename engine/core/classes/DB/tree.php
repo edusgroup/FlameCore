@@ -76,4 +76,3 @@ class tree extends table {
         return json_decode(self::exec()->json, true);
     }
 }
-?>

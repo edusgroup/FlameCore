@@ -11,5 +11,3 @@ class componentTree extends \core\classes\DB\tree {
 
     const TABLE = 'pr_component_tree';
 }
-
-?>

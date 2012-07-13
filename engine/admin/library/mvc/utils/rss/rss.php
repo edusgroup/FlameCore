@@ -90,5 +90,3 @@ class rss extends controllerAbstract {
 
 // class action
 }
-
-?>

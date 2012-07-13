@@ -4,16 +4,18 @@ namespace admin\library\mvc\comp\spl\oiLaster;
 
 // Conf
 use \DIR;
-// Model
-use admin\library\mvc\manager\complist\model as complistModel;
+
 // Engine
 use core\classes\render;
 use core\classes\event as eventCore;
+use core\classes\filesystem;
+
 // ORM
 use ORM\comp\spl\oiLaster\oiLaster as oiLasterOrm;
 use ORM\comp\spl\oiLaster\oiLasterProp as oiLasterPropOrm;
 use ORM\tree\compcontTree;
 use ORM\tree\componentTree;
+
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
@@ -37,30 +39,40 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
      */
     public function indexAction() {
         $contId = $this->contId;
-        $compcontTree = new compcontTree();
-        // Выбераем дерево objItem
-        $contData = $compcontTree->select('cc.*', 'cc')
-            ->join(componentTree::TABLE.' c', 'c.id=cc.comp_id')
-            ->where('c.sysname="objItem" AND cc.isDel="no"')
+        self::setVar('contId', $contId);
+
+        // Получаем данные по компоненту objItem
+        $objItemProp = (new componentTree())->selectFirst('*', 'sysname="objItem"');
+
+        // Получаем весь список контента по oiLaster
+        $contData = (new compcontTree())->select('cc.*', 'cc')
+            ->where('cc.isDel="no" AND cc.comp_id=' . $objItemProp['id'])
             ->fetchAll();
         // Преобразуем масси в dhtmlTree
         $contTree = dhtmlxTree::all($contData, 0);
         self::setJson('contTree', $contTree);
 
-        // Получаем Сохранённые данные, если они есть
-        $oiLaster = (new oiLasterOrm)->selectList('*', 'selContId', 'contId='.$contId);
+        // Получаем список id веток ранее выбранных и сохранённых
+        $oiLaster = (new oiLasterOrm)->selectList('*', 'selContId', 'contId=' . $contId);
         self::setJson('oiLaster', $oiLaster);
 
-        self::setVar('contId', $contId);
-
         // Получаем количество элементов для списка, которые было ранее сохранено
-        $oiLasterProp = ( new oiLasterPropOrm() )->selectFirst('*', 'contId='.$contId);
+        $oiLasterProp = (new oiLasterPropOrm())->selectFirst('*', 'contId=' . $contId);
         // Передаём все сохранённые переменные из настроек в шаблоны
-        if ( $oiLasterProp){
-            foreach( $oiLasterProp as $key => $val ){
-                self::setVar($key, $val );
+        if ($oiLasterProp) {
+            foreach ($oiLasterProp as $key => $val) {
+                self::setVar($key, $val);
             }
         } // if
+
+        // Получаем список разновидностей objItem
+        $categoryDir = DIR::CORE . 'admin/library/mvc/comp/' . $objItemProp['ns'] . 'category/';
+        if (is_dir($categoryDir)) {
+            $categoryList = [];
+            $categoryList['list'] = filesystem::dir2array($categoryDir, filesystem::DIR);
+            $categoryList['val'] = $oiLasterProp['category'];
+            self::setVar('categoryList', $categoryList);
+        } // if is_dir
 
         // Получаем названия шаблона. Настраиваеться в настройках компонента
         $tplFile = self::getTplFile();
@@ -78,7 +90,7 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
      * <b>itemsCount</b> POST int Количество элементов в списке
      * @return void
      */
-    public function saveDataAction(){
+    public function saveDataAction() {
         $this->view->setRenderType(render::JSON);
         if (!self::isPost())
             return;
@@ -95,13 +107,13 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
 
         $oiLasterOrm = new oiLasterOrm();
         // Удаляем все старые сохранения
-        $oiLasterOrm->delete('contId='.$contId);
+        $oiLasterOrm->delete('contId=' . $contId);
 
         // Получаем спискок выбранных значений. Данные в формате: num,num,num
         $selData = self::post('sel');
         // Убераем последую запятую
         $selData = trim($selData, ',');
-        if ( $selData ){
+        if ($selData) {
             // Получаем массив ID
             $selData = explode(',', $selData);
             // Для безопастности преобразуем их в числа
@@ -109,7 +121,7 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
             // Делаем мульти вставку новых данных
             $oiLasterOrm->insertMulti(['selContId' => $selData]);
             // Для всех новых данных, выставляем contId
-            $oiLasterOrm->update('contId='.$contId, 'contId=0');
+            $oiLasterOrm->update('contId=' . $contId, 'contId=0');
         } // if selData
 
         // Сохраняем количество выбранных элементов, которое необходимо отоброжать в списке
@@ -118,10 +130,11 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
             'resizeType' => self::post('resizeType'),
             'previewWidth' => self::postInt('previewWidth'),
             'isAddMiniText' => self::postInt('isAddMiniText'),
-            'isCreatePreview' => self::postInt('isCreatePreview')
+            'isCreatePreview' => self::postInt('isCreatePreview'),
+            'category' => self::post('category')
         ];
         // Сохраняем данные
-        ( new oiLasterPropOrm() )->saveExt(['contId' => $contId], $saveData);
+        (new oiLasterPropOrm())->saveExt(['contId' => $contId], $saveData);
 
         // func. saveDataAction
     }
@@ -134,7 +147,7 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
 
     }
 
-    public function blockItemShowAction(){
+    public function blockItemShowAction() {
         $this->view->setRenderType(render::NONE);
         echo 'Нет данных';
     }

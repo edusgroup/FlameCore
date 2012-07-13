@@ -75,5 +75,3 @@ class sitemap extends controllerAbstract {
 
 // class action
 }
-
-?>

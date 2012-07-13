@@ -11,14 +11,18 @@ use ORM\blockItemSettings;
 use ORM\comp\spl\oiLaster\oiLaster as oiLasterOrm;
 use ORM\comp\spl\oiLaster\oiLasterProp as oiLasterPropOrm;
 use ORM\tree\compContTree as compContTreeOrm;
+use ORM\tree\componentTree as componentTreeOrm;
+
 // Event comp
 use admin\library\mvc\comp\spl\oiLaster\event as eventoiLaster;
 use core\classes\filesystem;
+
 // Conf
 use \DIR;
+
 // Model
 use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
-use admin\library\mvc\comp\spl\objItem\model as objItemModel;
+
 /**
  * Обработчик событий для меню
  *
@@ -33,17 +37,24 @@ class event {
             return;
         }
 
+        $objItemCompId = (new componentTreeOrm())->get('id', 'sysname="objItem"');
+
         // Получаем список всех oiLast, по которым были сохранения
         $contList = (new oiLasterPropOrm())
-            ->select('alp.*, cc.comp_id', 'alp')
+            ->select('alp.*, cc.comp_id as compId', 'alp')
             ->join(compContTree::TABLE.' cc', 'cc.id=alp.contId')
             ->fetchAll();
 
         // Бегаем по сохранённым группам oiLast
         foreach( $contList as $oiLasterItemProp ){
 
+            // Получаем подтип objItem и создаём его класс
+            $categoryObjItem = $oiLasterItemProp['category'];
+            $objItemCategory = '\admin\library\mvc\comp\spl\objItem\category\\'.$categoryObjItem.'\builder';
+            $objItemCatEvent = new $objItemCategory();
+
             // Директория к данным группы
-            $saveDir = 'comp/' . $oiLasterItemProp['comp_id'] . '/' . $oiLasterItemProp['contId'] . '/';
+            $saveDir = 'comp/' . $oiLasterItemProp['compId'] . '/' . $oiLasterItemProp['contId'] . '/';
             $saveDir = DIR::getSiteDataPath($saveDir);
 
             $itemsCount = $oiLasterItemProp['itemsCount'];
@@ -56,7 +67,7 @@ class event {
                 'contId='.$oiLasterItemProp['contId']);
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
-                [articleOrm::TABLE],
+                $objItemCatEvent::getTable(),
                 $oiLasterOrm,
                 new compContTreeOrm(),
                 $childList,
@@ -69,41 +80,9 @@ class event {
             }
 
             $listArr = [];
-            $fileNum=1;
             $listCount = 0;
             while($objItemObj = $handleObjitem->fetch_object()){
-
-                if ( $oiLasterItemProp['isCreatePreview']){
-                    // Создаём превью
-                    $objItemObj = eventModelObjitem::createMiniPreview(
-                        $objItemObj,
-                        $oiLasterItemProp['contId'],
-                        $oiLasterItemProp['comp_id'],
-                        $oiLasterItemProp['previewWidth'],
-                        $fileNum,
-                        $oiLasterItemProp['resizeType']
-                    );
-                } // if isCreatePreview
-
-                $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
-                $listArr[$listCount] = [
-                    'caption' => $objItemObj->caption,
-                    'id' => $objItemObj->id,
-                    'url' => $url,
-                    'dateAdd' => $objItemObj->date_add,
-                    'prevImgUrl' => $objItemObj->prevImgUrl,
-					'miniDesck' => ''
-                ];
-
-                if ( $oiLasterItemProp['isAddMiniText']){
-					$objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
-					$miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
-					if (is_readable($miniDescrFile)) {
-						$listArr[$listCount]['miniDesck'] = file_get_contents($miniDescrFile);
-					}
-                } // if ( isAddMiniText )
-
-                ++$fileNum;
+                $listArr[$listCount] = $objItemCatEvent::getOILasterArray($objItemObj, $objItemCompId, $oiLasterItemProp, $listCount);
                 ++$listCount;
             } // while
 
@@ -112,6 +91,7 @@ class event {
             unset($data);
         } // foreach
         // func. createoiLaster
+
     }
 
 // class event

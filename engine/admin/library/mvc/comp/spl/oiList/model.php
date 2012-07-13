@@ -19,5 +19,3 @@ class model{
     } */
 // class oiList
 }
-
-?>

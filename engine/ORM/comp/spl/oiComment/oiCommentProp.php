@@ -13,5 +13,3 @@ class oiCommentProp extends \core\classes\DB\table {
 
 // class oiCommentpProp
 }
-
-?>

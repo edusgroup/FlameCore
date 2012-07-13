@@ -56,5 +56,3 @@ class model {
     }
     // class model breadCrumbs
 }
-
-?>

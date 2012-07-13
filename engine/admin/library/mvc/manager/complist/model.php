@@ -74,4 +74,3 @@ class model {
     }
 // class model
 }
-?>

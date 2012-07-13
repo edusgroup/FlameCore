@@ -23,5 +23,3 @@ class model {
 
 // class model
 }
-
-?>

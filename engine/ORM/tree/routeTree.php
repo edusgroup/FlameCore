@@ -29,5 +29,3 @@ class routeTree extends \core\classes\DB\tree {
 
 // class routeTree
 }
-
-?>

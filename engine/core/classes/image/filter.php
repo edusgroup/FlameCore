@@ -36,5 +36,3 @@ class filter implements \core\classes\interfaces\filter {
     }
 
 }
-
-?>

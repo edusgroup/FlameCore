@@ -61,5 +61,3 @@ class tplBlockParser {
     }
 // class tplBlockParser
 }
-
-?>

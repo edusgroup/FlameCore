@@ -9,6 +9,7 @@ use ORM\blockItem;
 use ORM\blockItemSettings;
 use ORM\comp\spl\oiPopular\oiPopular as oiPopularOrm;
 use ORM\comp\spl\oiPopular\oiPopularProp as oiPopularPropOrm;
+use ORM\tree\componentTree as componentTreeOrm;
 
 // Event comp
 use admin\library\mvc\comp\spl\oiPopular\event as eventoiPopular;
@@ -43,20 +44,28 @@ class event {
             ->join(compContTree::TABLE . ' cc', 'cc.id=alp.contId')
             ->fetchAll();
 
+        $objItemCompId = (new componentTreeOrm())->get('id', 'sysname="objItem"');
+
         // Бегаем по сохранённым группам
-        foreach ($contList as $oiPopularObjItem) {
+        foreach ($contList as $oiPopularItemProp) {
 
             // Директория к данным группы
-            $saveDir = 'comp/' . $oiPopularObjItem['comp_id'] . '/' . $oiPopularObjItem['contId'] . '/';
+            $saveDir = 'comp/' . $oiPopularItemProp['comp_id'] . '/' . $oiPopularItemProp['contId'] . '/';
             $saveDir = DIR::getSiteDataPath($saveDir);
 
-            $itemsCount = $oiPopularObjItem['itemsCount'];
+            $itemsCount = $oiPopularItemProp['itemsCount'];
+
+            // Получаем подтип objItem и создаём его класс
+            $categoryObjItem = $oiPopularItemProp['category'];
+            $objItemCategory = '\admin\library\mvc\comp\spl\objItem\category\\'.$categoryObjItem.'\builder';
+            $objItemCatEvent = new $objItemCategory();
 
             // Получаем список детей в выбранной группе
             $oiPopularOrm = new oiPopularOrm();
-            $childList = $oiPopularOrm->selectList('selContId as contId', 'contId', 'contId=' . $oiPopularObjItem['contId']);
+            $childList = $oiPopularOrm->selectList('selContId as contId', 'contId', 'contId=' . $oiPopularItemProp['contId']);
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
+                $objItemCatEvent::getTable(),
                 $oiPopularOrm,
                 new compContTreeOrm(),
                 $childList,
@@ -69,40 +78,9 @@ class event {
             }
 
             $listArr = [];
-            $fileNum = 1;
             $listCount = 0;
             while ($objItemObj = $handleObjitem->fetch_object()) {
-
-                if ( $oiPopularObjItem['isCreatePreview']){
-                    // Создаём превью
-                    $objItemObj = eventModelObjitem::createMiniPreview(
-                        $objItemObj,
-                        $oiPopularObjItem['contId'],
-                        $oiPopularObjItem['comp_id'],
-                        $oiPopularObjItem['previewWidth'],
-                        $fileNum,
-                        $oiPopularObjItem['resizeType']
-                    );
-                } // if isCreatePreview
-
-                // ----------------------------------------
-                $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
-                $listArr[] = [
-                    'caption' => $objItemObj->caption,
-                    'url' => $url,
-                    'prevImgUrl' => $objItemObj->prevImgUrl,
-					'miniDesck' => ''
-                ];
-
-                if ( $oiPopularObjItem['isAddMiniText']){
-					$objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
-					$miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
-					if (is_readable($miniDescrFile)) {
-						$listArr[$listCount]['miniDesck'] = file_get_contents($miniDescrFile);
-					}
-                } // if ( isAddMiniText )
-				
-                ++$fileNum;
+                $listArr[$listCount] = $objItemCatEvent::getOIPopularArray($objItemObj, $objItemCompId, $oiPopularItemProp, $listCount);
                 ++$listCount;
             } // while
 

@@ -84,6 +84,9 @@
                     <div id="contDiv" class="treePanel"></div>
                     <div style="border-left: 1px solid blue ; padding-left: 5px">
                         <form id="propBox">
+                            <div class="dt">Делить на категории?</div>
+                            <div class="dd"><?=self::checkbox('name="isCreateCategory" value="1"', self::get('isCreateCategory', 1))?></div>
+
                             <div class="dt">Количество элементов</div>
                             <div class="dd"><?=self::text('name="itemsCount"', self::get('itemsCount', 10))?></div>
 

@@ -15,5 +15,3 @@ class event {
     const PROP_SAVE = 'treeprop:save';
 // class event
 }
-
-?>

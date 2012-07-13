@@ -289,5 +289,3 @@ class wareframe extends controllerAbstract {
     }
     // class wareframe
 }
-
-?>

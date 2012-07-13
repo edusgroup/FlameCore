@@ -66,5 +66,3 @@ class robots extends controllerAbstract {
 
 // class action
 }
-
-?>

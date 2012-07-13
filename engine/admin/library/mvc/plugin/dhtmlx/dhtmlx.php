@@ -123,5 +123,3 @@ class dhtmlx extends controllerAbstract {
     }*/
 
 }
-
-?>

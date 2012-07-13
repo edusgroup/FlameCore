@@ -42,5 +42,3 @@ class test extends controllerAbstract {
 
 // class test
 }
-
-?>

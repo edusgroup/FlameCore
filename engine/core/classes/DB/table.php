@@ -471,5 +471,3 @@ class table extends adapter\adapter {
     
 
 }
-
-?>

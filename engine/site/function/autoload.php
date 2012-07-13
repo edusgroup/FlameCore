@@ -29,5 +29,3 @@ function redirect(string $pURL){
         header('Location: '.$pURL);
         exit;
 }
-
-?>

@@ -40,6 +40,7 @@ class oiList extends \core\classes\component\abstr\admin\comp {
 
         // Получаем данные по компоненту objItem
         $objItemProp = (new componentTree())->selectFirst('*', 'sysname="objItem"');
+
         // Получаем весь список контента по oiList
         $contData = (new compcontTree())->select('cc.*', 'cc')
             ->where('cc.isDel="no" AND cc.comp_id=' . $objItemProp['id'])
@@ -53,11 +54,12 @@ class oiList extends \core\classes\component\abstr\admin\comp {
         self::setJson('oiList', $oiList);
 
         // Получаем ранее сохранённые настройки по текущему contId в oiList
-        $oiListProp = (new oiListPropOrm())->selectFirst('');
-        if ($oiListProp) {
-            self::setVar('itemsCount', $oiListProp['itemsCount']);
-            self::setVar('memcacheCount', $oiListProp['memcacheCount']);
-            self::setVar('fileCount', $oiListProp['fileCount']);
+        $oiListProp = (new oiListPropOrm())->selectFirst('*', 'contId='.$contId);
+        // Передаём все сохранённые переменные из настроек в шаблоны
+        if ( $oiListProp){
+            foreach( $oiListProp as $key => $val ){
+                self::setVar($key, $val );
+            }
         } // if
 
         // Получаем список разновидностей objItem
@@ -121,7 +123,8 @@ class oiList extends \core\classes\component\abstr\admin\comp {
             'itemsCount' => self::postInt('itemsCount'),
             'memcacheCount' => self::postInt('memcacheCount'),
             'fileCount' => self::postInt('fileCount'),
-            'category' => self::post('category')
+            'category' => self::post('category'),
+            'isCreateCategory' => self::postInt('isCreateCategory', 0)
         ];
         (new oiListPropOrm())->saveExt(['contId' => $contId], $saveData);
 

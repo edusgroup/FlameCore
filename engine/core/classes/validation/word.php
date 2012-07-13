@@ -50,4 +50,3 @@ class word {
     }
     // lass word
 }
-?>

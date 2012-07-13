@@ -5,7 +5,7 @@ class element {
 
     private static $cssList;
 
-    public static function selectIdName($pData, $pAttributes = '', $pSelectValue=null) {
+    public static function selectIdName($pData, $pAttributes = '', $pSelectValue = null) {
         if (!$pData)
             return;
         if ($pSelectValue === null && isset($pData['val'])) {
@@ -13,16 +13,16 @@ class element {
         }
 
         $list = $pData['list'];
-        echo '<SELECT ' , $pAttributes , '>';
-        foreach( $list as $item){
+        echo '<SELECT ', $pAttributes, '>';
+        foreach ($list as $item) {
             $selected = $item['id'] == $pSelectValue ? ' selected="selected"' : '';
             echo '<OPTION VALUE="', $item['id'], '"', $selected, '>', $item['name'], '</OPTION>';
         }
         echo '</SELECT>';
         // func. selectIdName
     }
-    
-    public static function select($pData, $pAttributes = '', $pSelectValue=-1) {
+
+    public static function select($pData, $pAttributes = '', $pSelectValue = -1) {
         if (!$pData)
             return;
         $selValue = $pSelectValue;
@@ -31,9 +31,9 @@ class element {
         }
         $list = $pData['list'];
         //$listCount = count($list);
-        echo '<SELECT ' , $pAttributes , '>';
+        echo '<SELECT ', $pAttributes, '>';
         //for ($i = 0; $i < $listCount; $i++) {
-        foreach( $list as $value ){
+        foreach ($list as $value) {
             //$value = $list[$i];
             $selected = $value == $selValue ? ' selected="selected"' : '';
             echo '<OPTION VALUE="', $value, '"', $selected, '>', $value, '</OPTION>';
@@ -41,8 +41,8 @@ class element {
         echo '</SELECT>';
         // fucn. select
     }
-    
-    public static function selectKeyName($pData, $pAttributes = '', $pSelectValue=-1) {
+
+    public static function selectKeyName($pData, $pAttributes = '', $pSelectValue = -1) {
         if (!$pData)
             return;
         $selValue = $pSelectValue;
@@ -51,9 +51,9 @@ class element {
         }
         $list = $pData['list'];
         //$listCount = count($list);
-        echo '<SELECT ' , $pAttributes , '>';
+        echo '<SELECT ', $pAttributes, '>';
         //for ($i = 0; $i < $listCount; $i++) {
-        foreach( $list as $key => $value ){
+        foreach ($list as $key => $value) {
             //$value = $list[$i];
             $selected = $key == $selValue ? ' selected="selected"' : '';
             echo '<OPTION VALUE="', $key, '"', $selected, '>', $value, '</OPTION>';
@@ -63,19 +63,19 @@ class element {
     }
 
     // TODO: Подумать о необходимости
-    public static function printCSS($p_param='') {
+    public static function printCSS($p_param = '') {
         $i_count = count(self::$cssList);
         for ($i = 0; $i < $i_count; $i++) {
             echo '<LINK rel="stylesheet" type="text/css" href="', self::$cssList[$i], '" ', $p_param, '/>';
         }
         // func. printCSS
     }
-    
-    public static function dirList2Select(array $pList){
+
+    public static function dirList2Select(array $pList) {
         $iCount = count($pList);
         $return = [];
-        for( $i = 0; $i < $iCount; $i++){
-            $return[] = ['id'=>$pList[$i], 'name'=>$pList[$i]];
+        for ($i = 0; $i < $iCount; $i++) {
+            $return[] = ['id' => $pList[$i], 'name' => $pList[$i]];
         }
         return $return;
         // func. dirList2Select
@@ -88,41 +88,42 @@ class element {
     public static function clearCSS() {
         unset(self::$cssList);
     }
-    
-    public static function checkbox($pParam, $pChecked=false, $pDisable=false ){
-        $pChecked = $pChecked?'checked="" ':'';
-        $pDisable = $pDisable?'disabled="" ':'';
-        return '<INPUT TYPE="checkbox" '.$pParam.$pChecked.$pDisable.'/>';
+
+    public static function checkbox($pParam, $pChecked = false, $pDisable = false) {
+        $pChecked = $pChecked ? 'checked="" ' : '';
+        $pDisable = $pDisable ? 'disabled="" ' : '';
+        return '<INPUT TYPE="checkbox" ' . $pParam . $pChecked . $pDisable . '/>';
         // func. checkbox
     }
-    
-    public static function radio($pParam, $pChecked=false, $pDisable=false ){
-        $checked = $pChecked?'checked="" ':'';
-        $disable = $pDisable?'disabled="" ':'';
-        return '<INPUT TYPE="radio" '.$pParam.$checked.$disable.'/>';
+
+    public static function radio($pParam, $pChecked = false, $pDisable = false) {
+        $checked = $pChecked ? ' checked="" ' : '';
+        $disable = $pDisable ? ' disabled="" ' : '';
+        return '<INPUT TYPE="radio" ' . $pParam . $checked . $disable . '/>';
         // func. radio
     }
 
-    public static function text($pParam, $pValue=null, $pDisable=false ){
-        $pValue = $pValue!==null?'value="'.$pValue.'" ':'';
-        $pDisable = $pDisable?'disabled="" ':'';
-        return '<INPUT TYPE="text" '.$pParam.$pDisable.$pValue.'/>';
+    public static function text($pParam, $pValue = null, $pDisable = false) {
+        $pValue = $pValue !== null ? ' value="' . $pValue . '" ' : '';
+        $pDisable = $pDisable ? ' disabled="" ' : '';
+        return '<INPUT TYPE="text" ' . $pParam . $pDisable . $pValue . '/>';
         // func. text
     }
-    public static function textarea($pParam, $pValue='', $pDisable=false ){
-        $pDisable = $pDisable?'disabled="" ':'';
-        return '<TEXTAREA '.$pParam.$pDisable.'>'.$pValue.'</TEXTAREA>';
+
+    public static function textarea($pParam, $pValue = '', $pDisable = false) {
+        $pDisable = $pDisable ? ' disabled="" ' : '';
+        return '<TEXTAREA ' . $pParam . $pDisable . '>' . $pValue . '</TEXTAREA>';
         // func. textarea
     }
-    
-    public static function img($pUrl, $pParam=''){
-       if ( !$pUrl){
-           return;
-       }
-       return '<IMG SRC="'.$pUrl.'" '.$pParam.'/>';
-       // func. img
+
+    public static function img($pUrl, $pParam = '') {
+        if (!$pUrl) {
+            return;
+        }
+        return '<IMG SRC="' . $pUrl . '" ' . $pParam . '/>';
+        // func. img
     }
-    
+
     //public static function var2js($pVar){
     //    
     //}
@@ -159,7 +160,5 @@ class element {
         }
         // func. printMenu
     }
-// class element
+    // class element
 }
-
-?>

@@ -8,5 +8,3 @@ namespace core\classes\exception;
  */
 class filesystem extends \Exception{
 }
-
-?>

@@ -43,5 +43,3 @@ class event extends controllerAbstract {
 
 // class test
 }
-
-?>

@@ -12,8 +12,6 @@ use core\classes\request;
  */
 abstract class controllerAbstract extends request {
 
-    //protected $extObj;
-
     public function __construct(string $pTplPath, string $pThemeResUrl) {
         // TODO: Проверить нужны ли эти пути
         
@@ -44,21 +42,6 @@ abstract class controllerAbstract extends request {
         $this->view->render();
     }
 
-    // 
-    /*public function setError(integer $pCode, string $pMessage) {
-        if ($this->view->getRenderType() == render::JSON) {
-            self::setVar('json', array('error' => array('code' => $pCode, 'msg' => $pMessage)));
-        } else {
-            // TODO: Сделать нормамальные вывод
-            //$this->view->setVar('errData', array($pCode, $pMessage));
-            self::setVar('errData', array($pCode, $pMessage));
-            header('Content-Type: text/html; charset=UTF-8');
-            print 'Exception: ' . $pMessage . "<br/>\n";
-            //echo nl2br($e->getTraceAsString());
-            exit;
-        }
-    }*/
-
     /**
      * Вызываем у контроллера public метод помеченных как Action т.е. 
      * что бы методы был доступ для вызова он должен иметь структру 
@@ -74,36 +57,5 @@ abstract class controllerAbstract extends request {
         $this->{$methodName}();
     }
 
-//    public static function initStorage(string $pType) {
-//        // TODO: написать как то более программно, без хардкода
-//        $file = DIR::CORE . 'engine/classes/storage/' . $pType . '.php';
-//        if (!is_readable($file)) {
-//            throw new \Exception('Storage: ' . $pType . ' не найден или нет доступа', 24);
-//        }
-//        return include($file);
-//    }
-//
-//    protected function addController($pObj) {
-//        $this->extObj = $pObj;
-//    }
-//    public function __call($pName, $pArgs) {
-//        call_user_func_array(array($this->extObj, $pName), $pArgs);
-//    }
-
-//    public function methodExists(string $pMethod) {
-//        return method_exists($this->extObj, $pMethod) ? : method_exists($this, $pMethod);
-//    }
-
-    /**
-     * Редирект на ресурс
-     * @param string $pURL URL ресурса 
-     */
-//    public function redirect(string $pURL) {
-//        header('Location: ' . $pURL);
-//        exit;
-//    }
-
     public abstract function init();
 }
-
-?>

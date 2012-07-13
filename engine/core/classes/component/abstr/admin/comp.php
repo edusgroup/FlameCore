@@ -80,5 +80,3 @@ abstract class comp extends \core\classes\mvc\controllerAbstract {
 
     // class comp
 }
-
-?>

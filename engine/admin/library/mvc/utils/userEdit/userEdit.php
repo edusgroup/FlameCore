@@ -39,5 +39,3 @@ class userEdit extends controllerAbstract {
     }
  // class userEdit
 }
-
-?>

@@ -48,7 +48,7 @@ class event {
 
             // Получаем подтип objItem и создаём его класс
             $categoryObjItem = $oiListItemProp['category'];
-            $objItemCategory = '\admin\library\mvc\comp\spl\objItem\category\\'.$categoryObjItem.'\event';
+            $objItemCategory = '\admin\library\mvc\comp\spl\objItem\category\\'.$categoryObjItem.'\builder';
             $objItemCatEvent = new $objItemCategory();
 
             // Получаем список детей в выбранной группе
@@ -60,12 +60,13 @@ class event {
                 $oiListOrm,
                 new compContTreeOrm(),
                 $childList
-            );
+            ); // eventModelObjitem::objItemChange
+
             // Если данных нет, то переходим к след обработке oiList
             if (!$handleObjitem || $handleObjitem->num_rows == 0) {
                 print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
                 continue;
-            }
+            } // if
 
             $categoryBuffer = [];
 
@@ -89,11 +90,10 @@ class event {
                 } // if
 
                 // Если накопили достаточно, то сохраняем списки по категории
-                if (count($catBuff['data']) == $itemsCount) {
+                if ( $oiListItemProp['isCreateCategory'] && count($catBuff['data']) == $itemsCount) {
                     $catBuff['fileNum'] = isset($catBuff['fileNum']) ? 1 + $catBuff['fileNum'] : 1;
                     $data = serialize($catBuff['data']);
                     filesystem::saveFile($saveDir . $objItemItem->treeId . '/', $catBuff['fileNum'] . '.txt', $data);
-                    //var_dump($catBuff);
                     $catBuff['data'] = [];
                 } // if
             } // while
@@ -110,19 +110,21 @@ class event {
 
             // TODO: Слить настройки и списки в один файл, меньше будет обращений к файловой системе
             // Досохраняем данные по категориям и создаём настройки
-            foreach ($categoryBuffer as $contId => $categoryData) {
-                $fileNum = isset($categoryData['fileNum']) ? $categoryData['fileNum'] : 0;
-                if ($categoryData['data']) {
-                    ++$fileNum;
-                    $data = \serialize($categoryData['data']);
-					//print $fileNum."\n";
-                    filesystem::saveFile($saveDir . $contId . '/', $fileNum . '.txt', $data);
-                } // if
-                $data = \serialize(['fileCount' => $fileNum]);
-                filesystem::saveFile($saveDir . $contId . '/', 'prop.txt', $data);
-            } // foreach
+            if ( $oiListItemProp['isCreateCategory'] ){
+                foreach ($categoryBuffer as $contId => $categoryData) {
+                    $fileNum = isset($categoryData['fileNum']) ? $categoryData['fileNum'] : 0;
+                    if ($categoryData['data']) {
+                        ++$fileNum;
+                        $data = \serialize($categoryData['data']);
+                        filesystem::saveFile($saveDir . $contId . '/', $fileNum . '.txt', $data);
+                    } // if
+                    $data = \serialize(['fileCount' => $fileNum]);
+                    filesystem::saveFile($saveDir . $contId . '/', 'prop.txt', $data);
+                } // foreach
+            } // if $oiListItemProp['isCreateCategory']
             unset($data, $categoryBuffer);
         } // foreach
+
 
         // func. createArtList
     }

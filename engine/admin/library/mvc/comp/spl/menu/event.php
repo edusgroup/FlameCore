@@ -12,5 +12,3 @@ class event {
     
     const ACTION_SAVE = 'menu:save';
 }
-
-?>

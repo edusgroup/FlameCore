@@ -40,33 +40,34 @@
 
 
         <div class="content">
+            <form id="propBox">
+                <div class="dt">Начальное изображение</div>
+                <div class="dd">
+                    <a href="#" id="prevImgBtn">
+                        <img src="<?= self::res('images/folder_16.png') ?>" alt="Выбрать" />
+                        Выбрать
+                    </a>
+                    <a id="preImgUrl" href="#" style="display: none" target="_blank">
+                        <img src="<?= self::res('images/file_16.png') ?>" alt="Посмотреть" />
+                        Посмотреть
+                    </a>
+                </div>
 
-            <div class="dt">Начальное изображение</div>
-            <div class="dd">
-                <a href="#" id="prevImgBtn">
-                    <img src="<?= self::res('images/folder_16.png') ?>" alt="Выбрать" />
-                    Выбрать
-                </a>
-                <a id="preImgUrl" href="#" style="display: none" target="_blank">
-                    <img src="<?= self::res('images/file_16.png') ?>" alt="Посмотреть" />
-                    Посмотреть
-                </a>
-            </div>
+                <div class="dt">Youtube ссылка</div>
+                <div class="dd">
+                    <?=self::text('name="videoUrl"', self::get('videoUrl'));?>
+                </div>
 
-			<div class="dt">Youtube ссылка</div>
-            <div class="dd">
-                <?=self::text('name="videoUrl"', self::get('videoUrl'));?>
-            </div>
-			
-			<div class="dt">Заголовок</div>
-            <div class="dd">
-                <?=self::text('name="caption"', self::get('caption'));?>
-            </div>
-			
-			<div class="dt">Текст</div>
-            <div class="dd">
-                <textarea name="textDesc" style="width: 400px; height: 200px"><?=self::get('textDesc')?></textarea>
-            </div>
+                <div class="dt">Заголовок</div>
+                <div class="dd">
+                    <?=self::text('name="caption"', self::get('caption'));?>
+                </div>
+
+                <div class="dt">Текст</div>
+                <div class="dd">
+                    <textarea name="textDesc" style="width: 400px; height: 200px"><?=self::get('textDesc')?></textarea>
+                </div>
+            </form>
 
         </div>
     </div>
@@ -74,8 +75,8 @@
 <script type="text/javascript">
     var reviewData = {
         contid: <?= self::get('contId') ?>,
-		objItemId: <?= self::get('objItemId') ?>,
-		prevImgUrl: ''
+        itemObjId: <?= self::get('objItemId') ?>,
+		prevImgUrl: '<?= self::get('imgPrevUrl') ?>'
     };
 
     var contrName = reviewData.contid;
@@ -90,25 +91,24 @@
 
         // Клик по кноке Сохранить
         function saveBtnClick() {
-            var sel = tree.compcont.getAllCheckedBranches();
+
             var propData = $('#' + options.propBox).serialize();
+            propData += '&prevImgUrl=' + reviewData.prevImgUrl;
+            propData += '&itemObjId=' + reviewData.itemObjId;
 
             HAjax.saveData({
-                data:'sel=' + sel + '&'+propData,
-                methodType:'POST'
+                data: propData,
+                methodType: 'POST'
             });
             return false;
             // func. saveBtnClick
         }
 		
 		function fileManagerCallBack(pFuncNum, pUrl){
-
 			if ( pFuncNum == '25'){
 				reviewData.prevImgUrl = pUrl;
 				$('#'+options.preImgUrl).show().attr('href', pUrl);
-			}/*else{
-				CKEDITOR.tools.callFunction(pFuncNum, pUrl);
-			}*/
+			}
 			// func. fileManagerCallBack
 		}
 
@@ -126,7 +126,7 @@
 		function prevImgBtnClick(){
 			var urlWindow = utils.url({
 				method: 'fileManager', 
-				query: {CKEditorFuncNum: '25', type: 'img', id: reviewData.objItemId}
+				query: {CKEditorFuncNum: '25', type: 'img', id: reviewData.itemObjId}
 			});
 			window.open( urlWindow, 'Выберите файл', 
 				'width=800,height=600,scrollbars=yes,resizable=yes,'
@@ -147,6 +147,9 @@
 			$('#'+options.prevImgBtn).click(prevImgBtnClick);
 			$('#'+options.backBtn).attr('href', utils.url({}));
 
+            if ( reviewData.prevImgUrl ){
+                $('#'+options.preImgUrl).show().attr('href', reviewData.prevImgUrl);
+            }
             // func. init
         }
 
@@ -167,7 +170,8 @@
             backBtn: 'backBtn',
             saveBtn: 'saveBtn',
 			prevImgBtn: 'prevImgBtn',
-			preImgUrl: 'preImgUrl'
+			preImgUrl: 'preImgUrl',
+            propBox: 'propBox'
         });
     }); // $(document).ready
 

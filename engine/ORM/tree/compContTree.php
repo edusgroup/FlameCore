@@ -17,5 +17,3 @@ class compContTree extends \core\classes\DB\tree {
     }
 // class. compContTree
 }
-
-?>

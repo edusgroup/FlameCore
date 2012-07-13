@@ -11,5 +11,3 @@ class oiList extends \core\classes\DB\table {
     const TABLE = 'pr_comp_oilist';
 // class oiList
 }
-
-?>

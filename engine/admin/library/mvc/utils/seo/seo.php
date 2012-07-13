@@ -126,5 +126,3 @@ class seo extends \core\classes\component\abstr\admin\comp {
     }
 // class breadCrumbs
 }
-
-?>

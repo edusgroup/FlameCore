@@ -13,5 +13,3 @@ class oiComment extends \core\classes\DB\table {
 
 // class oiComment
 }
-
-?>

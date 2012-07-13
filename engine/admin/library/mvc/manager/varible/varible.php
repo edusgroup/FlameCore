@@ -192,5 +192,3 @@ class varible extends controllerAbstract {
 
 // class varible
 }
-
-?>

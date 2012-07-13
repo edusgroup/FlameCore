@@ -332,5 +332,3 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
 
     // class blockItem
 }
-
-?>

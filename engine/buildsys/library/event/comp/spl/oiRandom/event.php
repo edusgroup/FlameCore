@@ -9,6 +9,7 @@ use ORM\blockItem;
 use ORM\blockItemSettings;
 use ORM\comp\spl\oiRandom\oiRandom as oiRandomOrm;
 use ORM\comp\spl\oiRandom\oiRandomProp as oiRandomPropOrm;
+use ORM\tree\componentTree as componentTreeOrm;
 
 // Event comp
 use admin\library\mvc\comp\spl\oiRandom\event as eventoiRandom;
@@ -43,17 +44,27 @@ class event {
             ->join(compContTree::TABLE . ' cc', 'cc.id=alp.contId')
             ->fetchAll();
 
+        $objItemCompId = (new componentTreeOrm())->get('id', 'sysname="objItem"');
+
         // Бегаем по сохранённым группам
-        foreach ($contList as $rndObj) {
-            // Получаем список детей в выбранной группе
+        foreach ($contList as $rndObjItemProp) {
+
+            // Получаем подтип objItem и создаём его класс
+            $categoryObjItem = $rndObjItemProp['category'];
+            $objItemCategory = '\admin\library\mvc\comp\spl\objItem\category\\'.$categoryObjItem.'\builder';
+            $objItemCatEvent = new $objItemCategory();
+
             $oiRandomOrm = new oiRandomOrm();
-            $childList = $oiRandomOrm->selectList('selContId as contId', 'contId', 'contId=' . $rndObj['contId']);
+            // Получаем список детей в выбранной группе
+            $childList = $oiRandomOrm->selectList('selContId as contId', 'contId', 'contId=' . $rndObjItemProp['contId']);
+
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
+                $objItemCatEvent::getTable(),
                 $oiRandomOrm,
                 new compContTreeOrm(),
                 $childList,
-                ['order'=>'rand()', 'limit'=>30*$rndObj['itemsCount']]
+                ['order'=>'rand()', 'limit'=>30*$rndObjItemProp['itemsCount']]
             );
             if (!$handleObjitem || $handleObjitem->num_rows == 0) {
                 print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
@@ -61,51 +72,18 @@ class event {
             }
 
             // Директория к данным группы
-            $saveDir = 'comp/' . $rndObj['comp_id'] . '/' . $rndObj['contId'] . '/';
+            $saveDir = 'comp/' . $rndObjItemProp['comp_id'] . '/' . $rndObjItemProp['contId'] . '/';
             $saveDir = DIR::getSiteDataPath($saveDir);
 
-
-            $miniDescrHead = '';
-            $miniDescrData = '';
             $listArr = [];
             $arrCount = 1;
-            $fileNum = 1;
 			$listCount = 0;
             while ($objItemObj = $handleObjitem->fetch_object()) {
+                $listArr[$listCount] = $objItemCatEvent::getOIRandomArray($objItemObj, $objItemCompId, $rndObjItemProp, $listCount, $arrCount);
 
-                if ( $rndObj['isCreatePreview']){
-                    // Создаём превью
-                    $objItemObj = eventModelObjitem::createMiniPreview(
-                        $objItemObj,
-                        $rndObj['contId'],
-                        $rndObj['comp_id'],
-                        $rndObj['previewWidth'],
-                        $arrCount,
-                        $rndObj['resizeType']
-                    );
-                } // if isCreatePreview
-
-                // ----------------------------------------
-                $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
-                $listArr[$listCount] = [
-                    'caption' => $objItemObj->caption,
-                    'url' => $url,
-                    'prevImgUrl' => $objItemObj->prevImgUrl,
-					'miniDesck' => ''
-                ];
-
-                if ( $rndObj['isAddMiniText']){
-					$objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
-					$miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
-					if (is_readable($miniDescrFile)) {
-						$listArr[$listCount]['miniDesck'] = file_get_contents($miniDescrFile);
-					}
-                } // if ( isAddMiniText )
-
-                if ( $rndObj['itemsCount'] == $arrCount ){
+                if ( $rndObjItemProp['itemsCount'] == $arrCount ){
                     $data = serialize($listArr);
-                    filesystem::saveFile($saveDir, 'rnd'.$fileNum.'.txt', $data);
-                    ++$fileNum;
+                    filesystem::saveFile($saveDir, 'rnd'.($listCount+1).'.txt', $data);
                     $arrCount = 0;
                     $listArr = [];
                 } // if
@@ -117,14 +95,12 @@ class event {
 
             if ( $listArr ){
 				$data = serialize($listArr);
-                filesystem::saveFile($saveDir, 'rnd'.$fileNum.'.txt', $data);
+                filesystem::saveFile($saveDir, 'rnd'.($listCount+1).'.txt', $data);
             }
 
-            $data = serialize(['fileNum' => $fileNum]);
+            $data = serialize(['fileNum' => ($listCount+1)]);
             filesystem::saveFile($saveDir, 'data.txt', $data);
         } // foreach ($contList as $rndObj)
-
-        //exit;
 
         // func. createoiRandom
     }

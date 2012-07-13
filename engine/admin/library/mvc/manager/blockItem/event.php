@@ -12,5 +12,3 @@ class event {
     const DELETE = 'blockitem:delete';
 // class event
 }
-
-?>

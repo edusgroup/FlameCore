@@ -56,5 +56,3 @@ class comp {
     }
     // class. comp
 }
-
-?>

@@ -12,5 +12,3 @@ class wareframeTree extends \core\classes\DB\tree {
     const TABLE = 'pr_wareframe_tree';
 
 }
-
-?>

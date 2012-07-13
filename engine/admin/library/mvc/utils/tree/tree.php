@@ -37,5 +37,3 @@ class tree extends controllerAbstract {
 
 // class action
 }
-
-?>

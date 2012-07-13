@@ -334,5 +334,3 @@ class action extends controllerAbstract {
 
     // class action
 }
-
-?>

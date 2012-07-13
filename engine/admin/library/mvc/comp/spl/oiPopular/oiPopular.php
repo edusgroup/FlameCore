@@ -4,20 +4,21 @@ namespace admin\library\mvc\comp\spl\oiPopular;
 
 // Conf
 use \DIR;
-// Model
-use admin\library\mvc\manager\complist\model as complistModel;
+
 // Engine
 use core\classes\render;
 use core\classes\event as eventCore;
+use core\classes\filesystem;
+
 // ORM
 use ORM\comp\spl\oiPopular\oiPopular as oiPopularOrm;
 use ORM\comp\spl\oiPopular\oiPopularProp as oiPopularPropOrm;
 use ORM\tree\compcontTree;
 use ORM\tree\componentTree;
+
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
-//use ORM\comp\spl\oiPopular\oiPopularCont as oiPopularContOrm;
 
 /**
  * Description of oiPopular
@@ -36,19 +37,22 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
 
     public function indexAction() {
         $contId = $this->contId;
-        $compcontTree = new compcontTree();
-        $contData = $compcontTree->select('cc.*', 'cc')
-            ->join(componentTree::TABLE.' c', 'c.id=cc.comp_id')
-            ->where('c.sysname="objItem" AND cc.isDel="no"')
-            ->fetchAll();
+        self::setVar('contId', $contId);
 
+        // Получаем данные по компоненту objItem
+        $objItemProp = (new componentTree())->selectFirst('*', 'sysname="objItem"');
+
+        // Получаем весь список контента по oiPopular
+        $contData = (new compcontTree())->select('cc.*', 'cc')
+            ->where('cc.isDel="no" AND cc.comp_id=' . $objItemProp['id'])
+            ->fetchAll();
+        // Преобразуем список в дерево
         $contTree = dhtmlxTree::all($contData, 0);
         self::setJson('contTree', $contTree);
 
+        // Получаем список id веток ранее выбранных и сохранённых
         $oiPopular = (new oiPopularOrm)->selectList('*', 'selContId', 'contId='.$contId);
         self::setJson('oiPopular', $oiPopular);
-
-        self::setVar('contId', $this->contId);
 
         // Получаем количество элементов для списка, которые было ранее сохранено
         $oiPopularProp = ( new oiPopularPropOrm() )->selectFirst('*', 'contId='.$contId);
@@ -58,6 +62,15 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
                 self::setVar($key, $val );
             }
         } // if
+
+        // Получаем список разновидностей objItem
+        $categoryDir = DIR::CORE . 'admin/library/mvc/comp/' . $objItemProp['ns'] . 'category/';
+        if (is_dir($categoryDir)) {
+            $categoryList = [];
+            $categoryList['list'] = filesystem::dir2array($categoryDir, filesystem::DIR);
+            $categoryList['val'] = $oiPopularProp['category'];
+            self::setVar('categoryList', $categoryList);
+        } // if is_dir
 
         $tplFile = self::getTplFile();
         $this->view->setBlock('panel', $tplFile);
@@ -97,7 +110,8 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
             'resizeType' => self::post('resizeType'),
             'previewWidth' => self::postInt('previewWidth'),
             'isAddMiniText' => self::postInt('isAddMiniText'),
-            'isCreatePreview' => self::postInt('isCreatePreview')
+            'isCreatePreview' => self::postInt('isCreatePreview'),
+            'category' => self::post('category')
         ];
         (new oiPopularPropOrm())->saveExt(['contId' => $contId], $saveData);
 

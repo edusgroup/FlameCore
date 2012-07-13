@@ -32,5 +32,3 @@ class DB {
     
 // class DB
 }
-
-?>

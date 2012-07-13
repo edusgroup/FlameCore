@@ -92,5 +92,3 @@ class model {
 
     // class model
 }
-
-?>

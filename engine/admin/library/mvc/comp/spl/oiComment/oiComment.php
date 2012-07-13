@@ -151,5 +151,3 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
 
 // class oiList
 }
-
-?>

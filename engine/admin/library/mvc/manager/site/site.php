@@ -32,5 +32,3 @@ class site extends controllerAbstract {
 
 // class test
 }
-
-?>

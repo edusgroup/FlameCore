@@ -319,5 +319,3 @@ class grid {
 
 // class dhtmlxGrid
 }
-
-?>
