@@ -66,7 +66,8 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
         } // if
 
         // Получаем список разновидностей objItem
-        $categoryDir = DIR::CORE . 'admin/library/mvc/comp/' . $objItemProp['ns'] . 'category/';
+        $nsPath = filesystem::nsToPath($objItemProp['ns']);
+        $categoryDir = DIR::CORE . 'admin/library/mvc/comp/' . $nsPath . 'category/';
         if (is_dir($categoryDir)) {
             $categoryList = [];
             $categoryList['list'] = filesystem::dir2array($categoryDir, filesystem::DIR);
