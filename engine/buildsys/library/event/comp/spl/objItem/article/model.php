@@ -38,10 +38,10 @@ class model {
         if ($isArctileSave) {
 
             $idList = $objItemOrm->select('i.treeId', 'i')
-                ->joinLeftOuter(articleOrm::TABLE.' a', 'a.itemObjId=i.id')
+                ->join(articleOrm::TABLE.' a', 'a.itemObjId=i.id')
                 ->where('a.urlTpl = ""')
                 ->group('i.treeId')
-                ->toList('i.treeId');
+                ->toList('treeId');
 
             foreach ($idList as $contId) {
                 $urlList = (new tree())->getTreeUrlById(compContTree::TABLE, (int)$contId);
@@ -50,10 +50,16 @@ class model {
                 }, $urlList);
                 $urlList = implode('","', $urlList);
                 // Находим ближайший для нас шаблон
-                $data = (new objItemProp())->sql('SELECT ap.contId, ap.url FROM ' . objItemProp::TABLE . ' ap
-                                JOIN ( SELECT max(contId) contId FROM ' . objItemProp::TABLE . ' WHERE contId IN ("' . $urlList . '")
-                                        AND url != "" ) jn ON jn.contId = ap.contId#' . __METHOD__)
-                    ->fetchFirst();
+                $data = (new objItemProp())->sql(
+					'SELECT ap.contId, ap.url '.
+					'FROM ' . objItemProp::TABLE . ' ap '.
+                    'JOIN ( SELECT max(contId) contId FROM ' . objItemProp::TABLE . ' WHERE contId IN ("' . $urlList . '") AND url != "" ) jn '.
+					'ON jn.contId = ap.contId#' . __METHOD__
+				)->fetchFirst();
+				if ( !$data ){
+					continue;
+				}
+
                 $urlTpl = $data['url'];
                 /*$objItemOrm->update(
                     ['urlTpl' => $urlTpl, 'urlTplContId' => $data['contId']],
@@ -62,11 +68,10 @@ class model {
                 // Обновляем шаблоны ссылки и какой ветке настроек шаблон пренадлежит
                 $objItemOrm->sql(
                     'UPDATE '.articleOrm::TABLE.' a '.
-                    'JOIN '.$objItemOrm::TABLE.' i '.
+                    'JOIN '.objItemOrm::TABLE.' i '.
                     'ON i.id=a.itemObjId '.
                     'SET a.urlTpl="'. $urlTpl.'", a.urlTplContId='.$data['contId'].' '.
-                    'WHERE a.treeId='.$contId.' '.
-                    '#'.__METHOD__
+                    'WHERE i.treeId='.$contId.' #'.__METHOD__
                 )->query();
 
             } // foreach

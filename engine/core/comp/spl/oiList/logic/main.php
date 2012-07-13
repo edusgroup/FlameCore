@@ -17,10 +17,10 @@ use core\classes\userUtils;
  */
 class main {
     
-    public static $urlTplList = array(
+    public static $urlTplList = [
         'pageNav' => null,
         'category' => null
-    );
+    ];
 	
 	private static $_paginationList;
 	private static $_paginationUrlTpl;
