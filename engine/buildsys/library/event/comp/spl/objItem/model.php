@@ -95,10 +95,11 @@ class model {
      * @param tableDb $pTreeTableOrm таблица, где храниться записи, какие категории были выбраны в дереве
      * @param compContTreeOrm $compContTreeOrm дерево контента
      * @param array $childList список выделенных веток в дереве контента
+	 * @param array $buffTreeIdList список contId, которые попал в event буффер, т.е. нам нужны только те ветки, которые попадают в этот список
      * @param array $pQuery доп настройки
      * @return bool|\core\classes\DB\adapter\type
      */
-    public static function objItemChange(eventBufferOrm  $eventBufferOrm, array $pTableJoinList, tableDb $pTreeTableOrm, compContTreeOrm $compContTreeOrm, array $childList, $pQuery = null) {
+    public static function objItemChange(eventBufferOrm  $eventBufferOrm, array $pTableJoinList, tableDb $pTreeTableOrm, compContTreeOrm $compContTreeOrm, array $childList, array $buffTreeIdList, $pQuery = null) { 
         $where = [];
         // Если не было изменений, в статьях,
         // может были изменений UrlTpl для статей
@@ -108,33 +109,48 @@ class model {
         // которые пользователь отметил в дереве sitemap, после посмотреть
         $tree = new tree();
         foreach ($childList as $contId) {
-            $parentList = $tree->getTreeUrlById(compContTreeOrm::TABLE, (int)$contId);
+            /*$parentList = $tree->getTreeUrlById(compContTreeOrm::TABLE, (int)$contId);
             $parentList = array_map(function($pItem) {
                 return $pItem['id'];
-            }, $parentList);
+            }, $parentList);*/
+			// Получаем рекурсивно все папки входящие в выбранные пользователем при настройках компонента
             self::_rGetChildList($pTreeTableOrm, $compContTreeOrm, $childList, $contId);
 
-            $where = array_merge($childList, $parentList);
+            //$where = array_merge($childList, $parentList);
         } // foreach
-        unset($parentList);
+        unset($parentList); 
+		
+		
 
         // Когда все дети и родители получены можно просмотреть изменения Url Tpl
-        $where = array_unique($where);
+        $where = array_unique($childList);
         if (!$where) {
-            return false;
+            return;
         }
-        $where = implode(',', $where);
+		
+		// ВАЖНЫЙ МОМЕНТ. У нас есть список всех веток выбранных пользователем в настройках и дети этих веток ($where)
+		// так же у нас есть список из event буффера ($buffTreeIdList) со списком contId по которым производились действия
+		// нам нужно понять, вообще эти списки пересекаются, а то может быть сохранения произошли не по тому списки, по которому 
+		// нам надо, для этого мы производим array_intersect, если пересечения есть, то в мы проверяем нужный нам список, если нет
+		// то это этот список нам не нужен, так как мы не в его юрисдикции
+		if ( !array_intersect($buffTreeIdList, $where) ){
+			return;
+		}
+		
+        /*$where = implode(',', $where);
         $isCreate = $eventBufferOrm
             ->select('userId', 'eb')
             ->where('eventName = "' . eventObjitem::ACTOIN_CUSTOM_PROP_SAVE . '" AND userId in (' . $where . ')')
             ->comment(__METHOD__)
-            ->fetchFirst();
+            ->fetchFirst();*/
+			
+		
 
         // Если изменений не было, может были измнения в статьях
         // К примеру Удаление статьи (eventObjitem::ACTION_DELETE)
         // или изменение названия статьи, сео названия, изменение публикации (eventObjitem::ACTION_TABLE_SAVE)
 
-        if (!$isCreate) {
+        /*if (!$isCreate) {
             // Делаем выборку из буффера Event на наличие измений по статьям
             $eventBufferOrm
                 ->select('userId', 'eb')
@@ -142,9 +158,9 @@ class model {
                             . '","' . eventObjitem::ACTION_TABLE_SAVE . '") AND userId in (' . $where . ')')
                 ->fetchFirst();
 
-        } // if $isCreate
+        } // if $isCreate*/
 
-        $where = implode(',', $childList);
+        $where = implode(',', $where);
         // Делаем выборку всех статей по детям выбранным в дереве sitemap
         $selectDefault = 'i.*, cc.seoName, cc.name category, cc.comp_id compId, DATE_FORMAT(i.date_add, "%Y-%m-%dT%h:%i+04:00") as dateISO8601';
 
