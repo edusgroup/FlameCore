@@ -74,6 +74,13 @@ trait category{
         $prevImgUrl = self::post('prevImgUrl');
         $videoUrl = self::post('videoUrl');
 
+        eventCore::callOffline(
+            event::NAME,
+            event::ACTION_SAVE,
+            ['compId' => $compId, 'contId' => $contId],
+            $itemObjId
+        );
+
         (new reviewOrm())->saveExt(['itemObjId' => $itemObjId],
                                    ['caption' => $caption,
                                    'imgPrevUrl' => $prevImgUrl,
