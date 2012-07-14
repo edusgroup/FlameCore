@@ -4,6 +4,7 @@ namespace admin\library\mvc\comp\spl\objItem\category;
 // Engine
 use core\classes\render;
 use core\classes\filesystem;
+use core\classes\event as eventCore;
 
 // Plugin
 use admin\library\mvc\plugin\fileManager\fileManager;
