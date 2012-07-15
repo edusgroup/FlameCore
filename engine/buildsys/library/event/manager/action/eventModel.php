@@ -431,21 +431,46 @@ CODE_STRING;
     private static function getScriptDynData() {
         return <<<'CODE_STRING'
         <script>
-            function $import(src){
-                var scriptElem = document.createElement('script');
+            function _importJs(src, func){
+				var scriptElem = document.createElement('script');
                 scriptElem.setAttribute('src',src);
                 scriptElem.setAttribute('type','text/javascript');
+				scriptElem.onload = function() {
+				  if (!this.executed) {
+					this.executed = true;
+					func();
+				  }
+				};
+				scriptElem.onreadystatechange = function() {
+				  var self = this;
+				  if (this.readyState == "complete" || this.readyState == "loaded") {
+					setTimeout(function() { self.onload() }, 0);
+				  }
+				};
                 document.getElementsByTagName('head')[0].appendChild(scriptElem);
+				// func. _importJs
             }
+			
+			function _importCss(src){
+				var scriptElem = document.createElement('link');
+                scriptElem.setAttribute('href',src);
+                scriptElem.setAttribute('rel','stylesheet');
+				document.getElementsByTagName('head')[0].appendChild(scriptElem);
+				// func. _importCss
+			}
 
             setTimeout(function(){
-                //$import('/res/js/template.js');
                 <?php
             $dbusHeadCount = count(dbus::$head['jsDyn']);
             for( $i = 0; $i < $dbusHeadCount; $i++ ){
-                 echo '$import("'.dbus::$head['jsDyn'][$i].'");';
+                 echo '_import("'.dbus::$head['jsDyn'][$i].'");';
             } // if
-?>
+?>			for( var i in importResList["js"] ){
+				_importJs(importResList["js"][i].src, importResList["js"][i].func);
+			}
+			for( var i in importResList["css"] ){
+				_importCss(importResList["css"][i]);
+			}
         }, 700);</script>
 
 CODE_STRING;

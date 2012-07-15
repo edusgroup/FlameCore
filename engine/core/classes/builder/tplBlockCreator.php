@@ -73,7 +73,7 @@ class tplBlockCreator {
     protected function block($pName, $pTitle = '') {
         if ($pName == 'head') {
             echo $this->headData;
-            echo '<script>var dbus={};</script>';
+            echo '<script>var dbus={};var importResList={"js":[],"css":[]};</script>';
             return;
         } else
             if ($pName == 'scriptStatic') {
