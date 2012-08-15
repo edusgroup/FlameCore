@@ -120,8 +120,6 @@ class model {
         } // foreach
         unset($parentList); 
 		
-		
-
         // Когда все дети и родители получены можно просмотреть изменения Url Tpl
         $where = array_unique($childList);
         if (!$where) {
@@ -133,10 +131,9 @@ class model {
 		// нам нужно понять, вообще эти списки пересекаются, а то может быть сохранения произошли не по тому списки, по которому 
 		// нам надо, для этого мы производим array_intersect, если пересечения есть, то в мы проверяем нужный нам список, если нет
 		// то это этот список нам не нужен, так как мы не в его юрисдикции
-		if ( !array_intersect($buffTreeIdList, $where) ){
+		if ( !array_intersect($buffTreeIdList, $where)){
 			return;
-		}
-		
+		}	
         /*$where = implode(',', $where);
         $isCreate = $eventBufferOrm
             ->select('userId', 'eb')

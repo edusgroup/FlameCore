@@ -42,19 +42,22 @@ class event {
         $imgSizeList = new imgSizeList();
 
         foreach( $contIdList as $contItem){
+			// Загружаем файл с данными по конкретному contId
             $pathPrefix = 'comp/'.$contItem['compId'] . '/' . $contItem['contId'] . '/';
             $contFileData = DIR::getSiteDataPath($pathPrefix).'data.txt';
+			// Если файла нет, то идёт к следующему contId
             if ( !is_file($contFileData)){
                 continue;
             }
             $contData = file_get_contents($contFileData);
             $contData = unserialize($contData);
 
-            // Получаем данные для ресайза изображений
-            // Для превью
-            $prevData = $imgSizeList->selectFirst('type, val', 'id='.$contData['size']['prevSize']);
+            // Получаем данные для ресайза изображений. Для превью
+			$idSize = $contData['size']['prevSize']?:-1;
+            $prevData = $imgSizeList->selectFirst('type, val', 'id='.$idSize);
             // Для больших картинок
-            $origData = $imgSizeList->selectFirst('type, val', 'id='.$contData['size']['origSize']);
+			$idSize = $contData['size']['origSize']?:-1;
+            $origData = $imgSizeList->selectFirst('type, val', 'id='.$idSize);
 
             // Директория, где храняться все файлы и изображения
             $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
@@ -67,28 +70,35 @@ class event {
             //$fileNameList = (new imgGalleryOrm())->selectList('filename', 'filename', 'contId='.$contItem['contId']);
             $fileNameList = $contData['data'];
             foreach( $fileNameList as $file ){
-                //print $fileDistPath . $file."\n";
                 // ===== Проверяем, есть ли уже такое маштабированное изображение
+				// $file['file'] - может быть, пустым, если он не выделен(не выбран) в админке
                 if (!is_file($fileDistPath . $file['file'])) {
                     continue;
-                }
-
+                } 
                 // Создаём, если нужно, папку для хранения отомаштабированного изображения
                 filesystem::mkdir($fileResizePath);
 
                 // Маштабироваие превью изображения
-                $val = (int)$prevData['val'];
-                $resize = new resize();
-                $resize->{'set' . $prevData['type']}($val);
-                $resize->resize($fileDistPath . $file['file'], $fileResizePath . 's-'.$file['file']);
+				if ( $prevData && $contData['isCrPreview'] ){
+					$val = (int)$prevData['val'];
+					$resize = new resize();
+					$resize->{'set' . $prevData['type']}($val);
+					$resize->resize($fileDistPath . $file['file'], $fileResizePath . 's-'.$file['file']);
+				} // if ( $prevData )
 
                 // Маштабироваие большого изображения
-                $val = (int)$origData['val'];
-                $resize = new resize();
-                $resize->{'set' . $origData['type']}($val);
-                $resize->resize($fileDistPath . $file['file'], $fileResizePath . 'o-'.$file['file']);
+				if ( $origData ){
+					$val = (int)$origData['val'];
+					$resize = new resize();
+					$resize->{'set' . $origData['type']}($val);
+					$resize->resize($fileDistPath . $file['file'], $fileResizePath . 'o-'.$file['file']);
 
-                $fileClearList[] = ['file' => $file['file'], 'capt' => $file['caption'] ];
+				} // if ($origData)
+
+				$fileClearList[] = [
+					'file' => $file['file'], 
+					'capt' => $file['caption'] 
+				];
             } // foreach $file
             unset($fileNameList);
 
@@ -97,7 +107,6 @@ class event {
             $data = \serialize(array_values($fileClearList));
             filesystem::saveFile($saveDir, 'list.txt', $data);
         } // foreach
-
         //echo 'catalogCont createFile END' . PHP_EOL;
     }
 

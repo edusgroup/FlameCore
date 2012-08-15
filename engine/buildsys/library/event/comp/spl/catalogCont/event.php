@@ -11,7 +11,7 @@ use ORM\tree\compContTree as compContTreeOrm;
 use ORM\comp\spl\catalogCont\catalogCont as catalogContOrm;
 use ORM\comp\spl\catalogCont\catalogContProp as catalogContPropOrm;
 
-// Event comp
+// Engine
 use core\classes\filesystem;
 
 // Conf
