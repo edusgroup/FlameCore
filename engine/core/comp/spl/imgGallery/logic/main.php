@@ -22,17 +22,20 @@ class main {
         $comp = dbus::$comp[$pName];
         $compId = $comp['compId'];
         $contId = $comp['contId'];
+		// Получаем имя файла, где хранится список файлов изображений
         $prefix = 'comp/' . $compId . '/' . $contId .'/';
         $file = DIR::APP_DATA . $prefix . 'list.txt';
         $dataList = @file_get_contents($file);
         $dataList = unserialize($dataList);
+		// Есть ли что нибудь в списке
         if ($dataList) {
             $tpl = userUtils::getCompTpl($comp);
             $nsPath = $comp['nsPath'];
             $tplFile = DIR::TPL . 'comp/' . $nsPath;
             (new render($tplFile, ''))
                 ->setVar('list', $dataList)
-                ->setVar('href', DIR::URL_IMG_RESIZE_PUBLIC.$prefix)
+                ->setVar('hrefResize', DIR::URL_IMG_RESIZE_PUBLIC.$prefix)
+                ->setVar('hrefDist', DIR::URL_FILE_DIST.$prefix)
                 ->setMainTpl($tpl)
                 ->setContentType(null)
                 ->render();

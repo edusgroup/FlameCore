@@ -85,13 +85,16 @@
                disabled="disabled" value="Отменить загрузку" id="btnCancel">
     </div>
     <div>
+        <div style="width: 100px; float: left;">Созд. превью:</div>
         <div style="width: 200px; float: left;">Размер превью:</div>
         <div style="width: 200px; float: left;">Размер оригин.:</div>
-
     </div>
     <div style=" clear: both;"></div>
     <div>
         <form id="idSizeListForm">
+			<div style="width: 100px; float: left;">
+				<input type="checkbox" name="isCrPreview" value="1"/>
+			</div>
             <div style="width: 200px; float: left;">
                 <? self::selectIdName(self::get('sizeList'), 'name="imgPrevSize"'); ?>
             </div>
@@ -106,7 +109,7 @@
 
     </div>
 </div>
-
+<div>Выдилите файл, что бы его выбрать</div>
 <div id="folder" class="folder"></div>
 
 <!-- <form enctype="multipart/form-data" id="formTest" method="post">
@@ -328,11 +331,16 @@ $(document).ready(function () {
     fileUpload.onUploadSuccess = file.onUploadSuccess;
     swfu = new SWFUpload(SWFUploadSettings);
 
-    // Есть ли что сохранёное
+    // Если данные есть, то ранее было сохранение и в этой переменной находятся сохранённые параметры
+	// file.fileData['size']['origSize'] - Размер большой картинки
+	// file.fileData['size']['prevSize'] - Размер маленькой картинки
+	// file.fileData['isCrPreview'] - нужно ли создовать превью
     if (file.fileData) {
         var $idSizeListForm = $('#idSizeListForm');
         $idSizeListForm.find('select[name="imgPrevSize"]').val(file.fileData['size']['prevSize']);
         $idSizeListForm.find('select[name="imgOrigSize"]').val(file.fileData['size']['origSize']);
+		var checked = file.fileData['isCrPreview'] ? 'checked' : '';
+        $idSizeListForm.find('input[name="isCrPreview"]').attr('checked', checked); 
     } // if
 
     imgGalleryManager.init({

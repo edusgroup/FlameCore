@@ -22,6 +22,8 @@
 <script src="res/plugin/dhtmlxTree/codebase/ext/dhtmlxtree_json.js"></script>
 <!-- END DXHTML COMPONENT -->
 
+<script type="text/javascript" src="/res/plugin/fancybox/source/jquery.fancybox.js"></script>
+<link rel="stylesheet" type="text/css" href="/res/plugin/fancybox/source/jquery.fancybox.css" media="screen" />
 
 <script src="res/plugin/classes/utils.js" type="text/javascript"></script>
 <script src="res/plugin/classes/dhtmlx/grid.js" type="text/javascript"></script>
@@ -142,6 +144,7 @@
             <img id="itemAdd" class="button" src="<?= self::res('images/plus_32.png') ?>" alt="Добавить"/>
             <img id="itemRm" class="button" src="<?= self::res('images/del_24.png') ?>" alt="Удалить"/>
             <img id="blockItemSave" class="button" src="<?= self::res('images/save_24.png') ?>" alt="Сохранить"/>
+            <img id="linkBtn" class="button" src="<?= self::res('images/btn/link_24.png') ?>" alt="Связать" href="#linkDlg"/>
 
             <div id="blockItemGrid" style="width:700px;height:250px;"></div>
         </div>
@@ -149,6 +152,10 @@
 </div>
 
 <div id="compTree" style="width:150px;height:150px;"></div>
+<div id="linkDlg" style="displya:none">
+	<td id="wfLinkTree"></td>
+    <td id="blockLinkTree"></td>
+</div>
 
 <script type="text/javascript">
 var imgTheme = '<?= self::res('images/') ?>';
@@ -728,6 +735,10 @@ var wfTree = {
     clickEnd:wareframe.wf.click
 }
 
+var wfLinkTree = {
+	tree:{ json: wfTree.tree.json, id: 'wfLinkTree' }
+}
+
 $(document).ready(function () {
     dhtmlxInit.init({'wareframe':wfTree, 'block':blockTree, 'fs':filesysTree, 'comp':compTree });
     wareframe.tree.wf = dhtmlxInit.tree['wareframe'];
@@ -769,6 +780,9 @@ $(document).ready(function () {
     $('#blockRm').click(wareframe.block.rmClick);
     $('#itemRm').click(wareframe.item.rmClick);
     $('#itemAdd').click(wareframe.item.addClick);
+	$('#linkBtn').fancybox({
+	
+	});
 
     $('#blockItemSave').click(wareframe.item.saveItemBtnClick);
     // func. $(document).ready(function()

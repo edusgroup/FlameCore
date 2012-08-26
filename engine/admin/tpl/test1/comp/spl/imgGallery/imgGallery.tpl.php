@@ -117,7 +117,13 @@
             $.extend( data, imgGalleryManager.changeList);
             data['prevSize'] = $idSizeListForm.find('select[name="imgPrevSize"]').val();
             data['origSize'] = $idSizeListForm.find('select[name="imgOrigSize"]').val();
+			
+			// Бегаем по настройкам checkbox, и сохраняем только выставленные
+			$idSizeListForm.find('input:checked').each(function(index, obj){
+                data[obj.name] = obj.value;
+            });
 
+			// бегаем по файлам
             $('#'+options.folderBox + ' input.caption').each(function(index, obj){
                 data[obj.name] = obj.value;
             });

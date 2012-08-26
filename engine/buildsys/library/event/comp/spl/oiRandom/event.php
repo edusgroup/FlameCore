@@ -10,10 +10,12 @@ use ORM\blockItemSettings;
 use ORM\comp\spl\oiRandom\oiRandom as oiRandomOrm;
 use ORM\comp\spl\oiRandom\oiRandomProp as oiRandomPropOrm;
 use ORM\tree\componentTree as componentTreeOrm;
+use ORM\tree\compContTree as compContTreeOrm;
 
 // Event comp
 use admin\library\mvc\comp\spl\oiRandom\event as eventoiRandom;
-use ORM\tree\compContTree as compContTreeOrm;
+
+// Engine
 use core\classes\filesystem;
 use core\classes\image\resize;
 use core\classes\word;

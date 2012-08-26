@@ -10,10 +10,11 @@ use ORM\blockItemSettings;
 use ORM\comp\spl\oiPopular\oiPopular as oiPopularOrm;
 use ORM\comp\spl\oiPopular\oiPopularProp as oiPopularPropOrm;
 use ORM\tree\componentTree as componentTreeOrm;
+use ORM\tree\compContTree as compContTreeOrm;
 
 // Event comp
 use admin\library\mvc\comp\spl\oiPopular\event as eventoiPopular;
-use ORM\tree\compContTree as compContTreeOrm;
+// Engine
 use core\classes\filesystem;
 use core\classes\image\resize;
 use core\classes\word;

@@ -66,14 +66,14 @@ class tplBlockCreator {
     }
 
     public function varible($pName, $pTitle = ''){
-        echo isset($this->_varibleList[$pName])?$this->_varibleList[$pName]:'';
+        return isset($this->_varibleList[$pName])?$this->_varibleList[$pName]:'';
         // func. varible
     }
 
     protected function block($pName, $pTitle = '') {
         if ($pName == 'head') {
             echo $this->headData;
-            echo '<script>var dbus={};</script>';
+            echo '<script>var dbus={};var importResList={"js":[],"css":[]};</script>';
             return;
         } else
             if ($pName == 'scriptStatic') {

@@ -46,14 +46,18 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
         $filePublicUrl = DIR::getSiteUploadUrlData() . $pathPrefix;
         $filePreviewUrl = DIR::getPreviewImgUrl($pathPrefix);
 
+		// Список размеров изображений, заданных при настройки в ветке компонента
         $sizeList = objItemModel::getSizeList($contId);
+		// Создаём из простого масса, список годный для <select>
         $sizeList['list'] = objItemModel::makeSelect($sizeList);
 
         self::setVar('contrName', $contId);
         self::setVar('callType', 'comp');
 
+		// Файл с ранее сохранёными данными, если было ранее сохранение
         $contDir = 'comp/' . $compId . '/' . $contId . '/data.txt';
         $contFileData = DIR::getSiteDataPath($contDir);
+		// Если файла нет, то скорей всего сохранения не было
         if ( is_file($contFileData)){
             $data = file_get_contents($contFileData);
             $data = unserialize($data);
@@ -219,16 +223,32 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
                 $file = isset($sFileList[$md5]) ? $sFileList[$md5] : null;
                 $file = htmlspecialchars($file);
                 $caption = htmlspecialchars($caption);
-                $dataBuffer['data'][$md5] = ['caption'=>$caption, 'file' => $file];
+                $dataBuffer['data'][$md5] = [
+					'caption'=>$caption, 
+					'file' => $file
+				];
             } // foreach
         } // if*/
+		
+		eventCore::callOffline(
+            event::NAME,
+            event::ACTION_SAVE,
+            ['compId' => $compId],
+            $contId
+        );
 
+		// Размеры большой картинки 
         $origSize = self::postInt('origSize');
         $origSize = $origSize == -1 ? null : $origSize;
+		// Размеры превью картинки
         $prevSize = self::postInt('prevSize');
         $prevSize = $prevSize == -1 ? null : $prevSize;
-        $dataBuffer['size'] = ['origSize' => $origSize, 'prevSize' => $prevSize ];
-
+        $dataBuffer['size'] = [
+			'origSize' => $origSize, 
+			'prevSize' => $prevSize 
+		];
+		$dataBuffer['isCrPreview'] = self::postInt('isCrPreview');
+		// Всё сохраняем в файл
         $saveDir = 'comp/' . $compId . '/' . $contId . '/';
         $saveDir = DIR::getSiteDataPath($saveDir);
         filesystem::saveFile($saveDir, 'data.txt', \serialize($dataBuffer));

@@ -27,6 +27,7 @@ class review {
         $comp = dbus::$comp[$pName];
         $compId = $comp['compId'];
         $contId = $comp['contId'];
+
 		$file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/1.txt';
 		$data = @file_get_contents($file);
         if (!$data) {
