@@ -177,7 +177,7 @@ class model {
                 'JOIN '.$objItemOrm::TABLE.' i '.
                 'ON i.id=a.itemObjId '.
                 'SET a.urlTpl="'. $pUrlTpl.'", a.urlTplContId='.$purlTplContId.' '.
-                'WHERE a.treeId='.$pContId.' '.
+                'WHERE i.treeId='.$pContId.' '.
                 '#'.__METHOD__
         )->query();
 
@@ -186,7 +186,7 @@ class model {
             ->join(compContTree::TABLE . ' cc', 'cc.id = a.treeId')
             ->query();
         while ($item = $handleArt->fetch_object()) {
-            self::saveDataInfo($item->id, $objItemOrm, $item->compId, $item->contId);
+            self::saveDataInfo((int)$item->id, $objItemOrm, (int)$item->compId, (int)$item->contId);
         } // while
 
         // Получаем детей с пустым UrlTpl

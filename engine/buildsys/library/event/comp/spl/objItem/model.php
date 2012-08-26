@@ -98,7 +98,7 @@ class model {
      * @param array $pQuery доп настройки
      * @return bool|\core\classes\DB\adapter\type
      */
-    public static function objItemChange(eventBufferOrm  $eventBufferOrm, array $pTableJoinList, tableDb $pTreeTableOrm, compContTreeOrm $compContTreeOrm, array $childList, $pQuery = null) {
+    public static function objItemChange(eventBufferOrm $eventBufferOrm, array $pTableJoinList, tableDb $pTreeTableOrm, compContTreeOrm $compContTreeOrm, array $childList, $pQuery = null) {
         $where = [];
         // Если не было изменений, в статьях,
         // может были изменений UrlTpl для статей

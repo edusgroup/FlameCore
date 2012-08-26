@@ -60,7 +60,7 @@ class event {
                 $lClassName::$lMethod($lUserData, $eventBuffer, $l_eventList);
                 //echo (microtime(true) - $microtime).PHP_EOL;
             } else {
-                print "Error: $lClassName::$lMethod not found" . PHP_EOL;
+                print "Error(".__METHOD__."): $lClassName::$lMethod not found" . PHP_EOL;
             } // if method_exists
         } // for ( $i )
 

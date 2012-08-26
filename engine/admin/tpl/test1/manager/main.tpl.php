@@ -7,7 +7,8 @@
         <link type="text/css" rel="stylesheet" href="<?= $this->res('css/main.css')?>" />
         
         <link type="text/css" rel="stylesheet" href="/res/plugin/jquery/css/jquery-ui-1.8.14.css"/>
-        <script type="text/javascript" src="/res/plugin/jquery/jquery-1.5.1.min.js"></script>
+        <script type="text/javascript" src="/res/plugin/jquery/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="/res/plugin/jquery/jquery.cookie.js"></script>
         <script type="text/javascript" src="/res/plugin/jquery/jquery.json-2.2.min.js"></script>
         <script type="text/javascript" src="/res/plugin/jquery/jquery-ui-1.8.14.min.js"></script>
         

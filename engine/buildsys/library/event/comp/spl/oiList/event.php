@@ -25,7 +25,7 @@ use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
  */
 class event {
 
-    public static function createArtList($pUserData, eventBuffer $pEventBuffer, $pEventList) {
+    public static function createOIList($pUserData, eventBuffer $pEventBuffer, $pEventList) {
         // Если ли вообще какая то активность по списку
         $isData = $pEventBuffer->selectFirst('id', 'eventName in (' . $pEventList . ')');
         if (!$isData) {
