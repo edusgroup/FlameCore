@@ -341,9 +341,11 @@ class model {
 
                 $newId = $blockItem->save('id=' . $id, $saveData);
                 $return[$id] = $newId ? : $id;
-            }
-            // foreach
+            }// foreach
         } // if
+		
+		
+		
         return $return;
         // funct.saveBlockItem
     }

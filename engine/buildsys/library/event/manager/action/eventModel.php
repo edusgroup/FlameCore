@@ -71,7 +71,7 @@ class eventModel {
         // тут
         $pathUrl = $pRouteTree->getActionUrlById($pAcId);
         $varList = [];
-
+		
         foreach ($pathUrl as $item) {
             if ($item['propType'] == 1) {
                 $varList[] = $item;

@@ -249,6 +249,9 @@ class wareframe extends controllerAbstract {
         // Если было изменён порядок следования компонентов
         $position = self::post('position');
         model::changeBlockItemPosition($position, $listId);
+		
+		$where = $pAcId ? ' AND id='.$pAcId : '';
+		(new routeTree())->update('isSave="yes"', 'id != 0'.$where);
 
         $json = ['blid' => $blId, 'listid' => $listId];
         self::setVar('json', $json);

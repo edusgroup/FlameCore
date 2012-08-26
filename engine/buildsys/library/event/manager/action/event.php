@@ -106,6 +106,7 @@ class event {
         if ( !$itemList ){
             return;
         }
+
         // Бегаем по элементам
         $itemListCount = count($itemList);
         for ($i = 0; $i < $itemListCount; $i++) {
