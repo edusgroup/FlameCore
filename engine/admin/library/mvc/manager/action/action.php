@@ -285,13 +285,13 @@ class action extends controllerAbstract {
         $contrList['list'][0]['id'] = '';
         self::setVar('contrList', $contrList);
 
-        if ($pLoadData) {
+        if (isset($pLoadData['varName'])) {
             self::setVar('varName', $pLoadData['varName']);
             self::setVar('isRedir', $pLoadData['isRedir']);
             self::setVar('enable', $pLoadData['enable']);
             self::setVar('redirect', $pLoadData['redirect']);
             self::setVar('userReg', $pLoadData['userReg']);
-
+            self::setVar('controller', $pLoadData['controller']);
             self::setVar('wfId', $pLoadData['wf_id']);
         } // if
 
@@ -310,7 +310,7 @@ class action extends controllerAbstract {
             'val' => $routeData['robots']
         ];
         self::setVar('robotsRuleList', $robotsRuleList);
-        self::setVar('controller', $pLoadData['controller']);
+
 
         $this->view->setMainTpl('block/action/loadProp.tpl.php');
         // func. loadPropTplVar

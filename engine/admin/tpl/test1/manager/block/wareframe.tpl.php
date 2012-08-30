@@ -59,6 +59,7 @@
         width: 200px;
         height: 218px;
         border: 1px solid Silver;
+
     }
 
     img.button {
@@ -124,6 +125,9 @@
                              alt="Сохранить"/>
                         <img id="blockRm" class="button" src="<?= self::res('images/del_24.png') ?>" alt="Очистить"/>
 
+                        <img id="linkBtn" class="button" src="<?= self::res('images/btn/link_24.png') ?>" alt="Связать" href="#linkDlg"/>
+                        <img id="linkRmBtn" class="button" src="<?= self::res('images/btn/linkRm_24.jpg') ?>" alt="Удалить связь" href="#linkRmDlg"/>
+
                     </td>
                     <td>ФС</td>
                 </tr>
@@ -141,20 +145,20 @@
 <div class="column">
     <div class="panel corners">
         <div class="content" id="">
-            <img id="itemAdd" class="button" src="<?= self::res('images/plus_32.png') ?>" alt="Добавить"/>
-            <img id="itemRm" class="button" src="<?= self::res('images/del_24.png') ?>" alt="Удалить"/>
-            <img id="blockItemSave" class="button" src="<?= self::res('images/save_24.png') ?>" alt="Сохранить"/>
-            <img id="linkBtn" class="button" src="<?= self::res('images/btn/link_24.png') ?>" alt="Связать" href="#linkDlg"/>
-
+            <div>
+                <img id="itemAdd" class="button" src="<?= self::res('images/plus_32.png') ?>" alt="Добавить"/>
+                <img id="itemRm" class="button" src="<?= self::res('images/del_24.png') ?>" alt="Удалить"/>
+                <img id="blockItemSave" class="button" src="<?= self::res('images/save_24.png') ?>" alt="Сохранить"/>
+            </div>
             <div id="blockItemGrid" style="width:700px;height:250px;"></div>
         </div>
     </div>
 </div>
 
 <div id="compTree" style="width:150px;height:150px;"></div>
-<div id="linkDlg" style="displya:none">
-	<div id="wfLinkTree"></div>
-    <div id="blockLinkTree"></div>
+<div id="linkDlg" style="display:none">
+	<div id="linkWfTreeBox" class="treeBlock" style="float: left;"></div>
+    <div id="linkBlockTreeBox" class="treeBlock" style="float: left;"></div>
 </div>
 
 <script type="text/javascript">
@@ -182,18 +186,25 @@ var wareframeMvc = (function(){
     var wfTree;
     // Дерево шаблонов
     var fsTree;
+    // Дерево wf для linkItem( не создаётся автоматически
+    var wfLinkTree = null;
+    // Дерево block для linkItem( не создаётся автоматически
+    var blockLinkTree = null;
+    // Буффер для новых линков, очищается при сохранении блоков
+    var linkBlockBuff = {};
 
     var FOLDER_FREE = 0;
     var FOLDER_COMP = 1;
     var FOLDER_TPL = 2;
     var FOLDER_EMPTY = 3;
+    var FOLDER_LINK = 4;
 
     // Буфер файлов для блоков. Вспомогательная переменная
     var fileBlockBuffer = {};
     // Буффер. Какие блоки нужно удалить
     var blockRmBuff = [];
     // Осуществляет ли перенос компонента по таблице
-    var isItemDradDrop = false; 
+    var isItemDradDrop = false;
 
     /**
      * Уладение блока в дереве
@@ -295,9 +306,20 @@ var wareframeMvc = (function(){
         var wfId = getWFId();
         var acId = wareframeData.acId;
 
+        // Если дерево linkBlock было создано
+        /*if ( blockLinkTree ){
+            var linkWfBrunchId = wfLinkTree.getSelectedItemId();
+            var linkBlockBrunchId = blockLinkTree.getSelectedItemId();
+            var data = 'linkWfBrunchId='+linkWfBrunchId+'&linkBlockBrunchId='+linkBlockBrunchId;
+            HAjax.saveLinkBlock({data:data, methodType:'POST', query:query});
+            return false;
+        } // if ( !blockLinkTree )
+        */
+
         var file = $.toJSON(fileBlockBuffer);
         var del = $.toJSON(blockRmBuff);
-        HAjax.saveBlock({data:{file:file, wfid:wfId, acid:acId, del:del}, methodType:'POST'});
+        var link = $.toJSON(linkBlockBuff);
+        HAjax.saveBlock({data:{file:file, wfid:wfId, acid:acId, del:del, link: link}, methodType:'POST'});
         // func. blockSaveBtnClick
     }
 
@@ -367,7 +389,7 @@ var wareframeMvc = (function(){
         // func. itemOnRowDblClicked
     }
 
-    getWFId = function () {
+    function getWFId() {
         return wareframeData.wfId ? wareframeData.wfId : wfTree.getSelectedItemId();
     }
 
@@ -449,15 +471,20 @@ var wareframeMvc = (function(){
             alert(pData['error']['msg']);
             return;
         }
-        // Записываем выбранный ID ветки страниц
-        wareframeData.wfId = pData['wfid'];
 
-        var blockTree = wareframeMvc.getTree().block;
+        if ( pData['treeBox'] == 'linkBlockTree'){
+            wareframeMvc.createLinkBlockTree();
+            var blockTree = wareframeMvc.getTree().blockLink;
+        }else{
+            var blockTree = wareframeMvc.getTree().block;
+            // Записываем выбранный ID ветки страниц
+            wareframeData.wfId = pData['wfid'];
+        }
         blockTree.deleteChildItems(0);
         if (!pData['tree']) {
             //TODO: Вывести о том что блоков нет, выбирете файл из шаблонов
             return;
-        }
+        } // if
         // Загружаем выбранные данные
         blockTree.loadJSONObject(pData['tree']);
         fileBlockBuffer = {};
@@ -465,7 +492,7 @@ var wareframeMvc = (function(){
         // Передалать вывод сообщения на экран
         for (var i in pData['err']) {
             alert(pData['err'][i]);
-        }
+        } // if
 
         // func. cbLoadBlockTreeData
     }
@@ -530,7 +557,6 @@ var wareframeMvc = (function(){
         fileBlockBuffer[itemId] = {file:pData['file'], block:'', fileId:''};
         if (blockItemId != 'root') {
             fileBlockBuffer[itemId].block = blockTree.getUserData(blockItemId, 'blockName');
-
             fileBlockBuffer[itemId].fileId = pData['fileId'];//blockItemId;//brunchId == 0 ? -1 : brunchId;
         }
 
@@ -577,8 +603,8 @@ var wareframeMvc = (function(){
             if (pBlockTree.getUserData(childItem, 'type') != 0) {
                 alert('Папка не пуста');
                 return false;
-            }
-        }
+            } // if
+        } // for
         return true;
         // func. isBlockRm
     }
@@ -615,6 +641,7 @@ var wareframeMvc = (function(){
         // func. cbBlockItemSaveStatus
     }
 
+
     /**
      * Callback. Загрузка данных в таблицу компонентов
      * @param pData
@@ -625,7 +652,7 @@ var wareframeMvc = (function(){
             return;
         }
 
-        itemGrid.clearAll();
+        //itemGrid.clearAll();
         itemGrid.parse(pData, 'xml');
 
         for (var i = 0; i < itemGrid.rowsCol.length; i++) {
@@ -684,27 +711,55 @@ var wareframeMvc = (function(){
 
     /**
      * Клик по ветке в дереве блоков
-     * @param pBlockId
+     * @param pBlockBrunchId
      * @param pBlockTree
      */
-    function blockBrunchClick(pBlockId, pBlockTree) {
-        var file = pBlockTree.getUserData(pBlockId, 'file');
-        fsTree.selectItem(file);
-        var type = pBlockTree.getUserData(pBlockId, 'type');
-        if (type != FOLDER_FREE && type != FOLDER_COMP) {
+    function blockBrunchClick(pBlockBrunchId, pBlockTree) {
+        /*if ( isBlockNew(pBlockBrunchId) ){
+            $(options.gridBtnBox+' img.button').hide();
             return;
-        }
+        }*/
+        // Скрываем кнопку линка для блоков
+        /*$(options.linkItemBtn).hide();
+        $(options.linkRmBtn).hide();
+        // Отображаем кнопку для добавления компонентов в таблицу
+        $(options.itemAddBtn).show();
+        // Отображаем кнопку для удаления компонентов из таблицы
+        $(options.itemRmBtn).show();*/
 
-        // Проверяем, ново добавленный ли это блок, если да, то делать запрос не надо
-        var isNew = isNaN(parseInt(pBlockId));
-        if (!isNew) {
+        var file = pBlockTree.getUserData(pBlockBrunchId, 'file');
+        fsTree.selectItem(file);
+        var type = pBlockTree.getUserData(pBlockBrunchId, 'type');
+
+        // Если папка без компонентов и это не линк, то грузить ни чего не надо
+        if (type != FOLDER_COMP && type != FOLDER_LINK ) {
+            // Очищаем таблицу
+            itemGrid.clearAll();
             return;
+        } // if (type != FOLDER_COMP && type != FOLDER_LINK)
+
+        if (type == FOLDER_LINK ) {
+            //$(options.linkRmBtn).show();
+            //$(options.linkItemBtn).show();
+            var linkData = pBlockTree.getUserData(pBlockBrunchId, 'link');
+            wfId = linkData.linkWfId;
+            var blockBrunchId = linkData.linkBlockId;
+        }else{
+            var wfId = getWFId();
+            var blockBrunchId = pBlockBrunchId;
         }
-        var wfId = wareframeData.wfId ? wareframeData.wfId : wfTree.getSelectedItemId();
         var acId = wareframeData.acId;
-        HAjax.loadBlockItem({dataType:'xml', query:{blid:pBlockId, acid:acId, wfid:wfId}});
-        //itemGrid.loadJSONEx('blockItem', {blid: pBlockId, acid:acId, wfid:wfId}, wareframe.item.loadblockItem);
+        HAjax.loadBlockItem({dataType:'xml', query:{blid:blockBrunchId, acid:acId, wfid:wfId}});
         // func. blockBrunchClick
+    }
+
+    /**
+     * Новый ли блок
+     * @return {Boolean}
+     */
+    function isBlockNew(pBlockId){
+        return !isNaN(parseInt(pBlockId));
+        // func. isBlockNew
     }
 
     /**
@@ -720,7 +775,7 @@ var wareframeMvc = (function(){
         itemGrid.clearAll();
         blockRmBuff = [];
         // Делаем запрос на дерево блоков
-        HAjax.loadBlockTree({query:{wfid:pWfId}});
+        HAjax.loadBlockTree({query:{wfid:pWfId, treeBox:'mainBlockTree'}});
         // func. wfBrunchClick
     }
 
@@ -734,16 +789,15 @@ var wareframeMvc = (function(){
         if (pFsTree.getUserData(pFSTreeItemId, 'type') != FOLDER_COMP) {
             alert('Выберите файл');
             return;
-        }
+        } // if
         // Если ни какой блок не выбран, заставляем выбрать
-
         var blockId = blockTree.getSelectedItemId();
         var fileId = blockTree.getUserData(blockId, 'fileId');
         var blockType = blockTree.getUserData(blockId, 'type');
         if (blockType != undefined && blockType != FOLDER_FREE && blockType != FOLDER_TPL) {
             alert('Выберите пустой блок');
             return;
-        }
+        } // if
 
         var wfId = getWFId();
         if (!wfId) {
@@ -786,10 +840,6 @@ var wareframeMvc = (function(){
             }
         });
 
-        var wfLinkTree = {
-            tree:{ json: wareframeData.wfTreeJson, id: 'wfLinkTree' }
-        }
-
         wfTree = dhtmlxInit.tree['wareframe'];
         blockTree = dhtmlxInit.tree['block'];
         fsTree = dhtmlxInit.tree['fs'];
@@ -815,14 +865,86 @@ var wareframeMvc = (function(){
         if (json.total_count == 0 && !isItemDradDrop) {
             return false;
         }
-        var data = 'data=' + $.toJSON(json.rows) + '&position=' + gridItemIdList;
         var query = {acid:acId, blid:blId, wfid:wfId};
-        HAjax.saveBlockItem({method:'saveBlockItem', data:data, methodType:'POST', query:query});
+        var data = 'data=' + $.toJSON(json.rows) + '&position=' + gridItemIdList;
+        HAjax.saveBlockItem({data:data, methodType:'POST', query:query});
         // func. itemSaveBtnClick
     }
 
     function getTree(){
-        return {block: blockTree, fs: fsTree, wf: wfTree};
+        return {
+            // Главное дерево блоков
+            block: blockTree,
+            // Дерево с шаблонами
+            fs: fsTree,
+            // Главное дерево с wareframe
+            wf: wfTree,
+            // Древо блоков для линкования
+            blockLink: blockLinkTree
+        } // return
+        // func. getTree
+    }
+
+    function linkWfTreeBrunchClick(pLinkWfBrunchId, pLinkWfTree){
+        HAjax.loadBlockTree({query:{wfid: pLinkWfBrunchId, treeBox:'linkBlockTree'}});
+        // func. linkWfTreeBrunchClick
+    }
+
+    function linkBlockTreeBrunchDbClick(pBlockLinkBrunchId, pLinkBlockTree){
+        var type = pLinkBlockTree.getUserData(pBlockLinkBrunchId, 'type');
+        if ( type != FOLDER_COMP ){
+            alert('Можно выбрать только ветку с компонентами');
+            return false;
+        }
+        var blockBrunchId = blockTree.getSelectedItemId();
+        blockTree.setItemImage(blockBrunchId, 'link.gif');
+
+        var linkWfBrunchId = wfLinkTree.getSelectedItemId();
+        linkBlockBuff[blockBrunchId] = {linkWfId: linkWfBrunchId, linkBlockId: pBlockLinkBrunchId, type: 'add'};
+
+        //$(options.itemAddBtn).hide();
+        //$(options.itemRmBtn).hide();
+        $.fancybox.close();
+        // func. linkBlockTreeBrunchDbClick
+    }
+
+    function linkItemFancyBeforeShow(){
+        if ( !wfLinkTree ){
+            dhtmlxInit.init({
+                'wfLinkTree': {
+                    tree:{ id: options.linkWfTreeBox, json: wareframeData.wfTreeJson },
+                    clickEnd: linkWfTreeBrunchClick
+                }
+            });
+            wfLinkTree = dhtmlxInit.tree['wfLinkTree'];
+        } // if ( !wfLinkTree )
+        // func.linkItemFancyBeforeShow
+    }
+
+    function createLinkBlockTree(){
+        if ( !blockLinkTree ){
+            dhtmlxInit.init({
+                'linkBlockTree': {
+                    tree:{ id: options.linkBlockTreeBox},
+                    dbClick: linkBlockTreeBrunchDbClick
+                }
+
+            });
+            blockLinkTree = dhtmlxInit.tree['linkBlockTree'];
+        } // if
+        // func. createLinkBlockTree
+    }
+
+    function linkRmBtnClick(){
+        if (!confirm('Убрать связь?')) {
+            return;
+        }
+        var blockBrunchId = blockTree.getSelectedItemId();
+        blockTree.setItemImage(blockBrunchId, 'folderEmpty.gif');
+        //delete linkBlockBuff[blockBrunchId];
+        linkBlockBuff[blockBrunchId] = {type: 'del'};
+        //$(options.linkRmBtn).hide();
+        // func. linkRmBtnClick
     }
 
     function init(pOptions){
@@ -839,16 +961,14 @@ var wareframeMvc = (function(){
         $(options.itemAddBtn).click(itemAddBtnClick);
         // Вешаем обработчик на кнопку сохранения компонентов в таблице компонентов по блоку
         $(options.itemSaveBtn).click(itemSaveBtnClick);
+        // Вешаем обработчик на кнопку удаления связи линка на блоке
+        $(options.linkRmBtn).click(linkRmBtnClick);
 
         $(options.linkItemBtn).fancybox({
-            'onBeforeShow': function(){
-                alert('d');
-            }
+            beforeShow: linkItemFancyBeforeShow
         });
-
         // Создаём деревья
         initTreeCreate();
-
         // Создаём таблицу
         initGridCreate();
 
@@ -866,20 +986,20 @@ var wareframeMvc = (function(){
             loadBlockItem: cbBlockItemLoadData,
             // Статус на удаление блоков
             rmBlockItem: cbBlockRmBtnClickStatus
-        });
+        }); // HAjax.create
 
         if (wareframeData.wfId) {
             $('.tdWF').hide();
         }
-
         // func. init
     }
 
     return {
         init: init,
         goToItemSettings: goToItemSettings,
+        createLinkBlockTree: createLinkBlockTree,
         getTree: getTree
-    }
+    } // return
 })();
 
 var wareframeData = {
@@ -895,9 +1015,7 @@ var wareframeData = {
     acId: '<?= self::get('acId') ?>',
     wfId: '<?= self::get('wfId') ?>',
     imgThemeUrl: '<?= self::res('images/') ?>'
-
-    // var wareframeData
-}
+} // var wareframeData
 
 $(document).ready(function(){
     wareframeMvc.init({
@@ -918,7 +1036,15 @@ $(document).ready(function(){
         // Кнопка сохранения компонентов в таблице компонентов по блоку
         itemSaveBtn: '#blockItemSave',
         // Кнопка сохдания ссылки для блока
-        linkItemBtn: '#linkBtn'
+        linkItemBtn: '#linkBtn',
+        // Контенер для дерева с wareframe для ссылок
+        linkWfTreeBox: 'linkWfTreeBox',
+        // Контенер для дерева с wareframe для ссылок
+        linkBlockTreeBox: 'linkBlockTreeBox',
+        // Контенер со всеми кнопками
+        //gridBtnBox: '#gridBtnBox',
+        // Кнопка устранения связи линка с блока
+        linkRmBtn: '#linkRmBtn'
     }); // wareframeMvc.init()
 }); // $(document).ready
 

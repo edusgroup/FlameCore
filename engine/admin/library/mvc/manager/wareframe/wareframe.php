@@ -154,13 +154,18 @@ class wareframe extends controllerAbstract {
      */
     public function loadBlockTreeAction() {
         $this->view->setRenderType(render::JSON);
-        $wfId = self::getInt('wfid');
+        // Получаем action Id
         $acId = self::getInt('acid', null);
+        // Получаем wareframe Id
+        $wfId = self::getInt('wfid');
         $wareframeTree = new wareframeTree();
+        // Проверяем существует ли такой wareframe Id
         $wareframeTree->isExists($wfId, new \Exception('WF not found', 33));
-
+        // Получаем дерево в формате JSON
         $json = model::makeTree($wfId, $acId);
         $json['wfid'] = $wfId;
+        // В какое box грузить дерево
+        $json['treeBox'] = self::get('treeBox');
         self::setVar('json', $json);
         // func. loadBlockTreeAction
     }
@@ -181,9 +186,11 @@ class wareframe extends controllerAbstract {
         // Все файлы в формате JSON
         $file = self::post('file');
         $rmList = self::post('del');
+        $linkList = self::post('link');
 
         $acId = self::postInt('acid', null);
         $wfId = self::postInt('wfid');
+        // Проверка на существование wareframe Id
         $wareframeTree = new wareframeTree();
         $wareframeTree->isExists($wfId, new \Exception('wf not found', 33));
 
@@ -192,6 +199,8 @@ class wareframe extends controllerAbstract {
 
         $routeTreeWhere = $acId ? 'id='.$acId : 'id != 0';
         (new routeTree())->update('isSave="yes"', $routeTreeWhere);
+
+        model::saveBlockLink($wfId, $linkList);
 
         $json = ['ok' => 'ok'];
         $json['new'] = model::saveBlock($wfId, $acId, $file, $rmList);
@@ -250,7 +259,7 @@ class wareframe extends controllerAbstract {
         $position = self::post('position');
         model::changeBlockItemPosition($position, $listId);
 		
-		$where = $pAcId ? ' AND id='.$pAcId : '';
+		$where = $acId ? ' AND id='.$acId : '';
 		(new routeTree())->update('isSave="yes"', 'id != 0'.$where);
 
         $json = ['blid' => $blId, 'listid' => $listId];

@@ -17,6 +17,7 @@ use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 use ORM\blockfile;
 use ORM\blockItem;
 use ORM\blockItemSettings;
+use ORM\block\blockLink;
 
 /**
  * Description of
@@ -25,7 +26,11 @@ use ORM\blockItemSettings;
  */
 class model {
 
-    const FOLDER_FREE = 0, FOLDER_COMP = 1, FOLDER_TPL = 2, FOLDER_EMPTY = 3;
+    const FOLDER_FREE = 0;
+    const FOLDER_COMP = 1;
+    const FOLDER_TPL = 2;
+    const FOLDER_EMPTY = 3;
+    const FOLDER_LINK = 4;
 
     /**
      * Получаем полный путь к таблице-макету
@@ -117,6 +122,26 @@ class model {
         return $tplBlockParser->getBlockList();
     }
 
+    public static function saveBlockLink(integer $pWfId, $pLinkBlockBuff){
+        if ( !$pLinkBlockBuff ){
+            return;
+        }
+        $linkBlockBuff = json_decode($pLinkBlockBuff);
+        $blockLinkOrm = new blockLink();
+
+        foreach( $linkBlockBuff as $blockId=>$val){
+            if ( $val->type == 'add'){
+                $blockLinkOrm->saveExt(
+                    ['wfId' => $pWfId, 'blockId' => $blockId],
+                    ['linkWfId' => $val->linkWfId, 'linkBlockId' => $val->linkBlockId]
+                );
+            }else{
+                $blockLinkOrm->delete(['wfId' => $pWfId, 'blockId' => $blockId]);
+            }
+        } // foreach
+        // func. saveBlockLink
+    }
+
     public static function makeTree(integer $pWfId, $pActionId) {
         $actionId = $pActionId ? : 'null';
         $blockfile = new blockfile();
@@ -126,6 +151,7 @@ class model {
             ->order('id')
             ->comment(__METHOD__)
             ->fetchAll();
+
         //var_dump($blockLoadList);
         /*
          * Пример $blockLoadList:
@@ -147,9 +173,22 @@ class model {
             ->group('block_id')
             ->comment(__METHOD__)
             ->toList('block_id');
-        //var_dump($blockItemList);
+
+        // Буффер всех ссылок для блоков, если они есть
+        $linkBlockBuff = (new blockLink())->selectAll('blockId, linkWfId, linkBlockId', 'wfId='.$pWfId);
+        // Обрабатываем массив, для удобства пользования
+        // делаем ключом blockId
+        if ( $linkBlockBuff ){
+            foreach($linkBlockBuff as $key => &$val){
+                $blockName = $val['blockId'];
+                unset($val['blockId']);
+                $linkBlockBuff[$blockName] = $val;
+                unset($linkBlockBuff[$key]);
+            } // foreach
+        } // if ( $linkBlockBuff )
+
         // Хранить значение: {'имя_файла: ['блок', 'блок']}
-        $blockListCache = array();
+        $blockListCache = [];
         // Результирующий массив для dxhtml
         $treeData = [];
 
@@ -227,8 +266,14 @@ class model {
                     'block' => $bNameSys, // системное имя
                     'acId' => $loadAcId, // Action Id,
                     'fileId' => $loadFileId
-                ];
-                //print $loadFileId."<br/>";
+                ]; // $treeData[$blockNum] = [
+
+                // Если ветка есть в буффере ссылок, значит папка линкованная
+                if ( isset($linkBlockBuff[$blockId])){
+                    $treeData[$blockNum]['link'] = $linkBlockBuff[$blockId];
+                    $treeData[$blockNum]['item_type'] = self::FOLDER_LINK;
+                } // if
+
                 // Запоминаем какой id блока к какому родителю(id блока) соотвествует
                 $file2id[$blockId] = $fileTreeId ? : $rootTreeId;
                 // Мы добавили новую ветку(блок), увеличиваем счётчик веток(блоков)
@@ -260,15 +305,24 @@ class model {
 
         dhtmlxTree::$endBrunch = function(&$pDist, $pType, $pSource, $pNum, $pParam) {
             dhtmlxTree::endBrunch($pDist, $pType, $pSource, $pNum, $pParam);
-            $pDist['im0'] = 'folderEmpty.gif';
-            // TODO: переделать в switch
-            $item_type = $pSource[$pNum]['item_type'];
-            if ($item_type == model::FOLDER_COMP) {
-                $pDist['im0'] = 'comp.png';
-            } // if
-            if ($item_type == model::FOLDER_EMPTY) {
-                $pDist['im0'] = 'folderClosed.gif';
-            } // if
+
+            $itemType = $pSource[$pNum]['item_type'];
+            switch( $itemType){
+                case model::FOLDER_COMP:
+                    $pDist['im0'] = 'comp.png';
+                    break;
+                case model::FOLDER_EMPTY:
+                    $pDist['im0'] = 'folderClosed.gif';
+                    break;
+                case model::FOLDER_LINK:
+                    $pDist['im0'] = 'link.gif';
+                    $pDist['userdata'][] = ['name' => 'link','content' => $pSource[$pNum]['link']];
+                    //$pDist['userdata'][] = ['name' => 'blockName','content' => $pSource[$pNum]['block']];
+                    break;
+                default:
+                    $pDist['im0'] = 'folderEmpty.gif';
+            }
+
             // TODO: Перевести на норм userData через настройки дерева
             $pDist['userdata'][] = [
 				'name' => 'blockName', 
@@ -343,9 +397,7 @@ class model {
                 $return[$id] = $newId ? : $id;
             }// foreach
         } // if
-		
-		
-		
+
         return $return;
         // funct.saveBlockItem
     }
