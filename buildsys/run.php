@@ -32,7 +32,7 @@ $siteName = request::get('siteName');;
 $isDirNotExist = !$siteName || !is_dir(SITE_CORE.$siteName);
 if ( $isDirNotExist ){
     // TODO: Сделать что бы нормально выдавало ошибку в браузере
-    print 'Error: siteName not exists';
+    print 'Error: siteName not exists or Dir('.htmlspecialchars(SITE_CORE.$siteName).') not found';
     exit;
 }
 

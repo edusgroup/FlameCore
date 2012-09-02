@@ -29,6 +29,8 @@ use ORM\tree\routeTree;
 use ORM\tree\componentTree;
 use ORM\blockItem\relation as biGroupRelationOrm;
 use ORM\tplvar as tplvarOrm;
+use ORM\block\blockLink as blockLinkOrm;
+use ORM\blockItem\order as blockItemOrderOrm;
 
 // Model
 use admin\library\mvc\manager\varible\model as varibleModel;
@@ -52,13 +54,14 @@ class eventModel {
             return;
         }
 
-        // ===================== Есть ли редирект ==============================
+        // ========  Есть ли редирект, то выставляем его и выходим изобработки ==========
         if ($propData['isRedir']) {
             // Создаём код на редирект
             return '<?php header(\'Location: ' . $propData['redirect'] . '\', true, 301); ?>';
         }
-        // if
+        // if ===========================================================================
 
+        // Получаем Wareframe id выставленный для actionId
         $wfId = $propData['wf_id'];
         // Если шаблон не был задан, выходим из обработки текущего event-a
         if ($wfId == -1) {
@@ -66,18 +69,17 @@ class eventModel {
         }
 
         // ====================== Работа с переменными==========================
-        // Смотрим есть ли в URL перменные
-        // TODO: по хорошему лучше сделать процедурой в БД, что бы меньше фильровать
-        // тут
-        $pathUrl = $pRouteTree->getActionUrlById($pAcId);
+        // TODO: по хорошему лучше сделать процедурой в БД, что бы меньше фильровать тут
         $varList = [];
-		
+        // Смотрим есть ли в URL перменные
+        $pathUrl = $pRouteTree->getActionUrlById($pAcId);
         foreach ($pathUrl as $item) {
             if ($item['propType'] == 1) {
                 $varList[] = $item;
             } // if
         } // foreach
         unset($item);
+        // Теперь в $varList храняться переменные, которые были заданы в URL
         // Буффер для доступных переменных
         $varListRender = [];
         $varTree = new varTree();
@@ -86,7 +88,6 @@ class eventModel {
         $varIdtoName = [];
         // Если есть переменные, то нужно их обработать
         if ($varList) {
-
             $varListCount = count($varList);
             // Бегаем по переменным
             for ($j = $varListCount - 1; $j >= 0; $j--) {
@@ -159,9 +160,6 @@ class eventModel {
             } // foreach
         } // if
 
-        $codeBuffer = '<?php ';
-        $codeBuffer .= ' $time = microtime(true);';
-
         $buildTpl = DIR::CORE . 'buildsys/tpl/';
         $render = new render($buildTpl, '');
         $render->setMainTpl('index.tpl.php')
@@ -171,6 +169,8 @@ class eventModel {
         $render->setVar('varList', $varListRender);
         $render->setVar('isUsecompContTree', $isUsecompContTree);
 
+        // Начинем создовать код
+        $codeBuffer = '<?php $time = microtime(true);';
         ob_start();
         $render->render();
         $codeBuffer .= ob_get_clean();
@@ -178,12 +178,10 @@ class eventModel {
         $biGroupRelationOrm = new biGroupRelationOrm();
 
         // ========================== Wareframe ================================
-        /**
-         * Далее идёт построение шаблона для сайта
-         */
+        // Далее идёт построение шаблона для сайта
         $blockfile = new blockfile();
         $blockItem = new blockItem();
-        // Вытаскиваем все блоки WF
+        // Вытаскиваем все блоки которые заданы в WF( глобальные и локальные для actionId )
         $wfArr = $blockfile->select('id, file, file_id, wf_id as wfId, block')
             ->where('wf_id=' . $wfId . ' AND ( action_id is null or action_id = ' . $pAcId . ')')
             ->order('file_id, id')
@@ -207,17 +205,45 @@ class eventModel {
 
         // После того как массив блоков получили, нам вытащить настроки blockItem для всех блоков
         // В настройках храняться компоненты и их параметры
-        $blockItemArr = $blockItem
-            ->select(
-            'bi.id, c.ns, bi.sysname, bi.block_id, bi.compId, c.onlyFolder' .
-                ',bis.tplFile, bis.classFile, bis.methodName' .
-                ',bi.userReg, bi.tplAccess, bis.custContId, bis.classType' .
-                ',bis.statId, bis.tableId, bis.varId, bis.varTableId', 'bi')
-            ->joinLeftOuter(blockItemSettings::TABLE . ' bis', 'bis.blockItemId=bi.id')
-            ->join(componentTree::TABLE . ' c', 'bi.compId=c.id')
-            ->where('bi.wf_id=' . $wfId . ' AND ( bi.acId is null or bi.acId = ' . $pAcId . ')')
-            ->order('bi.position')
-            ->comment(__METHOD__)
+        $selectField = 'bi.id, c.ns, bi.sysname, bi.block_id, bi.compId, c.onlyFolder' .
+            ',bis.tplFile, bis.classFile, bis.methodName' .
+            ',bi.userReg, bi.tplAccess, bis.custContId, bis.classType' .
+            ',bis.statId, bis.tableId, bis.varId, bis.varTableId, bi.position';
+        //$selectField .= ',bi.name';
+
+        // Сортировка данных для следующего запроса
+        $orderPrefix = '';
+        $position = (new blockItemOrderOrm())->selectList('position', 'position', ['acId'=>$pAcId]);
+        $position = implode(',', $position);
+        if ( $position ){
+            $orderPrefix = 'field(t.id, '.$position.'),';
+        }
+
+        /*
+         Запрос состоит из двух частей.
+         1 часть до union - делает выборку всех компонентов, по всем блокам в
+         указаной wareframeId + кастомные компоненты в блоках по action Id
+         2 часть. После union - делает выборку всех компонентов также, но уже в разрезе link
+         выципляет все wf-link и также ac-link
+         Сортировка глобальная по всему запросу. Если при редактировании были установки позиция,
+         то они сохранятся и будут доступны через blockItemOrderOrm, для этого сверху была подготовка позиций, если
+         сохранения и растоновки не было, то идёт простая сортировка по position
+        */
+        $blockItemArr = $blockItem->sql(
+            'SELECT * FROM (
+    (SELECT '.$selectField.' FROM '.blockItem::TABLE.' bi
+        LEFT OUTER JOIN '.blockItemSettings::TABLE.' bis  ON bis.blockItemId = bi.id
+        JOIN '.componentTree::TABLE.' c  ON bi.compId = c.id
+        WHERE bi.wf_id = '. $wfId .' AND (bi.acId IS NULL OR bi.acId = ' . $pAcId . '))
+    UNION
+        (SELECT '.$selectField.' FROM '.blockLinkOrm::TABLE .' bl
+        LEFT OUTER JOIN '.urlTreePropVar::TABLE.' utp ON utp.acId = bl.linkMainId
+        JOIN '.blockItem::TABLE.' bi ON ((bl.acId = 0 AND bi.wf_id = bl.linkMainId) OR (bl.acId != 0 AND bi.wf_id = utp.wf_id)) AND bi.block_id = bl.linkBlockId
+        LEFT OUTER JOIN '.blockItemSettings::TABLE.' bis ON bis.blockItemId = bi.id
+        JOIN '.componentTree::TABLE.' c ON bi.compId = c.id
+        WHERE bl.wfId = '. $wfId .')) t
+            ORDER BY '.$orderPrefix.' t.position')
+         ->comment(__METHOD__)
             ->fetchAll();
 
         $blockItemList = [];
@@ -226,7 +252,6 @@ class eventModel {
 
         // Бегаем по настройкам блоков
         foreach ($blockItemArr as $item) {
-            //print $item['classType']."\n";
             // Если компонент был удалён, то пишем ошибку и берём следующий компонент
             if (!$item['compId']) {
                 echo "ERROR(" . __METHOD__ . "):" . PHP_EOL;
@@ -268,7 +293,6 @@ class eventModel {
             // Заменяем все "/" на "\", т.е. делаем namespace+classname
             $className = str_replace('/', '\\', $className);
             // Добавляем пристовку namespace компонентов, ns name компонента + названия класса
-            //$className = '\core\comp\\' . $item['ns'] . 'logic\\' . $className;
             $className = comp::getFullCompClassName($item['classType'], $item['ns'], 'logic', $className);
             $methodName = $item['methodName'];
             $callParam = '(\'' . $sysname . '\');';
@@ -356,6 +380,8 @@ class eventModel {
             ];
         } // foreach
 
+        $blockLinkData = (new blockLinkOrm())->selectAll('blockId, linkBlockId', 'wfId='.$wfId);
+        $blockLinkData = arrays::dbQueryToAssoc($blockLinkData, 'blockId', 'linkBlockId');
 
         // =====================================================================
         // ============ Инициализация компонентов =============================
@@ -364,7 +390,7 @@ class eventModel {
             for ($i = 0; $i < $itemCount; $i++) {
                 $codeBuffer .= 'dbus::$comp[\'' . $name . '\'] = ' . $obj[$i];
             } // for
-        } // foreach. Бегаем по blockItem у WF
+        } // foreach.
 
         $codeBuffer .= self::_getInitClassCode($blockItemList);
         $codeBuffer .= "\n\n?>";
@@ -404,13 +430,13 @@ class eventModel {
 
         $tplBlockCreator->setBlockFileList($blockFileList);
         $tplBlockCreator->setBlockItemList($blockItemList);
+        $tplBlockCreator->setBlockLinkList($blockLinkData);
         //$tplBlockCreator->setBlockItemInitList($blockItemInitList);
 
         $tplBlockCreator->start($blockFileList[':']['file']);
 
+        // Создаём php файл по шаблону
         $codeBuffer .= $tplBlockCreator->getCodeBuffer();
-        // Создаём php файл
-
         $codeBuffer .= "<? echo '<!-- '.(microtime(true) - \$time).' -->'; ?>";
 
         return $codeBuffer;

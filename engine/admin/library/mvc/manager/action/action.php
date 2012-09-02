@@ -46,14 +46,12 @@ class action extends controllerAbstract {
      * подрузкить данные<br/>
      */
     public function indexAction() {
-        $routeTree = new routeTree();
-
         $acId = self::getInt('acid', -1);
         //$routeTree->isExists($acId, new \Exception('Route acid='.$acId.' not found', 33));
         self::setVar('acId', $acId);
 
         // Формируем дерево action
-        $actTree = model::getActTree($routeTree);
+        $actTree = model::getActTree((new routeTree()));
         self::setJSON('actTree', $actTree);
 
         // Формируем дерево wareframe 

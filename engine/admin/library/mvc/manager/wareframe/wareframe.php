@@ -23,12 +23,15 @@ use core\classes\event as eventsys;
 use ORM\blockItem;
 use ORM\tree\componentTree;
 use ORM\tree\wareframeTree;
-use ORM\tree\routeTree;
+use ORM\tree\routeTree as routeTreeOrm;
 use ORM\urlTreePropVar;
 use ORM\tree\compContTree;
 
 // Event
 use admin\library\mvc\manager\blockItem\event as eventBlockItem;
+
+// Model
+use admin\library\mvc\manager\action\model as actionModel;
 
 /**
  * Логика настроек сайта
@@ -41,8 +44,10 @@ class wareframe extends controllerAbstract {
 
     }
 
+    /**
+     * Построение страницы
+     */
     public function indexAction() {
-
         // Получаем ID action
         $acId = self::getInt('acid', '');
         self::setVar('acId', $acId);
@@ -67,17 +72,21 @@ class wareframe extends controllerAbstract {
             // В дереве блоках ни чего не показываем
             self::setJson('blockTree', '');
         } else {
-			//try{
-				$data = model::makeTree($wfId, $acId);
-				
-			//}catch(exception\wareframe $ex){
-				//self::setVar('errMsg', $ex->getMessage());
-			//	$data['tree'] = [];
-			//}
+			$data = model::makeTree($wfId, $acId);
 			self::setJson('blockTree', $data['tree']);
-            //self::setVar('rootTreeId', $data['root']);
+            $routeTreeOrm = new routeTreeOrm();
+            $actTree = actionModel::getActTree($routeTreeOrm);
+            self::setJSON('actTree', $actTree);
             self::setJson('wfTree', '');
-        }
+
+            $url = $routeTreeOrm->getActionUrlById($acId);
+            $url = array_map(function($pItem) {
+                return $pItem['name'];
+            }, $url);
+            $url = array_reverse($url);
+            $url = '/' . implode('/', $url) . '/';
+            self::setVar('pageCaption', $url);
+        } // if
 
         // Дерево с файловой системой шаблонов сайта
         $siteTplPath = DIR::getSiteTplPath();
@@ -93,7 +102,7 @@ class wareframe extends controllerAbstract {
     }
 
     /**
-     * Добавляем папку. AJAX
+     * Ajax.Json.Добавляем папку в дерево wareframe
      */
     public function dirAddAction() {
         $this->view->setRenderType(render::JSON);
@@ -134,7 +143,7 @@ class wareframe extends controllerAbstract {
     }
 
     /**
-     * Удалиние ветки в дереве страниц
+     * Ajax.Json.Удалиние ветки в дереве страниц
      * @return void
      */
     public function rmObjAction() {
@@ -149,7 +158,7 @@ class wareframe extends controllerAbstract {
     }
 
     /**
-     * Загрузка дерева блоков
+     * Ajax.Json.Загрузка дерева блоков
      * @return void
      */
     public function loadBlockTreeAction() {
@@ -157,7 +166,11 @@ class wareframe extends controllerAbstract {
         // Получаем action Id
         $acId = self::getInt('acid', null);
         // Получаем wareframe Id
-        $wfId = self::getInt('wfid');
+        $wfId = self::getInt('wfid', null);
+        if ( !$wfId && $acId ){
+            //$wfId = (int)(new urlTreePropVar())->get('wf_id', 'acId='.$acId);
+            $wfId = (int)(new urlTreePropVar())->getWFId($acId);
+        } // if
         $wareframeTree = new wareframeTree();
         // Проверяем существует ли такой wareframe Id
         $wareframeTree->isExists($wfId, new \Exception('WF not found', 33));
@@ -171,7 +184,7 @@ class wareframe extends controllerAbstract {
     }
 
     /**
-     * Сохранение блоков(добавленных шаблонов в дерево WF)<br/>
+     * Ajax.Json.Сохранение блоков(добавленных шаблонов в дерево WF)<br/>
      * Функция типа: JSON <br/>
      * Входящие параметры: <br/>
      *
@@ -197,10 +210,10 @@ class wareframe extends controllerAbstract {
         $eventData = ['acId' => $acId, 'wfId' => $wfId];
         eventsys::callOffline(eventBlockItem::BLOCKITEM, eventBlockItem::CHANGE, $eventData);
 
-        $routeTreeWhere = $acId ? 'id='.$acId : 'id != 0';
-        (new routeTree())->update('isSave="yes"', $routeTreeWhere);
+        $routeTreeOrmWhere = $acId ? 'id='.$acId : 'id != 0';
+        (new routeTreeOrm())->update('isSave="yes"', $routeTreeOrmWhere);
 
-        model::saveBlockLink($wfId, $linkList);
+        model::saveBlockLink($acId, $wfId, $linkList);
 
         $json = ['ok' => 'ok'];
         $json['new'] = model::saveBlock($wfId, $acId, $file, $rmList);
@@ -210,7 +223,7 @@ class wareframe extends controllerAbstract {
     }
 
     /**
-     * Парсинг файла темлейта и получение из него блоков.<br/>
+     * Ajax.Json.Парсинг файла темлейта и получение из него блоков.<br/>
      * Используется на событии onDbClick на fsTree
      * Возвращает в формате:<br/>
      * {list:['blockname1', 'blockname2'], file:'filename', id:id}
@@ -228,7 +241,7 @@ class wareframe extends controllerAbstract {
     }
 
     /**
-     * Сохранение данных по таблице с компонентами в Wareframe<br/>
+     * Ajax.Json.Сохранение данных по таблице с компонентами в Wareframe<br/>
      * Функция типа: JSON <br/>
      * Входящие параметры: <br/>
      * <b>data</b> json - Формат данных: [{id:val, data:{compId:val, name:val, sysname:val}], {...}]
@@ -257,16 +270,19 @@ class wareframe extends controllerAbstract {
 
         // Если было изменён порядок следования компонентов
         $position = self::post('position');
-        model::changeBlockItemPosition($position, $listId);
+        model::changeBlockItemPosition($position, $listId, $acId, $blId);
 		
 		$where = $acId ? ' AND id='.$acId : '';
-		(new routeTree())->update('isSave="yes"', 'id != 0'.$where);
+		(new routeTreeOrm())->update('isSave="yes"', 'id != 0'.$where);
 
         $json = ['blid' => $blId, 'listid' => $listId];
         self::setVar('json', $json);
         // func. saveBlockItemAction
     }
 
+    /**
+     * Ajax.XML.Загрузка данных в таблицу на странице
+     */
     public function loadBlockItemAction() {
         $this->view->setRenderType(render::NONE);
         header('Content-Type: text/xml; charset=UTF-8');
@@ -284,6 +300,9 @@ class wareframe extends controllerAbstract {
         // func. loadBlockItemAction
     }
 
+    /**
+     * Ajax.Json.Удаление данных из таблицы.
+     */
     public function rmBlockItemAction() {
         $this->view->setRenderType(render::JSON);
         $listId = self::post('idlist');
@@ -294,10 +313,11 @@ class wareframe extends controllerAbstract {
 
         $acId = self::postInt('acid');
         $where = $acId ? ' AND id=' . $acId : '';
-        (new routeTree())->update('isSave="yes"', 'id != 0' . $where);
+        (new routeTreeOrm())->update('isSave="yes"', 'id != 0' . $where);
 
         self::setVar('json', ['blid' => $blockId, 'list' => $list]);
         // rmBlockItemAction 
     }
+
     // class wareframe
 }

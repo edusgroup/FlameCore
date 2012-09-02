@@ -6,6 +6,7 @@ namespace admin\library\mvc\manager\blockItem;
 use ORM\blockItem as blockItemOrm;
 use ORM\blockItemRegxUrl;
 use ORM\tree\componentTree;
+use ORM\block\blockLink as blockLinkOrm;
 
 // Conf
 use \DIR;
@@ -53,6 +54,17 @@ class model {
         // func. getCompData
     }
 
+    /*public static function isBlockLink(integer $pId){
+        $return = (new blockItemOrm())
+            ->select('bl.*', 'bi')
+            ->join(blockLinkOrm::TABLE.' bl', 'bi.block_id=bl.linkBlockId and bi.wf_id=bl.linkMainId')
+            ->where('bi.id='.$pId)
+            ->fetchAll();
+
+        return (boolean)$return;
+        // func. isBlockLink
+    }*/
+
     public static function getClassTree($pNs, $pClassType){
         $siteClassPath = DIR::CORE;
         if ( $pClassType == 'user' ){
@@ -61,6 +73,7 @@ class model {
         $siteClassPath .= comp::getFullCompClassName('', $pNs, 'logic', '');
         $siteClassPath = filesystem::nsToPath($siteClassPath);
         return dhtmlxTree::createTreeOfDir($siteClassPath);
+        // func. getClassTree
     }
 
     /**

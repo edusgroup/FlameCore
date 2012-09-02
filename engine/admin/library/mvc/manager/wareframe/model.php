@@ -17,7 +17,10 @@ use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 use ORM\blockfile;
 use ORM\blockItem;
 use ORM\blockItemSettings;
-use ORM\block\blockLink;
+use ORM\block\blockLink as blockLinkOrm;
+use ORM\urlTreePropVar;
+use ORM\blockItem\order as blockItemOrderOrm;
+
 
 /**
  * Description of
@@ -122,18 +125,21 @@ class model {
         return $tplBlockParser->getBlockList();
     }
 
-    public static function saveBlockLink(integer $pWfId, $pLinkBlockBuff){
+    public static function saveBlockLink($pAcId, integer $pWfId, $pLinkBlockBuff){
         if ( !$pLinkBlockBuff ){
             return;
         }
         $linkBlockBuff = json_decode($pLinkBlockBuff);
-        $blockLinkOrm = new blockLink();
+        $blockLinkOrm = new blockLinkOrm();
 
         foreach( $linkBlockBuff as $blockId=>$val){
             if ( $val->type == 'add'){
                 $blockLinkOrm->saveExt(
-                    ['wfId' => $pWfId, 'blockId' => $blockId],
-                    ['linkWfId' => $val->linkWfId, 'linkBlockId' => $val->linkBlockId]
+                    ['wfId' => $pWfId,
+                    'blockId' => $blockId,
+                    'acId'=>$pAcId],
+                    ['linkMainId'=>$val->linkMainId,
+                    'linkBlockId'=>$val->linkBlockId]
                 );
             }else{
                 $blockLinkOrm->delete(['wfId' => $pWfId, 'blockId' => $blockId]);
@@ -175,16 +181,17 @@ class model {
             ->toList('block_id');
 
         // Буффер всех ссылок для блоков, если они есть
-        $linkBlockBuff = (new blockLink())->selectAll('blockId, linkWfId, linkBlockId', 'wfId='.$pWfId);
+        $linkBlockBuff = (new blockLinkOrm())->selectAll('blockId, linkMainId, linkBlockId, acId', 'wfId='.$pWfId.' and (acId=0 or acId='.$actionId.')');
         // Обрабатываем массив, для удобства пользования
         // делаем ключом blockId
         if ( $linkBlockBuff ){
+            $tmpBuff = [];
             foreach($linkBlockBuff as $key => &$val){
                 $blockName = $val['blockId'];
                 unset($val['blockId']);
-                $linkBlockBuff[$blockName] = $val;
-                unset($linkBlockBuff[$key]);
+                $tmpBuff[$blockName] = $val;
             } // foreach
+            $linkBlockBuff = $tmpBuff;
         } // if ( $linkBlockBuff )
 
         // Хранить значение: {'имя_файла: ['блок', 'блок']}
@@ -315,7 +322,7 @@ class model {
                     $pDist['im0'] = 'folderClosed.gif';
                     break;
                 case model::FOLDER_LINK:
-                    $pDist['im0'] = 'link.gif';
+                    $pDist['im0'] = $pSource[$pNum]['link']['acId'] ? 'linka.gif' : 'linkw.gif';
                     $pDist['userdata'][] = ['name' => 'link','content' => $pSource[$pNum]['link']];
                     //$pDist['userdata'][] = ['name' => 'blockName','content' => $pSource[$pNum]['block']];
                     break;
@@ -402,33 +409,69 @@ class model {
         // funct.saveBlockItem
     }
 
-    public static function changeBlockItemPosition($pPostion, $pNewIdList) {
-        $gridItemIdList = explode(',', $pPostion);
-
-        $blockItem = new blockItem();
-
-        $gridItemCount = count($gridItemIdList);
-        // Защита от дурака, вдруг кто додумается прислать 1000 элементов
-        // Врядли найдётся больше 30 компонентов в обдном блоке
-        $gridItemCount = $gridItemCount > 30 ? 30 : $gridItemCount;
-        for ($i = 0; $i < $gridItemCount; $i++) {
-            $itemId = $gridItemIdList[$i];
-            $itemId = isset($pNewIdList[$itemId]) ? $pNewIdList[$itemId] : (int)$itemId;
-            $blockItem->update('position=' . $i, 'id=' . $itemId, false)
-                ->comment(__METHOD__)
-                ->query();
+    public static function changeBlockItemPosition($pPostion, $pNewIdList, integer $pAcId, $pBlockId) {
+        if ( $pAcId ){
+            (new blockItemOrderOrm())->saveExt(['acId'=>$pAcId, 'blockId'=>$pBlockId], ['position'=>$pPostion]);
+        }else{
+            $gridItemIdList = explode(',', $pPostion);
+            $blockItem = new blockItem();
+            $gridItemCount = count($gridItemIdList);
+            // Защита от дурака, вдруг кто додумается прислать 1000 элементов
+            // Врядли найдётся больше 30 компонентов в обдном блоке
+            $gridItemCount = $gridItemCount > 30 ? 30 : $gridItemCount;
+            for ($i = 0; $i < $gridItemCount; $i++) {
+                $itemId = $gridItemIdList[$i];
+                $itemId = isset($pNewIdList[$itemId]) ? $pNewIdList[$itemId] : (int)$itemId;
+                $blockItem->update('position=' . $i, 'id=' . $itemId, false)
+                    ->comment(__METHOD__)
+                    ->query();
+            }
         }
         // func. changeBlockItemPosition
     }
 
-    public static function getBlockItemList($pAcId, $bBlId, $pWfId) {
+    public static function getBlockItemList($pAcId, string $bBlId, integer $pWfId) {
         $blockItem = new blockItem();
         $acId = $pAcId ? : 'null';
-        $blockId = $blockItem->addQuote($bBlId);
-        $blockItemList = $blockItem->select('id, "" as ch, "" as img, name, sysname, compId, acId')
-            ->where('wf_id=' . $pWfId . ' AND ( acId IS NULL OR acId=' . $acId . ') AND block_id=' . $blockId)
-            ->order('position')
+        $wfLinkId = $pWfId;
+        $blockOrgId = $blockItem->addQuote($bBlId);
+        $blockLinkId = $blockOrgId;
+        $linkMainId = -1;
+
+        // Получаем информацию по ссылкам
+        $where = '(acId=0 or acId='.$acId.') and wfId='.$pWfId.' and blockId='.$blockLinkId;
+        $linkData = (new blockLinkOrm())->selectFirst('linkMainId, linkBlockId, acId', $where );
+        if ( $linkData ){
+            // Нужно сделать подмены с инфомации по линкам
+            if ( $linkData['acId'] ){
+                $linkMainId = (int)$linkData['linkMainId'];
+                $wfLinkId = (int)(new urlTreePropVar())->getWFId($linkMainId);
+            }else{
+                $wfLinkId = $linkData['linkMainId'];
+            }
+            $blockLinkId = $linkData['linkBlockId'];
+            $blockLinkId = $blockItem->addQuote($blockLinkId);
+        } // if
+
+        $where = '(wf_id=' . $pWfId .' or wf_id='.$wfLinkId.') AND ( acId IS NULL OR acId=' . $acId . ' OR acId=' . $linkMainId . ') AND ( block_id=' . $blockLinkId.' or block_id='.$blockOrgId.')';
+
+        // Если мы щас находимся в окне редактирования(т.е. запрос пришёл от туда )
+        // Тогда мы можем сделать персональную сортировку с помощью blockItemOrderOrm
+        // см. функ. changeBlockItemPosition
+        $orderPrefix = '';
+        if ( $pAcId ){
+            $position = (new blockItemOrderOrm())->get('position', ['acId'=>$pAcId, 'blockId'=>$bBlId]);
+            if ( $position ){
+                $orderPrefix = 'field(id, '.$position.'),';
+            }
+        } // if
+        $blockItemList = $blockItem
+            ->select('id, "" as ch, "" as img, name, sysname, compId, acId')
+            ->where($where)
+            ->order($orderPrefix.'position')
+            ->comment(__METHOD__)
             ->fetchAll();
+
         return $blockItemList;
         // func. getBlockItemList
     }

@@ -13,6 +13,8 @@ class tplBlockCreator {
     private $themeResUrl = '';
     private $blockFileList = null;
     private $blockItemList = null;
+    // Список ссылок на другие блоки. Формат [{Текущий блок}]=[{Куда ссылается}]
+    private $blockLinkList = null;
     //private $blockItemInitList = null;
     private $blockId = -1;
     // Буффер Конечного созданного кода
@@ -51,6 +53,12 @@ class tplBlockCreator {
 
     public function setBlockItemList($pBlockItemList) {
         $this->blockItemList = $pBlockItemList;
+        // func. setBlockItemList
+    }
+
+    public function setBlockLinkList($pBlockLinkList){
+        $this->blockLinkList = $pBlockLinkList;
+        // func. setBlockLinkList
     }
 
     /*public function setBlockItemInitList($pBlockItemInitList){
@@ -86,6 +94,8 @@ class tplBlockCreator {
                 }
 
         $key = $pName . ':' . $this->blockId;
+        // Проверяем может блок является ссылкой на другой блок, если да, то получаем новый номер блока
+        $key = isset($this->blockLinkList[$key])?$this->blockLinkList[$key]:$key;
         //echo '<!--BEGIN['.$key.']-->';
         if (isset($this->blockFileList[$key])) {
             $oldId = $this->blockId;

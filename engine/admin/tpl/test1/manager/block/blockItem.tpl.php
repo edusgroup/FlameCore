@@ -92,7 +92,7 @@
 
                     <div class="dt">Частн. настройки</div>
                     <div class="dd">
-                        <a href="#" id="customSettings">
+                        <a href="#" id="customSettings" class="btn">
                             <img src="<?= self::res('images/edit_16.png') ?>"/>
                             Настроить
                         </a>
@@ -100,7 +100,7 @@
 
                     <div class="dt">Доступ</div>
                     <div class="dd">
-                        <a href="#" id="userAccessBtn">
+                        <a href="#" id="userAccessBtn" class="btn">
                             <img src="<?= self::res('images/edit_16.png') ?>"/>
                             Настроить
                         </a>
@@ -108,7 +108,7 @@
 
                     <div class="dt">Шаблон компонента</div>
                     <div class="dd">
-                        <a id="tplBtn" href="#tplDlg">
+                        <a id="tplBtn" href="#tplDlg" class="btn">
                             <img class="folderBtn" alt="Шаблон компонента"/>
                             <span id="tplFileText"></span>
                         </a>
@@ -124,7 +124,7 @@
 
                     <div class="dt">Класс компонента</div>
                     <div class="dd">
-                        <a id="classBtn" href="#classDlg">
+                        <a id="classBtn" href="#classDlg" class="btn">
                             <img class="folderBtn" alt="Класс компонента"/>
                             <span id="classFileText"></span>
                         </a>
@@ -143,7 +143,7 @@
                     <div class="dt">Static content</div>
                     <div class="dd">
                         <img src="<?= self::res('images/del_16.png') ?>" alt="Очистить" id="contStatClearBtn"/>
-                        <a id="contBtn" href="#contDlg">
+                        <a id="contBtn" href="#contDlg" class="btn">
                             <img class="folderBtn" alt="Выбрать контент"/>
                             <span id="statContText"></span>
                         </a>
@@ -171,7 +171,7 @@
 
                     <div class="dt">Url Regexp</div>
                     <div class="dd">
-                        <a href="#add" id="addBtn">
+                        <a href="#add" id="addBtn" class="btn">
                             <img src="<?= self::res('images/add_32.png') ?>" alt="Добавить"/>
                         </a>
                     </div>
@@ -234,7 +234,7 @@ var blockItem = {
     statName:'<?= self::get('statName') ?>',
     // Равен ли acIdBlock текущему acId. т.е. правим страницу через
     // URL tree или через Wareframe
-    acParent: <?= self::get('acParent') ?>,
+    isLock: <?= self::get('isLock') ?>,
     // Деревья
     tree:{},
     // Название выбранного шаблона для компонента
@@ -367,7 +367,7 @@ blockItem.appendAddBtn = function (id, regxValue) {
     var readOnly = '';
     // Если мы создали в общей Wareframe и редактируем для конкретного acId
     // то делаем ограничения
-    if (!blockItem.acParent) {
+    if (blockItem.isLock) {
         // Меняем картинку папки
         folderImgSrc = 'folderGray_16.png';
         // Убераем кнопку удаления элемента regexp url
@@ -383,7 +383,7 @@ blockItem.appendAddBtn = function (id, regxValue) {
             + '<img src="' + blockItem.resUrl + folderImgSrc + '" class="compBtn"/> <span class="regxContText"></span>'
             + '</div>');
     // см. описания переменной. в кратце acIdParent == acId под которым вошли
-    if (blockItem.acParent) {
+    if (!blockItem.isLock) {
         // Прописываем на кнопку папки событие onClick, что бы показать диалоговое
         // окно
         $('#cont_' + id + ' .compBtn').click(blockItem.contBtnUrlClick).fancybox({
@@ -391,6 +391,7 @@ blockItem.appendAddBtn = function (id, regxValue) {
         });
         // Прописываем на кнопку удаления элемента regex url, событие onClick
         $('#cont_' + id + ' .rmBtn').click(blockItem.rmRegxContBtnClick);
+
     }
     // func. blockItem.appendAddBtn
 }
@@ -583,6 +584,43 @@ blockItem.saveDataSuccess = function (pData) {
     // func. blockItem.saveDataSuccess
 }
 
+function userAccessBtnClick(){
+    var url = utils.url({
+        contr:'biUserAccess',
+        query:{
+            blockItemId: blockItem.id
+        }
+    });
+    utils.go(url);
+    // func. userAccessBtnClick
+}
+
+function backBtnClick(){
+    // URL кнопки назад
+    var url = utils.url({
+        contr:'wareframe',
+        query:{
+            acid:blockItem.acId,
+            blockitemid:blockItem.id
+        }
+    });
+    utils.go(url);
+    // func. backBtnClick
+}
+
+function customSettingsBtnClick(){
+    // URL кнопки частных настроек
+    var url = utils.url({
+        method:'customSettings',
+        query:{
+            acid:blockItem.acId,
+            blockitemid:blockItem.id
+        }
+    });
+    utils.go(url);
+    // func. customSettingsBtnClick
+}
+
 /**
  * Конфиг дерева шаблонов
  */
@@ -764,33 +802,6 @@ $(document).ready(function () {
         saveData:blockItem.saveDataSuccess
     });
 
-// ==========================================================
-    if (blockItem.acParent) {
-        // Обработка onClick на кнопке классов
-        $('#classBtn').fancybox({
-            beforeShow:blockItem.beforeShowClassDlg
-        });
-        // Обработка onClick на кнопке шаблонов
-        $('#tplBtn').fancybox({
-            beforeShow:blockItem.beforeShowTplDlg
-        });
-        // Обработка onClick на кнопке контента
-        $('#contBtn').click(blockItem.contBtnStatClick).fancybox({
-            href:'#contDlg'
-        });
-
-        // Обработка onClick на кнопке добавление нового элемента URL regexp
-        $('#addBtn').click(blockItem.addBtnClick);
-        // Обработка onClick на кнопке очистки статичного контета
-        $('#contStatClearBtn').click(blockItem.contStatClearBtnClick);
-    } else {
-        // Скрываем кнопку добавления элементов URL regexp
-        $('#addBtn').hide();
-        // Скрываем кнопку очистки статичного контета
-        $('#contStatClearBtn').hide();
-    } // if blockItem.acParent
-// ==========================================================
-
     // Если у компонента onlyFolder = 1
     if (blockItem.onlyFolder) {
         // Отображаем select который будет хранить табличные данные контента
@@ -801,32 +812,6 @@ $(document).ready(function () {
         $('.onlyFolder').hide();
     } // if blockItem.onlyFolder
 // ==========================================================
-
-    // URL кнопки назад
-    var url = utils.url({
-        contr:'wareframe',
-        query:{
-            acid:blockItem.acId,
-            blockitemid:blockItem.id
-        }
-    });
-    // Кнопка назад
-    $('#backBtn').attr('href', url);
-
-// ==========================================================
-
-    // URL кнопки частных настроек
-    var url = utils.url({
-        method:'customSettings',
-        query:{
-            acid:blockItem.acId,
-            blockitemid:blockItem.id
-        }
-    });
-    $('#customSettings').attr('href', url);
-
-    // Обработка onClick на кнопку сохранения данных
-    $('#saveBtn').click(blockItem.saveBtnClick);
 
 // ==========================================================
     // Если есть сохранённые данные, нужно отобразить их на странице
@@ -854,15 +839,14 @@ $(document).ready(function () {
         // Загружуаем методы класса
         blockItemMvc.loadClassMethodSuccess(blockItem.classData);
 
-        if (blockItem.acParent) {
+        if (!blockItem.isLock) {
             // Отображаем на экране выбранное значение метода
             $('#methodName').val(blockItem.methodName);
         } else {
             // Убераем методы, ставим скрытую переменную и выводим ранее выбранное значение
-            var html = '<input type="hidden" name="methodName" value="' + blockItem.methodName + '"/>';
-            html += blockItem.methodName;
+            var html = '<input type="hidden" name="methodName" value="' + blockItem.methodName + '"/>' + blockItem.methodName;
             $('#methodName').parent().append(html).end().remove();
-        } // if ( blockItem.acParent )
+        } // if ( blockItem.isLock )
 
     } // if ( blockItem.saveData )
 // ==========================================================
@@ -898,9 +882,39 @@ $(document).ready(function () {
     } // if ( blockItem.regxList )
 // ==========================================================
 
-    var folderImgSrc = 'folder_16.png';
-    if (!blockItem.acParent) {
-        folderImgSrc = 'folderGray_16.png';
+    // Кнопка назад
+    $('#backBtn').click(backBtnClick);
+    // Обработка onClick на кнопку сохранения данных
+    $('#saveBtn').click(blockItem.saveBtnClick);
+
+    if (blockItem.isLock) {
+        var folderImgSrc = 'folderGray_16.png';
+        $('select').prop("disabled", true);
+        $('.btn').click(function(){return false;});
+        // Скрываем кнопку добавления элементов URL regexp
+        $('#addBtn').hide();
+        // Скрываем кнопку очистки статичного контета
+        $('#contStatClearBtn').hide();
+    }else{
+        $('#userAccessBtn').click(userAccessBtnClick);
+        $('#customSettings').click(customSettingsBtnClick);
+        var folderImgSrc = 'folder_16.png';
+        // Обработка onClick на кнопке классов
+        $('#classBtn').fancybox({
+            beforeShow:blockItem.beforeShowClassDlg
+        });
+        // Обработка onClick на кнопке шаблонов
+        $('#tplBtn').fancybox({
+            beforeShow:blockItem.beforeShowTplDlg
+        });
+        // Обработка onClick на кнопке контента
+        $('#contBtn').click(blockItem.contBtnStatClick).fancybox({
+            href:'#contDlg'
+        });
+        // Обработка onClick на кнопке добавление нового элемента URL regexp
+        $('#addBtn').click(blockItem.addBtnClick);
+        // Обработка onClick на кнопке очистки статичного контета
+        $('#contStatClearBtn').click(blockItem.contStatClearBtnClick);
     }
     $('img.folderBtn').attr('src', blockItem.resUrl + folderImgSrc);
 
@@ -911,16 +925,6 @@ $(document).ready(function () {
             $('#' + name + 'Text').html(text);
         } // for
     } // if
-
-    $('#userAccessBtn').click(function () {
-        var url = utils.url({
-            contr:'biUserAccess',
-            query:{
-                blockItemId:blockItem.id
-            }
-        });
-        utils.go(url);
-    });
 
     // func. $.ready
 });

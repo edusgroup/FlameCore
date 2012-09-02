@@ -57,12 +57,11 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         // Важный параметр. Есть ли у компонента разделение на таблицу
         $onlyFolder = (int)$itemData['onlyFolder'];
         self::setVar('onlyfolder', $onlyFolder);
-
         $acId = self::getInt('acid', '');
         self::setVar('acId', $acId);
 
-        self::setVar('acParent', (int)($itemData['acId'] == $acId));
-
+        $isLock = self::getInt('islock');
+        self::setVar('isLock', $isLock);
 		// Тип класса по умолчанию
         $classType = 'core';
 

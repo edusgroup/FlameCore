@@ -15,7 +15,12 @@ class table extends adapter\adapter {
     
     public function __construct($pTable=''/*, $pDBHandle=null*/){
        // self::setConnect($pDBHandle);
+       self::setTable($pTable);
+    }
+
+    public function setTable($pTable){
         $this->sTable = $pTable ? self::escape($pTable) : $this::TABLE;
+        // func. setTable
     }
     
     /**
@@ -161,9 +166,10 @@ class table extends adapter\adapter {
         return $this;
     }
 
-    public function union(){
+    public function union($pTable=''){
         $this->sSQL .= ') UNION (';
         $this->isUserUnion = true;
+        self::setTable($pTable);
         return $this;
     }
     
