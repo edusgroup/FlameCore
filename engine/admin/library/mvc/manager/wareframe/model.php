@@ -137,7 +137,7 @@ class model {
                 $blockLinkOrm->saveExt(
                     ['wfId' => $pWfId,
                     'blockId' => $blockId,
-                    'acId'=>$pAcId],
+                    'acId'=>(int)$pAcId],
                     ['linkMainId'=>$val->linkMainId,
                     'linkBlockId'=>$val->linkBlockId]
                 );

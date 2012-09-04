@@ -915,7 +915,7 @@ var wareframeMvc = (function(){
         // Получаем ID ветки основного дерева блоков
         var blockBrunchId = blockTree.getSelectedItemId();
         // Меняем картинка ветки на линковую ветку
-        var filename = wareframeData.wfId ? 'linka.gif' : 'linkw.gif';
+        var filename = wareframeData.acId ? 'linka.gif' : 'linkw.gif';
         blockTree.setItemImage(blockBrunchId, filename);
         // Устанавливаем тип ветки на линк
         blockTree.setUserData(blockBrunchId, 'type', FOLDER_LINK);
