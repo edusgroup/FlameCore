@@ -1,12 +1,15 @@
 <?
-
 namespace admin\library\mvc\manager\site;
 
 // Engine
 use core\classes\filesystem;
 use core\classes\mvc\controllerAbstract;
+
 // Conf
 use \DIR;
+
+// ORM
+use ORM\sitelist as sitelistOrm;
 
 /**
  * Страница Выбор файла
@@ -21,8 +24,8 @@ class site extends controllerAbstract {
 	public function indexAction(){
 
         $siteList = [];
-        $siteList['list'] = filesystem::dir2array(DIR::SITE_CORE);
-
+        // Получаем список доступных сайтов
+        $siteList['list'] = (new sitelistOrm())->selectList('name', 'name');
         self::setVar('siteList', $siteList);
 
         $this->view->setBlock('panel', 'block/site.tpl.php');
@@ -30,5 +33,5 @@ class site extends controllerAbstract {
         // func. indexAction
 	}
 
-// class test
+// class site
 }
