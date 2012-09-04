@@ -609,7 +609,7 @@ var wareframeMvc = (function(){
         var childCount = pBlockTree.hasChildren(pItemId);
         for (var index = 0; index < childCount; index++) {
             var childItem = pBlockTree.getChildItemIdByIndex(pItemId, index);
-            if (pBlockTree.getUserData(childItem, 'type') != 0) {
+            if (pBlockTree.getUserData(childItem, 'type') != FOLDER_EMPTY) {
                 alert('Папка не пуста');
                 return false;
             } // if
