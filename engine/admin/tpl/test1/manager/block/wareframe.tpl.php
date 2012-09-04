@@ -796,7 +796,7 @@ var wareframeMvc = (function(){
         var blockId = blockTree.getSelectedItemId();
         var fileId = blockTree.getUserData(blockId, 'fileId');
         var blockType = blockTree.getUserData(blockId, 'type');
-        if (blockType != undefined && blockType != FOLDER_FREE && blockType != FOLDER_TPL) {
+        if (blockType != undefined && blockType != FOLDER_EMPTY && blockType != FOLDER_TPL) {
             alert('Выберите пустой блок');
             return;
         } // if
@@ -937,7 +937,7 @@ var wareframeMvc = (function(){
     function linkItemFancyBeforeLoadWf(){
         var blockBrunchId = blockTree.getSelectedItemId();
         var type = blockTree.getUserData(blockBrunchId, 'type');
-        if ( type != FOLDER_LINK && type != FOLDER_FREE ){
+        if ( type != FOLDER_LINK && type != FOLDER_EMPTY){
             alert('Выбрана не ссылка или не пустая папка');
             return false;
         } // if
@@ -961,7 +961,7 @@ var wareframeMvc = (function(){
     function linkItemFancyBeforeLoadAc(){
         var blockBrunchId = blockTree.getSelectedItemId();
         var type = blockTree.getUserData(blockBrunchId, 'type');
-        if ( type != FOLDER_LINK && type != FOLDER_FREE ){
+        if ( type != FOLDER_LINK && type != FOLDER_EMPTY ){
             alert('Выбрана не ссылка или не пустая папка');
             return false;
         } // if
