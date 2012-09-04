@@ -517,11 +517,6 @@ var wareframeMvc = (function(){
         // blockItemId - это выделенная папка в FS, куда мы добавляет папки
         var blockItemId = pData['id'];
 
-        // Разрешено ли писать в эту папку, файл
-        if (!isBlockRm(blockTree, blockItemId)) {
-            return;
-        }
-
         // Получаем тип данных
         var blockType = blockTree.getUserData(blockItemId, 'type');
 
@@ -792,8 +787,7 @@ var wareframeMvc = (function(){
             alert('Выберите файл');
             return;
         } // if
-        // Если ни какой блок не выбран, заставляем выбрать
-        var blockId = blockTree.getSelectedItemId();
+
         var fileId = blockTree.getUserData(blockId, 'fileId');
         var blockType = blockTree.getUserData(blockId, 'type');
         if (blockType != undefined && blockType != FOLDER_EMPTY && blockType != FOLDER_TPL) {
