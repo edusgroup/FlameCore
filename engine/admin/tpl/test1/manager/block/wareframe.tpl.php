@@ -788,6 +788,8 @@ var wareframeMvc = (function(){
             return;
         } // if
 
+        // Если ни какой блок не выбран, заставляем выбрать
+        var blockId = blockTree.getSelectedItemId();
         var fileId = blockTree.getUserData(blockId, 'fileId');
         var blockType = blockTree.getUserData(blockId, 'type');
         if (blockType != undefined && blockType != FOLDER_EMPTY && blockType != FOLDER_TPL) {
