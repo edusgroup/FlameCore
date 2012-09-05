@@ -12,6 +12,7 @@ class request {
 
     public static function get($pKey) {
         return isset(self::$paramList[$pKey]) ? self::$paramList[$pKey] : null;
+		// func. get
     }
 
     public static function init($pArgv) {
@@ -25,7 +26,9 @@ class request {
             unset(self::$paramList[$key]);
             list($varName, $varVal ) = $list;
             self::$paramList[$varName] = $varVal;
-        }
+        } // foreach
+		// func. init
     }
-
+	
+// class request
 }

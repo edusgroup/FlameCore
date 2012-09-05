@@ -28,6 +28,7 @@ use admin\library\mvc\comp\spl\objItem\event as eventObjItem;
  */
 class model {
     public static function urlTplChange($pListerUserData, $pEventBuffer, $pEventList) {
+	
         // Если были какие либо новые сохранениея, то у них пустой urlTpl
         $isArctileSave = $pEventBuffer->selectFirst(
             'id',

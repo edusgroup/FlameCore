@@ -168,7 +168,7 @@ class filesystem {
 
     public static function getName(string $pFilename){
         $list = explode('.', $pFilename);
-        $file = basename(array_shift($list));
+        $file = array_shift($list);
         return $file;
     }
 

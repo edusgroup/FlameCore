@@ -191,9 +191,11 @@ var wareframeMvc = (function(){
     // Буффер для новых линков, очищается при сохранении блоков
     var linkBlockBuff = {};
 
+	// Шаблон без компонентов, можно добивить новый шаблон или новые компоненты
     var FOLDER_FREE = 0;
     var FOLDER_COMP = 1;
     var FOLDER_TPL = 2;
+	// Шаблон без блоков в шаблоне, пустая папка
     var FOLDER_EMPTY = 3;
     var FOLDER_LINK = 4;
 
@@ -229,6 +231,7 @@ var wareframeMvc = (function(){
 
         // Проверка пустая ли папка
         if (type == FOLDER_FREE) {
+			alert('Блок и так пустой');
             return;
         } // if
 
@@ -576,7 +579,8 @@ var wareframeMvc = (function(){
             var name = pData['list'][blName];
             name = name ? name : blName;
             blockTree.insertNewItem(parentBrunchId, newId, name, null, "folderEmpty.gif", 0, 0, 'CHILD');
-            blockTree.setUserData(newId, 'type', FOLDER_EMPTY);
+			// Установливаем что в блоке больше компонентов нет и нет блоков
+            blockTree.setUserData(newId, 'type', FOLDER_FREE);
             blockTree.setUserData(newId, 'fileId', itemId);
             blockTree.setUserData(newId, 'blockName', blName);
         } // for
@@ -585,6 +589,7 @@ var wareframeMvc = (function(){
         blockTree.setUserData(itemId, 'fileId', pData['fileId']);
 
         if (emptyBlock) {
+			// Ветка без блоков
             blockTree.setUserData(newId, 'type', FOLDER_EMPTY);
             blockTree.setUserData(newId, 'blockName', 'empty');
             blockTree.setItemImage(newId, 'folderClosed.gif');
@@ -604,7 +609,7 @@ var wareframeMvc = (function(){
         var childCount = pBlockTree.hasChildren(pItemId);
         for (var index = 0; index < childCount; index++) {
             var childItem = pBlockTree.getChildItemIdByIndex(pItemId, index);
-            if (pBlockTree.getUserData(childItem, 'type') != FOLDER_EMPTY) {
+            if (pBlockTree.getUserData(childItem, 'type') != FOLDER_FREE) {
                 alert('Папка не пуста');
                 return false;
             } // if
@@ -792,7 +797,7 @@ var wareframeMvc = (function(){
         var blockId = blockTree.getSelectedItemId();
         var fileId = blockTree.getUserData(blockId, 'fileId');
         var blockType = blockTree.getUserData(blockId, 'type');
-        if (blockType != undefined && blockType != FOLDER_EMPTY && blockType != FOLDER_TPL) {
+        if (blockType != undefined && blockType != FOLDER_FREE && blockType != FOLDER_TPL) {
             alert('Выберите пустой блок');
             return;
         } // if
@@ -933,7 +938,7 @@ var wareframeMvc = (function(){
     function linkItemFancyBeforeLoadWf(){
         var blockBrunchId = blockTree.getSelectedItemId();
         var type = blockTree.getUserData(blockBrunchId, 'type');
-        if ( type != FOLDER_LINK && type != FOLDER_EMPTY){
+        if ( type != FOLDER_LINK && type != FOLDER_FREE){
             alert('Выбрана не ссылка или не пустая папка');
             return false;
         } // if
@@ -957,7 +962,7 @@ var wareframeMvc = (function(){
     function linkItemFancyBeforeLoadAc(){
         var blockBrunchId = blockTree.getSelectedItemId();
         var type = blockTree.getUserData(blockBrunchId, 'type');
-        if ( type != FOLDER_LINK && type != FOLDER_EMPTY ){
+        if ( type != FOLDER_LINK && type != FOLDER_FREE ){
             alert('Выбрана не ссылка или не пустая папка');
             return false;
         } // if

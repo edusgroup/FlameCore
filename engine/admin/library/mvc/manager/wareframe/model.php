@@ -409,9 +409,11 @@ class model {
         // funct.saveBlockItem
     }
 
-    public static function changeBlockItemPosition($pPostion, $pNewIdList, integer $pAcId, $pBlockId) {
+    public static function changeBlockItemPosition($pPostion, $pNewIdList, $pAcId, $pBlockId) {
         if ( $pAcId ){
-            (new blockItemOrderOrm())->saveExt(['acId'=>$pAcId, 'blockId'=>$pBlockId], ['position'=>$pPostion]);
+			if ( $pPostion ){
+				(new blockItemOrderOrm())->saveExt(['acId'=>$pAcId, 'blockId'=>$pBlockId], ['position'=>$pPostion]);
+			} // if
         }else{
             $gridItemIdList = explode(',', $pPostion);
             $blockItem = new blockItem();
@@ -425,8 +427,8 @@ class model {
                 $blockItem->update('position=' . $i, 'id=' . $itemId, false)
                     ->comment(__METHOD__)
                     ->query();
-            }
-        }
+            } // for
+        } // if ($pAcId );
         // func. changeBlockItemPosition
     }
 

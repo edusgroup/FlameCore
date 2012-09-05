@@ -155,11 +155,13 @@ trait category{
 
         // Сохраняем превью изображения для статьи
         $prevImgUrl = self::post('prevImgUrl');
-        (new articleOrm())->update(['prevImgUrl' => $prevImgUrl,
-                            'seoKeywords' => $seoKeywords,
-                            'isCloaking' => trim($cloakingText) != '',
-                            'seoDescr' => $seoDescr]
-            , 'itemObjId=' . $objItemId);
+        (new articleOrm())->saveExt(
+				[ 'itemObjId' => $objItemId ]
+				,['prevImgUrl' => $prevImgUrl,
+				'seoKeywords' => $seoKeywords,
+				'isCloaking' => trim($cloakingText) != '',
+                'seoDescr' => $seoDescr]
+			);
 
         // TODO: добавить настройку фильтрации кода HTML
         //class_exists('admin\library\comp\spl\objItem\htmlvalid\full');

@@ -27,16 +27,18 @@ class nginx {
         $scriptFileBuffer = [];
         $varList = [];
 
-        // Получаем все переменне
-        $varIdList = $pRouteTree->selectAll(
-            'id',
-            'propType = 1 and isDel=0', 'brunchNum DESC, varCount'
-        );
+        // Получаем ID всех переменных т.е. все actionId которые выделены как переменная
+        $varIdList = $pRouteTree
+			->select('id')
+			->where('propType = 1 and isDel=0')
+			->order('brunchNum DESC, varCount')
+			->toList('id');
 
         $varIdListCount = count($varIdList);
         for ($i = 0; $i < $varIdListCount; $i++) {
             // Получаем URL для переменной, вдруг там еще есть переменные
-            $pathUrl = $pRouteTree->getActionUrlById((int) $varIdList[$i]['id']);
+			$actionId = (int) $varIdList[$i];
+            $pathUrl = $pRouteTree->getActionUrlById($actionId);
 
             // Regexp для location в конфиге
             $regexp = '';
@@ -55,24 +57,33 @@ class nginx {
                 $varName = $propType == 1 ? $name . '=$' . ($varCount++) . '&' : '';
                 $queryString .= $varName;
             } // for $j
-            
+
             // Смотрим, вдруг есть в папке с переменой, статичные блоки
-            $statFolderList = $pRouteTree->selectAll(
-                'name',
-                'propType = 0 and isDel=0 and tree_id='.$pathUrl[0]['treeId']
+            $statFolderList = $pRouteTree->selectList(
+                'name', 'name', 'propType = 0 and isDel=0 and tree_id='.$pathUrl[0]['treeId']
             );
+			
+			/* Debug info
+			foreach( $pathUrl as $item){
+				echo $item['name'].'/';
+			}
+			echo PHP_EOL;
+			echo 'F:'.(implode(',', $statFolderList));
+			echo PHP_EOL.PHP_EOL;
+			*/			
+
             // Если есть, то их нужно добавить перед конфигом nginx
             if ( $statFolderList ){
-                foreach( $statFolderList as $item ){
-                     $count = strlen($regexp) - strlen(self::REGEX_VARIBLE);
-                     $stRegexp = substr($regexp, 0, $count).$item['name'].'/';
+                foreach( $statFolderList as $name ){
+                    $count = strlen($regexp) - strlen(self::REGEX_VARIBLE);
+                    $stRegexp = substr($regexp, 0, $count).$name.'/';
                      
-                     $count = strlen($queryString) - strlen($varName);
-                     $stQueryString =  substr($queryString, 0, $count);
+                    $count = strlen($queryString) - strlen($varName);
+                    $stQueryString =  substr($queryString, 0, $count);
                      
-                     $count = strlen($scriptFile) - strlen($name);
-                     $stScriptFile = substr($scriptFile, 0, $count).$item['name'].'/';
-                     $varList[] = [
+                    $count = strlen($scriptFile) - strlen($name);
+                    $stScriptFile = substr($scriptFile, 0, $count).$name.'/';
+                    $varList[] = [
                         'regexp' => $stRegexp,
                         'scriptFile' => $stScriptFile,
                         'queryString' => $stQueryString
@@ -124,6 +135,8 @@ class nginx {
         $render->render();
         $nginxConfData = ob_get_clean();
         filesystem::saveFile(DIR::NGINX_CONF, $siteName . '.conf', $nginxConfData);
+		
+		exit;
         // func. createConf
     }
 // class nginx

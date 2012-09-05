@@ -74,6 +74,7 @@ class complist extends \core\classes\mvc\controllerAbstract {
 
         $contId = self::postInt('treeid', 0);
         $name = self::post('name');
+
         $contData = comp::getCompPropByContId($contId);
         $compId = self::postInt('compid');//$contData['compId'];
         $className = $contData['classname'];

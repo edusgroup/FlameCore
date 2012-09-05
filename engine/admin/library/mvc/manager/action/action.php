@@ -283,7 +283,7 @@ class action extends controllerAbstract {
         $contrList['list'][0]['id'] = '';
         self::setVar('contrList', $contrList);
 
-        if (isset($pLoadData['varName'])) {
+        if (isset($pLoadData['enable'])) {
             self::setVar('varName', $pLoadData['varName']);
             self::setVar('isRedir', $pLoadData['isRedir']);
             self::setVar('enable', $pLoadData['enable']);
