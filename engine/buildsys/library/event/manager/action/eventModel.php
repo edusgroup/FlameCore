@@ -168,9 +168,16 @@ class eventModel {
         $render->setVar('siteConf', SITE_DIR_CONF::SITE_CORE);
         $render->setVar('varList', $varListRender);
         $render->setVar('isUsecompContTree', $isUsecompContTree);
+        $render->setVar('controller', $propData['controller']);
 
         // Начинем создовать код
-        $codeBuffer = '<?php $time = microtime(true);';
+        $codeBuffer = '<?php $time = microtime(true);'.PHP_EOL;
+        // Если есть кастомный контроллер, мы его должны за инклюдить и вызывать его методы
+        if ( $propData['controller']){
+            $codeBuffer .= 'include(\''.SITE_DIR_CONF::SITE_CORE . 'core/logic/'.$propData['controller'].'\');'.PHP_EOL;
+            $codeBuffer .= '$bodyCustom = new bodyCustom(); $bodyCustom->onCreate();'.PHP_EOL;
+        } // if
+
         ob_start();
         $render->render();
         $codeBuffer .= ob_get_clean();
@@ -421,8 +428,12 @@ class eventModel {
             $blockFileList[':']['id']);
 
         // Данные блока Head
-
         $headData = self::getHeadData($pAcId);
+        // Если есть контроллер, мы должны добавить вызов метода onAfterHead
+        if ( $propData['controller']){
+            $headData .= '<? $bodyCustom->onAfterHead();?>';
+        } // if
+
         $tplBlockCreator->setHeadData($headData);
         unset($headData);
 
@@ -436,13 +447,15 @@ class eventModel {
         $tplBlockCreator->setBlockFileList($blockFileList);
         $tplBlockCreator->setBlockItemList($blockItemList);
         $tplBlockCreator->setBlockLinkList($blockLinkData);
-        //$tplBlockCreator->setBlockItemInitList($blockItemInitList);
 
         $tplBlockCreator->start($blockFileList[':']['file']);
 
         // Создаём php файл по шаблону
         $codeBuffer .= $tplBlockCreator->getCodeBuffer();
         $codeBuffer .= "<? echo '<!-- '.(microtime(true) - \$time).' -->'; ?>";
+        if ( $propData['controller'] ){
+            $codeBuffer .= '<?$bodyCustom->onDestroy();?>';
+        } // if
 
         return $codeBuffer;
         // func. createFileTpl

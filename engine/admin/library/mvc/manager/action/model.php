@@ -79,7 +79,7 @@ class model {
     public static function getRouteData(integer $pAcId) {
         $routeTree = new routeTree();
         $data = $routeTree->selectFirst('propType, robots', 'id='.$pAcId);
-        $return = array();
+        $return = [];
         if ( $data['propType'] == 2){
                 //self::loadPropFunc($id);
         }else{
@@ -89,7 +89,7 @@ class model {
              $return['varCount'] = $varCount;
         } // switch
         
-        return array($data, $return);
+        return [$data, $return];
     }
 
 }

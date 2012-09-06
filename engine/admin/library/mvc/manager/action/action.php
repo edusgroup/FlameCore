@@ -96,12 +96,10 @@ class action extends controllerAbstract {
         );
 
         switch ($propType) {
-            // Переменная
-            case 1:
+            case 1: // Переменная
                 $charPref = '$';
                 break;
-            // Функция
-            case 2:
+            case 2: // Функция
                 $charPref = '';
                 break;
             default :
@@ -134,14 +132,12 @@ class action extends controllerAbstract {
         eventsys::callOffline(
             event::URLTREE, event::ITEM_CRATE, null, $objJson['objId']
         );
-
+        // TODO: Сделать строками в БД сделать enum
         switch ($propType) {
-            // Переменная
-            case 1:
+            case 1: // Переменная
                 $charPref = '$';
                 break;
-            // Функция
-            case 2:
+            case 2: // Функция
                 $charPref = '';
                 break;
             default :
@@ -170,18 +166,18 @@ class action extends controllerAbstract {
         $id = self::postInt('id', -1);
 
         $routeTree = new routeTree();
+        // TODO: Сделать БД сделать enum: yes, no
         $routeTree->update('isDel=1', 'id=' . $id);
 
         eventsys::callOffline(
             event::URLTREE, event::ITEM_RM, null, $id
         );
 
-        self::setVar('json', ['id' => $id,
-                              'treeName' => self::post('treeName')]);
+        self::setVar('json', ['id' => $id, 'treeName' => self::post('treeName')]);
         // func. rmObjAction
     }
 
-    /*     * 3
+    /*
      * Сохраняем данные по action
      * @throws \Exception 
      */
@@ -226,8 +222,9 @@ class action extends controllerAbstract {
         model::saveRouteData($data, $acId);
 
         $robotsVal = self::post('robots', 'none');
-        (new routeTree())->update(['isSave' => 'yes',
-                                  'robots' => $robotsVal]
+        (new routeTree())->update(
+            ['isSave' => 'yes',
+            'robots' => $robotsVal]
             , 'id=' . $acId);
 
         // Соотношение пользователя
@@ -318,9 +315,9 @@ class action extends controllerAbstract {
         $this->view->setRenderType(render::JSON);
         $all = self::getInt('all');
         $acId = self::getInt('acId', -1);
-        if ($all){
+        if ($all) {
             (new routeTree())->update('isSave="yes"', 'id != 0');
-        }else{
+        } else {
             // ID экшена
             (new routeTree())->update('isSave="yes"', 'id=' . $acId);
         }

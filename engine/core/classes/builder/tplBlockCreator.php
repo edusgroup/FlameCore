@@ -15,7 +15,6 @@ class tplBlockCreator {
     private $blockItemList = null;
     // Список ссылок на другие блоки. Формат [{Текущий блок}]=[{Куда ссылается}]
     private $blockLinkList = null;
-    //private $blockItemInitList = null;
     private $blockId = -1;
     // Буффер Конечного созданного кода
     private $codeBuffer = '';
@@ -60,10 +59,6 @@ class tplBlockCreator {
         $this->blockLinkList = $pBlockLinkList;
         // func. setBlockLinkList
     }
-
-    /*public function setBlockItemInitList($pBlockItemInitList){
-        $this->blockItemInitList = $pBlockItemInitList;
-    }*/
 
     public function __get($pName) {
 
