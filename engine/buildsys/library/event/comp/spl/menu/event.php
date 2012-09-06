@@ -28,34 +28,37 @@ class event {
         if (!$isData) {
             return;
         }
+
         // Вытаскием все contId из таблицы compContTreeOrm, по которым были сохранения
         $menuIdList = $pEventBuffer
             ->select('userId as contId, cc.comp_id compId', 'eb')
             ->join(compContTreeOrm::TABLE.' cc', 'eb.userId=cc.id')
             ->where('eventName = "'.eventMenu::ACTION_SAVE.'" AND cc.isDel="no"')
             ->group('contId')
+            ->comment(__METHOD__)
             ->fetchAll();
 
         // Если есть из данных, обрабатываем
         if ( $menuIdList ){
             foreach( $menuIdList as $item ){
                 $contId = $item['contId'];
-                //$userData = unserialize($item['userData']);
 
                 // Получаем дерево меню
-                tree::setField(array( 'name', 'tree_id', 'id', 'link', 'nofollow', 'class'));
-                $compTree = tree::createTreeOfTable(
-                        new menuOrm(), 
-                        'contId='.$contId
-                );
+                // sortValue - должен быть на первом месте, иначе сортировка будет неверной
+                tree::setField(['sortValue', 'name', 'tree_id', 'id', 'link', 'nofollow', 'class']);
+                $compTree = tree::createTreeOfTable(new menuOrm(), 'contId='.$contId );
+                // Сортируем по полю sortValue
+                model::rSortTree($compTree);
                 // Сериализуем
                 $data = \serialize($compTree);
+
                 $saveDir = 'comp/'.$item['compId'] . '/' . $contId . '/';
                 $saveDir = DIR::getSiteDataPath($saveDir);
                 // Записываем в файл
                 filesystem::saveFile($saveDir, 'menu.txt', $data);
             } // foreach
-        }// if  
+        }// if
+
         // func. creatFileArray
     }
 // class event

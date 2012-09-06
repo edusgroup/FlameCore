@@ -117,7 +117,8 @@ class menu extends \core\classes\component\abstr\admin\comp {
         
         // ID элемента дерева меню, чьи данные обрабатываем
         $menuId = self::postInt('menuid');
-        
+        $sortValue = self::postInt('sortValue');
+
         eventCore::callOffline(
                 event::NAME, 
                 event::ACTION_SAVE, 
@@ -133,13 +134,14 @@ class menu extends \core\classes\component\abstr\admin\comp {
         $menuClass = self::postSafe('class');
         // Нужно ли ставить аттребут nofollow
         $menuNoFollow = (boolean) self::postInt('nofollow');
-        $data = array(
+        $data = [
             'link' => $menuLink,
             'nofollow' => $menuNoFollow,
             //'file' => $fileImg,
             'contId' => $contId,
-            'class' => $menuClass
-        );       
+            'class' => $menuClass,
+            'sortValue' => $sortValue
+        ];
 
         // Сохраняем данные по настройкам меню
         $menuOrm = new menuOrm();
@@ -171,10 +173,11 @@ class menu extends \core\classes\component\abstr\admin\comp {
         $menuId = self::getInt('menuid');
 
         $menuOrm = new menuOrm();
-        $data = $menuOrm->selectFirst('link, nofollow, class', 'id=' . $menuId);
+        $data = $menuOrm->selectFirst('link, nofollow, class, sortValue', 'id=' . $menuId);
         self::setVar('link', $data['link']);
         self::setVar('nofollow', $data['nofollow']);
         self::setVar('class', $data['class']);
+        self::setVar('sortValue', $data['sortValue']);
         $this->view->setMainTpl('menudata.tpl.php');
         // func. loadMenuDataAction
     }

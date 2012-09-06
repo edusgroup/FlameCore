@@ -127,97 +127,95 @@
 </div><!-- end panel right column -->
 
 <script type="text/javascript">
-
-    var menu = {
-        tree:{
-            menu:null,
-            data:{
-                menu:null
-            }
-        },
-        compid: <?= self::get('compId') ?>,
-        contid: <?= self::get('contId') ?>
+    var menuData = {
+        menuTreeJson: <?= self::get('menuTree') ?>,
+        contId: <?= self::get('contId') ?>,
+        compid: <?= self::get('compId') ?>
     }
 
-    var contrName = menu.contid;
+    var contrName = menuData.contId;
     var callType = 'comp';
     utils.setType(callType);
     utils.setContr(contrName);
     HAjax.setContr(contrName);
 
-    menu.saveClick = function () {
-        var menuId = menu.tree.menu.getSelectedItemId();
-        var data = $('#menuForm').serialize();
-        data += '&menuid=' + menuId;
-        //data += '&fileImg=' + menu.fileImg;
-        HAjax.saveData({data:data, methodType:'POST'});
-        return false;
-        // func. menu.saveClick
-    }
+    var menuMvc = (function () {
+        var options = {};
+        var tree = {
+            menu: null
+        };
 
-    menu.saveDataSuccess = function (pData) {
-        if (pData['error']) {
-            alert(pData['error']['msg']);
-            return;
+        function menuTreeBrunchClick(pMenuItemId, pMenuTree) {
+            var param = 'contid=' + menuData.contId + '&menuid=' + pMenuItemId;
+            var url = utils.url({method:'loadMenuData', query:param });
+            $('#menudata').load(url);
+            // func. menuTreeBrunchClick
         }
 
-        alert('Данные успешно сохранены');
-        // func. menu.saveDataSuccess
-    }
+        function initTrees() {
+            dhtmlxInit.init({
+                'menu':{
+                    tree:{id:'menuTree', json: menuData.menuTreeJson },
+                    dirAdd:{ url:{ method:'dirAdd'}, id:'#dirAdd' },
+                    rmObj:{ url:{ method:'rmObj'}, id:'#rmObj' },
+                    renameObj:{ url:{ method:'renameObj'}, id:'#rename' },
+                    clickEnd: menuTreeBrunchClick,
+                    enableDragAndDrop: true
+                }
+            });
+            tree.menu = dhtmlxInit.tree['menu'];
+            // func. initTrees
+        }
 
-    menu.tree.menuClick = function (pItemId, pTree) {
+        
+        function saveBtnClick(){
+            var menuId = tree.menu.getSelectedItemId();
+            var data = $(options.menuForm).serialize();
+            data += '&menuid=' + menuId;
+            HAjax.saveData({data:data, methodType:'POST'});
+            return false;
+            // func. saveBtnClick
+        }
 
-        var param = 'contid=' + menu.contid + '&menuid=' + pItemId;
-        var url = utils.url({method:'loadMenuData', query:param });
-        $('#menudata').load(url);
-        // func. menu.tree.menuClick
-    }
+        function cbSaveDataSuccess(pData) {
+            if (pData['error']) {
+                alert(pData['error']['msg']);
+                return;
+            }
+            alert('Данные успешно сохранены');
+            // func. menu.saveDataSuccess
+        }
+  
+        function init(pOptions) {
+            options = pOptions;
 
-    menu.tree.data.menu = {
-        tree:{
-            id:'menuTree',
-            json: <?= self::get('menuTree') ?>
-        },
-        dirAdd:{
-            url:{ method:'dirAdd'},
-            id:'#dirAdd'
-        },
-        rmObj:{
-            url:{ method:'rmObj'},
-            id:'#rmObj'
-        },
-        renameObj:{
-            url:{ method:'renameObj'},
-            id:'#rename'
-        },
-        clickEnd:menu.tree.menuClick
-    }
+            initTrees();
 
-    menu.selectFileClick = function () {
-        var menuId = menu.tree.menu.getSelectedItemId();
-        var urlWindow = utils.url({
-            method:'fileManager',
-            query:{menuid:menuId, type:'img'}
-        });
-        window.open(urlWindow, 'Выберите файл',
-            'width=800,height=600,scrollbars=yes,resizable=yes,location=no,status=yes,menubar=yes');
-    }
+            // Кнопка Назад
+            $(options.backBtn).attr('href', utils.url({
+                type:'manager',
+                contr:'complist'
+            }));
+            // Кнопка Сохранить
+            $(options.saveBtn).click(saveBtnClick);
+
+            HAjax.create({
+                saveData: cbSaveDataSuccess
+            });
+            // func. init
+        }
+
+        return {
+            init:init
+        }
+    })();
 
     $(document).ready(function () {
-        dhtmlxInit.init({'menu':menu.tree.data.menu});
-        menu.tree.menu = dhtmlxInit.tree['menu'];
-
-        // Кнопка Назад
-        $('#backBtn').attr('href', utils.url({
-            type:'manager',
-            contr:'complist'
-        }));
-        $('#saveBtn').click(menu.saveClick);
-
-        HAjax.create({
-            saveData:menu.saveDataSuccess
+        menuMvc.init({
+            backBtn:'#backBtn',
+            saveBtn:'#saveBtn',
+            menuForm: '#menuForm'
         });
+    }); // $(document).ready
 
-        // func. $(document).ready
-    });
 </script>

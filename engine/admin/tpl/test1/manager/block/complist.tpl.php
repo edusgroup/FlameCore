@@ -179,15 +179,6 @@
     comp.contUserUrl = function (){
         return '&compid=' + comp.tree.comp.getSelectedItemId();
     }
-    
-    /*comp.tree.contClick = function(){
-        var compId = comp.tree.comp.getSelectedItemId();
-        if ( comp.tree.comp.getUserData(compId, 'isTableBoxLoad') != 1 ){
-            return;
-        }
-        //var contId = comp.tree.cont.getSelectedItemId();
-        //$('#scriptBox').load(utils.url({method: 'tableBoxLoad', query: {'contid': contId}}));
-    }*/
 
     comp.tree.data.cont = {
         tree:{ id: 'contTree' }

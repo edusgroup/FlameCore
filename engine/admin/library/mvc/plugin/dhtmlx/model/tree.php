@@ -76,9 +76,9 @@ class tree {
      * @param mixed $pWhere условие отбора
      * @return array 
      */
-    public static function createTreeOfTable(table $pTable, $pWhere = array()) {
+    public static function createTreeOfTable(table $pTable, $pWhere = []) {
         if (\is_string($pWhere)) {
-            $where = $pWhere . ' AND id!=0';
+            $where = $pWhere.' AND id!=0';
         } else {
             $where = $pWhere;
             $where['id!'] = '0';

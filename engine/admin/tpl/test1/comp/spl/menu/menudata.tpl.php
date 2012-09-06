@@ -10,11 +10,5 @@
     nofollow
 </div>
 
-<script type="text/javascript">
-    
-    $(document).ready(function(){
-
-    });
-    
-    
-</script>
+<div class="dt">Sort Value:</div>
+<div class="dd"><?= self::text('name="sortValue"', self::get('sortValue', 0)) ?></div>
