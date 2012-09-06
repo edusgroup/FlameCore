@@ -96,8 +96,8 @@ class eventModel {
                 $acProp = $urlTreePropVar->selectFirst('*', 'acId=' . $acItem['id']);
                 // Если ничего не найдено, выходим из обработки
                 if ($acProp['varType'] == varibleModel::VARR_TYPE_NONE) {
-                    echo "\tError(".__METHOD__."): Not set varible properties in action. AcId: {$acItem['id']}" . PHP_EOL;
-                    echo "\tSee: URL '?\$t=manager&\$c=action' and set put varible type in Varbile settings".PHP_EOL;
+                    echo "\tError(" . __METHOD__ . "): Not set varible properties in action. AcId: {$acItem['id']}" . PHP_EOL;
+                    echo "\tSee: URL '?\$t=manager&\$c=action' and set put varible type in Varbile settings" . PHP_EOL;
                     exit;
                 }
 
@@ -145,11 +145,11 @@ class eventModel {
                         $nsClassMethod = comp::getFullCompClassName(
                             $varCompData['classType'],
                             $varCompData['ns'],
-                            'vars\\'.$acProp['storageType'],
+                            'vars\\' . $acProp['storageType'],
                             $className);
                         $nsClassMethod .= '::' . $varCompData['methodName'];
 
-                        if ( !$varCompData['contId'] ){
+                        if (!$varCompData['contId']) {
                             echo "NOTICE(" . __METHOD__ . ")" . PHP_EOL . "\tIn varible not set contId AcId: {$acItem['id']}" . PHP_EOL;
                         }
 
@@ -165,7 +165,7 @@ class eventModel {
         $render->setMainTpl('index.tpl.php')
             ->setContentType(null);
 
-        $render->setVar('siteConf', SITE_DIR_CONF::SITE_CORE );
+        $render->setVar('siteConf', SITE_DIR_CONF::SITE_CORE);
         $render->setVar('varList', $varListRender);
         $render->setVar('isUsecompContTree', $isUsecompContTree);
 
@@ -187,13 +187,13 @@ class eventModel {
             ->order('file_id, id')
             ->comment(__METHOD__)
             ->fetchAll();
-        if ( !$wfArr){
+        if (!$wfArr) {
             return "WF[$wfId] is empty";
         }
 
         $blockFileList = [];
         // Бегаем по блокам WF, строим удобный для нас массив
-        // $blockFileList[blockId] = [file="", id=""]
+        // Строим нечто такое: $blockFileList[blockId] = [file="", id=""]
         foreach ($wfArr as $item) {
             $blockId = $item['block'] . ':' . $item['file_id'];
             $blockFileList[$blockId] = [
@@ -213,10 +213,10 @@ class eventModel {
 
         // Сортировка данных для следующего запроса
         $orderPrefix = '';
-        $position = (new blockItemOrderOrm())->selectList('position', 'position', ['acId'=>$pAcId]);
+        $position = (new blockItemOrderOrm())->selectList('position', 'position', ['acId' => $pAcId]);
         $position = implode(',', $position);
-        if ( $position ){
-            $orderPrefix = 'field(t.id, '.$position.'),';
+        if ($position) {
+            $orderPrefix = 'field(t.id, ' . $position . '),';
         }
 
         /*
@@ -231,26 +231,31 @@ class eventModel {
         */
         $blockItemArr = $blockItem->sql(
             'SELECT * FROM (
-    (SELECT '.$selectField.' FROM '.blockItem::TABLE.' bi
-        LEFT OUTER JOIN '.blockItemSettings::TABLE.' bis  ON bis.blockItemId = bi.id
-        JOIN '.componentTree::TABLE.' c  ON bi.compId = c.id
-        WHERE bi.wf_id = '. $wfId .' AND (bi.acId IS NULL OR bi.acId = ' . $pAcId . '))
+    (SELECT ' . $selectField . ' FROM ' . blockItem::TABLE . ' bi
+        LEFT OUTER JOIN ' . blockItemSettings::TABLE . ' bis  ON bis.blockItemId = bi.id
+        JOIN ' . componentTree::TABLE . ' c  ON bi.compId = c.id
+        WHERE bi.wf_id = ' . $wfId . ' AND (bi.acId IS NULL OR bi.acId = ' . $pAcId . '))
     UNION
-        (SELECT '.$selectField.' FROM '.blockLinkOrm::TABLE .' bl
-        LEFT OUTER JOIN '.urlTreePropVar::TABLE.' utp ON utp.acId = bl.linkMainId
-        JOIN '.blockItem::TABLE.' bi ON ((bl.acId = 0 AND bi.wf_id = bl.linkMainId) OR (bl.acId != 0 AND bi.wf_id = utp.wf_id)) AND bi.block_id = bl.linkBlockId
-        LEFT OUTER JOIN '.blockItemSettings::TABLE.' bis ON bis.blockItemId = bi.id
-        JOIN '.componentTree::TABLE.' c ON bi.compId = c.id
-        WHERE bl.wfId = '. $wfId .')) t
-            ORDER BY '.$orderPrefix.' t.position')
-         ->comment(__METHOD__)
+        (SELECT ' . $selectField . ' FROM ' . blockLinkOrm::TABLE . ' bl
+        LEFT OUTER JOIN ' . urlTreePropVar::TABLE . ' utp ON utp.acId = bl.linkMainId
+        JOIN ' . blockItem::TABLE . ' bi ON ((bl.acId = 0 AND bi.wf_id = bl.linkMainId) OR bl.acId ='.$pAcId.') AND bi.block_id = bl.linkBlockId
+        LEFT OUTER JOIN ' . blockItemSettings::TABLE . ' bis ON bis.blockItemId = bi.id
+        JOIN ' . componentTree::TABLE . ' c ON bi.compId = c.id
+        WHERE bl.wfId = ' . $wfId . ')) t
+            ORDER BY ' . $orderPrefix . ' t.position')
+            ->comment(__METHOD__)
             ->fetchAll();
+        /*
+        После этого запроса, у нас в $blockItemArr содержится все блоки и линки на блоки, которые были
+        когда сохранены в wareframe и action-wf
+        */
 
+        // Создаём доп буфферы
         $blockItemList = [];
         $blockItemInitList = [];
         $sysnameNum = 0;
 
-        // Бегаем по настройкам блоков
+        // Бегаем по настройкам блоков, которые получили из большого запроса
         foreach ($blockItemArr as $item) {
             // Если компонент был удалён, то пишем ошибку и берём следующий компонент
             if (!$item['compId']) {
@@ -380,7 +385,7 @@ class eventModel {
             ];
         } // foreach
 
-        $blockLinkData = (new blockLinkOrm())->selectAll('blockId, linkBlockId', 'wfId='.$wfId);
+        $blockLinkData = (new blockLinkOrm())->selectAll('blockId, linkBlockId', 'wfId=' . $wfId);
         $blockLinkData = arrays::dbQueryToAssoc($blockLinkData, 'blockId', 'linkBlockId');
 
         // =====================================================================
@@ -398,8 +403,8 @@ class eventModel {
         // получаем значение выставленных переменных для шаблонов сайта
         $tplVarList = (new tplvarOrm())->sql('select * from (
               select name, value
-              from '.tplvarOrm::TABLE.'
-              where acid='.$pAcId.' or acid is null
+              from ' . tplvarOrm::TABLE . '
+              where acid=' . $pAcId . ' or acid is null
               order by acid desc
               ) t
               group by t.name')->fetchAll();
@@ -522,12 +527,13 @@ CODE_STRING;
             } // ofr
         } // foreach
         // Если ни какого кода нет, то не делает try..catch
-        if ( $codeBuffer ){
-        $codeBuffer = 'try{'.$codeBuffer;
-        $codeBuffer .= "}catch(Exception \$ex){
+        if ($codeBuffer) {
+            $codeBuffer = 'try{' . $codeBuffer;
+            $codeBuffer .= "}catch(Exception \$ex){
     header('Status: 502 Internal Server Error');
     exit;
-}";}
+}";
+        }
         return $codeBuffer;
         // func. _getInitClassCode
     }
@@ -549,8 +555,8 @@ CODE_STRING;
             ->where('s.acId=' . $pAcId)
             ->comment(__METHOD__)
             ->fetchFirst();
-        if ( !$seoData ){
-            return '<!-- '.__METHOD__.'() | No DATA -->';
+        if (!$seoData) {
+            return '<!-- ' . __METHOD__ . '() | No DATA -->';
         }
         // Заголовок
         $title = $seoData['title'];
