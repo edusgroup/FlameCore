@@ -21,12 +21,14 @@ use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 
 class event{
 
-    // Удаление данных из таблицы
+    // Удаление данных из таблицы objItem
     public static function rmItem($pListerUserData, $pEventBuffer) {
         $objItemOrm = new objItemOrm();
+        // Проверям есть ли что удалённого в таблице
         $delList = $objItemOrm->select('a.id, a.treeId, cc.comp_id', 'a')
             ->join(compContTreeOrm::TABLE . ' cc', 'cc.id = a.treeId')
             ->where('a.isDel=1')
+            ->comment(__METHOD__)
             ->fetchAll();
         if (!$delList) {
             return;
@@ -42,6 +44,7 @@ class event{
         $delListCount = count($delList);
         for ($i = 0; $i < $delListCount; $i++) {
             $delItem = $delList[$i];
+            // Собираем в буффер ID objItem которые были удалены
             $whereIdList .= ',' . $delItem['id'];
 
             // Удаляем загруженные файлы
@@ -54,6 +57,7 @@ class event{
             filesystem::rmdir($path);
         } // for($i)
 
+        // Убираем первую лишнюю запятую, до этого список $whereIdList выглядил типо такого: ,32,56,65
         $whereIdList = substr($whereIdList, 1);
 
         // Если в блоках в WF есть привязки по tableId к статьям, их нужно выставить в NULL
@@ -68,16 +72,16 @@ class event{
                      eb.tableId = NULL
                    WHERE
                      a.id in (' . $whereIdList . ')
-                     AND cc.comp_id='.$objItemCompId)->query();
+                     AND cc.comp_id='.$objItemCompId)->comment(__METHOD__)->query();
 
         (new oiCommentOrm())->sql('DELETE ac
                 FROM '.oiCommentOrm::TABLE.' ac
                 INNER JOIN '.compContTreeOrm::TABLE.' cc ON ac.objId = cc.id
                 WHERE
                  cc.isDel = 1
-                     AND ac.objId in (' . $whereIdList . ')')->query();
+                     AND ac.objId in (' . $whereIdList . ')')->comment(__METHOD__)->query();
 
-
+        // Удаляем по буфферу $whereIdList все ID которые были помечены на удаление
         $objItemOrm->delete('id in (' . $whereIdList . ')');
         // func. rmItem
     }
