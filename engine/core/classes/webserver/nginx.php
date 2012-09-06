@@ -36,10 +36,6 @@ class nginx {
 
         $varIdListCount = count($varIdList);
         for ($i = 0; $i < $varIdListCount; $i++) {
-            // Получаем URL для переменной, вдруг там еще есть переменные
-			$actionId = (int) $varIdList[$i];
-            $pathUrl = $pRouteTree->getActionUrlById($actionId);
-
             // Regexp для location в конфиге
             $regexp = '';
             // Название скрипта, который будет запускать
@@ -47,6 +43,10 @@ class nginx {
             // rewrite строка в конфиге
             $queryString = '';
             $varCount = 1;
+
+            // Получаем URL для переменной, вдруг там еще есть переменные
+			$actionId = (int) $varIdList[$i];
+            $pathUrl = $pRouteTree->getActionUrlById($actionId);
             $pathUrlCount = count($pathUrl);
             for ($j = $pathUrlCount - 1; $j >= 0; $j--) {
                 $name = $pathUrl[$j]['name'];
@@ -116,7 +116,6 @@ class nginx {
         $render->setVar('vars', $varList);
 
         $webCoreScript = DIR::getCoreScript();
-        //$webCoreScript = '/'.trim($webCoreScript, '/');
         $webCoreScript = rtrim($webCoreScript, '/');
 
         $siteName = SITE_CONF::NAME;
@@ -135,8 +134,6 @@ class nginx {
         $render->render();
         $nginxConfData = ob_get_clean();
         filesystem::saveFile(DIR::NGINX_CONF, $siteName . '.conf', $nginxConfData);
-		
-		exit;
         // func. createConf
     }
 // class nginx
