@@ -54,6 +54,7 @@ class event {
             $rssOrm,
             new compContTreeOrm(),
             $childList,
+            $childList,
             ['limit' => 10]
         );
         if (!$handleObjitem || $handleObjitem->num_rows == 0) {

@@ -50,9 +50,10 @@ class event {
             [articleOrm::TABLE],
             $sitemapOrm,
             new compContTreeOrm(),
+            $childList,
             $childList
         );
-        if ($handleObjitem && $handleObjitem->num_rows == 0) {
+        if (!$handleObjitem || $handleObjitem->num_rows == 0) {
             print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
             return;
         }

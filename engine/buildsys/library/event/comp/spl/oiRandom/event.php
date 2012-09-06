@@ -58,7 +58,18 @@ class event {
 
             $oiRandomOrm = new oiRandomOrm();
             // Получаем список детей в выбранной группе
-            $childList = $oiRandomOrm->selectList('selContId as contId', 'contId', 'contId=' . $rndObjItemProp['contId']);
+            $childList = $oiRandomOrm->selectList(
+                'selContId as contId',
+                'contId',
+                'contId=' . $rndObjItemProp['contId']
+            );
+
+            $buffTreeIdList = eventModelObjitem::getBuffTreeIdList(
+                $pEventBuffer,
+                $childList,
+                $rndObjItemProp['contId'],
+                eventoiRandom::ACTION_SAVE
+            );
 
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
@@ -66,8 +77,10 @@ class event {
                 $oiRandomOrm,
                 new compContTreeOrm(),
                 $childList,
+                $buffTreeIdList,
                 ['order'=>'rand()', 'limit'=>30*$rndObjItemProp['itemsCount']]
             );
+
             if (!$handleObjitem || $handleObjitem->num_rows == 0) {
                 print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
                 continue;

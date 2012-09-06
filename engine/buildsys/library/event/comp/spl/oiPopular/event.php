@@ -14,10 +14,12 @@ use ORM\tree\compContTree as compContTreeOrm;
 
 // Event comp
 use admin\library\mvc\comp\spl\oiPopular\event as eventoiPopular;
+
 // Engine
 use core\classes\filesystem;
 use core\classes\image\resize;
 use core\classes\word;
+
 // Conf
 use \DIR;
 use \site\conf\SITE as SITE_CONF;
@@ -63,17 +65,30 @@ class event {
 
             // Получаем список детей в выбранной группе
             $oiPopularOrm = new oiPopularOrm();
-            $childList = $oiPopularOrm->selectList('selContId as contId', 'contId', 'contId=' . $oiPopularItemProp['contId']);
+            $childList = $oiPopularOrm->selectList(
+                'selContId as contId',
+                'contId',
+                'contId=' . $oiPopularItemProp['contId']
+            );
+
+            $buffTreeIdList = eventModelObjitem::getBuffTreeIdList(
+                $pEventBuffer,
+                $childList,
+                $oiPopularItemProp['contId'],
+                eventoiPopular::ACTION_SAVE
+            );
+
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
                 $objItemCatEvent::getTable(),
                 $oiPopularOrm,
                 new compContTreeOrm(),
                 $childList,
-                ['order' => 'dayCount desc, RAND()',
-                'limit' => $itemsCount]
+                $buffTreeIdList,
+                ['order' => 'dayCount desc, RAND()', 'limit' => $itemsCount]
             );
-            if ($handleObjitem && $handleObjitem->num_rows == 0) {
+
+            if (!$handleObjitem || $handleObjitem->num_rows == 0) {
                 print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
                 continue;
             }

@@ -70,7 +70,7 @@ class event {
                 'contId',
                 'contId='.$oiLasterItemProp['contId']);
 				
-			// Получаем все TreeId которые есть в буффере, это нужно для того
+			/*// Получаем все TreeId которые есть в буффере, это нужно для того
 			// что бы понять какие из oiList нужно перегенерить, без этого, генерилось бы 
 			// все oiList
 			$buffTreeIdList = $pEventBuffer->select('cc.treeId', 'eb')
@@ -88,7 +88,13 @@ class event {
 					$buffTreeIdList = $childList;
 				} // if $isSaveProp
 									
-			} // if ( !$buffTreeIdList )
+			} // if ( !$buffTreeIdList )*/
+            $buffTreeIdList = eventModelObjitem::getBuffTreeIdList(
+                    $pEventBuffer,
+                    $childList,
+                    $oiLasterItemProp['contId'],
+                    eventoiLaster::ACTION_SAVE
+            );
 				
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,

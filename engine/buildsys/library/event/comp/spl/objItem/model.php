@@ -36,7 +36,7 @@ class model {
      * Создаёт минипревью для изображения. Используется в агригирующих компонентах:<br/>
      * oiLaster, oiPopular
      */
-    public static function createMiniPreview($pObjItemObj, $pContId, $pCompId, $pImgPreviewWidth, $pFileNum, $pResizeType){
+    public static function createMiniPreview($pObjItemObj, $pContId, $pCompId, $pImgPreviewWidth, $pFileNum, $pResizeType) {
         // TODO: Надо как то реализовать через общее хранилище картинок
         // Что бы всё было через апи, что бы было межсерверно
 
@@ -45,7 +45,7 @@ class model {
         if ($pObjItemObj->prevImgUrl) {
             $imgFile = substr($pObjItemObj->prevImgUrl, 7 + 1 + strlen(SITE_CONF::NAME));
             // Формируем имя файла, в который будет сохранять картинку
-            $resizeFile = 'comp/'.$pCompId.'/'.$pContId.'/'.$pObjItemObj->treeId.'/'.word::idToSplit($pObjItemObj->id).'/';
+            $resizeFile = 'comp/' . $pCompId . '/' . $pContId . '/' . $pObjItemObj->treeId . '/' . word::idToSplit($pObjItemObj->id) . '/';
 
             $fileResizePath = DIR::getSiteImgResizePath();
             filesystem::mkdir($fileResizePath . $resizeFile);
@@ -56,7 +56,7 @@ class model {
             $resize->setType($pResizeType == 'prop' ? resize::PROPORTIONAL : resize::SQUARE);
             $resize->resize(DIR::getSiteRoot() . $imgFile, $fileResizePath . $resizeFile);
             //print $fileResizePath . $resizeFile." $pResizeType".PHP_EOL;
-            $pObjItemObj->prevImgUrl = DIR::getSiteImgResizeUrl() . $resizeFile.'?'.time();
+            $pObjItemObj->prevImgUrl = DIR::getSiteImgResizeUrl() . $resizeFile . '?' . time();
         } // if $pObjItemObj->prevImgUrl
         return $pObjItemObj;
         // func. createMiniPreview
@@ -95,11 +95,11 @@ class model {
      * @param tableDb $pTreeTableOrm таблица, где храниться записи, какие категории были выбраны в дереве
      * @param compContTreeOrm $compContTreeOrm дерево контента
      * @param array $childList список выделенных веток в дереве контента
-	 * @param array $buffTreeIdList список contId, которые попал в event буффер, т.е. нам нужны только те ветки, которые попадают в этот список
+     * @param array $buffTreeIdList список contId, которые попал в event буффер, т.е. нам нужны только те ветки, которые попадают в этот список
      * @param array $pQuery доп настройки
      * @return bool|\core\classes\DB\adapter\type
      */
-    public static function objItemChange(eventBufferOrm  $eventBufferOrm, array $pTableJoinList, tableDb $pTreeTableOrm, compContTreeOrm $compContTreeOrm, array $childList, array $buffTreeIdList, $pQuery = null) { 
+    public static function objItemChange(eventBufferOrm  $eventBufferOrm, array $pTableJoinList, tableDb $pTreeTableOrm, compContTreeOrm $compContTreeOrm, array $childList, array $buffTreeIdList, $pQuery = null) {
 
         $where = [];
         // Если не было изменений, в статьях,
@@ -114,35 +114,34 @@ class model {
             $parentList = array_map(function($pItem) {
                 return $pItem['id'];
             }, $parentList);*/
-			// Получаем рекурсивно все папки входящие в выбранные пользователем при настройках компонента
+            // Получаем рекурсивно все папки входящие в выбранные пользователем при настройках компонента
             self::_rGetChildList($pTreeTableOrm, $compContTreeOrm, $childList, $contId);
 
             //$where = array_merge($childList, $parentList);
         } // foreach
-        unset($parentList); 
-		
+        unset($parentList);
+
         // Когда все дети и родители получены можно просмотреть изменения Url Tpl
         $where = array_unique($childList);
         if (!$where) {
             return;
         }
-		
-		// ВАЖНЫЙ МОМЕНТ. У нас есть список всех веток выбранных пользователем в настройках и дети этих веток ($where)
-		// так же у нас есть список из event буффера ($buffTreeIdList) со списком contId по которым производились действия
-		// нам нужно понять, вообще эти списки пересекаются, а то может быть сохранения произошли не по тому списки, по которому 
-		// нам надо, для этого мы производим array_intersect, если пересечения есть, то в мы проверяем нужный нам список, если нет
-		// то это этот список нам не нужен, так как мы не в его юрисдикции
-		if ( !array_intersect($buffTreeIdList, $where)){
-			return;
-		}	
+
+        // ВАЖНЫЙ МОМЕНТ. У нас есть список всех веток выбранных пользователем в настройках и дети этих веток ($where)
+        // так же у нас есть список из event буффера ($buffTreeIdList) со списком contId по которым производились действия
+        // нам нужно понять, вообще эти списки пересекаются, а то может быть сохранения произошли не по тому списки, по которому
+        // нам надо, для этого мы производим array_intersect, если пересечения есть, то в мы проверяем нужный нам список, если нет
+        // то это этот список нам не нужен, так как мы не в его юрисдикции
+        if (!array_intersect($buffTreeIdList, $where)) {
+            return;
+        }
         /*$where = implode(',', $where);
-        $isCreate = $eventBufferOrm
-            ->select('userId', 'eb')
-            ->where('eventName = "' . eventObjitem::ACTOIN_CUSTOM_PROP_SAVE . '" AND userId in (' . $where . ')')
-            ->comment(__METHOD__)
-            ->fetchFirst();*/
-			
-		
+    $isCreate = $eventBufferOrm
+        ->select('userId', 'eb')
+        ->where('eventName = "' . eventObjitem::ACTOIN_CUSTOM_PROP_SAVE . '" AND userId in (' . $where . ')')
+        ->comment(__METHOD__)
+        ->fetchFirst();*/
+
 
         // Если изменений не было, может были измнения в статьях
         // К примеру Удаление статьи (eventObjitem::ACTION_DELETE)
@@ -162,9 +161,10 @@ class model {
         // Делаем выборку всех статей по детям выбранным в дереве sitemap
         $selectDefault = 'i.*, cc.seoName, cc.name category, cc.comp_id compId, DATE_FORMAT(i.date_add, "%Y-%m-%dT%h:%i+04:00") as dateISO8601';
 
-        foreach($pTableJoinList as $num=>$tableName){
-           $selectDefault .= ',a'.$num.'.*';
-        };
+        foreach ($pTableJoinList as $num => $tableName) {
+            $selectDefault .= ',a' . $num . '.*';
+        }
+        ;
 
         $select = isset($pQuery['select']) ? $pQuery['select'] : $selectDefault;
         $where = isset($pQuery['where']) ? $pQuery['where'] : 'i.isPublic="yes" AND i.isDel=0 AND i.treeId in (' . $where . ')';
@@ -172,8 +172,8 @@ class model {
         $limit = isset($pQuery['limit']) ? $pQuery['limit'] : null;
         $handleObjitem = (new objItemOrm())->select($select, 'i');
 
-        foreach($pTableJoinList as $num=>$tableName){
-            $handleObjitem->joinLeftOuter($tableName.' a'.$num, 'a'.$num.'.itemObjId=i.id');
+        foreach ($pTableJoinList as $num => $tableName) {
+            $handleObjitem->joinLeftOuter($tableName . ' a' . $num, 'a' . $num . '.itemObjId=i.id');
         }
 
         return $handleObjitem->join(compContTreeOrm::TABLE . ' cc', 'cc.id=i.treeId')
@@ -183,6 +183,29 @@ class model {
             ->comment(__METHOD__)
             ->query();
         // func. objItemChange
+    }
+
+    public static function getBuffTreeIdList($pEventBuffer, $childList, $itemPropContId, $pSaveActionName) {
+        // Получаем все TreeId которые есть в буффере, это нужно для того
+        // что бы понять какие из oiList нужно перегенерить, без этого, генерилось бы
+        // все oiList
+        $buffTreeIdList = $pEventBuffer->select('cc.treeId', 'eb')
+            ->join(objItemOrm::TABLE . ' cc', 'cc.id=eb.userId')
+            ->group('cc.treeId')
+            ->toList('treeId');
+        // Если данных в $buffTreeIdList нет, то скорей всего было сохранение по настройкам компонента
+        if (!$buffTreeIdList) {
+            // Проверяем были ли настройки компонента
+            $isSaveProp = $pEventBuffer->selectFirst(
+                'id',
+                ['eventName' => $pSaveActionName, 'userId' => $itemPropContId]
+            );
+            if ($isSaveProp) {
+                $buffTreeIdList = $childList;
+            } // if $isSaveProp
+
+        } // if ( !$buffTreeIdList )
+        return $buffTreeIdList;
     }
     // class. model
 }

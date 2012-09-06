@@ -16,6 +16,9 @@ use core\classes\filesystem;
 // Conf
 use \DIR;
 
+// Event
+use admin\library\mvc\comp\spl\oiList\event as eventOiList;
+
 // Model
 use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
 
@@ -44,10 +47,11 @@ class event {
 		// Получаем все TreeId которые есть в буффере, это нужно для того
 		// что бы понять какие из oiList нужно перегенерить, без этого, генерилось бы 
 		// все oiList
-		$buffTreeIdList = $pEventBuffer->select('cc.treeId', 'eb')
+		/*$buffTreeIdList = $pEventBuffer->select('cc.treeId', 'eb')
 		  			 ->join(objItemOrm::TABLE.' cc', 'cc.id=eb.userId')
 				     ->group('cc.treeId')
-					 ->toList('treeId');
+					 ->toList('treeId');*/
+
 
         // Бегаем по сохранённым oiList
         foreach ($contList as $oiListItemProp){
@@ -61,7 +65,19 @@ class event {
 
             // Получаем список детей в выбранной группе
             $oiListOrm = new oiListOrm();
-            $childList = $oiListOrm->selectList('selContId as contId', 'contId', 'contId=' . $oiListItemProp['contId']);
+            $childList = $oiListOrm->selectList(
+                'selContId as contId',
+                'contId',
+                'contId=' . $oiListItemProp['contId']
+            );
+
+            $buffTreeIdList = eventModelObjitem::getBuffTreeIdList(
+                $pEventBuffer,
+                $childList,
+                $oiListItemProp['contId'],
+                eventOiList::ACTION_SAVE
+            );
+
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
                 $objItemCatEvent::getTable(),
@@ -69,7 +85,7 @@ class event {
                 new compContTreeOrm(),
                 $childList,
 				$buffTreeIdList
-            ); // eventModelObjitem::objItemChange
+            );
 
 			// Директория к данным группы
             $saveDir = 'comp/' . $oiListItemProp['comp_id'] . '/' . $oiListItemProp['contId'] . '/';
@@ -81,7 +97,7 @@ class event {
 			}
 
             // Если данных нет, то переходим к след обработке oiList
-            if ($handleObjitem->num_rows == 0) {
+            if (!$handleObjitem || $handleObjitem->num_rows == 0) {
                 print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
                 continue;
             } // if
