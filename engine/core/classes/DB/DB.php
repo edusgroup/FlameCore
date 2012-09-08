@@ -8,8 +8,8 @@ namespace core\classes\DB;
  * @author Козленко В.Л.
  */
 class DB {
-    private static $list = array();
-    private static $handleList = array();
+    private static $list = [];
+    private static $handleList = [];
     
     
     public static function addParam($pName, $pConnOpt){

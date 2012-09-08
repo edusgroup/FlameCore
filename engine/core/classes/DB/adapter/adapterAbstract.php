@@ -12,7 +12,8 @@ abstract class adapterAbstract {
     const NAME = 3;
     const CHARSET = 4;
     
-    protected $connectionName = 'site';
+    //protected $connectionName = 'site';
+    protected $_handleName = '';
 
     /**
      * Разъединение соединение с базой

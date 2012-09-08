@@ -29,14 +29,21 @@ class adapter extends adapterAbstract {
         if ($this->getHandle()){
             $this->getHandle()->close();
         }
+        // func. disconnect
+    }
+
+    public function setHandleName($pHandleName){
+        $this->_handleName = $pHandleName;
+        // func. setHandle
     }
     
     public function getHandle(){
-        $handle = DBCore::getHandle($this->connectionName);
+        $handleName = $this->_handleName ?: 'site';
+        $handle = DBCore::getHandle($handleName);
         if ( !$handle ){
-            $param = DBCore::getParam($this->connectionName);
+            $param = DBCore::getParam($handleName);
             if ( !$param ){
-                die('Not use param: '.$this->connectionName.' in DB');
+                die('Not use param: '.$handleName.' in DB');
             }
             $handle = self::connect(
                     $param[self::HOST], 
@@ -45,9 +52,10 @@ class adapter extends adapterAbstract {
                     $param[self::NAME],  
                     $param[self::CHARSET]
                );
-            DBCore::addHandle($this->connectionName, $handle);
+            DBCore::addHandle($handleName, $handle);
         } // if
         return $handle;
+        // func. getHandle
     }
     
     public function affectedRows(){
