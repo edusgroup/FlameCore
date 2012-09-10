@@ -174,9 +174,10 @@ class eventModel {
         $codeBuffer = '<?php $time = microtime(true);'.PHP_EOL;
         // Если есть кастомный контроллер, мы его должны за инклюдить и вызывать его методы
         if ( $propData['controller']){
-            $codeBuffer .= 'include(\''.SITE_DIR_CONF::SITE_CORE . 'core/logic/'.$propData['controller'].'\');'.PHP_EOL;
-            $codeBuffer .= '$bodyCustom = new bodyCustom(); $bodyCustom->onCreate();'.PHP_EOL;
+            $controllerBody = 'include(\''.SITE_DIR_CONF::SITE_CORE . 'core/logic/'.$propData['controller'].'\');'.PHP_EOL;
+            $controllerBody .= '$bodyCustom = new bodyCustom(); $bodyCustom->onCreate();'.PHP_EOL;
         } // if
+		$render->setVar('controllerBody', $controllerBody, false);
 
         ob_start();
         $render->render();
@@ -431,7 +432,8 @@ class eventModel {
         $headData = self::getHeadData($pAcId);
         // Если есть контроллер, мы должны добавить вызов метода onAfterHead
         if ( $propData['controller']){
-            $headData .= '<? $bodyCustom->onAfterHead();?>';
+            $headData .= '<? $bodyCustom->onAfterHead(); ?>';
+			$tplBlockCreator->setBodyBeginHtml('<? $bodyCustom->onAfterBody(); ?>');
         } // if
 
         $tplBlockCreator->setHeadData($headData);

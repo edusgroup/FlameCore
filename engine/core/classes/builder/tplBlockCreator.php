@@ -24,6 +24,7 @@ class tplBlockCreator {
     private $scriptStaticData = '';
     private $scriptDynData = '';
     private $_varibleList = [];
+	private $afterBody = '';
 
     public function setHeadData($pData) {
         $this->headData = $pData;
@@ -72,22 +73,29 @@ class tplBlockCreator {
         return isset($this->_varibleList[$pName])?$this->_varibleList[$pName]:'';
         // func. varible
     }
+	
+	public function setBodyBeginHtml($pBodyBegin){
+		$this->bodyBegin = $pBodyBegin;
+		// func. setAfterBody
+	}
 
     protected function block($pName, $pTitle = '') {
-        if ($pName == 'head') {
-            echo $this->headData;
-            echo '<script>var dbus={};var importResList={"js":[],"css":[]};</script>';
-            return;
-        } else
-            if ($pName == 'scriptStatic') {
-                echo $this->scriptStatData;
-                return;
-            } else
-                if ($pName == 'scriptDyn') {
-                    echo $this->scriptDynData;
-                    return;
-                }
-
+		switch($pName){
+			case 'head':
+				echo $this->headData;
+				echo '<script>var dbus={};var importResList={"js":[],"css":[]};</script>';
+				return;
+			case 'scriptStatic':
+				echo $this->scriptStatData;
+				return;
+			case 'scriptDyn':
+				echo $this->scriptDynData;
+				return;
+			case 'bodyBegin': 
+				echo $this->bodyBegin;
+				return;
+		}
+ 
         $key = $pName . ':' . $this->blockId;
         // Проверяем может блок является ссылкой на другой блок, если да, то получаем новый номер блока
         $key = isset($this->blockLinkList[$key])?$this->blockLinkList[$key]:$key;

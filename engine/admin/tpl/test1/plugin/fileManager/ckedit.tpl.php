@@ -181,7 +181,7 @@
                 
                 switch (file.filterType) {
                     case 'img':
-                        SWFUploadSettings.file_types = '*.jpg;*.gif;*.png';
+                        SWFUploadSettings.file_types = '*.jpg;*.gif;*.png;*.jpeg';
                         SWFUploadSettings.file_types_description = "Image files";
                         break;
                     case 'flash':

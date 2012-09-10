@@ -18,6 +18,9 @@ include DIR::CORE.'core/classes/DB/adapter/mysql/adapter.php';
 DBCore::addParam('site', \site\conf\DB::$conf);
 
 session_start();
+
+<?=self::get('controllerBody', '');?>
+
 dbus::$user = isset($_SESSION['userData']) ? $_SESSION['userData'] : null;
 try{
 <?

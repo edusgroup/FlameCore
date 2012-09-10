@@ -19,7 +19,7 @@ class table extends adapter\adapter {
     }
 
     public function setTable($pTable){
-        $this->sTable = $pTable ? self::escape($pTable) : $this::TABLE;
+        $this->sTable = $pTable ? $pTable : $this::TABLE;
         // func. setTable
     }
     

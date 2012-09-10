@@ -43,7 +43,7 @@ class adapter extends adapterAbstract {
         if ( !$handle ){
             $param = DBCore::getParam($handleName);
             if ( !$param ){
-                die('Not use param: '.$handleName.' in DB');
+                throw new \Exception('Not use param: '.$handleName.' in DB');
             }
             $handle = self::connect(
                     $param[self::HOST], 
