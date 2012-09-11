@@ -62,7 +62,7 @@ class wareframe extends controllerAbstract {
         if ($blockId) {
             blockItem::validBlockId($blockId, new \Exception('Неверный формат block_id', 90));
             self::setVar('blId', $blockId);
-        }
+        } // if
 
         // Если action ID не задан, то отображем все элементы
         if (!$acId) {

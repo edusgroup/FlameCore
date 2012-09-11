@@ -7,6 +7,9 @@ use ORM\tree\componentTree;
 use ORM\tree\compContTree;
 use ORM\compprop as compPropOrm;
 
+// Engine
+use core\classes\validation\word;
+
 // Conf
 use \DIR;
 
@@ -20,6 +23,15 @@ class comp {
     const DEFAULT_VALUE = 'default';
 
     /**
+     * Тип файла: out - файл кастомный, создан исключительно под сайт
+     */
+    const FILE_OUT = 'user';
+    /**
+     * Тип файла: in - файл общий, создан и доступен для всех сайтов
+     */
+    const FILE_IN = 'in';
+
+    /**
      * Получение молного имени класса компонента
      * @static
      * @param $pType Тип данных: 'user' или ''
@@ -30,10 +42,26 @@ class comp {
      */
     public static function getFullCompClassName($pType, $pNs, $pDir, $pClassName) {
         $prefix = '';
-        if ($pType == 'user') {
+        if ($pType == self::FILE_OUT) {
             $prefix = 'site\\';
         }
         return $prefix . 'core\comp\\' . $pNs . $pDir . '\\' . $pClassName;
+    }
+
+    public static function getFileType($tplFile){
+        // Внешний ли это файл
+        $isTplFileOut = 0;
+        if ( substr($tplFile, 0, 3) == '[o]' ){
+            // Если внешний, то нужно убрать префикс с каждого файла
+            // Он был добавлен дл того что бы были разные ID в случае совпадения в out и в in
+            $tplFile = substr($tplFile, 3);
+            $isTplFileOut = 1;
+        } // if
+
+        // Убираем лишний слеш
+        $tplFile = substr($tplFile, 1);
+        return ['isOut'=>$isTplFileOut, 'file' => $tplFile];
+        // func. getFileType;
     }
 
     // Получение объекта по настройкам
@@ -154,6 +182,21 @@ class comp {
                           new \Exception('Component compId: ' . $pCompId . ' не найден', 238)
         );
         // func. getClassDataByCompIds
+    }
+
+    public static function getClassFullName($pClassFile, $pNs){
+        $classNameData = comp::getFileType($pClassFile);
+        $className = $classNameData['file'];
+        $className = substr($className, 0, strlen($className) - 4);
+        $className = str_replace('/', '\\', $className);
+        word::isNsClassName(
+            $className
+            , new \Exception('Bad Ns name: [' . __METHOD__ . '(className=>' . $className . ')]', 23)
+        );
+
+        $classType = $classNameData['isOut'] ? comp::FILE_OUT : comp::FILE_IN;
+        return comp::getFullCompClassName($classType, $pNs, 'logic', $className);
+        // func. getClassFullName
     }
 
     // class comp

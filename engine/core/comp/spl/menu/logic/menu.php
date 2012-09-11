@@ -18,9 +18,9 @@ use core\classes\render;
 class menu {
 
     public static function renderAction($pName) {
-        $std = dbus::$comp[$pName];
-        $compId = $std['compId'];
-        $contId = $std['contId'];
+        $comp = dbus::$comp[$pName];
+        $compId = $comp['compId'];
+        $contId = $comp['contId'];
         $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/menu.txt';
         $data = file_get_contents($file);
 
@@ -29,9 +29,9 @@ class menu {
             $menuTree = \unserialize($data);
         }
         if ($menuTree) {
-            $tpl = $std['tpl'];
-            $nsPath = $std['nsPath'];
-            $tplFile = DIR::TPL . 'comp/' . $nsPath;
+            $tpl = $comp['tpl'];
+            $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
+            $tplFile .= $comp['nsPath'];
             $render = new render($tplFile, '');
             $render->setVar('menuTree', $menuTree);
             $render->setMainTpl($tpl)

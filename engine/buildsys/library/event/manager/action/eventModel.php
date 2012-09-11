@@ -139,7 +139,6 @@ class eventModel {
                         }
                         // Название класса
                         $classFile = $varCompData['className'];
-
                         $className = filesystem::getName($classFile);
                         // Добавляем в буффер namespace classname и название метода
                         $nsClassMethod = comp::getFullCompClassName(
@@ -173,11 +172,12 @@ class eventModel {
         // Начинем создовать код
         $codeBuffer = '<?php $time = microtime(true);'.PHP_EOL;
         // Если есть кастомный контроллер, мы его должны за инклюдить и вызывать его методы
-        if ( $propData['controller']){
+        if ( $propData['controller'] ){
             $controllerBody = 'include(\''.SITE_DIR_CONF::SITE_CORE . 'core/logic/'.$propData['controller'].'\');'.PHP_EOL;
             $controllerBody .= '$bodyCustom = new bodyCustom(); $bodyCustom->onCreate();'.PHP_EOL;
+            $render->setVar('controllerBody', $controllerBody, false);
         } // if
-		$render->setVar('controllerBody', $controllerBody, false);
+
 
         ob_start();
         $render->render();
@@ -215,7 +215,7 @@ class eventModel {
         // В настройках храняться компоненты и их параметры
         $selectField = 'bi.id, c.ns, bi.sysname, bi.block_id, bi.compId, c.onlyFolder' .
             ',bis.tplFile, bis.classFile, bis.methodName' .
-            ',bi.userReg, bi.tplAccess, bis.custContId, bis.classType' .
+            ',bi.userReg, bi.tplAccess, bis.custContId' .
             ',bis.statId, bis.tableId, bis.varId, bis.varTableId, bi.position';
         //$selectField .= ',bi.name';
 
@@ -300,24 +300,21 @@ class eventModel {
             $sysname = $item['sysname'] ? : 'sys_' . $sysnameNum;
 
             // Имя класс-файла, выбранного в blockItem. Пример: /objItem.php
-            $className = $item['classFile'];
-            // Убераем символ "/" в начале и ".php", т.е. получаем чистое имя файла
-            $className = substr($className, 1, strlen($className) - 5);
-            // Заменяем все "/" на "\", т.е. делаем namespace+classname
-            $className = str_replace('/', '\\', $className);
-            // Добавляем пристовку namespace компонентов, ns name компонента + названия класса
-            $className = comp::getFullCompClassName($item['classType'], $item['ns'], 'logic', $className);
+            $className = comp::getClassFullName($item['classFile'], $item['ns']);
             $methodName = $item['methodName'];
             $callParam = '(\'' . $sysname . '\');';
 
             $nsPath = filesystem::nsToPath($item['ns']);
-            $tplFile = substr($item['tplFile'], 1);
 
+            $tplFileData = comp::getFileType($item['tplFile']);;
+            $tplFile = $tplFileData['file'];
+            $isTplFileOut = $tplFileData['isOut'];
             $urlTplListOrm = new urlTplListOrm();
             $urlTplList = $urlTplListOrm->selectAll('name, acId', 'blockItemId=' . $item['id']);
 
-            $codeTmp = "array(\n" .
+            $codeTmp = "[\n" .
                 "\t'tpl' => '$tplFile'," . PHP_EOL .
+                "\t'isTplOut' => $isTplFileOut,".PHP_EOL.
                 "\t'compId' => '{$item['compId']}'," . PHP_EOL .
                 "\t'nsPath' => '$nsPath'," . PHP_EOL;
 
@@ -332,7 +329,6 @@ class eventModel {
                     $codeTmp .= "\t'tplAccess' => '{$item['tplAccess']}'," . PHP_EOL;
                 } // if $item[userReg]
             } // if
-
 
             if ($item['varId']) {
                 $varName = $varIdtoName[$item['varId']];
@@ -382,10 +378,9 @@ class eventModel {
             } // if ($item['custContId'] || $item['statId'])
             // ---------------------------------------------------------------------------
 
-            $codeTmp .= ");\n";
+            $codeTmp .= "];\n";
 
             $blockItemInitList[$sysname][] = $codeTmp;
-
             $blockItemList[$blockId][] = [
                 'class' => $className,
                 'method' => $methodName,
@@ -414,8 +409,7 @@ class eventModel {
               from ' . tplvarOrm::TABLE . '
               where acid=' . $pAcId . ' or acid is null
               order by acid desc
-              ) t
-              group by t.name')->fetchAll();
+              ) t group by t.name')->fetchAll();
 
         $tplVarList = arrays::dbQueryToAssoc($tplVarList);
 
@@ -562,8 +556,8 @@ CODE_STRING;
         // Получаем даныне по сео. Настраиваются в Utils->SEO
         $seoData = (new seoOrm())
             ->select(
-            's.title, s.descr, s.keywords, bi.sysname name, s.linkNextUrl, '
-                . 's.linkNextTitle, c.ns, c.sysname, s.method, bis.classFile, bis.classType', 's')
+            's.title, s.descr, s.keywords, bi.sysname name, s.linkNextUrl, bi.id,'
+                . 's.linkNextTitle, c.ns, c.sysname, s.method, bis.classFile', 's')
             ->joinLeftOuter(blockItem::TABLE . ' bi', 'bi.id = s.blItemId')
             ->joinLeftOuter(componentTree::TABLE . ' c', 'c.id=bi.compId')
             ->joinLeftOuter(blockItemSettings::TABLE . ' bis', 'bis.blockItemId=bi.id')
@@ -592,9 +586,7 @@ CODE_STRING;
         ";
 
         if ($seoData['sysname']) {
-            $classFile = substr($seoData['classFile'], 1, strlen($seoData['classFile']) - 5);
-            $classFile = str_replace('/', '\\', $classFile);
-            $headData .= comp::getFullCompClassName($seoData['classType'], $seoData['ns'], 'logic', $classFile);
+            $headData .= comp::getClassFullName($seoData['classFile'], $seoData['ns']);
             $headData .= "::{$seoData['method']}('{$seoData['name']}', [" .
                 "'linkNextTitle'=>'{$seoData['linkNextTitle']}'," .
                 "'linkNextUrl'=>'{$seoData['linkNextUrl']}'" .
@@ -633,6 +625,8 @@ CODE_STRING;
         return $path;
         // func. getActionPath
     }
+
+
 
     // class eventModel
 }

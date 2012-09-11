@@ -70,8 +70,8 @@ class main {
 			self::$_paginationPageNum = $pageNum;
             $categoryUrlTpl = isset($comp['urlTpl']['category'])?$comp['urlTpl']['category']:'';
 
-            $nsPath = $comp['nsPath'];
-            $tplFile = DIR::TPL . 'comp/' . $nsPath;
+            $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
+            $tplFile .= $comp['nsPath'];
             (new render($tplFile, ''))
                 ->setVar('oiListData', $oiListData)
                 ->setVar('paginationList', self::$_paginationList)

@@ -28,8 +28,8 @@ class main {
         $splitId = word::idToSplit($objItemId);
         $commFile = DIR::APP_DATA . 'comp/' . $comp['compId'] . '/' . $comp['type'] . '/'. $splitId.'comm.html';
 
-        $nsPath = $comp['nsPath'];
-        $tplFile = DIR::TPL . 'comp/' . $nsPath;
+        $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
+        $tplFile .= $comp['nsPath'];
         $render = new render($tplFile, '');
         $render->setMainTpl($tpl)
                 ->setContentType(null)

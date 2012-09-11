@@ -32,8 +32,8 @@ class main {
         unset($data);
         if ($list) {
             $tpl = userUtils::getCompTpl($comp);
-            $nsPath = $comp['nsPath'];
-            $tplFile = DIR::TPL . 'comp/' . $nsPath;
+            $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
+            $tplFile .= $comp['nsPath'];
             (new render($tplFile, ''))
                 ->setVar('list', $list)
                 ->setMainTpl($tpl)

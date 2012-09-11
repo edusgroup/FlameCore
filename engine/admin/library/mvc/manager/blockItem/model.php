@@ -65,15 +65,35 @@ class model {
         // func. isBlockLink
     }*/
 
-    public static function getClassTree($pNs, $pClassType){
-        $siteClassPath = DIR::CORE;
-        if ( $pClassType == 'user' ){
-            $siteClassPath = SITE_DIR::SITE_CORE;
-        } // if
-        $siteClassPath .= comp::getFullCompClassName('', $pNs, 'logic', '');
-        $siteClassPath = filesystem::nsToPath($siteClassPath);
-        return dhtmlxTree::createTreeOfDir($siteClassPath);
+    public static function getClassTree($nsPath){
+        // Встроенные шаблоны для компонента для сайта
+        $classFilePath = DIR::getCoreScript().'comp/'.$nsPath.'logic/';
+        $treeInner = dhtmlxTree::createTreeOfDir($classFilePath);
+        $treeInner = array_merge($treeInner, ['id'=>'#in', 'text'=>'Встроеные', 'userdata'=>[['name'=>'type', 'content'=>dhtmlxTree::FOLDER]]]);
+        // Внешние шаблоны компонента для сайта
+        $classFilePath = DIR::getSiteClassCore($nsPath).'/logic/';
+        // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID
+        $treeOuter = dhtmlxTree::createTreeOfDir($classFilePath, '[o]');
+        $treeOuter = array_merge($treeOuter, ['id'=>'#out', 'text'=>'Внешние', 'userdata'=>[['name'=>'type', 'content'=>dhtmlxTree::FOLDER]]]);
+        $treeClass = ['id' => 0, 'item' => [$treeInner, $treeOuter]];
+        return $treeClass;
         // func. getClassTree
+    }
+
+    public static function getTplTree($nsPath){
+        // Встроенные шаблоны для компонента для сайта
+        $siteTplPath = DIR::getSiteCompTplPath($nsPath);
+        $treeInner = dhtmlxTree::createTreeOfDir($siteTplPath);
+        $treeInner = array_merge($treeInner, ['id'=>'#in', 'text'=>'Встроеные', 'userdata'=>[['name'=>'type', 'content'=>dhtmlxTree::FOLDER]]]);
+        // Внешние шаблоны компонента для сайта
+        $siteTplPath = DIR::getSiteCompTplOuter($nsPath);
+        // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID
+        $treeOuter = dhtmlxTree::createTreeOfDir($siteTplPath, '[o]');
+        $treeOuter = array_merge($treeOuter, ['id'=>'#out', 'text'=>'Внешние', 'userdata'=>[['name'=>'type', 'content'=>dhtmlxTree::FOLDER]]]);
+        $treeTpl = ['id'=>0, 'item'=>[$treeInner, $treeOuter]];
+        unset($treeInner, $treeOuter);
+        return $treeTpl;
+        // func. getTplTree
     }
 
     /**
@@ -82,25 +102,16 @@ class model {
      * @param integer $pBlockItemId block Item Id см. табл. blockItem
      * @return array
      */
-    public static function getSiteClassData(string $pClassFile, integer $pBlockItemId, string $pClassType) {
+    public static function getSiteClassData(string $pClassFile, integer $pBlockItemId) {
         // Если Класс не был выбран, возвращаем пустой массив
         if (!$pClassFile) {
             return [];
         }
-        // Убираем начальный слеш и окончание .php
-        // TODO: Заменить на норм обработку из класса word
-        $className = substr($pClassFile, 1, strlen($pClassFile) - 5);
-        $className = str_replace('/', '\\', $className);
-        word::isNsClassName(
-            $className
-            , new \Exception('Bad Ns name: [' . __METHOD__ . '(className=>' . $className . ')]', 23)
-        );
 
-        // Получаем информацию по компоненту
+        // Получаем информацию по компоненту, который указан для блока
         $itemData = self::getCompData($pBlockItemId);
-        //$className = '{user\}core\comp\\' . $itemData['ns'] . 'logic\\' . $className;
+        $classFullName = comp::getClassFullName($pClassFile, $itemData['ns']);
 
-        $classFullName = comp::getFullCompClassName($pClassType, $itemData['ns'], 'logic', $className);
         $compObj = new $classFullName();
 
         $methodList = get_class_methods($compObj);

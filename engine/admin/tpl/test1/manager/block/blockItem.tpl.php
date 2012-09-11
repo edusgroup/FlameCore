@@ -114,14 +114,6 @@
                         </a>
                     </div>
 
-                    <div class="dt">Тип класса</div>
-                    <div class="dd">
-                        <select name="classType" id="classType">
-                            <option value="core">Встроенный</option>
-                            <option value="user">Пользовательский</option>
-                        </select>
-                    </div>
-
                     <div class="dt">Класс компонента</div>
                     <div class="dd">
                         <a id="classBtn" href="#classDlg" class="btn">
@@ -192,7 +184,7 @@
 
 <div id="actionDlg" style="width:150px;height:150px; display: none"></div>
 
-<div id="classDlg" style="width:150px;height:150px; display: none"></div>
+<div id="classDlg" style="width:250px;height:350px; display: none"></div>
 
 <div id="contDlg" style="width:400px;height:150px; display: none">
     <div class="bothPanel" id="contTree">
@@ -648,26 +640,6 @@ var blockItemData = {
 }
 
 var blockItemMvc = (function () {
-    function classTypeObjChange(pEvent) {
-        // Очищаем текст возле папки
-        $('#' + options.classFileText).html('');
-        // Удаляем старое значение из памяти
-        blockItem.classFile = '';
-        // Ощичаем список старых методов по классу
-        $('#' + options.methodNameObj).find('option').remove();
-        // Удаляем все ненужные ветки
-        blockItem.tree.clss.deleteChildItems(0);
-        // Подгружаем новое дерево
-        HAjax.loadClassTree({
-            data:{
-                classType: pEvent.currentTarget.value,
-                blId: blockItemData.blId
-            }
-        });
-
-        // func. classTypeObjChange
-    }
-
     /**
      * OnDbClick по ветке в дереве классов. Выбор класса и подгрузка его методов
      */
@@ -687,24 +659,13 @@ var blockItemMvc = (function () {
         HAjax.loadClassMethod({
             query:{
                 'class': pItemId,
-                blockitemid: blockItemData.blId,
-                classType:  $('#' + options.classTypeObj).val()
+                blockitemid: blockItemData.blId
             }
         });
 
         // Закрываем диалоговое окно
         $.fancybox.close();
         // func. blockItem.classTreeDbClick
-    }
-
-    function loadClassTreeSuccess(pData) {
-        // Получае дерево контента
-        var classTree = blockItem.tree.clss;
-        // Очищаем старое дерево
-        classTree.deleteChildItems(0);
-        // Грузим новое дерево
-        classTree.loadJSONObject(pData['tree']);
-        // func. loadClassTreeSuccess
     }
 
     /**
@@ -750,10 +711,7 @@ var blockItemMvc = (function () {
     function init(pOptions) {
         options = pOptions;
 
-        $('#' + options.classTypeObj).change(classTypeObjChange);
-
         HAjax.create({
-            loadClassTree: loadClassTreeSuccess,
             loadClassMethod: loadClassMethodSuccess
         });
 
@@ -783,7 +741,6 @@ var blockItemMvc = (function () {
 $(document).ready(function () {
 
     blockItemMvc.init({
-        classTypeObj:'classType',
         classTreeBox:'classDlg',
         classFileText:'classFileText',
         methodNameObj:'methodName'
@@ -833,8 +790,6 @@ $(document).ready(function () {
             text += '/' + (blockItem.statName ? blockItem.statName : '[не найден]');
         }
         $('#statContText').html(text);
-
-        $('#classType').val(blockItem.saveData['classType']);
 
         // Загружуаем методы класса
         blockItemMvc.loadClassMethodSuccess(blockItem.classData);

@@ -32,7 +32,7 @@ class model {
     public static function getloadData($pAcId) {
         // Получаем сохранённые данные
         $seoData = (new seoOrm())->select(
-            's.title, s.descr, s.keywords, s.blItemId, s.method, bis.classFile, bis.classType'
+            's.title, s.descr, s.keywords, s.blItemId, s.method, bis.classFile'
                 . ', s.linkNextTitle, s.linkNextUrl, ct.ns', 's')
             ->joinLeftOuter(blockItemSettingsOrm::TABLE . ' bis', 'bis.blockItemId = s.blItemId')
             ->joinLeftOuter(blockItemOrm::TABLE . ' bi', 'bi.id = s.blItemId')
@@ -72,20 +72,14 @@ class model {
      * @return array
      */
     public static function getMethodListByBiId($pBlockItemId) {
-        $seoData = (new blockItemOrm())->select('bis.classFile, ct.ns, bis.classType', 'bi')
+        $seoData = (new blockItemOrm())->select('bis.classFile, ct.ns', 'bi')
             ->join(componentTreeOrm::TABLE . ' ct', 'ct.id = bi.compId')
             ->join(blockItemSettingsOrm::TABLE . ' bis', 'bis.blockItemId = bi.id')
             ->where('bi.id=' . $pBlockItemId)
             ->comment(__METHOD__)
             ->fetchFirst();
 
-        $className = substr($seoData['classFile'], 1, strlen($seoData['classFile']) - 5);
-        $className = str_replace('/', '\\', $className);
-        $className = comp::getFullCompClassName($seoData['classType'], $seoData['ns'], 'logic', $className);
-        //exit;
-        if (!class_exists($className)) {
-            new \Exception('Bad class name: [' . __METHOD__ . '(className=>' . $className . ')]', 23);
-        }
+        $className = comp::getClassFullName($seoData['classFile'], $seoData['ns']);
         $methodList = get_class_methods(new $className());
         $methodList = array_filter($methodList, function($pItem) {
             return substr($pItem, -3) === 'Seo';

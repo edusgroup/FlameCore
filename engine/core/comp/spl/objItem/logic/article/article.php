@@ -19,9 +19,9 @@ use core\classes\render;
  */
 class article {
 
-    public static $urlTplList = array(
+    public static $urlTplList = [
         'category' => null
-    );
+    ];
 
     public static function renderAction($pName) {
         $comp = dbus::$comp[$pName];
@@ -33,9 +33,10 @@ class article {
         // Получаем шаблон для статьи
         $tpl = userUtils::getCompTpl($comp);
 
-        $nsPath = $comp['nsPath'];
         // Директорию, где храняться шаблоны компонента
-        $tplFile = DIR::TPL . 'comp/' . $nsPath;
+        // Кастомный ли это шаблон или нет
+        $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
+        $tplFile .= $comp['nsPath'];
         $render = new render($tplFile, '');
         // Настройки статьи
         $render->setVar('infoData', $infoData);

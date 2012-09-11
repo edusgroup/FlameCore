@@ -62,19 +62,20 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
 
         $isLock = self::getInt('islock');
         self::setVar('isLock', $isLock);
-		// Тип класса по умолчанию
-        $classType = 'core';
 
         $blockItemSettings = new blockItemSettings();
         // Загружаем сохранённые настройки
         $saveData = $blockItemSettings->selectFirst('*', 'blockItemId=' . $blockItemId);
         if ($saveData) {
-            $classType = $saveData['classType'];
+
             // Загрузаем методы класса компонента
-            $classData = model::getSiteClassData($saveData['classFile'], $blockItemId, $classType);
+            $classData = model::getSiteClassData($saveData['classFile'], $blockItemId);
             self::setJson('classData', $classData);
+
             $tableOrm = null;
             if ($onlyFolder && isset($saveData['statId'])) {
+                // По id из URL мы еще выше взяли данные по компоненту, что бы 100 раз не дёргать БД
+                // вынесли все данные по объекту который редактируем в глобальный массив $gObjProp
                 global $gObjProp;
                 $gObjProp = comp::getCompContProp((int)$saveData['statId']);
                 $contrObj = comp::getCompObject($gObjProp);
@@ -94,11 +95,10 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         self::setJson('saveData', $saveData);
 
         // Получаем дерево контента
-        $tree = dhtmlxTree::createTreeOfTable(
+        $contTree = dhtmlxTree::createTreeOfTable(
             new compContTree(),
-            ['comp_id' => $itemData['compId'],
-            'isDel' => 'no']);
-        self::setJson('contTree', $tree);
+            ['comp_id' => $itemData['compId'], 'isDel' => 'no']);
+        self::setJson('contTree', $contTree);
 
         // Получаем дерево Action, только с обычными папка и переменными
         dhtmlxTree::setField(['propType']);
@@ -109,16 +109,14 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         dhtmlxTree::clear();
         self::setJson('actionTree', $tree);
 
-
         $nsPath = filesystem::nsToPath($itemData['ns']);
 
-        $tree = model::getClassTree($itemData['ns'], $classType);
+        $tree = model::getClassTree($nsPath);
         self::setJson('classTree', $tree);
 
         // Дерево с шаблонами сайта для компонента
-        $siteTplPath = DIR::getSiteCompTplPath($nsPath);
-        $tree = dhtmlxTree::createTreeOfDir($siteTplPath);
-        self::setJson('tplTree', $tree);
+        $treeTpl = model::getTplTree($nsPath);
+        self::setJson('tplTree', $treeTpl);
 
         if ($acId) {
             $routeTree = new routeTree();
@@ -130,8 +128,6 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             } // if
         } // if ($acId)
 
-        self::setVar('typeCont', 1);
-
         if ($saveData) {
             $urlTplListOrm = new urlTplListOrm();
             $urlTplArr = $urlTplListOrm->selectAll('name, acId', 'blockItemId=' . $blockItemId);
@@ -141,7 +137,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
                 if (in_array($name, $classData['urlTpl'])) {
                     $urlTplList[$name] = $item['acId'];
                 }
-            }
+            } // foreach
             self::setJson('urlTplList', $urlTplList);
         } // if
 
@@ -158,9 +154,8 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         // Название класса
         $classFile = self::get('class');
         $blockItemId = self::getInt('blockitemid');
-        $classType = self::get('classType');
         // Получаем методы класа
-        $classData = model::getSiteClassData($classFile, $blockItemId, $classType);
+        $classData = model::getSiteClassData($classFile, $blockItemId);
 
         self::setVar('json', $classData);
         // func. loadClassMethodAction
@@ -200,7 +195,6 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $saveData = [
             'blockItemId' => $blockItemId,
             'tplFile' => self::post('tplFile'),
-            'classType' => self::post('classType'),
             'classFile' => self::post('classFile'),
             'methodName' => self::post('methodName'),
             // Данные по статичному контенту
@@ -228,12 +222,12 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
                 $contId = isset($contList[$i]['contid']) ? (int)$contList[$i]['contid'] : '';
                 $tableId = isset($contList[$i]['tableid']) ? (int)$contList[$i]['tableid'] : '';
 
-                $saveData = array(
+                $saveData = [
                     'blockItemId' => $blockItemId,
                     'regexp' => $regxList[$i],
                     'contId' => $contId,
                     'tableId' => $tableId
-                );
+                ];
                 $blockItemRegxUrl->insert($saveData);
             } // foreach
         } // if is_array
@@ -289,16 +283,6 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $this->view->setBlock('panel', 'block/blockItemCusSett.tpl.php');
         $this->view->setMainTpl('main.tpl.php');
         // func. customSettingsAction
-    }
-
-    public function loadClassTreeAction(){
-        $this->view->setRenderType(render::JSON);
-        // Дерево с классами сайта для компонента
-        $blockItemId = self::getInt('blId');
-        $itemData = model::getCompData($blockItemId);
-        $tree = model::getClassTree($itemData['ns'], self::get('classType'));
-        self::setVar('json', ['tree'=>$tree]);
-        // func.loadClassTreeAction
     }
 
     public function custSettSaveAction() {

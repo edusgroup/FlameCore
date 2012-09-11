@@ -30,8 +30,8 @@ class main {
 		// Есть ли что нибудь в списке
         if ($dataList) {
             $tpl = userUtils::getCompTpl($comp);
-            $nsPath = $comp['nsPath'];
-            $tplFile = DIR::TPL . 'comp/' . $nsPath;
+            $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
+            $tplFile .= $comp['nsPath'];
             (new render($tplFile, ''))
                 ->setVar('list', $dataList)
                 ->setVar('hrefResize', DIR::URL_IMG_RESIZE_PUBLIC.$prefix)

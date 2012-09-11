@@ -47,10 +47,10 @@ class main {
         if ($list) {
             // Получаем имя шаблона, который выбрали в админке
             $tpl = userUtils::getCompTpl($comp);
-            $nsPath = $comp['nsPath'];
             // Папка, где храняться шаблоны
-            $tplPath = DIR::TPL . 'comp/' . $nsPath;
-            (new render($tplPath, ''))
+            $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
+            $tplFile .= $comp['nsPath'];
+            (new render($tplFile, ''))
                 ->setVar('list', $list)
                 ->setMainTpl($tpl)
                 ->setContentType(null)

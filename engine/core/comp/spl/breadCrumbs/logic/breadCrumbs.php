@@ -19,8 +19,8 @@ use core\classes\render;
 class breadCrumbs {
 
     public static function renderAction($pName) {
-        $std = dbus::$comp[$pName];
-        $breadcrumbs = $std['breadcrumbs'];
+        $comp = dbus::$comp[$pName];
+        $breadcrumbs = $comp['breadcrumbs'];
         foreach ($breadcrumbs as &$item) {
             $name = $item['name'];
             // Если есть breadCrumbsCaption, т.е. заголовок для крошки
@@ -32,9 +32,9 @@ class breadCrumbs {
             } // if
         } // foreach
 
-        $tpl = $std['tpl'];
-        $nsPath = $std['nsPath'];
-        $tplFile = DIR::TPL . 'comp/' . $nsPath;
+        $tpl = $comp['tpl'];
+        $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
+        $tplFile .= $comp['nsPath'];
         $render = new render($tplFile, '');
         $render->setMainTpl($tpl)
             ->setVar('breadcrumbs', $breadcrumbs)

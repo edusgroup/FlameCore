@@ -16,9 +16,9 @@ class tree {
     const FILE = 1;
     const EVENT_CHANGE_TREE = 'change_tree';
 
-    protected static $defaultFields = array('id', 'tree_id', 'name', 'item_type');
+    protected static $defaultFields = ['id', 'tree_id', 'name', 'item_type'];
     // TODO: Сделать нормальные доп поля для UserData
-    protected static $dopFields = array();
+    protected static $dopFields = [];
 
     public static $endBrunch = null;
 
@@ -53,12 +53,12 @@ class tree {
      * @return array массив объектов в виде дерева 
      */
     public static function all(array $pData, $pID, $pParam = NULL) {
-        $return = array();
+        $return = [];
         $pos = 0;
         //print "<br/><br/><pre>"; var_dump($pData); print '</pre><br/><br/><br/>';
         self::_rTreeTableArray($return, $pData, $pID, $pos, $pParam);
         $return['item'] = isset($return['item']) ? $return['item'] : [];
-        return array('id' => $pID, 'item' => $return['item']);
+        return ['id' => $pID, 'item' => $return['item']];
     }
 
     public static function setField(array $pFields) {
@@ -66,7 +66,7 @@ class tree {
     }
 
     public static function clear() {
-        self::$dopFields = array();
+        self::$dopFields = [];
         self::$endBrunch = null;
     }
 
@@ -82,7 +82,7 @@ class tree {
         } else {
             $where = $pWhere;
             $where['id!'] = '0';
-        }
+        } // if
 
         $selectFields = array_merge(self::$defaultFields, self::$dopFields);
         $data = $pTable->select($selectFields)
@@ -94,13 +94,13 @@ class tree {
         // func. createTreeOfTable
     }
 
-    public static function createTreeOfDir(string $pDir) {
+    public static function createTreeOfDir(string $pDir, $pPrefix='') {
         $dirTree = filesystem::dir2tree($pDir);
-        $item = array();
+        $item = [];
         if ( count($dirTree) ){
-            $item = self::_rTreeTableDir($dirTree, 0, '');
-        }
-        return array('id' => 0, 'item' => $item);
+            $item = self::_rTreeTableDir($dirTree, 0, '', $pPrefix);
+        } // if
+        return ['id' => 0, 'item' => $item];
         // fucn. createTreeOfDir
     }
 
@@ -111,36 +111,37 @@ class tree {
         $isFile = is_readable($path . $file);
         if ($pException && !$isFile) {
             throw $pException;
-        }
+        } // if
         $file = $isFile ? $file : null;
         return $file;
         // func. getFileIdValid
     }
 
-    public static function _rTreeTableDir(array $pDirTree, integer $pPos, string $pHistory) {
-        $return = array();
+    public static function _rTreeTableDir(array $pDirTree, integer $pPos, string $pHistory, $pPrefix='') {
+        $return = [];
         $iCount = count($pDirTree[$pPos]);
         for ($i = 0; $i < $iCount; $i++) {
             $data = $pDirTree[$pPos][$i];
 // TODO: Проверить на линксе. Брать локаль у ОС
             $name = iconv("cp1251", "UTF-8", $data[filesystem::ITEM_NAME]);
             $history = $pHistory . '/' . $name;
-            $return[$i] = array('id' => $history, 'text' => $name);
+            $return[$i] = ['id' => $pPrefix.$history, 'text' => $name];
 // Если это директория( а только директория имеет ITEM_NUM )
             $itemType = 1;
             if (isset($data[filesystem::ITEM_NUM])) {
                 $itemType = 0;
                 $itemNum = $data[filesystem::ITEM_NUM];
                 if ($itemNum != -1) {
-                    $return[$i]['item'] = self::_rTreeTableDir($pDirTree, $itemNum, $history);
+                    $return[$i]['item'] = self::_rTreeTableDir($pDirTree, $itemNum, $history, $pPrefix);
                 } else {
                     $return[$i]['im0'] = 'folderClosed.gif';
                 }
             }
 
-            $return[$i]['userdata'][] = array(
+            $return[$i]['userdata'][] = [
                 'name' => 'type',
-                'content' => $itemType);
+                'content' => $itemType
+            ];
         }
         return $return;
         // func. _rTreeTableDir
@@ -191,13 +192,13 @@ class tree {
                     'text' => $pSource[$i]['name']
                 );
 
-                $userData = array();
-                $userData[] = array('name' => 'type', 'content' => $type);
+                $userData = [];
+                $userData[] = ['name' => 'type', 'content' => $type];
                 // TODO: Сделать норм доп поля
                 foreach (self::$dopFields as $item) {
                     $userData[] = [
-                            'name' => $item,
-                            'content' => $pSource[$i][$item]
+                        'name' => $item,
+                        'content' => $pSource[$i][$item]
                     ];
                 }
 

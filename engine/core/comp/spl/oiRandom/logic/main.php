@@ -14,7 +14,7 @@ use core\classes\userUtils;
 /**
  * Description of oiPopular
  *
- * @author Козленко В.Л.
+ * @author РљРѕР·Р»РµРЅРєРѕ Р’.Р›.
  */
 class main {
 
@@ -35,8 +35,8 @@ class main {
 			$list = \unserialize($rndData);
 			
 			$tpl = userUtils::getCompTpl($comp);
-            $nsPath = $comp['nsPath'];
-            $tplFile = DIR::TPL . 'comp/' . $nsPath;
+            $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
+            $tplFile .= $comp['nsPath'];
             (new render($tplFile, ''))
                 ->setVar('list', $list)
                 ->setMainTpl($tpl)

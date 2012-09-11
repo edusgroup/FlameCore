@@ -13,14 +13,14 @@ use core\classes\userUtils;
 /**
  * Description of main
  *
- * @author Козленко В.Л.
+ * @author РљРѕР·Р»РµРЅРєРѕ Р’.Р›.
  */
 class review {
 
 	public static $urlTplList = [];
 
     /**
-     * Вывод всего списка ( без категорий )
+     * пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ( пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ )
      * @param type $pName 
      */
     public static function renderAction($pName) {
