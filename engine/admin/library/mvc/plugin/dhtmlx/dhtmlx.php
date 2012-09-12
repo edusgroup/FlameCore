@@ -59,7 +59,7 @@ class dhtmlx extends controllerAbstract {
         // Проверяем на валидность имени
         word::isLatin($ormName, new \Exception('Неверное имя дерева', 23));
         
-        $tree = array();
+        $tree = [];
         $className = 'ORM\\' . $ormName;
         if (!class_exists($className)) {
            throw new \Exception('Имя класса '.$className.' не найдено', 25);
@@ -96,7 +96,7 @@ class dhtmlx extends controllerAbstract {
             throw new \Exception('Имя класса '.$className.' не найдено', 29);
         }
 
-        $newId = array();
+        $newId = [];
         $data = json_decode($data, true);
         if ($data) {
             $newId = dhtmlxGrid::saveRows($data, $insertDopData, new $className);

@@ -14,7 +14,7 @@ class dbus {
     /**
      * Параметры авторизированного пользователя
      */
-    public static $user = array();
+    public static $user = [];
     
     /**
      * Содержит данные по какие CSS, JS подключать<br/>

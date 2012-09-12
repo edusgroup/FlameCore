@@ -23,36 +23,62 @@ use admin\library\mvc\manager\complist\model as complistModel;
  */
 class comp {
 
+    public static $objProp;
+
     const DEFAULT_VALUE = 'default';
 
+    /**
+     * Создание и рендеринг страницы компонента в админке
+     * @param $pSiteName название сайта который мы редактируем
+     * @throws \Exception
+     */
     public function run($pSiteName) {
         // Получаем имя контроллера
         $contId = request::getVarInt('$c');
 
-        global $gObjProp;
-        $gObjProp = compCore::getCompContProp($contId);
-        if (!isset($gObjProp['ns'])) {
+        // Получаем настройки ветки
+        $objProp = compCore::getBrunchPropByContId($contId);
+        // Проверяем нашли мы что то, если нет то говорит что ошибка поиска
+        if ( !$objProp ){
             throw new \Exception('ContId: ' . $contId . ' not found', 345);
-        }
-        $contrObj = compCore::getCompObject($gObjProp);
+        } // if
 
-        $nsPath = filesystem::nsToPath($gObjProp['ns']);
-        $tplPath = DIR::getTplPath('comp/' . $nsPath);
+        // Имя класса который задали в настройках
+        $classFile = $objProp['classFile']?: '/base/'.$objProp['classname'].'.php';
+        $compNs = $objProp['ns'];
+        // Создаём контроллер класса
+        $contrObj = compCore::createClassAdminObj($classFile, $compNs);
+        // Получаем путь до ресурсов админки
         $themeResUrl = sprintf(DIR::THEME_RES_URL, SITE::THEME_NAME);
-        $contrObj->__construct($tplPath, $themeResUrl);
-        //var_dump($gObjProp);
-        $contrObj->objProp = $gObjProp;
+        // Получаем имя шаблона
+        $tplFile = $objProp['tplFile']?: '/base/'.$objProp['classname'].'.tpl.php';
+        // Преобразуем namespace в строку ввиде файлового путя
+        $nsPath = filesystem::nsToPath($objProp['ns']);
+        // Получаем данные по шаблону
+        $tplFileData = compCore::getFileType($tplFile);
+        // Получаем полный путь до папки с шаблонами
+        $tplPath = compCore::getCompTplPath($tplFileData['isOut'], $nsPath);
+        // Устанавливаем путь к шаблонам и ресурсам для рендера
+        $contrObj->setPathUrl($tplPath, $themeResUrl);
+
+        // Запоминаем настройки, что бы 20 раз не вызывать в компоненте
+        $contrObj->objProp = $objProp;
         $contrObj->contId = $contId;
-        $contrObj->compId = (int)$gObjProp['compId'];
+        $contrObj->compId = (int)$objProp['compId'];
+        $contrObj->tplFile = $tplFileData['file'];
+
+        // Устанавливаем имя сайта, который редактируем
         $contrObj->setSiteName($pSiteName);
-        unset($gObjProp);
+
         // Получаем метод, который хотим вызвать
         $methodName = trim(request::getVar('$m'));
-        // Вызываем метод. Методы доступные для вызова должны иметь окончание Action
+        // Вызываем метод. Методы доступные для вызова должны иметь окончание(постфикс) Action
+        // К примеру indexAction, mathAction, saveDataAction
         $contrObj->callMethod($methodName);
         // Выводим на экран то что получилось
         $contrObj->render();
         // func. run
     }
+
     // class. comp
 }

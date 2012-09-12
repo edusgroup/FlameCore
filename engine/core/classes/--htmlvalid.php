@@ -60,27 +60,27 @@ class htmlValid {
     const T_A = 'a';
     const T_PRE = 'pre';
 
-    private static $buff = array();
+    private static $buff = [];
 
     public static function clear() {
-        self::$buff = array();
+        self::$buff = [];
     }
 
     public static function add($pTag, $pAttr='', $pValue='') {
         
         if (is_array($pTag)) {
             foreach($pTag as $tagName){
-                self::$buff[$tagName] = array();
+                self::$buff[$tagName] = [];
             }
         } else {
             if (!isset(self::$buff[$pTag])) {
-                self::$buff[$pTag] = array();
+                self::$buff[$pTag] = [];
             }
         }
         if ($pAttr) {
             if (is_array($pValue)) {
                 if ( !isset(self::$buff[$pTag][$pAttr])){
-                    self::$buff[$pTag][$pAttr] = array();
+                    self::$buff[$pTag][$pAttr] = [];
                 }
                 self::$buff[$pTag][$pAttr] = array_merge(self::$buff[$pTag][$pAttr], $pValue);
             } else {

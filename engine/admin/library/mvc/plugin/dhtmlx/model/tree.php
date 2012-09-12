@@ -101,20 +101,7 @@ class tree {
             $item = self::_rTreeTableDir($dirTree, 0, '', $pPrefix);
         } // if
         return ['id' => 0, 'item' => $item];
-        // fucn. createTreeOfDir
-    }
-
-    public static function getFileIdValid($pPath, string $pFile, $pException = null) {
-// TODO: Возможно ли переписать на регегсп или испльзовать valid::filesystem
-        $file = str_replace('..', '', $pFile);
-        $path = filesystem::andEndSlash($pPath);
-        $isFile = is_readable($path . $file);
-        if ($pException && !$isFile) {
-            throw $pException;
-        } // if
-        $file = $isFile ? $file : null;
-        return $file;
-        // func. getFileIdValid
+        // func. createTreeOfDir
     }
 
     public static function _rTreeTableDir(array $pDirTree, integer $pPos, string $pHistory, $pPrefix='') {
@@ -126,17 +113,18 @@ class tree {
             $name = iconv("cp1251", "UTF-8", $data[filesystem::ITEM_NAME]);
             $history = $pHistory . '/' . $name;
             $return[$i] = ['id' => $pPrefix.$history, 'text' => $name];
-// Если это директория( а только директория имеет ITEM_NUM )
+            // Если это директория( а только директория имеет ITEM_NUM )
             $itemType = 1;
             if (isset($data[filesystem::ITEM_NUM])) {
                 $itemType = 0;
-                $itemNum = $data[filesystem::ITEM_NUM];
-                if ($itemNum != -1) {
-                    $return[$i]['item'] = self::_rTreeTableDir($pDirTree, $itemNum, $history, $pPrefix);
+                $folderId = $data[filesystem::ITEM_NUM];
+                // Есть ли в папке что нить по ID папки
+                if (isset($pDirTree[$folderId])) {
+                    $return[$i]['item'] = self::_rTreeTableDir($pDirTree, $folderId, $history, $pPrefix);
                 } else {
                     $return[$i]['im0'] = 'folderClosed.gif';
-                }
-            }
+                } // if
+            } // if
 
             $return[$i]['userdata'][] = [
                 'name' => 'type',
@@ -187,10 +175,10 @@ class tree {
             if ($sTreeId == $id) {
                 $type = $pSource[$i]['item_type'];
                 // TODO: Уменьшить имя с помощью ссылок
-                $pDist['item'][$pos] = array(
+                $pDist['item'][$pos] = [
                     'id' => $pSource[$i]['id'],
                     'text' => $pSource[$i]['name']
-                );
+                ];
 
                 $userData = [];
                 $userData[] = ['name' => 'type', 'content' => $type];
@@ -200,7 +188,7 @@ class tree {
                         'name' => $item,
                         'content' => $pSource[$i][$item]
                     ];
-                }
+                } // foreach
 
                 $pDist['item'][$pos]['userdata'] = $userData;
 

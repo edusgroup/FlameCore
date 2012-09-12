@@ -34,8 +34,8 @@ class filesystem {
      */
     public static function dir2array(string $pDir, $pFileType = self::ALL, $pFilter = null) {
         if (!is_dir($pDir))
-            return array();
-        $return = array();
+            return [];
+        $return = [];
         foreach (scandir($pDir) as $item) {
             if ($item == '.' || $item == '..' || $item[0] == '.')
                 continue;
@@ -302,35 +302,47 @@ class filesystem {
             //throw new exception\filesystem('Dir not found: ' . $pDir);
             return null;
         }
-        $return = array();
+        $return = [];
         $pos = 0;
         self::_rdir2tree($pDir, $return, $pos);
         return $return;
     }
 
-    const ITEM_PARENT_ID = 0;
-    const ITEM_NAME = 1;
-    const ITEM_NUM = 2;
+    /**
+     *  Имя объекта в массиве директорий. см. метод self::dir2tree(string, array, integer)
+     */
+    const ITEM_NAME = 'name';
+    /**
+     * ID папки в массиве директорий. см. метод self::dir2tree(string, array, integer)
+     */
+    const ITEM_NUM = 'id';
 
-    // TODO: Переписать с испльзованием dir2array
     private static function _rdir2tree(string $pDir, array &$pDirList, integer &$pParentId) {
         // Сканируем директорию
         $parent = $pParentId;
         foreach (scandir($pDir) as $itemName) {
-            // Выкидываем системные папки
+            // Выкидываем системные папки и скрытые
             if ($itemName == '.' || $itemName == '..' || $itemName[0] == '.')
                 continue;
             // Имя оъекта в папке
             $file = $pDir . "/" . $itemName;
+
+            // Если это файл
             if (is_file($file)) {
-                $pDirList[$pParentId][] = array(self::ITEM_NAME => $itemName); //, self::ITEM_PARENT_ID => &$pDirList[$pParentId]);
-            } else {
+                // Добавляем только имя объекта
+                $pDirList[$pParentId][] = [self::ITEM_NAME => $itemName];
+                // echo $file." P=$pParentId\n";
+            } else{
+                // Если это папка, то увеличиваем значение родителя на единицу, тем самым получая новый ID
                 ++$parent;
-                $itemNum = self::_rdir2tree($file, $pDirList, $parent);
-                $pDirList[$pParentId][] = array(self::ITEM_NAME => $itemName, self::ITEM_NUM => $itemNum);
+                $folderId = $parent;
+                // echo $file." P=$pParentId id=$folderId\n";
+                self::_rdir2tree($file, $pDirList, $parent);
+                $pDirList[$pParentId][] = [self::ITEM_NAME => $itemName, self::ITEM_NUM => $folderId];
             }
         }
-        return isset($pDirList[$pParentId]) ? $pParentId : -1;
+        $pParentId = $parent;
+        // func. _rdir2tree
     }
 
     /**

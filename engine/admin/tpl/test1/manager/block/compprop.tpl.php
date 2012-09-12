@@ -5,6 +5,9 @@
 
 <script src="res/plugin/classes/utils.js" type="text/javascript"></script>
 
+<script type="text/javascript" src="/res/plugin/fancybox/source/jquery.fancybox.js"></script>
+<link rel="stylesheet" type="text/css" href="/res/plugin/fancybox/source/jquery.fancybox.css" media="screen"/>
+
 <style type="text/css">
     .bold {font-weight: bold}
     .vmiddle{vertical-align: middle; height: 40px}
@@ -57,13 +60,13 @@
                         <div class="dd">
                             <label><?= self::checkbox('name="parentLoad" value="1"', self::get('parentLoad') == 1); ?></label>
                         </div>
-                        <div class="dt">Категория</div>
+                        <!--<div class="dt">Категория</div>
                         <div class="dd">
                             <? self::select(self::get('categoryList'), 'name="category"') ?>
-                        </div>
+                        </div>-->
                         
                         <div class="dt">Шаблон админки</div>
-                        <div class="dd">
+                        <!--<div class="dd">
                             <label><?= self::radio('name="tplType" value="default"', self::get('tplType') == 'default'); ?>
                             По умолчанию</label>
                         </div>
@@ -84,10 +87,17 @@
                         <div class="dd">
                             <label><?= self::radio('name="tplType" value="builder"', self::get('tplType') == 'builder'); ?> 
                             FormBuilder</label>
+                        </div>-->
+
+                        <div class="dd">
+                            <a id="tplBtn" href="#tplTreeDlg" class="btn">
+                                <img src="<?= self::res('images/folder_16.png') ?>" alt="Класс компонента"/>
+                                <span id="tplFileText"></span>
+                            </a>
                         </div>
 
                         <div class="dt">Функциональный класс</div>
-                        <div class="dd">
+                        <!--<div class="dd">
                             <label><?= self::radio('name="classType" value="default"', self::get('classType') == 'default'); ?> 
                             По умолчанию</label>
                         </div>
@@ -104,6 +114,13 @@
                         </div>
                         <div class="dd2x">
                             <? self::selectIdName(self::get('classExtList'), 'name="classExt"') ?>
+                        </div>-->
+
+                        <div class="dd">
+                            <a id="classBtn" href="#classTreeDlg" class="btn">
+                                <img src="<?= self::res('images/folder_16.png') ?>" alt="Класс компонента"/>
+                                <span id="classFileText"></span>
+                            </a>
                         </div>
                         
                         
@@ -116,6 +133,10 @@
         </div><!-- end panel right content -->
     </div><!-- end panel right panel -->
 </div><!-- end panel right column -->
+
+<div id="classTreeDlg" style="width:250px;height:350px; display: none"></div>
+<div id="tplTreeDlg" style="width:250px;height:350px; display: none"></div>
+
 <script type="text/javascript">
     var contrName = 'compprop';
     var callType = 'manager';
@@ -128,14 +149,33 @@
         // ContId
         contid: <?= self::get('contId') ?>,
         // Есть ли расширенные настройки
-        extSettings: <?= self::get('extSettings') ?>
-    }
+        extSettings: <?= self::get('extSettings') ?>,
+        // Json данные для построение дерева классов
+        classTreeJson: <?= self::get('classTree') ?>,
+        // Json данные для построение дерева шаблонов
+        tplTreeJson: <?= self::get('tplTree') ?>,
+        // Ранее сохранёные данные (если они есть )
+        loadData: <?=self::get('loadData') ?>,
+        // Свойства компонента, который мы настраиваем
+        compProp: <?=self::get('compProp') ?>
+    } // var compPropData
 
     var compPropMvc = (function(){
         var options = {};
+        var classFile = '';
+        // Дерево классов
+        var classTree;
+        // Дерево шаблонов
+        var tplTree;
+        // Выбранное значение в дереве классов
+        var classTreeSelectId;
+        // Выбранное значение в дереве шаблонов
+        var tplTreeSelectId;
 
         function saveBtnClick(){
             var data = $('#'+options.mainForm).serialize();
+            data += '&classFile='+classTreeSelectId;
+            data += '&tplFile=' + tplTreeSelectId;
             HAjax.saveData({
                 data: data,
                 methodType: 'POST',
@@ -145,6 +185,26 @@
             });
             return false;
             // func. saveBtnClick
+        }
+
+        /**
+         * Инициализация деревьев
+         */
+        function initTreeCreate(){
+            dhtmlxInit.init({
+                'class': {
+                    tree:{ json: compPropData.classTreeJson, id:'classTreeDlg' },
+                    dbClick: classBrunchClick
+                },
+                'tpl': {
+                    tree:{ json: compPropData.tplTreeJson, id:'tplTreeDlg' },
+                    dbClick: tplBrunchClick
+                }
+            });
+
+            classTree = dhtmlxInit.tree['class'];
+            tplTree = dhtmlxInit.tree['tpl'];
+            // func. initTreeCreate
         }
 
         function selectCategoryChange(pEvent){
@@ -161,7 +221,7 @@
             // func. selectCategoryChange
         }
 
-        function loadCategoryDataSuccess(pData){
+        function cbLoadCategoryDataSuccess(pData){
             if ( pData['error'] ){
                 alert(pData['error']['msg']);
                 return;
@@ -183,10 +243,10 @@
                 $select.append($("<option></option>").attr("value",value).text(value));
             });
 
-            // func. loadCategoryDataSuccess
+            // func. cbLoadCategoryDataSuccess
         }
 
-        function saveData(pData){
+        function cbSaveData(pData){
             if ( pData['error'] ){
                 alert(pData['error']['msg']);
                 return;
@@ -199,7 +259,72 @@
             $('#'+options.extSettBtn).toggle(pData['extSettings']==1).attr('href', url);
 
             alert('Данные сохранены');
-            // func. saveData
+            // func. cbSaveData
+        }
+
+        function classBrunchClick(pBrunchId, pTree){
+            // Получаем тип ветки: 1-папка, 0-файл
+            var type = pTree.getUserData(pBrunchId, 'type');
+            // Выбрать можно только файл
+            if (type != 1) {
+                return false;
+            }
+            var text = utils.getTreeUrl(pTree, pBrunchId);
+            classTreeSelectId = pBrunchId;
+            $(options.classFileText).html(text);
+            $.fancybox.close();
+            // class classBrunchClick
+        }
+
+        function tplBrunchClick(pBrunchId, pTree){
+            // Получаем тип ветки: 1-папка, 0-файл
+            var type = pTree.getUserData(pBrunchId, 'type');
+            // Выбрать можно только файл
+            if (type != 1) {
+                return false;
+            }
+            var text = utils.getTreeUrl(pTree, pBrunchId);
+            tplTreeSelectId = pBrunchId;
+            $(options.tplFileText).html(text);
+            $.fancybox.close();
+            // class tplBrunchClick
+        }
+
+        function beforeClassDlgShow(){
+            classTree.selectItem(classTreeSelectId);
+            // func. beforeTplDlgShow
+        }
+
+        function beforeTplDlgShow(){
+            tplTree.selectItem(tplTreeSelectId);
+            // func. beforeTplDlgShow
+        }
+
+        function initLoadData(){
+            // Есть ли ранее сохрённые данные по объекту
+            if ( compPropData.loadData ){
+                // Значение ранее сохранённого файла классов для админки
+                var classBrId = compPropData.loadData['classFile'];
+                var classText = utils.getTreeUrl(classTree, classBrId);
+                // Значение ранее сохранённого файла классов для админки
+                var tplBrId = compPropData.loadData['tplFile'];
+                var tplText = utils.getTreeUrl(tplTree, tplBrId);
+            }else{
+                // Выставляем значения по умолчанию
+                var compName = compPropData.compProp['classname'];
+                var classBrId = '/base/'+compName+'.php';
+                var classText = utils.getTreeUrl(classTree, classBrId );
+
+                var tplBrId = '/base/'+compName+'.tpl.php';
+                var tplTtext = utils.getTreeUrl(tplTree, tplBrId );
+            } // if
+
+            $(options.classFileText).html(classText);
+            classTreeSelectId = classBrId;
+
+            $(options.tplFileText).html(tplTtext);
+            tplTreeSelectId = tplBrId;
+            // func. initLoadData
         }
 
         function init(pOptions){
@@ -226,11 +351,20 @@
             }));
 
             $('#'+options.saveBtn).click(saveBtnClick);
-            $(options.categorySelObj).change(selectCategoryChange);
 
             HAjax.create({
-                saveData: saveData,
-                loadCategoryData: loadCategoryDataSuccess
+                saveData: cbSaveData,
+                loadCategoryData: cbLoadCategoryDataSuccess
+            });
+
+            initTreeCreate();
+            initLoadData();
+
+            $(options.classBtn).fancybox({
+                beforeShow: beforeClassDlgShow
+            });
+            $(options.tplBtn).fancybox({
+                beforeShow: beforeTplDlgShow
             });
             // func. init
         }
@@ -250,7 +384,15 @@
             classUserSelObj: 'select[name="classUser"]',
             tplExtSelObj: 'select[name="tplExt"]',
             tplUserSelObj: 'select[name="tplUser"]',
-            extSettBtn: 'extendsSettings'
+            extSettBtn: 'extendsSettings',
+            // Кнопка выборка класса в дереве. При клике появлется дерево
+            classBtn: '#classBtn',
+            // Кнопка выборка шаблонов в дереве. При клике появлется дерево
+            tplBtn: '#tplBtn',
+            // бокс для выборанного текста в дереве классов
+            classFileText: '#classFileText',
+            // бокс для выборанного текста в дереве шаблонов
+            tplFileText: '#tplFileText'
         });
     });
 </script>

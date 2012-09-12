@@ -1,0 +1,10 @@
+Настройка кастомных классов админки
+Положить класс в
+{SiteCoreFlame}\{siteName}\core\admin\comp\{NS}\logic\{allFolder}
+рядом можно расположить методы в папке
+{SiteCoreFlame}\{siteName}\core\admin\comp\{NS}\help\
+
+
+Настройка кастомных шаблонов админки
+Положить шаблон в
+{SiteCoreFlame}\{siteName}\tpl\admin\comp\{NS}\{allFolder}

@@ -37,7 +37,7 @@ class model {
      * @param integer $pCompId 
      */
     public static function getFileList($pFilePath, $pFilter=self::FILTER_ALL) {
-        $return = array();
+        $return = [];
         // Получаем список файлов в виде массива
         $list = filesystem::dir2array($pFilePath, filesystem::FILE, $pFilter);
         for ($i = 0; $i < count($list); $i++) {

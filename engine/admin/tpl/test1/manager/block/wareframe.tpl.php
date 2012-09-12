@@ -153,7 +153,7 @@
     </div>
 </div>
 
-<div id="compTree" style="width:150px;height:150px;"></div>
+<div id="compTree" style="width:200px;height:300px;"></div>
 <div id="linkDlg" style="display:none">
 	<div id="linkWfTreeBox" class="treeBlock" style="float: left;"></div>
     <div id="linkBlockTreeBox" class="treeBlock" style="float: left;"></div>

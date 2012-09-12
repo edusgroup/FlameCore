@@ -19,7 +19,7 @@ class model {
     public function getUserXmlGrid($posStart){
         $userOrm = new usersOrm();
         $userCount = $userOrm->get('count(id)', null);
-        $data = array();
+        $data = [];
         $data['body'] = $userOrm->select('ul.id, 0, "", ul.login, ut.name type, ul.phone, ul.enable', 'ul')
                 ->join(usersTypeOrm::TABLE . ' ut', 'ul.typeId = ut.id AND ut.sysname="simple"')
                 ->order('ul.date_add DESC')
@@ -31,7 +31,7 @@ class model {
     }
     
     public function saveData($pData){
-        $return = array();
+        $return = [];
         // Парсим данные
         $data = json_decode($pData, true);
         if ($data) {

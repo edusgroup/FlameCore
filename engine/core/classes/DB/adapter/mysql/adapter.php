@@ -178,7 +178,7 @@ class adapter extends adapterAbstract {
     
     private function _fetchAllObj(){
         $result = self::query();
-        $return = array();
+        $return = [];
         if ( $result ){
             while($tmp = $result->fetch_object()){
                 if ( !$tmp )

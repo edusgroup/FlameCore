@@ -8,7 +8,7 @@ class tree {
     const FOLDER = 0;
     const FILE = 1;
     
-    public static $fields = array();
+    public static $fields = [];
 
     /**
      * Получаем все объекты в виде дерева
@@ -17,11 +17,11 @@ class tree {
      * @return array массив объектов в виде дерева 
      */
     public static function all(array $pData, $pID, $pParam = NULL) {
-        $return = array();
+        $return = [];
         $pos = 0;
         //print "<br/><br/><pre>"; var_dump($pData); print '</pre><br/><br/><br/>';
         self::_rTreeTableArray($return, $pData, $pID, $pos, $pParam);
-        $return['item'] = isset($return['item']) ? $return['item'] : array();
+        $return['item'] = isset($return['item']) ? $return['item'] : [];
         return array('id' => $pID, 'item' => $return['item']);
     }
 

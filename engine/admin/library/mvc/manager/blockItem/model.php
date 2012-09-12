@@ -71,7 +71,7 @@ class model {
         $treeInner = dhtmlxTree::createTreeOfDir($classFilePath);
         $treeInner = array_merge($treeInner, ['id'=>'#in', 'text'=>'Встроеные', 'userdata'=>[['name'=>'type', 'content'=>dhtmlxTree::FOLDER]]]);
         // Внешние шаблоны компонента для сайта
-        $classFilePath = DIR::getSiteClassCore($nsPath).'/logic/';
+        $classFilePath = DIR::getSiteClassCore($nsPath).'logic/';
         // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID
         $treeOuter = dhtmlxTree::createTreeOfDir($classFilePath, '[o]');
         $treeOuter = array_merge($treeOuter, ['id'=>'#out', 'text'=>'Внешние', 'userdata'=>[['name'=>'type', 'content'=>dhtmlxTree::FOLDER]]]);

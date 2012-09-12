@@ -25,10 +25,14 @@ use ORM\tree\routeTree;
 use ORM\blockItemSettings;
 use ORM\blockItemRegxUrl;
 use ORM\urlTplList as urlTplListOrm;
+use ORM\compprop as compPropOrm;
 
 // Model
 use admin\library\mvc\manager\varible\model as varModel;
 use admin\library\mvc\manager\complist\model as complistModel;
+
+// Init
+use admin\library\init\comp as compInit;
 
 /**
  *
@@ -67,19 +71,23 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         // Загружаем сохранённые настройки
         $saveData = $blockItemSettings->selectFirst('*', 'blockItemId=' . $blockItemId);
         if ($saveData) {
-
             // Загрузаем методы класса компонента
             $classData = model::getSiteClassData($saveData['classFile'], $blockItemId);
             self::setJson('classData', $classData);
 
             $tableOrm = null;
+            // Если есть деление на таблицу и сохранён статический ID элемента таблиц, то нужно вытащить его название
             if ($onlyFolder && isset($saveData['statId'])) {
                 // По id из URL мы еще выше взяли данные по компоненту, что бы 100 раз не дёргать БД
-                // вынесли все данные по объекту который редактируем в глобальный массив $gObjProp
-                global $gObjProp;
-                $gObjProp = comp::getCompContProp((int)$saveData['statId']);
-                $contrObj = comp::getCompObject($gObjProp);
-                $tableOrm = $contrObj->getTableOrm();
+                // вынесли все данные по объекту который редактируем в глобальный массив $compInit::objProp
+
+                /*compInit::$objProp = comp::getCompContProp((int)$saveData['statId']);
+                $contrObj = comp::getCompObject(compInit::$objProp);
+                */
+                $classFile = (new compPropOrm())->get('classFile', 'classFile', 'contId=' . $saveData['statId']);
+                $contrAdminObj = comp::createClassAdminObj($classFile, $itemData['ns']);
+                $tableOrm = $contrAdminObj->getTableOrm();
+
                 $statName = $tableOrm->get('caption', 'id=' . (int)$saveData['tableId']);
                 self::setVar('statName', $statName);
             } // if
@@ -168,9 +176,8 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
     public function loadCompTableAction() {
         $this->view->setRenderType(render::JSON);
         $contId = self::getInt('contid');
-        global $gObjProp;
-        $gObjProp = comp::getCompContProp($contId);
-        $contrObj = comp::getCompObject($gObjProp);
+        compInit::$objProp = comp::getCompContProp($contId);
+        $contrObj = comp::getCompObject(compInit::$objProp);
         if (!method_exists($contrObj, 'getTableData')) {
             throw new \Exception(' getTableData не найден: ' . $contId, 24);
         }
@@ -301,15 +308,13 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             ,'blockItemId=' . $blockItemId);
 
         // Создаём объекта класса
-        global $gObjProp;
-        $gObjProp = comp::getCompContProp($custContId);
-        $contrObj = comp::getCompObject($gObjProp);
+        compInit::$objProp = comp::getCompContProp($custContId);
+        $contrObj = comp::getCompObject(compInit::$objProp);
 
         if (!method_exists($contrObj, 'blockItemSave')) {
             throw new \Exception(' getTableData не найден', 24);
         }
         $contrObj->blockItemSave($blockItemId, $this);
-
         // func. custSettSaveAction
     }
 

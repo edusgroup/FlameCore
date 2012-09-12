@@ -4,7 +4,6 @@ namespace admin\library\mvc\manager\compprop;
 
 // Model
 use admin\library\mvc\manager\complist\model as complistModel;
-use admin\library\mvc\manager\compprop\model;
 
 // Engine
 use core\classes\html\element as htmlelem;
@@ -16,6 +15,15 @@ use core\classes\validation\filesystem as filevalid;
 // Conf
 use \DIR;
 use \CONSTANT;
+
+// ORM
+use ORM\compprop as compPropOrm;
+
+// Init
+use admin\library\init\comp as compInit;
+
+// Plugin
+use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
 /**
  *
@@ -35,70 +43,40 @@ class compprop extends \core\classes\mvc\controllerAbstract {
         self::setVar('contId', $contId);
 
         $compProp = comp::getCompPropByContId($contId);
+        // Есть ли такой компонент
         if (!$compProp || $contId == 0) {
             throw new \Exception('ContId: ' . $contId . ' not found', 234);
-        }
-
-        $nsPath = filesystem::nsToPath($compProp['ns']);
-        global $gObjProp;
-        $gObjProp = model::loadData($contId);
-        if (!$gObjProp) {
-            $gObjProp = comp::getCompContProp($contId);
-            $gObjProp['parentLoad'] = 1;
         } // if
 
-        // =====================================================
-        $category = '';
-        $categoryDir = DIR::CORE . 'admin/library/mvc/comp/' . $nsPath . 'category/';
-        if (is_dir($categoryDir)) {
-            $categoryList = [];
-            $categoryList['list'] = filesystem::dir2array($categoryDir, filesystem::DIR);
-            $categoryVal = $gObjProp['category'] ? : (isset($categoryList['list'][0]) ? $categoryList['list'][0] : '');
-            $categoryList['val'] = $categoryVal;
-            $category = 'category/' . $categoryVal . '/';
-            $gObjProp['category'] = $categoryVal;
-            self::setVar('categoryList', $categoryList);
-        } // if is_dir
+        // Получаем Ns пусть до компонента
+        $nsPath = filesystem::nsToPath($compProp['ns']);
 
-        // ===== Формируем список пользовательских шаблонов
-        $tplList = [];
-        $tplList['list'] = model::getTplList($nsPath, $category, CONSTANT::USER_FOLDER);
-        $tplList['val'] = $gObjProp['tplUserFile'];
-        self::setVar('tplUserList', $tplList);
+        // Сохранённые настройки
+        $loadData = model::loadData($contId);
+        // Если настроек нет
+        if (!$loadData) {
+            // Выставляем их по умолчанию или ищем выше веткой
+            $loadData = comp::findCompPropUpToRoot($contId);
+            // Выставляем флаг, что данные загружены от родителя(хотя их может и не быть)
+            //$loadData['parentLoad'] = 1;
+        } // if
 
-        // ===== Формируем список встроенных шаблонов
-        $tplList = [];
-        $tplList['list'] = model::getTplList($nsPath, $category, 'ext');
-        $tplList['val'] = $gObjProp['tplExtFile'];
-        self::setVar('tplExtList', $tplList);
+        $extendsSettings = 0;
+        // Если настроеки были или мы их нашли
+        if ( $loadData ){
+            // ===== Есть ли рассширенные настройки
+            $extendsSettings = model::isClassHasExtendsProp($loadData['classFile'], $compProp['ns']);
+        } // if
 
-        // ===== Формируем список пользовательских классов
-        $classList = [];
-        $classList['list'] = model::getClassList($nsPath, $category, CONSTANT::USER_FOLDER);
-        $classList['val'] = $gObjProp['classUserFile'];
-        self::setVar('classUserList', $classList);
-
-        // ===== Формируем список пользовательских классов
-        $classList = [];
-        $classList['list'] = model::getClassList($nsPath, $category, 'ext');
-        $classList['val'] = $gObjProp['classExtFile'];
-        self::setVar('classExtList', $classList);
-
-        // ===== Есть ли рассширенные настройки
-        $classObj = comp::getCompObject($gObjProp, $compProp);
-        $extendsSettings = (int)method_exists($classObj, 'compPropAction');
+        self::setJSON('loadData', $loadData);
+        self::setJSON('compProp', $compProp);
         self::setVar('extSettings', $extendsSettings);
 
-        // ===== Установка значение radio button
-        $tplType = $gObjProp['tplType'] ? : comp::DEFAULT_VALUE;
-        $classType = $gObjProp['classType'] ? : comp::DEFAULT_VALUE;
+        $tree = model::getClassTree($nsPath);
+        self::setJson('classTree', $tree);
 
-        self::setVar('tplType', $tplType);
-        self::setVar('classType', $classType);
-
-        // ===== Наследуем ли мы настройки от родителя
-        $parentLoad = isset($gObjProp['parentLoad']) ? $gObjProp['parentLoad'] : 1;
-        self::setVar('parentLoad', $parentLoad);
+        $tree = model::getTplTree($nsPath);
+        self::setJson('tplTree', $tree);
 
         $this->view->setBlock('panel', 'block/compprop.tpl.php');
         $this->view->setMainTpl('main.tpl.php');
@@ -110,114 +88,61 @@ class compprop extends \core\classes\mvc\controllerAbstract {
 
         // ID контента компонента
         $contId = self::getInt('contid');
-        // Тип шаблона для админки
-        $tplType = self::post('tplType');
-        if (!in_array($tplType, [comp::DEFAULT_VALUE, 'ext', 'user', 'builder'])) {
-            throw new \Exception('Bad type tplType', 23);
-        }
-        // Тип класса для админки
-        $classType = self::post('classType');
-        if (!in_array($classType, [comp::DEFAULT_VALUE, 'ext', 'user'])) {
-            throw new \Exception('Bad type classType', 24);
-        }
-
-        $tplUserFile = self::post('tplUser');
-        $classUserFile = self::post('classUser');
-
-        $tplExtFile = self::post('tplExt');
-        $classExtFile = self::post('classExt');
-
-        // Нужно ли наследовать от родителя настройки
-        $parentLoad = self::postInt('parentLoad');
-
-        // ===== Сохранение данных 
+        // Получаем данные по компоненту
         $compProp = comp::getCompPropByContId($contId);
+        // Есть ли такой компонент
+        if (!$compProp || $contId == 0) {
+            throw new \Exception('ContId: ' . $contId . ' not found', 231);
+        } // if
         $nsPath = filesystem::nsToPath($compProp['ns']);
 
-        $category = trim(self::post('category'));
-        $categoryDir = '';
-        if ($category) {
-            if (!filevalid::isSafe($category)) {
-                throw new \Exception('Bad name: ' . $category, 234);
-            }
-            $categoryDir = DIR::CORE . 'admin/library/mvc/comp/spl/objItem/category/';
-            if (!is_dir($categoryDir . $category)) {
-                throw new \Exception('Category ' . $category . ' not found', 239);
-            }
-            $categoryDir = 'category/' . $category . '/';
-        } // if $category
+        // ================ Класс =====================================
+        // Выбранный класс файл для админки
+        $classFile = self::post('classFile');
+        if ( !$classFile ){
+            return;
+        } // if
+        $classFileData = comp::getFileType($classFile);
+        // Правильно ли имя файла
+        filevalid::isSafe($classFileData['file'], new \Exception('Неверное имя файла:' .$classFileData['file']));
 
+        // Проверяем налачие файла
+        $classFilePath = comp::getCompClassPath($classFileData['isOut'], $nsPath);
+        if ( !is_file($classFilePath.$classFileData['file']) ){
+            throw new \Exception('File : ' . $classFileData['file'] . ' not found', 235);
+        } // if
 
-        if ($tplUserFile) {
-            model::checkTplName($nsPath . $categoryDir . \CONSTANT::USER_FOLDER, $tplUserFile);
-        }
-        if ($tplExtFile) {
-            model::checkTplName($nsPath . $categoryDir . 'ext', $tplExtFile);
-        }
+        // ================ Шаблон =====================================
+        // Выбранный класс файл для админки
+        $tplFile = self::post('tplFile');
+        if ( !$tplFile ){
+            return;
+        } // if
+        $tplFileData = comp::getFileType($tplFile);
+        // Правильно ли имя файла
+        filevalid::isSafe($tplFileData['file'], new \Exception('Неверное имя файла:' .$tplFileData['file']));
 
-        if ($classUserFile) {
-            model::checkClassName($nsPath . $categoryDir . \CONSTANT::USER_FOLDER, $classUserFile);
-        }
-        if ($classExtFile) {
-            model::checkClassName($nsPath . $categoryDir . 'ext', $classExtFile);
-        }
+        // Проверяем налачие файла
+        $tplFilePath = comp::getCompTplPath($tplFileData['isOut'], $nsPath);
+        if ( !is_file($tplFilePath.$tplFileData['file']) ){
+            throw new \Exception('File : ' . $tplFileData['file'] . ' not found', 235);
+        } // if
 
-        $saveData = [
-            'contId' => $contId,
-            'tplType' => $tplType,
-            'classType' => $classType,
-            'classUserFile' => $classUserFile,
-            'tplUserFile' => $tplUserFile,
-            'tplExtFile' => $tplExtFile,
-            'classExtFile' => $classExtFile,
-            'parentLoad' => $parentLoad,
-            'category' => $category
-        ];
+        // ================= Сохранение ================================
+        $parentLoad = self::postInt('parentLoad');
 
-        model::saveData($contId, $saveData);
+        ( new compPropOrm())->saveExt(
+            ['contId'=>$contId],
+            ['classFile' => $classFile,
+             'tplFile' => $tplFile,
+             'parentLoad' => $parentLoad]);
 
-        global $gObjProp;
-        $gObjProp = $saveData;
-
-        // ===== Проверка на существования расширенных настроек
-        $objProp['classType'] = $classType;
-        $objProp['classFile'] = $classUserFile;
-        //$extendsSettings = (int) model::isExistsExtendsProp($objProp);
-        $classObj = comp::getCompObject($saveData, $compProp);
-        $extendsSettings = (int)method_exists($classObj, 'compPropAction');
-        self::setVar('json', ['ok' => 1, 'extSettings' => $extendsSettings]);
+        $extendsSettings = model::isClassHasExtendsProp($classFile, $compProp['ns']);
+        $data = ['extSettings' => $extendsSettings];
+        self::setVar('json', $data);
 
         // func. saveDataAction
     }
 
-    public function loadCategoryDataAction() {
-        $this->view->setRenderType(render::JSON);
-        $category = self::get('category');
-
-        if (!filevalid::isSafe($category)) {
-            throw new \Exception('Bad name: ' . $category, 244);
-        }
-        $categoryDir = DIR::CORE . 'admin/library/mvc/comp/spl/objItem/category/';
-        if (!is_dir($categoryDir . $category)) {
-            throw new \Exception('Category ' . $category . ' not found', 249);
-        }
-        $categoryDir = 'category/' . $category . '/';
-
-        $contId = self::getInt('contid');
-
-        $compProp = comp::getCompPropByContId($contId);
-        if (!$compProp || $contId == 0) {
-            throw new \Exception('ContId: ' . $contId . ' not found', 234);
-        }
-
-        $nsPath = filesystem::nsToPath($compProp['ns']);
-
-
-        self::setVar('json', ['tplUserList' => model::getTplList($nsPath, $categoryDir, CONSTANT::USER_FOLDER, true),
-                            'tplExtFile' => model::getTplList($nsPath, $categoryDir, 'ext', true),
-                            'classUserList' => model::getClassList($nsPath, $categoryDir, CONSTANT::USER_FOLDER, true),
-                            'classExtList' => model::getClassList($nsPath, $categoryDir, 'ext', true)]);
-        // func. selectCategoryChange
-    }
-
+    // class compprop
 }

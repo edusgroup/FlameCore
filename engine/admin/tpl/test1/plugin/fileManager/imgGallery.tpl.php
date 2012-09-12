@@ -317,7 +317,7 @@ $(document).ready(function () {
         fileRm:file.fileRm
     });
 
-    SWFUploadSettings.file_types = '*.jpg;*.gif;*.png';
+    SWFUploadSettings.file_types = '*.jpg;*.gif;*.png;*.jpeg';
     SWFUploadSettings.file_types_description = "Image files";
 
     SWFUploadSettings.file_post_name = 'files';

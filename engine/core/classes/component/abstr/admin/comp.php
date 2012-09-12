@@ -35,12 +35,18 @@ abstract class comp extends \core\classes\mvc\controllerAbstract {
      */
     public $compId;
 
+    /**
+     * Имя файла шаблона
+     * @var string
+     */
+    public $tplFile;
+
     public function __call($pName, $pArgs) {
-        call_user_func_array(array($this->controller, $pName), $pArgs);
+        call_user_func_array([$this->controller, $pName], $pArgs);
         // func. __call
     }
 
-    public function getTplFile() {
+    /*public function getTplFile() {
         $tplType = $this->objProp['tplType'];
         $category = $this->objProp['category'];
         $categoryDir = '';
@@ -60,21 +66,21 @@ abstract class comp extends \core\classes\mvc\controllerAbstract {
         }
         throw new \Exception('Не известнный тип tplType');
         // func. getTplFile
-    }
+    }*/
 
     /**
      * Возврашает список табличных данных, пренадлежащех категории $pContId
      * Может быть пустым. Нужно только если onlyFolder=1
      * @param integer $pContId ID родителя(категории)
      */
-    public abstract function getTableData($pContId);
+    //public abstract function getTableData($pContId);
 
     /**
      * Возврашает имя записи в таблице
      * Может быть пустым. Нужно только если onlyFolder=1
      * @param integer $pTableId ID таблицы
      */
-    public abstract function getTableOrm();
+    //public abstract function getTableOrm();
 
     //public abstract function blockItemShowAction();
 

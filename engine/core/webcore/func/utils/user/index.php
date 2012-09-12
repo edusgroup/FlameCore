@@ -38,8 +38,8 @@ if ($userData) {
 						  ->where('ugr.userId = '.$userData['id'])
 						  ->fetchAll();
 						  
-	$userGroupsId = array();
-	$userGroupsSysname = array();
+	$userGroupsId = [];
+	$userGroupsSysname = [];
 	
 	foreach( $userGroupData as $item ){
 		$userGroupsId[] = $item['groupId'];

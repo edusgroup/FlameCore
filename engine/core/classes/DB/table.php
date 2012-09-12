@@ -4,9 +4,9 @@ namespace core\classes\DB;
  * ORM таблицы
  */
 class table extends adapter\adapter {
-    //private static $aFields = array();
+    //private static $aFields = [];
     private $sTable = '';
-    //private static $aReturn = array();    
+    //private static $aReturn = [];
     const ASC = 1, DESC = 2;
     const FIELD_WHERE = 1,/*' AND '*/ FIELD_SET = 2/*','*/;
     private $isUserUnion = false;
@@ -399,7 +399,7 @@ class table extends adapter\adapter {
     public function insertMulti(array $pField, $pExec=true){
         $this->sSQL = 'INSERT INTO `'.$this->sTable.'`';
         $this->sSQL .= '(`'.implode( '`,`', array_keys($pField) ).'`)';
-        $insert = array();
+        $insert = [];
         
         $count = current($pField);
         $count = count($count);

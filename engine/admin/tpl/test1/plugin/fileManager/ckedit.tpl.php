@@ -43,7 +43,7 @@
             <div>
                 <? self::selectIdName(self::get('sizeList'), 'id="imgSizeList"'); ?>
             </div>
-            <div><input type="button" value="Выбрать" id="btnImgSelect"/></div>
+            <div><input type="button" value="Выбрать" id="choosetImgBtn"/></div>
         </div>
 
 
@@ -51,7 +51,6 @@
             Send this file: <input name="files" type="file">
             <input type="submit" value="Send File">
         </form>-->
-
         
 
         <script>
@@ -78,7 +77,7 @@
 
             var swfu;
 
-            file.fileDialogComplete = function(numFilesSelected, numFilesQueued) {
+            function cbFileDialogComplete(numFilesSelected, numFilesQueued) {
                 try {
                     if ( numFilesSelected < 500 ){
                         this.startUpload();
@@ -89,10 +88,10 @@
                 } catch (ex) {
                     this.debug(ex);
                 }
-                // func. fileDialogComplete
+                // func. cbFileDialogComplete
             }
-            
-            file.makeFileData = function(pData){
+
+            function makeFileData(pData){
                 var id = file.maxFileId++;
                 return {
                     id: 'file'+id,
@@ -110,37 +109,43 @@
                 // func. makeFileData
             }
 
-            file.onUploadSuccess = function(pFile, pData){
+            function cbUploadSuccess(pFile, pData){
                 if ( pData['dubl']){
                     return;
                 }
-                $('#'+file.folderContenierId).addFile(file.makeFileData(pData)); 
-                // func. onUploadSuccess
+                $('#'+file.folderContenierId).addFile(makeFileData(pData));
+                // func. cbUploadSuccess
             }
 
-            file.makePreviewUrl = function(pData){
+            function cbMakePreviewUrl(pData) {
                 if ( pData['error']){
                     alert(pData['error']['msg']);
                     return;
-                }
+                } // if
                 fileManager.returnInEditor(fileManager.funcNameCallBack, pData['url']);
-                // func. makePreviewUrl
+                // func. cbMakePreviewUrl
             }
 
-            file.btnImgSelect = function(){
+             function choosetImgBtnClick(){
+                // Получаем выбранный размер
                 var sizeId = $("#imgSizeList :selected").val();
-                sizeId = parseInt(sizeId);
-                if ( sizeId == -1 || isNaN(sizeId)){
+                // Нужно ли производить ресайз картинки
+                if ( sizeId == 'noResize'){
+                    // Получаем URL файла
                     var fileUrl  = fileManager.selectItem.file;
+                    // Возвращаемся к ckEdit
                     fileManager.returnInEditor(fileManager.funcNameCallBack, fileUrl);
                 }else{
+                    // Получаем имя картинки
                     var name = fileManager.selectItem.name;
+                    // Отправляем запрос на ресайз изобразения
+
                     HAjax.makePreviewUrl({data: {name: name, sizeid: sizeId}, query: file.userQuery});
                 }
-                // func. btnImgSelect
+                // func. choosetImgBtnClick
             }
             
-            file.btnDeleteClick = function(){
+            function btnDeleteClick(){
                 if (!confirm('Уверены что хотите удалить?')){
                     return false;
                 }
@@ -150,8 +155,8 @@
                 return false;
                 // func. btnDeleteClick
             }
-            
-            file.fileRm = function(pData){
+
+            function cbFileRm(pData){
                 if ( pData['error']){
                     alert(pData['error']['msg']);
                     return;
@@ -160,8 +165,8 @@
                 for( var num in pData['idlist'] ){
                     var fileId = pData['idlist'][num];
                     $('#'+fileId).remove();
-                }
-                // func. fileRm
+                } // ofr
+                // func. cbFileRm
             }
 
             $(document).ready(function(){
@@ -171,12 +176,12 @@
                     $('#selectSizeDiv').hide();
                 }
                 
-                $('#btnImgSelect').click(file.btnImgSelect);
-                $('#btnDelete').click(file.btnDeleteClick);
+                $('#choosetImgBtn').click(choosetImgBtnClick);
+                $('#btnDelete').click(btnDeleteClick);
                 
                 HAjax.create({
-                    makePreviewUrl: file.makePreviewUrl,
-                    fileRm: file.fileRm
+                    makePreviewUrl: cbMakePreviewUrl,
+                    fileRm: cbFileRm
                 });
                 
                 switch (file.filterType) {
@@ -188,17 +193,17 @@
                         SWFUploadSettings.file_types = '*.swf';
                         SWFUploadSettings.file_types_description = "Flash files";
                         break;
-                }
+                } // switch
 
                 SWFUploadSettings.file_post_name = 'files';
                 SWFUploadSettings.upload_url = utils.url({method: 'uploadFile', query: file.userQuery});
                 SWFUploadSettings.upload_url += '&siteName=' + file.siteName;
                 //$('#formTest').attr('action', SWFUploadSettings.upload_url);
-                SWFUploadSettings.file_dialog_complete_handler = file.fileDialogComplete;
+                SWFUploadSettings.file_dialog_complete_handler = cbFileDialogComplete;
 		        SWFUploadSettings.button_window_mode = 'opaque';
 		        SWFUploadSettings.debug = false;
 
-                fileUpload.onUploadSuccess = file.onUploadSuccess;
+                fileUpload.onUploadSuccess = cbUploadSuccess;
                 swfu = new SWFUpload(SWFUploadSettings);
                 
                 $('#folder').folderProp({
@@ -206,7 +211,7 @@
                 });
 
                 for(var i = 0; i < file.fileList.length; i++){
-                    $('#'+file.folderContenierId).addFile(file.makeFileData(file.fileList[i])); 
+                    $('#'+file.folderContenierId).addFile(makeFileData(file.fileList[i]));
                 } // for(file.fileList)
                 // window.ready
             }); 

@@ -13,25 +13,32 @@ use core\classes\request;
 abstract class controllerAbstract extends request {
 
     public function __construct(string $pTplPath, string $pThemeResUrl) {
-        // TODO: Проверить нужны ли эти пути
-        
-        //$componentTplPath = sprintf(DIR::TPL_COMPONENT_ADMIN, SITE::THEME_NAME);
         $this->view = new render($pTplPath, $pThemeResUrl);
         $this->init();
+        // func. __construct
+    }
+
+    public function setPathUrl(string $pTplPath, string $pThemeResUrl){
+        $this->view->setTplPath($pTplPath);
+        $this->view->setThemeResUrl($pThemeResUrl);
+        // func. setPath
     }
 
     public function setSiteName($pSiteName){
         $this->view->setVar('$siteName', $pSiteName);
+        // func. setSiteName
     }
 
     public function setVar(string $pName, $pValue, $pSafe = true) {
         $this->view->setVar($pName, $pValue, $pSafe);
+        // func. setVar
     }
 
     public function varList($pList) {
         foreach ($pList as $key => $val) {
             self::setVar($key, $val);
-        }
+        } // foreach
+        // func. varList
     }
 
     public function setJSON(string $pName, $pValue) {
@@ -58,4 +65,5 @@ abstract class controllerAbstract extends request {
     }
 
     public abstract function init();
+    // func. controllerAbstract
 }

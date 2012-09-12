@@ -74,7 +74,7 @@ class model {
             } // foreach
         } // if
 
-        $file2id = array();
+        $file2id = [];
 
         foreach ($file as $fileId => $data) {
             if (ctype_digit($fileId)) {

@@ -13,6 +13,9 @@ use core\classes\validation\word;
 // Conf
 use \DIR;
 
+// Init
+use admin\library\init\comp as compInit;
+
 /**
  * Класс работы с компонентами. Создание объектов, получение свойств.
  *
@@ -65,7 +68,7 @@ class comp {
     }
 
     // Получение объекта по настройкам
-    public static function getCompObject($pProp, $pCompProp = null) {
+    /*public static function getCompObject($pProp, $pCompProp = null) {
         if (!$pProp) {
             $pProp['classType'] = self::DEFAULT_VALUE;
             $pProp['category'] = '';
@@ -78,8 +81,7 @@ class comp {
         } // if
         //var_dumP($pProp);
         if ( $pProp['category'] && $pProp['classType'] != self::DEFAULT_VALUE ){
-            global $gObjProp;
-            $gObjProp['category'] = $pProp['category'].'/'.$pProp['classType'];
+            compInit::$objProp['category'] = $pProp['category'].'/'.$pProp['classType'];
             $pProp['classType'] = self::DEFAULT_VALUE;
         }
         $className = 'admin\library\mvc\comp\\';
@@ -98,20 +100,22 @@ class comp {
         }
         throw new \Exception('Неизвестный classType', 97);
         // func. getCompObject
-    }
+    }*/
 
     /**
-     * Получаем первую настройку контента
+     * Получаем первую настройку контента в дереве т.е.
+     * снизу вверх к корню и ищем любую настройка, если настройки не будет
+     * то функцию вернёт значения по умолчанию.
      * @param integer $pContId ID контента
      * @return array
      */
-    public static function getCompContProp(\integer $pContId) {
+    public static function findCompPropUpToRoot(integer $pContId) {
 
         $compContTree = new compContTree();
         // получаем список папок-родителей в виде массива
         $nodeList = $compContTree->getTreeUrlById(compContTree::TABLE, $pContId);
-
         $where = 'cp.parentLoad != 1';
+        // Далее по коду мы формируем список веток к корню, получаем их ID
         if ($nodeList) {
             $strTmp = '';
             foreach ($nodeList as $item) {
@@ -120,6 +124,7 @@ class comp {
             $where .= ' AND ct.id in (' . substr($strTmp, 1) . ')';
         }
         // Находим настроку контента, ближайщую к ветке
+        // Для этого делаем выборку, сортируем по ID ветки и берём верхнюю запись
         $propData = $compContTree
             ->select('ct.id, ct.`name` `name`, c.`name` class , c.ns'
                          . ',c.classname ,cp.*, ct.comp_id as compId', 'ct')
@@ -132,25 +137,12 @@ class comp {
 
         // Если настроек нет, значит надо выставить найтройки по умолчанию
         if (!$propData) {
-            $propData = self::getCompPropByContId($pContId);
-            $propData['classType'] = self::DEFAULT_VALUE;
-            $propData['tplType'] = self::DEFAULT_VALUE;
-            $propData['tplUserFile'] = '';
-            $propData['tplExtFile'] = '';
-            $propData['classUserFile'] = '';
-            $propData['classExtFile'] = '';
-            $nsPath = filesystem::nsToPath($propData['ns']);
-            $categoryDir = DIR::CORE . 'admin/library/mvc/comp/'.$nsPath.'category/';
-            $propData['category'] = '';
-            if ( is_dir($categoryDir)){
-                $propData['category'] = filesystem::getFirstObjectInFolder($categoryDir, filesystem::DIR);
-            }
-            $propData['noProp'] = 1;
-        }else{
-            $propData['noProp'] = 0;
-        }
+            //$propData['classFile'] = '';
+            //$propData['tplFile'] = '';
+        } // if
+
         return $propData;
-        // func. getCompContProp
+        // func. findCompPropUpToRoot
     }
 
     /**
@@ -163,28 +155,36 @@ class comp {
      * @param integer $pContId ID контента компонента
      * @return array
      */
-    public static function getCompPropByContId(\integer $pContId) {
-        $compContTree = new compContTree();
-        $data = $compContTree
+    public static function getCompPropByContId(integer $pContId) {
+        $data = (new compContTree())
             ->select('c.ns, c.classname, c.id as compId', 'cc')
-            ->join(componentTree::TABLE . ' c', 'c.id = cc.comp_id AND cc.id=' . $pContId)
+            ->join(componentTree::TABLE . ' c', 'c.id = cc.comp_id')
+            ->where('cc.id=' . $pContId)
             ->comment(__METHOD__)
             ->fetchFirst();
         return $data;
         // func. getContData
     }
 
+    public static function getBrunchPropByContId(integer $pContId){
+        $data = (new compContTree())
+            ->select('c.ns, c.classname, c.id as compId, cp.*', 'cc')
+            ->join(componentTree::TABLE . ' c', 'c.id = cc.comp_id')
+            ->joinLeftOuter(compPropOrm::TABLE . ' cp', 'cp.contId = cc.id ')
+            ->where('cc.id=' . $pContId)
+            ->comment(__METHOD__)
+            ->fetchFirst();
+        return $data;
+        //func. getBrunchPropByContId
+    }
+
     public static function getClassDataByCompId(\integer $pCompId) {
-        $componentTree = new componentTree();
-        return $componentTree
-            ->selectFirst('ns, classname',
-                          'id=' . $pCompId,
-                          new \Exception('Component compId: ' . $pCompId . ' не найден', 238)
-        );
+        $exc = new \Exception('Component compId: ' . $pCompId . ' не найден', 238);
+        return (new componentTree())->selectFirst('ns, classname', 'id=' . $pCompId, $exc );
         // func. getClassDataByCompIds
     }
 
-    public static function getClassFullName($pClassFile, $pNs){
+    public static function getClassName($pClassFile){
         $classNameData = comp::getFileType($pClassFile);
         $className = $classNameData['file'];
         $className = substr($className, 0, strlen($className) - 4);
@@ -193,10 +193,50 @@ class comp {
             $className
             , new \Exception('Bad Ns name: [' . __METHOD__ . '(className=>' . $className . ')]', 23)
         );
+        $classNameData['file'] = $className;
+        return $classNameData;
+        // func. getClassName
+    }
+
+    public static function getClassFullName($pClassFile, $pNs){
+        $classNameData = self::getClassName($pClassFile);
+        $className = $classNameData['file'];
 
         $classType = $classNameData['isOut'] ? comp::FILE_OUT : comp::FILE_IN;
         return comp::getFullCompClassName($classType, $pNs, 'logic', $className);
         // func. getClassFullName
+    }
+
+    public static function getCompClassPath($pIsOut, $pNsPath){
+        // Проверяем существование класса
+        if ( $pIsOut){
+            return DIR::getSiteClassCoreAdmin($pNsPath).'logic/';
+        }else{
+            return DIR::getCompClassPath().$pNsPath.'logic/';
+        } // if
+        // func. getCompClassPath
+    }
+
+    public static function createClassAdminObj($pClassFileName, $pNs){
+        $classNameData = self::getClassName($pClassFileName);
+        if ( $classNameData['isOut']){
+            $className = '\\site\\core\\admin\\comp\\'.$pNs.'logic\\';
+        }else{
+            $className = '\\admin\\library\\mvc\\comp\\'.$pNs.'logic\\';
+        } // if
+        $className .= $classNameData['file'];
+        return new $className('', '');
+        // func. createClassAdminObj
+    }
+
+    public static function getCompTplPath($pIsOut, $pNsPath){
+        // Проверяем существование класса
+        if ( $pIsOut ){
+            return DIR::getTplAdminOuter($pNsPath);
+        }else{
+            return DIR::getTplPath('comp/' . $pNsPath).'admin/';
+        } // if
+        // func. getCompTplPath
     }
 
     // class comp

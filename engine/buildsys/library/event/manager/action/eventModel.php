@@ -35,6 +35,9 @@ use ORM\blockItem\order as blockItemOrderOrm;
 // Model
 use admin\library\mvc\manager\varible\model as varibleModel;
 
+// Init
+use admin\library\init\comp as compInit;
+
 /**
  * Description of eventModel
  *
@@ -367,9 +370,9 @@ class eventModel {
                 $custContId = (int)($item['custContId'] ? : $item['statId']);
                 if ($custContId) {
                     // Создаём объекта класса компонента, который стоит в blockItem
-                    global $gObjProp;
-                    $gObjProp = comp::getCompContProp($custContId);
-                    $contrObj = comp::getCompObject($gObjProp);
+                    //global $gObjProp;
+                    compInit::$objProp = comp::getCompContProp($custContId);
+                    $contrObj = comp::getCompObject(compInit::$objProp);
 
                     if (method_exists($contrObj, 'getBlockItemParam')) {
                         $codeTmp .= $contrObj->getBlockItemParam($item['id'], $pAcId);

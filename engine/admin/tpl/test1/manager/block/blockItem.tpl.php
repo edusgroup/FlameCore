@@ -129,7 +129,6 @@
 
                     <div class="dt">Url Tpl</div>
                     <div class="dd" id="urlTplBox">
-
                     </div>
 
                     <div class="dt">Static content</div>

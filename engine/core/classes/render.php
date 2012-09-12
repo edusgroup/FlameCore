@@ -12,7 +12,7 @@ use \DIR;
 class render extends html\element{
 
     /** @var список переменных */
-    protected $arVarible = array();
+    protected $arVarible = [];
     
     protected $contentType = 'Content-Type: text/html; charset=UTF-8';
 

@@ -39,13 +39,13 @@
                 <ul class="menu-items">
                     
                     <li>
-                        <a href="?$t=manager&$c=action" id="" title="Route">
+                        <a href="?$t=manager&$c=action" title="Route">
                             <img src="<?= self::res('images/action_32.png') ?>" alt="Route" /><span>Route</span>
                         </a>
                     </li>
                     
                     <li>
-                        <a href="?$t=manager&$c=wareframe" id="" title="WF">
+                        <a href="?$t=manager&$c=wareframe" title="WF">
                             <img src="<?= self::res('images/wf_32.png') ?>" alt="Comp List" /><span>WareFrame</span>
                         </a>
                     </li>

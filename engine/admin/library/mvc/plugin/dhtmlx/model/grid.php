@@ -55,7 +55,7 @@ class grid {
             throw new \Exception('Неверный тип данных', 11);
         }
         // Дополнительное поля для Insert-a
-        $insert = array();
+        $insert = [];
         if ($pInsertField && isset($pOrmObj->colInsert)) {
             $insert = $pInsertField;
             // производим валидацию данных
@@ -73,7 +73,7 @@ class grid {
         } // if($pInsertField)
         
         $data = $pData;
-        $newId = array();
+        $newId = [];
         // Количество строк, по которым будут изменения
         $iCount = count($data);
         for ($i = 0; $i < $iCount; $i++) {
@@ -137,7 +137,7 @@ class grid {
      * hidden - if the attribute is set, the column will be rendered in hidden state.
      */
     public static function createColumn($pName = '', $pId = null, $pType = null, $pWidth = null, $pAlign = null, $pColor = null, $pSort = null) {
-        $return = array();
+        $return = [];
         if ($pType !== null) {
             $return['attr']['type'] = $pType;
         }
@@ -169,7 +169,7 @@ class grid {
      */
     public static function list2options($pList) {
         $listCount = count($pList);
-        $return = array();
+        $return = [];
         for ($i = 0; $i < $listCount; $i++) {
             $return[$pList[$i]] = $pList[$i];
         } // for
@@ -296,7 +296,7 @@ class grid {
         // Получаем из строки массив ID 
         $rowsId = explode(',', $pRowsId);
         $iCount = count($rowsId);
-        $list = array();
+        $list = [];
         // Бегае по ID-кам
         for ($i = 0; $i < $iCount; $i++) {
             // Если ID < 0, то это новый ID, удалять нечего

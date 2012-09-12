@@ -175,7 +175,7 @@ class upload {
             return false;
         }
 
-        $return = array();
+        $return = [];
 
         if ($this->typeUpload == self::FILE_MULTI) {
 
@@ -183,7 +183,7 @@ class upload {
 
             //$iFileCount = count($_FILES[$pParamName]['name']);
             for ($i = 0; $i < $fileCount; $i++) {
-                $fileData = array();
+                $fileData = [];
                 foreach ($_FILES[$pParamName] as $key => $val) {
                     $fileData[$key] = $val[$i];
                 }
