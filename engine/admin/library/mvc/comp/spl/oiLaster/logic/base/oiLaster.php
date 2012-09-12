@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\oiLaster;
+namespace admin\library\mvc\comp\spl\oiLaster\logic\base;
 
 // Conf
 use \DIR;
@@ -18,6 +18,9 @@ use ORM\tree\componentTree;
 
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
+
+// Event
+use admin\library\mvc\comp\spl\oiLaster\event;
 
 /**
  * Управление список последних objItem компонентов
@@ -137,19 +140,6 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
         (new oiLasterPropOrm())->saveExt(['contId' => $contId], $saveData);
 
         // func. saveDataAction
-    }
-
-    public function getTableData($pContId) {
-
-    }
-
-    public function getTableOrm() {
-
-    }
-
-    public function blockItemShowAction() {
-        $this->view->setRenderType(render::NONE);
-        echo 'Нет данных';
     }
 
     // class oiLaster

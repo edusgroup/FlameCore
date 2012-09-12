@@ -1,23 +1,28 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\oiComment;
+namespace admin\library\mvc\comp\spl\oiComment\logic\base;
 
 // Conf
 use \DIR;
+
 // Engine
 use core\classes\render;
 use core\classes\filesystem;
+
 // ORM
 use ORM\comp\spl\oiComment\oiCommentProp as oiCommentPropOrm;
 use ORM\comp\spl\oiComment\oiCommentBi as oiCommentBiOrm;
 use ORM\tree\routeTree;
 use ORM\blockItemSettings;
 use ORM\comp\spl\oiComment\oiCommentProp as oiCommentpPropOrm;
+
 // Model
 use admin\library\mvc\manager\varible\model as varModel;
 use admin\library\mvc\manager\blockItem\model as blockItemModel;
+
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
+
 // Trait
 //use admin\library\mvc\manager\blockItem\compBlockItem;
 
@@ -34,7 +39,7 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
     }
 
     public function init() {
-        
+
     }
 
     public function indexAction() {
@@ -60,21 +65,9 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
         $oiCommentPropOrm = new oiCommentPropOrm();
         $oiCommentPropOrm->save(
             'contId=' . $contId,
-            ['type' => $type, 'contId' => $contId ]
+            ['type' => $type, 'contId' => $contId]
         );
         // func. saveDataAction 
-    }
-
-    public function blockItem() {
-        
-    }
-
-    public function getTableData($pContId) {
-        
-    }
-
-    public function getTableOrm() {
-        
     }
 
     /**
@@ -82,15 +75,15 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
      * @param int $pBlockItemId
      * @param $pContr
      */
-    public function blockItemSave(integer $pBlockItemId, $pContr){
+    public function blockItemSave(integer $pBlockItemId, $pContr) {
         $save = [
             'tplListFile' => $pContr::post('tplListItemId'),
-            'tplComFile' => $pContr::post('tplComItemId'), 
+            'tplComFile' => $pContr::post('tplComItemId'),
             'actionId' => $pContr::postInt('varName'),
             'blockItemId' => $pBlockItemId
         ];
         $oiCommentBiOrm = new oiCommentBiOrm();
-        $oiCommentBiOrm->save('blockItemId='.$pBlockItemId, $save);
+        $oiCommentBiOrm->save('blockItemId=' . $pBlockItemId, $save);
         // func. blockItemSave
     }
 
@@ -99,18 +92,18 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
      * @param $pBlockItemId
      * @return string
      */
-    public function getBlockItemParam($pBlockItemId, $pAcId){
+    public function getBlockItemParam($pBlockItemId, $pAcId) {
         $oiCommentBiOrm = new oiCommentBiOrm();
         $data = $oiCommentBiOrm->select('r.name, acp.type', 'acb')
-                        ->join(routeTree::TABLE.' r', 'r.id=acb.actionId')
-                        ->join(blockItemSettings::TABLE . ' bis', 'bis.blockItemId=acb.blockItemId')
-                        ->join(oiCommentpPropOrm::TABLE . ' acp', 'acp.contId=bis.custContId')
-                        ->where('acb.blockItemId='.$pBlockItemId)
-                        ->comment(__METHOD__)
-                        ->fetchFirst();
-        return "\t'varible' => '{$data['name']}'," . PHP_EOL.
-               "\t'blockItemId' => '$pBlockItemId'," . PHP_EOL.
-               "\t'type' => '{$data['type']}'" . PHP_EOL;
+            ->join(routeTree::TABLE . ' r', 'r.id=acb.actionId')
+            ->join(blockItemSettings::TABLE . ' bis', 'bis.blockItemId=acb.blockItemId')
+            ->join(oiCommentpPropOrm::TABLE . ' acp', 'acp.contId=bis.custContId')
+            ->where('acb.blockItemId=' . $pBlockItemId)
+            ->comment(__METHOD__)
+            ->fetchFirst();
+        return "\t'varible' => '{$data['name']}'," . PHP_EOL .
+            "\t'blockItemId' => '$pBlockItemId'," . PHP_EOL .
+            "\t'type' => '{$data['type']}'" . PHP_EOL;
         // func. getBlockItemParam
     }
 
@@ -120,12 +113,12 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
     public function blockItemShowAction() {
         $blockItemId = self::getInt('blockitemid');
         $acId = self::getInt('acid');
-        
-        $oiCommentData = (new oiCommentBiOrm())->selectFirst('actionId, tplListFile, tplComFile', 'blockItemId='.$blockItemId);
-        if ( $oiCommentData ){
+
+        $oiCommentData = (new oiCommentBiOrm())->selectFirst('actionId, tplListFile, tplComFile', 'blockItemId=' . $blockItemId);
+        if ($oiCommentData) {
             self::setJson('oiCommentData', $oiCommentData);
         } // if
-        
+
         $itemData = blockItemModel::getCompData($blockItemId);
 
         if ($acId != -1) {
@@ -136,9 +129,9 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
                 self::setVar('varList', ['list' => $varList]);
             } // if
         } // if ($acId)
-        
+
         $nsPath = filesystem::nsToPath($itemData['ns']);
-        
+
         // Дерево с шаблонами сайта для компонента
         $siteTplPath = DIR::getSiteCompTplPath($nsPath);
         $tree = dhtmlxTree::createTreeOfDir($siteTplPath);
@@ -148,5 +141,5 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
         // func. blockItemShowAction
     }
 
-// class oiList
+    // class oiCommnet
 }

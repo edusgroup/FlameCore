@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\oiList;
+namespace admin\library\mvc\comp\spl\oiList\logic\base;
 
 // Conf
 use \DIR;
@@ -18,6 +18,9 @@ use ORM\tree\componentTree;
 
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
+
+// Event
+use admin\library\mvc\comp\spl\oiList\event;
 
 /**
  * Description of oiList

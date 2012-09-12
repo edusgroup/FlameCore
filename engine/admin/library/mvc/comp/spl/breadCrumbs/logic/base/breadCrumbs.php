@@ -1,17 +1,23 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\breadCrumbs;
+namespace admin\library\mvc\comp\spl\breadCrumbs\logic\base;
 
 // Conf
 use \DIR;
 use \SITE;
+
 // Engine
 use core\classes\render;
+
 // ORM
 use ORM\tree\routeTree;
 use ORM\comp\spl\breadCrumbs\breadCrumbs as breadCrumbsOrm;
+
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
+
+// Model
+use admin\library\mvc\comp\spl\breadCrumbs\model;
 
 /**
  * Description of breadCrumbs
@@ -50,31 +56,23 @@ class breadCrumbs extends \core\classes\component\abstr\admin\comp {
      * Получение данных хлебных крошек, по веткам дерева
      * в формате HTML
      */
-    public function loadParamAction(){
+    public function loadParamAction() {
         // Action ID ветки
         $actionId = self::getInt('itemid');
         // ID контента, которым управляем
         $contId = $this->contId;
         self::setVar('contId', $contId);
 
-        // Список компонентов wareframe
-        //$compList = [];
-
         // Получаем сохранённые данные
-        $name = (new breadCrumbsOrm())->get('name', ['acId' => $actionId, 'contId' => $contId] );
-        if ( $name ){
+        $name = (new breadCrumbsOrm())->get('name', ['acId' => $actionId, 'contId' => $contId]);
+        if ($name) {
             self::setVar('name', $name);
         }
-
-        // Получаем список компонентов в Wareframe по actionId
-        //$compList['list'] = model::loadCompList($actionId);
-        //self::setVar('complist', $compList);
-
-        $this->view->setMainTpl('loadParam.tpl.php');
+        $this->view->setMainTpl('../help/loadParam.tpl.php');
         // func. loadParamAction
     }
 
-    public function saveDataAction(){
+    public function saveDataAction() {
         // Указываем что, результат нужно отдать в формате JSON
         $this->view->setRenderType(render::JSON);
         $contId = $this->contId;
@@ -84,28 +82,16 @@ class breadCrumbs extends \core\classes\component\abstr\admin\comp {
         // Сохраняем выбранные данные
         (new breadCrumbsOrm())->saveExt(
             ['acId' => $actionId,
-             'contId'=>$contId],
+            'contId' => $contId],
             ['name' => $name]);
 
         // func. saveDataAction
     }
 
-    public function getBlockItemParam($pBlockItemId, $pAcId){
+    public function getBlockItemParam($pBlockItemId, $pAcId) {
         return model::createCrumbs($pBlockItemId, $pAcId);
         // func. getBlockItemParam
     }
 
-    public function blockItemShowAction(){
-        $this->view->setRenderType(render::NONE);
-        print 'Не указаны';
-    }
-
-    public function getTableData($pContId) {
-
-    }
-
-    public function getTableOrm() {
-
-    }
-// class breadCrumbs
+    // class breadCrumbs
 }

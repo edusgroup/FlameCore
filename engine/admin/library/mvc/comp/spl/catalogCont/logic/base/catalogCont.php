@@ -1,19 +1,17 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\catalogCont;
+namespace admin\library\mvc\comp\spl\catalogCont\logic\base;
 
 // Conf
 use \DIR;
 
 // Engine
 use core\classes\render;
-use core\classes\mvc\controllerAbstract;
 use core\classes\event as eventCore;
 use core\classes\filesystem;
 
 // ORM
 use ORM\tree\compContTree;
-use ORM\tree\wareframeTree;
 use ORM\comp\spl\catalogCont\catalogCont as catalogContOrm;
 use ORM\comp\spl\catalogCont\catalogContProp as catalogContPropOrm;
 use ORM\tree\componentTree;
@@ -21,6 +19,9 @@ use ORM\tree\routeTree as routeTreeOrm;
 
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
+
+// Event
+use admin\library\mvc\comp\spl\catalogCont\event;
 
 /**
  * @author Козленко В.Л.
@@ -106,7 +107,7 @@ class catalogCont extends \core\classes\component\abstr\admin\comp {
         $urltpl = self::post('urltpl');
         (new catalogContPropOrm())->saveExt(
             ['contId' => $contId],
-            ['urltpl' => $urltpl, 'caption'=>$caption]);
+            ['urltpl' => $urltpl, 'caption' => $caption]);
 
 
         // Данные для паблика, т.е. те данные которые будут запрашиваться для сайта
@@ -118,14 +119,6 @@ class catalogCont extends \core\classes\component\abstr\admin\comp {
         filesystem::saveFile($saveDir, 'public.txt', $dataPublic);
 
         // func. saveDataAction 
-    }
-
-    public function getTableData($pContId) {
-
-    }
-
-    public function getTableOrm() {
-
     }
 
     // class action

@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\oiPopular;
+namespace admin\library\mvc\comp\spl\oiPopular\logic\base;
 
 // Conf
 use \DIR;
@@ -19,6 +19,9 @@ use ORM\tree\componentTree;
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
+// Event
+use admin\library\mvc\comp\spl\oiPopular\event;
+
 
 /**
  * Description of oiPopular
@@ -26,10 +29,6 @@ use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
  * @author Козленко В.Л.
  */
 class oiPopular extends \core\classes\component\abstr\admin\comp {
-
-    public function __construct(string $pTplPath, string $pThemeResUrl) {
-        parent::__construct($pTplPath, $pThemeResUrl);
-    }
 
     public function init() {
         
@@ -81,8 +80,9 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
     
     public function saveDataAction(){
         $this->view->setRenderType(render::JSON);
-        if (!self::isPost())
+        if (!self::isPost()){
             return;
+        } // if
         $contId = $this->contId;
 
         eventCore::callOffline(
@@ -116,19 +116,6 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
         (new oiPopularPropOrm())->saveExt(['contId' => $contId], $saveData);
 
         // func. saveDataAction
-    }
-
-    public function getTableData($pContId) {
-        
-    }
-
-    public function getTableOrm() {
-        
-    }
-    
-    public function blockItemShowAction(){
-        $this->view->setRenderType(render::NONE);
-        echo 'Нет данных';
     }
 
 // class oiPopular

@@ -1,34 +1,32 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\menu;
+namespace admin\library\mvc\comp\spl\menu\logic\base;
 
 // Engine
 use core\classes\render;
 use core\classes\image\resize;
-use core\classes\image\filter as imgFilter;
 use core\classes\filesystem;
-use core\classes\validation\filesystem as fileValidation;
 use core\classes\upload;
-use core\classes\image\imageProp;
 use core\classes\event as eventCore;
+
 // Conf
 use \DIR;
 use \SITE;
+
 // ORM
 use ORM\tree\comp\menu as menuOrm;
+
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 use admin\library\mvc\plugin\fileManager\fileManager;
-use admin\library\mvc\plugin\fileManager\model as fileManagerModel;
 
-/**
- * TODO: Передалать так что бы любой компонента мог наследовать или использовать
- * этот код
- */
+use admin\library\mvc\comp\spl\menu\event;
+
+
 class menu extends \core\classes\component\abstr\admin\comp {
 
     public function init() {
-        
+
     }
 
     public function indexAction() {
@@ -37,16 +35,16 @@ class menu extends \core\classes\component\abstr\admin\comp {
 
         $pathPrefix = 'comp/' . $compId . '/' . $contId . '/';
         $loadDir = DIR::getSiteDataPath($pathPrefix);
-        
-        $compTree = dhtmlxTree::createTreeOfTable(new menuOrm(), 'contId='.$contId);
+
+        $compTree = dhtmlxTree::createTreeOfTable(new menuOrm(), 'contId=' . $contId);
         self::setJson('menuTree', $compTree);
 
         self::setVar('contId', $contId, -1);
         self::setVar('compId', $compId, -1);
 
         $saveData = filesystem::loadFileContentUnSerialize($loadDir . 'private.txt');
-        if ( $saveData ){
-            foreach( $saveData as $key=>$item){
+        if ($saveData) {
+            foreach ($saveData as $key => $item) {
                 self::setVar($key, $item);
             } // foreach
         } // if $saveData
@@ -59,9 +57,9 @@ class menu extends \core\classes\component\abstr\admin\comp {
 
     public function dirAddAction() {
         $this->view->setRenderType(render::JSON);
-        if (!self::isPost()){
+        if (!self::isPost()) {
             return;
-        }
+        } // if
         $contId = $this->contId;
         $treeId = self::postInt('treeid', 0);
         $name = self::post('name');
@@ -74,8 +72,9 @@ class menu extends \core\classes\component\abstr\admin\comp {
 
     public function renameObjAction() {
         $this->view->setRenderType(render::JSON);
-        if (!self::isPost())
+        if (!self::isPost()){
             return;
+        } // if
         $id = self::postInt('id', -1);
         $name = self::post('name');
         $objJson = dhtmlxTree::rename(new menuOrm(), $name, $id);
@@ -86,18 +85,18 @@ class menu extends \core\classes\component\abstr\admin\comp {
 
     /**
      * Удалиние ветки в дереве страниц
-     * @return void 
+     * @return void
      */
     public function rmObjAction() {
         $this->view->setRenderType(render::JSON);
-        if (!self::isPost())
+        if (!self::isPost()){
             return;
+        } // if
         $id = self::postInt('id', -1);
-        $rmList = dhtmlxTree::remove(new menuOrm(), $id);
+        dhtmlxTree::remove(new menuOrm(), $id);
 
-        self::setVar('json', array(
-            'id' => $id,
-            'treeName' => self::post('treeName')));
+        $treeName = self::post('treeName');
+        self::setVar('json', ['id' => $id, 'treeName' => $treeName]);
         // func. rmObjAction
     }
 
@@ -106,25 +105,25 @@ class menu extends \core\classes\component\abstr\admin\comp {
      */
     public function saveDataAction() {
         $this->view->setRenderType(render::JSON);
-        
+
         $contId = $this->contId;
         $compId = $this->compId;
 
         // Папка, куда будем сохранять данные
         $pathPrefix = 'comp/' . $compId . '/' . $contId . '/';
         $saveDir = DIR::getSiteDataPath($pathPrefix);
-        
+
         // ID элемента дерева меню, чьи данные обрабатываем
         $menuId = self::postInt('menuid');
         $sortValue = self::postInt('sortValue');
 
         eventCore::callOffline(
-                event::NAME, 
-                event::ACTION_SAVE, 
-                array( 'compId' => $compId ), 
-                $contId
-         );
-       
+            event::NAME,
+            event::ACTION_SAVE,
+            array('compId' => $compId),
+            $contId
+        );
+
         //$fileImg = trim(self::post('fileImg'));
         // TODO: Вставить проверку на существование
 
@@ -132,7 +131,7 @@ class menu extends \core\classes\component\abstr\admin\comp {
         $menuLink = self::postSafe('link');
         $menuClass = self::postSafe('class');
         // Нужно ли ставить аттребут nofollow
-        $menuNoFollow = (boolean) self::postInt('nofollow');
+        $menuNoFollow = (boolean)self::postInt('nofollow');
         $data = [
             'link' => $menuLink,
             'nofollow' => $menuNoFollow,
@@ -151,16 +150,12 @@ class menu extends \core\classes\component\abstr\admin\comp {
 
         // Данные для паблика, т.е. те данные которые будут запрашиваться для сайта
         // из-за этого их меньше
-        $dataPublic = [
-            'caption' => $caption
-        ];
+        $dataPublic = ['caption' => $caption];
         $dataPublic = \serialize($dataPublic);
         filesystem::saveFile($saveDir, 'public.txt', $dataPublic);
 
         // Данные для настроек, т.е. для админки, запоминаем что было введено
-        $dataPrivate = [
-            'caption' => $caption
-        ];
+        $dataPrivate = ['caption' => $caption];
         $dataPrivate = \serialize($dataPrivate);
         filesystem::saveFile($saveDir, 'private.txt', $dataPrivate);
 
@@ -177,21 +172,9 @@ class menu extends \core\classes\component\abstr\admin\comp {
         self::setVar('nofollow', $data['nofollow']);
         self::setVar('class', $data['class']);
         self::setVar('sortValue', $data['sortValue']);
-        $this->view->setMainTpl('menudata.tpl.php');
+        $this->view->setMainTpl('../help/menudata.tpl.php');
         // func. loadMenuDataAction
     }
 
-    public function getTableData($pContId) {
-        // Не исплользуется
-    }
-
-    public function getTableOrm() {
-        // Не исплользуется
-    }
-    
-    public function blockItemShowAction(){
-        $this->view->setRenderType(render::NONE);
-        echo 'Нет данных';
-    }
-
+    // class menu
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\oiRandom;
+namespace admin\library\mvc\comp\spl\oiRandom\logic\base;
 
 // Conf
 use \DIR;
@@ -19,6 +19,9 @@ use ORM\tree\componentTree;
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
+// Event
+use admin\library\mvc\comp\spl\oiRandom\event;
+
 
 /**
  * Description of oiPopular
@@ -26,10 +29,6 @@ use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
  * @author Козленко В.Л.
  */
 class oiRandom extends \core\classes\component\abstr\admin\comp {
-
-    public function __construct(string $pTplPath, string $pThemeResUrl) {
-        parent::__construct($pTplPath, $pThemeResUrl);
-    }
 
     public function init() {
         
@@ -81,8 +80,10 @@ class oiRandom extends \core\classes\component\abstr\admin\comp {
     
     public function saveDataAction(){
         $this->view->setRenderType(render::JSON);
-        if (!self::isPost())
+        if (!self::isPost()){
             return;
+        }
+
         $contId = $this->contId;
 
         eventCore::callOffline(
@@ -117,19 +118,6 @@ class oiRandom extends \core\classes\component\abstr\admin\comp {
         (new oiRandomPropOrm())->saveExt(['contId' => $contId], $saveData);
 
         // func. saveDataAction
-    }
-
-    public function getTableData($pContId) {
-        
-    }
-
-    public function getTableOrm() {
-        
-    }
-    
-    public function blockItemShowAction(){
-        $this->view->setRenderType(render::NONE);
-        echo 'Нет данных';
     }
 
 // class oiPopular

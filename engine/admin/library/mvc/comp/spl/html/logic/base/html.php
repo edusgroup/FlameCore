@@ -1,11 +1,12 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\html;
+namespace admin\library\mvc\comp\spl\html\logic\base;
 
 // Engine
 use core\classes\render;
 use core\classes\filesystem;
 use core\classes\event as eventCore;
+
 //use core\classes\filesystem;
 // Conf
 use \DIR;
@@ -34,8 +35,8 @@ class html extends \core\classes\component\abstr\admin\comp {
         self::setVar('htmlCode', $htmlCodeData);
 
         $saveData = filesystem::loadFileContentUnSerialize($loadDir . 'private.txt');
-        if ( $saveData ){
-            foreach( $saveData as $key=>$item){
+        if ($saveData) {
+            foreach ($saveData as $key => $item) {
                 self::setVar($key, $item);
             } // foreach
         } // if $saveData
@@ -65,7 +66,7 @@ class html extends \core\classes\component\abstr\admin\comp {
         filesystem::saveFile($saveDir, 'source.txt', $htmlCode);
         // Нужно ли применять функцию
         $isOnlyText = self::postInt('isOnlyText');
-        if ($isOnlyText){
+        if ($isOnlyText) {
             $htmlCode = htmlspecialchars($htmlCode);
         }
         // Обработанный файл
@@ -92,17 +93,5 @@ class html extends \core\classes\component\abstr\admin\comp {
         // func. saveDataAction
     }
 
-    public function getTableData($pContId) {
-        // Не исплользуется
-    }
-
-    public function getTableOrm() {
-        // Не исплользуется
-    }
-
-    public function blockItemShowAction(){
-        $this->view->setRenderType(render::NONE);
-        echo 'Нет данных';
-    }
-
+    // class html
 }

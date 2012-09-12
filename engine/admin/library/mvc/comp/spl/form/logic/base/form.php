@@ -1,21 +1,24 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\form;
+namespace admin\library\mvc\comp\spl\form\logic\base;
 
 // Engine
 use core\classes\render;
 use core\classes\filesystem;
 use core\classes\event as eventCore;
 use core\classes\validation\filesystem as fileValid;
+
 //use core\classes\filesystem;
 // Conf
 use \DIR;
 use \SITE;
+
 // ORM
 use ORM\comp\spl\form\form as formOrm;
 use ORM\tree\routeTree;
 use ORM\blockItemSettings;
 use ORM\blockItem as blockItemOrm;
+
 // Event
 use admin\library\mvc\manager\blockItem\event as blockItemEvent;
 
@@ -40,9 +43,9 @@ class form extends \core\classes\component\abstr\admin\comp {
 
         $classList = [];
 
-        $loadData = (new formOrm())->selectFirst('action', 'contId='.$contId);
-        if ( $loadData ){
-           $classList['val'] = $loadData['action'].'.php';
+        $loadData = (new formOrm())->selectFirst('action', 'contId=' . $contId);
+        if ($loadData) {
+            $classList['val'] = $loadData['action'] . '.php';
         } // if
 
         $compLogicDir = DIR::CORE . 'core/comp/spl/form/action/';
@@ -62,54 +65,37 @@ class form extends \core\classes\component\abstr\admin\comp {
     public function saveDataAction() {
         $this->view->setRenderType(render::JSON);
         $contId = $this->contId;
-        $compId = $this->compId;
-
-        $ns = $this->objProp['ns'];
-        $nsPath = filesystem::nsToPath($ns);
 
         $action = self::post('action');
-
-        if ( !fileValid::isSafe($action) ){
-            throw new \Exception('Bad file name: '.$action);
+        if (!fileValid::isSafe($action)) {
+            throw new \Exception('Bad file name: ' . $action);
         }
+        // TODO: Заменить на функцию из DIR
         $compLogicDir = DIR::CORE . 'core/comp/spl/form/action/';
-        if ( !is_file($compLogicDir.$action)){
-            throw new \Exception('File not exists: '.$action);
+        if (!is_file($compLogicDir . $action)) {
+            throw new \Exception('File not exists: ' . $action);
         }
-        $action = substr($action, 0, strlen($action) - 4 );
+        $action = substr($action, 0, strlen($action) - 4);
 
         $blData = (new blockItemSettings())
             ->select('bis.blockItemId, bi.acId', 'bis')
-            ->join(blockItemOrm::TABLE.' bi', 'bis.blockItemId = bi.id')
-            ->where('bis.statId='.$contId);
-        foreach( $blData as $item ){
-            $eventData = ['blId'=>(int)$item['blockItemId'], 'owner'=>'form'];
+            ->join(blockItemOrm::TABLE . ' bi', 'bis.blockItemId = bi.id')
+            ->where('bis.statId=' . $contId);
+        foreach ($blData as $item) {
+            $eventData = ['blId' => (int)$item['blockItemId'], 'owner' => 'form'];
             eventCore::callOffline(
                 blockItemEvent::BLOCKITEM,
                 blockItemEvent::CHANGE,
                 $eventData
             );
 
-            $where = $item['acId'] ? ' AND id='.$item['acId'] : '';
-            (new routeTree())->update('isSave="yes"', 'id != 0'.$where);
+            $where = $item['acId'] ? ' AND id=' . $item['acId'] : '';
+            (new routeTree())->update('isSave="yes"', 'id != 0' . $where);
         } // foreach
 
-        (new formOrm())->saveExt(['contId'=>$contId], ['action'=>$action]);
+        (new formOrm())->saveExt(['contId' => $contId], ['action' => $action]);
 
         // func. saveDataAction
-    }
-
-    public function getTableData($pContId) {
-        // Не исплользуется
-    }
-
-    public function getTableOrm() {
-        // Не исплользуется
-    }
-
-    public function blockItemShowAction(){
-        $this->view->setRenderType(render::NONE);
-        echo 'Нет данных';
     }
 
     /**
@@ -117,15 +103,16 @@ class form extends \core\classes\component\abstr\admin\comp {
      * @param $pBlockItemId
      * @return string
      */
-    public function getBlockItemParam($pBlockItemId, $pAcId){
+    public function getBlockItemParam($pBlockItemId, $pAcId) {
         $formOrm = new formOrm();
         $data = $formOrm->select('f.action', 'f')
             ->join(blockItemSettings::TABLE . ' bis', 'bis.statId = f.contId')
-            ->where('bis.blockItemId='.$pBlockItemId)
+            ->where('bis.blockItemId=' . $pBlockItemId)
             ->comment(__METHOD__)
             ->fetchFirst();
         return "\t'action' => '{$data['action']}'" . PHP_EOL;
         // func. getBlockItemParam
     }
 
+    // class form
 }
