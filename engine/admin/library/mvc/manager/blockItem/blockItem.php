@@ -67,9 +67,8 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $isLock = self::getInt('islock');
         self::setVar('isLock', $isLock);
 
-        $blockItemSettings = new blockItemSettings();
         // Загружаем сохранённые настройки
-        $saveData = $blockItemSettings->selectFirst('*', 'blockItemId=' . $blockItemId);
+        $saveData = (new blockItemSettings())->selectFirst('*', 'blockItemId=' . $blockItemId);
         if ($saveData) {
             // Загрузаем методы класса компонента
             $classData = model::getSiteClassData($saveData['classFile'], $blockItemId);
@@ -78,12 +77,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             $tableOrm = null;
             // Если есть деление на таблицу и сохранён статический ID элемента таблиц, то нужно вытащить его название
             if ($onlyFolder && isset($saveData['statId'])) {
-                // По id из URL мы еще выше взяли данные по компоненту, что бы 100 раз не дёргать БД
-                // вынесли все данные по объекту который редактируем в глобальный массив $compInit::objProp
 
-                /*compInit::$objProp = comp::getCompContProp((int)$saveData['statId']);
-                $contrObj = comp::getCompObject(compInit::$objProp);
-                */
                 $classFile = (new compPropOrm())->get('classFile', 'classFile', 'contId=' . $saveData['statId']);
                 $contrAdminObj = comp::createClassAdminObj($classFile, $itemData['ns']);
                 $tableOrm = $contrAdminObj->getTableOrm();

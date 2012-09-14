@@ -6,139 +6,77 @@ namespace admin\library\mvc\manager\varible;
 use core\classes\DB\tree;
 use core\classes\comp;
 use core\classes\filesystem;
-use core\classes\validation\filesystem as filesystemValid;
+use core\classes\validation\filesystem as filevalid;
+
 // ORM
 use ORM\tree\routeTree;
 use ORM\urlTreePropVar;
 use ORM\varComp as varCompOrm;
 use ORM\tree\componentTree;
 use ORM\tree\compContTree;
-// Plugin 
+
+// Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
+
 // Model
 use admin\library\mvc\manager\varible\model;
 use admin\library\mvc\manager\complist\model as complistModel;
+
 // Conf
 use \DIR;
 use \site\conf\DIR as SITE_DIR;
 
 class varComp {
 
-    // Сохранение данные, если выбран типо переменной дерево
-    public static function saveData($pController, integer $pAcId) {
-        // Описание переменной
-        $descrip = $pController->post('descrip');
-        $classType = $pController->post('classType');
-        if ( !in_array($classType, ['user', 'core'])){
-            throw new \Exception('Неверный тип class type: ' . $classType, 35);
-        }
-        // Тип хранилища: db или memcache
-        $storageType = $pController->post('varStorage');
-        if (!isset(model::$storageList[$storageType])) {
-            throw new \Exception('Неверный тип storage type: ' . $storageType, 32);
-        }
-
-        $compId = $pController->postInt('compId');
-        // Получаем данные по классуы
-        $classData = comp::getClassDataByCompId($compId);
-
-        $classNameFile = $pController->post('className');
-        $methodName = $pController->post('methodName');
-
-        filesystemValid::isSafe($classNameFile, new \Exception('Неверное имя: ' . $classNameFile, 34));
-        // Получаем имя класса
-        $className = filesystem::getName($classNameFile);
-        //$className = '\core\comp\\' . $classData['ns'] . 'vars\\' . $storageType . '\\' . $className;
-        $className = comp::getFullCompClassName($classType, $classData['ns'], 'vars\\'.$storageType, $className);
-        // Получаем методы
-        if (!method_exists($className, $methodName)) {
-            throw new \Exception('Метод: ' . $methodName . ' не найден', 38);
-        }
-        
-        $contId = $pController->postInt('contId');
-
-        $saveArr = [
-            'acId' => $pAcId,
-            'compId' => $compId,
-            'descrip' => $descrip,
-            'classType' => $classType,
-            'className' => $classNameFile,
-            'methodName' => $methodName,
-            'contId' => $contId
-        ];
-
-        $varCompOrm = new varCompOrm();
-        $varCompOrm->save('acId=' . $pAcId, $saveArr);
-
-        $urlTreePropVar = new urlTreePropVar();
-        $routeData = [
-            'storageType' => $storageType,
-            'varType' => model::VAR_TYPE_COMP];
-        $urlTreePropVar->update($routeData, 'acId=' . $pAcId);
-
-        $pController->setVar('json', ['ok' => 1]);
-        // func. saveData
-    }
-
-    public static function getFileClassList(integer $pCompId, string $pClassType, string $pStorageType) {
-        // Получаем файл для переменной по компоненту
-        $classData = comp::getClassDataByCompId($pCompId);
-        $siteClassPath = DIR::CORE;
-        if ( $pClassType == 'user' ){
-            $siteClassPath = SITE_DIR::SITE_CORE;
-        } // if
-        $siteClassPath .= comp::getFullCompClassName($pClassType, $classData['ns'], 'vars\\'.$pStorageType, '');
-        $siteClassPath = filesystem::nsToPath($siteClassPath);
-        return filesystem::dir2array($siteClassPath);
-        // func.getFileClassList
-    }
-
-    public static function fileClassToMethod(integer $pCompId, string $classType, string $pStorageType, string $pClassName) {
-        // Получаем директорию с классами переменной по компоненту
-        $classData = comp::getClassDataByCompId($pCompId);
-        // Получаем имя класса
-        $className = filesystem::getName($pClassName);
-        $className = comp::getFullCompClassName($classType, $classData['ns'], 'vars\\'.$pStorageType, $className);
-        // Получаем методы
-        return get_class_methods(new $className());
-        // func. fileClassToMethod
-    }
-
     /**
      * Отображение Тип дерево в переменных
      * @param type $pController
-     * @param integer $pActionId 
+     * @param integer $pActionId
      */
-    public static function show($pController, integer $pActionId, string $pStorageType, $pInclude = null) {
-        $varCompOrm = new varCompOrm();
+    public static function show($pController, integer $pActionId, $pInclude = null) {
         // Получаем сохранёные данные
-        $data = $varCompOrm->selectFirst('*', 'acId=' . $pActionId);
+        $dataLoad = (new varCompOrm())->select('vc.*, c.ns', 'vc')
+            ->joinLeftOuter(componentTree::TABLE . ' c', 'c.id=vc.compId')
+            ->where('vc.acId=' . $pActionId)
+            ->comment(__METHOD__)
+            ->fetchFirst();
+
         // Есть ли сохранёные данные
-        if ($data) {
-            $compId = (int) $data['compId'];
-            $classType = $data['classType'];
+        if ($dataLoad) {
+            $compId = (int)$dataLoad['compId'];
             // Описание
-            $pController->setVar('descrip', $data['descrip']);
+            $pController->setVar('descrip', $dataLoad['descrip']);
             // Компонент ID
             $pController->setVar('compid', $compId);
 
-            $className = [];
-            $className['list'] = self::getFileClassList($compId, $classType, $pStorageType);
-            $className['val'] = $data['className'];
-            $pController->setJson('className', $className);
+            // Получаем Ns пусть до компонента
+            $nsPath = filesystem::nsToPath($dataLoad['ns']);
+
+            // Получаем дерево контена, если $compId доступен, т.е. был выбран компонент
+            $contTree = $compId ? dhtmlxTree::createTreeOfTable(
+                new compContTree(),
+                ['comp_id' => $compId, 'isDel' => 'no']) : null;
+            $pController->setJson('contTree', $contTree);
+
+            $pController->setVar('contid', $dataLoad['contId']);
+            $pController->setVar('methodName', $dataLoad['methodName']);
+
+            $pController->setVar('classFile', $dataLoad['classFile']);
 
             $methodList = [];
-            $methodList['list'] = $className['list'] ? self::fileClassToMethod($compId, $classType, $pStorageType, $data['className']) : [];
-            $methodList['val'] = $data['methodName'];
-            $pController->setJson('methodName', $methodList);
+            if ( $dataLoad['classFile'] ){
+                $classFileData = comp::getFileType($dataLoad['classFile']);
+                // Получаем методы класа
+                $varClassObj = model::getVarClassObj($classFileData, $dataLoad['ns']);
+                $methodList = get_class_methods($varClassObj);
+            } // if
+            $pController->setJson('methodList', $methodList);
 
-            $pController->setJson('classType', $classType);
 
-            $pController->setVar('contid', (int)$data['contId']);
+            $classTree = model::getVarClassTree($nsPath);
+            $pController->setJson('classTree', $classTree);
+        } // if ($dataLoad)
 
-            $contTree = complistModel::getOnlyContTreeByCompId($compId);
-            $pController->setJson('contTree', $contTree);
-        } // if ($data)
         // Дерево компонентов
         $compTree = dhtmlxTree::createTreeOfTable(new componentTree());
         $pController->setJson('compTree', $compTree);
@@ -152,5 +90,59 @@ class varComp {
         // func. show
     }
 
-// class varComp
+    // Сохранение данные, если выбран типо переменной дерево
+    public static function saveData($pController, integer $pAcId) {
+        // Описание переменной
+        $descrip = $pController->post('descrip');
+        $compId = $pController->postInt('compId');
+        $methodName = $pController->post('methodName');
+        $classFile= $pController->post('classFile');
+        $contId = $pController->postInt('contId');
+
+        if ( !$compId ){
+            throw new \Exception('Не выбран компонента');
+        } // if
+
+        if ( !$classFile ){
+            throw new \Exception('Не выбран класс');
+        } // if
+
+        if ( !$methodName ){
+            throw new \Exception('Не выбран метод');
+        } // if
+
+        $compData = comp::getClassDataByCompId($compId);
+
+        $classFileData = comp::getFileType($classFile);
+        // Правильно ли имя файла
+        filevalid::isSafe($classFileData['file'], new \Exception('Неверное имя файла:' .$classFileData['file']));
+
+        $nsPath = filesystem::nsToPath($compData['ns']);
+        // Проверяем налачие файла
+        $classFilePath = comp::getVarClassSitePath($classFileData['isOut'], $nsPath);
+        if ( !is_file($classFilePath.$classFileData['file']) ){
+            throw new \Exception('File : ' . $classFileData['file'] . ' not found', 235);
+        } // if
+
+        $saveArr = [
+            'acId' => $pAcId,
+            'compId' => $compId,
+            'descrip' => $descrip,
+            'methodName' => $methodName,
+            'classFile' => $classFile,
+            'contId' => $contId
+        ];
+
+        $varCompOrm = new varCompOrm();
+        $varCompOrm->save('acId=' . $pAcId, $saveArr);
+
+        $urlTreePropVar = new urlTreePropVar();
+        $routeData = ['varType' => model::VAR_TYPE_COMP];
+        $urlTreePropVar->update($routeData, 'acId=' . $pAcId);
+
+        $pController->setVar('json', ['ok' => 1]);
+        // func. saveData
+    }
+
+    // class varComp
 }

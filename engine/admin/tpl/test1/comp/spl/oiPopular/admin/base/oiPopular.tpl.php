@@ -4,7 +4,10 @@
 <script src="res/plugin/dhtmlxTree/codebase/ext/dhtmlxtree_json.js"></script>
 
 <script src="res/plugin/classes/utils.js" type="text/javascript"></script>
-<!--<script src="res/plugin/classes/html.js" type="text/javascript"></script>-->
+
+<script type="text/javascript" src="/res/plugin/fancybox/source/jquery.fancybox.js"></script>
+<link rel="stylesheet" type="text/css" href="/res/plugin/fancybox/source/jquery.fancybox.css" media="screen"/>
+
 <style>
     div.treePanel {
         height: 218px;
@@ -111,9 +114,12 @@
                                 <?=self::checkbox('name="isCreatePreview" value="1"', self::get('isCreatePreview'))?>
                             </div>
 
-                            <div class="dt">Категория objItem</div>
+                            <div class="dt">Build Class</div>
                             <div class="dd">
-                                <? self::select(self::get('categoryList'), 'name="category"') ?>
+                                <a id="classBtn" href="#classTreeDlg" class="btn">
+                                    <img src="<?= self::res('images/folder_16.png') ?>" alt="Класс компонента"/>
+                                    <span id="classFileText"></span>
+                                </a>
                             </div>
                         </form>
                     </div>
@@ -127,13 +133,18 @@
 </div><!-- end panel right column -->
 
 <div id="routeBox" style="width:250px;height:350px; display: none"></div>
+<div id="classTreeDlg" style="width:250px;height:350px; display: none"></div>
 
 <script type="text/javascript">
     var oiPopularData = {
         contTree: <?= self::get('contTree') ?>,
-        oiPopular: <?= self::get('oiPopular') ?>,
+        // Выделенные ID элементов дерева compContTree
+        selItem: <?= self::get('selItem') ?>,
         contid: <?= self::get('contId') ?>,
-        resizeType: '<?= self::get('resizeType') ?>'
+        resizeType: '<?= self::get('resizeType') ?>',
+        classTreeJson: <?= self::get('classTree') ?>,
+        // Выбранное значение в дереве классов
+        classTreeSelectId: '<?=self::get('classFile')?>'
     };
 
     var contrName = oiPopularData.contid;
@@ -144,12 +155,17 @@
 
     var oiPopularMvc = (function () {
         var options = {};
-        var tree = {};
+
+        // Дерево класов для builder
+        var classTree;
+        // Дерево контента. Основное дерево.
+        var compContTree;
 
         // Клик по кноке Сохранить
         function saveBtnClick() {
-            var sel = tree.compcont.getAllCheckedBranches();
+            var sel = compContTree.getAllCheckedBranches();
             var propData = $('#' + options.propBox).serialize();
+            propData += '&class='+oiPopularData.classTreeSelectId;
 
             HAjax.saveData({
                 data:'sel=' + sel + '&'+propData,
@@ -166,6 +182,35 @@
             // func. routeTreeDbClick
         }
 
+        function initLoadData(){
+            if ( oiPopularData.classTreeSelectId ){
+                var text = utils.getTreeUrl(classTree, oiPopularData.classTreeSelectId);
+            }else{
+                var text = '/base/objItem.php';
+            } // if
+            $(options.classFileText).html(text);
+
+            for (var i in oiPopularData.selItem) {
+                var id = oiPopularData.selItem[i];
+                compContTree.setCheck(id, 1);
+            } // for
+            // func. initLoadData
+        }
+
+        function classBrunchDbClick(pBrunchId, pTree){
+            // Получаем тип ветки: 1-папка, 0-файл
+            var type = pTree.getUserData(pBrunchId, 'type');
+            // Выбрать можно только файл
+            if (type != 1) {
+                return false;
+            }
+            var text = utils.getTreeUrl(pTree, pBrunchId);
+            oiPopularData.classTreeSelectId = pBrunchId;
+            $(options.classFileText).html(text);
+            $.fancybox.close();
+            // class classBrunchDbClick
+        }
+
         function initTrees() {
             dhtmlxInit.init({
                 'contTree':{
@@ -174,24 +219,25 @@
                     }, // tree
                     checkbox:true
                 }, // contTree
-                'routeTree':{
+                'classTree':{
                     tree:{
-                        id:'routeBox', json:oiPopularData.routeTree
+                        id:'classTreeDlg', json: oiPopularData.classTreeJson
                     }, // tree
-                    dbClick:routeTreeDbClick
-                } // routeTree
+                    dbClick: classBrunchDbClick
+                } // classTree
             }); // init
-            tree.compcont = dhtmlxInit.tree['contTree'];
-            tree.route = dhtmlxInit.tree['routeBox'];
 
-            //tree.compcont.setOnCheckHandler(treeContCheck);
-            tree.compcont.enableThreeStateCheckboxes(0);
+            classTree = dhtmlxInit.tree['classTree'];
 
-            for (var i in oiPopularData.oiPopular) {
-                var id = oiPopularData.oiPopular[i];
-                tree.compcont.setCheck(id, 1);
-            } // for
+            compContTree = dhtmlxInit.tree['contTree'];
+            compContTree.enableThreeStateCheckboxes(0);
+
             // func. initTrees
+        }
+
+        function beforeClassDlgShow(){
+            classTree.selectItem(oiPopularData.classTreeSelectId);
+            // func. beforeTplDlgShow
         }
 
         // callback сохранения данных
@@ -200,8 +246,7 @@
                 alert(pData['error']['msg']);
                 return;
             }
-            //treeCheckDel = [];
-            //treeCheckSel = [];
+
             alert('Данные успешно сохранены');
             // func. saveDataSuccess
         }
@@ -220,7 +265,13 @@
                 saveData:saveDataSuccess
             });
 
+            $(options.classBtn).fancybox({
+                beforeShow: beforeClassDlgShow
+            });
+
             $('select[name="resizeType"]').val(oiPopularData.resizeType);
+
+            initLoadData();
             // func. init
         }
 
@@ -235,7 +286,9 @@
             backBtn:'#backBtn',
             saveBtn:'#saveBtn',
             treeDiv:'#treeDiv',
-            propBox:'propBox'
+            propBox:'propBox',
+            classBtn: '#classBtn',
+            classFileText: '#classFileText'
         });
     }); // $(document).ready
 

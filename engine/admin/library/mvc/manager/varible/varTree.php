@@ -76,7 +76,10 @@ class varTree {
             $pController->setVar('contid', $contId);
 
 
-            $contTree = complistModel::getOnlyContTreeByCompId($compId);
+            // Получаем дерево контена, если $compId доступен, т.е. был выбран компонент
+            $contTree = $compId ? dhtmlxTree::createTreeOfTable(
+                new compContTree(),
+                ['comp_id' => $compId, 'isDel'=>'no']) : null;
             $pController->setJson('contTree', $contTree);
         } // if ($data)
 

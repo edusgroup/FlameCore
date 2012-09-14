@@ -73,15 +73,7 @@ class eventModel {
 
         // ====================== Работа с переменными==========================
         // TODO: по хорошему лучше сделать процедурой в БД, что бы меньше фильровать тут
-        $varList = [];
-        // Смотрим есть ли в URL перменные
-        $pathUrl = $pRouteTree->getActionUrlById($pAcId);
-        foreach ($pathUrl as $item) {
-            if ($item['propType'] == 1) {
-                $varList[] = $item;
-            } // if
-        } // foreach
-        unset($item);
+        $varList = varibleModel::getVarList($pRouteTree, $pAcId);
         // Теперь в $varList храняться переменные, которые были заданы в URL
         // Буффер для доступных переменных
         $varListRender = [];

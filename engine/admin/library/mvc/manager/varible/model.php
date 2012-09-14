@@ -6,6 +6,8 @@ namespace admin\library\mvc\manager\varible;
 use ORM\tree\routeTree;
 use ORM\varTree;
 use ORM\tree\compContTree;
+use core\classes\comp;
+
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
@@ -17,49 +19,43 @@ use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 class model {
     /**
      * Источник данных неопределён
-     * @var integer 
+     * @var integer
      */
-
     const VARR_TYPE_NONE = 'none';
+
     /**
      * Даные для переменные будут взяты из дерева
-     * @var integer 
+     * @var integer
      */
     const VAR_TYPE_TREE = 'tree';
+
     /**
      * Даные для переменные будут выданы компонентом
-     * @var integer 
+     * @var integer
      */
     const VAR_TYPE_COMP = 'comp';
+
     /**
      * Проверка на существование переменной будет происходить через БД
-     * @var integer 
+     * @var integer
      */
     const VAR_STORAGE_DB = 'db';
+
     /**
      * Проверка на существование переменной будет происходить чере memcache
-     * @var integer 
+     * @var integer
      */
     const VAR_STORAGE_MEMCACHE = 'memcache';
 
     /**
      * Список типо источников данных переменных
-     * @var array 
+     * @var array
      */
-    public static $typeList = array(
+    public static $typeList = [
         self::VARR_TYPE_NONE => 'Выбирите тип',
         self::VAR_TYPE_COMP => 'Компонент',
         self::VAR_TYPE_TREE => 'Tree'
-    );
-
-    /**
-     * Список видов источника хранения переменных
-     * @var array 
-     */
-    public static $storageList = array(
-        self::VAR_STORAGE_DB => 'БД',
-        self::VAR_STORAGE_MEMCACHE => 'Memcache'
-    );
+    ];
 
     /**
      * Возвращет список источников данных для переменных.<br/>
@@ -69,64 +65,87 @@ class model {
      */
     public static function getTypeList() {
         $typeList = self::$typeList;
-        array_walk($typeList, function(&$item, $key) {
-                    $item = array('id' => $key, 'name' => $item);
-                });
+        array_walk($typeList, function (&$item, $key) {
+            $item = ['id' => $key, 'name' => $item];
+        });
         return $typeList;
         // func. getTypeList
     }
-    
-    /**
-     * Возвращет список доступных хранилищ для переменных.<br/>
-     * Формат массива:<br/>
-     * array(0=>array('id'=>1, 'name'=>'{name}'))
-     * @return array
-     */
-    public static function getStorageList() {
-        $storageList = self::$storageList;
-        array_walk($storageList, function(&$item, $key) {
-                    $item = array('id' => $key, 'name' => $item);
-                });
-        return $storageList;
-        // func. getStorageList
-    }
 
-    public static function getVarList($pAcOrm, $pTreeUrl) {
-        // TODO: написать процедуру в БД, для получение переменных
-        $idList = '';
-        foreach ($pTreeUrl as $act) {
-            $idList .= ',' . $act['id'];
-        }
-        $idList = substr($idList, 1);
-        return $pAcOrm->selectAll('name, id', 'id in (' . $idList . ') and propType=1');
+    public static function getVarList($pAcOrm, $pAcId) {
+        $varList = [];
+        $pathUrl = $pAcOrm->getActionUrlById($pAcId);
+        foreach ($pathUrl as $item) {
+            if ($item['propType'] == 1) {
+                $varList[] = $item;
+            } // if
+        } // foreach
+        return $varList;
         // func. getVarList
     }
 
     public static function makeActionUrl($pTreeUrl) {
         $return = '';
         foreach ($pTreeUrl as $act) {
-            $return .= '/' . $act['name'];
+            $return =  $act['name'] . '/' . $return;
         }
-        return $return;
+        return '/'.$return;
         // func. makeActionUrl
     }
 
     public static function showVarTypeTable($pController, integer $pActionId) {
-        $pController->setVar('tableList', array());
+        $pController->setVar('tableList', []);
         $pController->view->setMainTpl('block/vartype/table.tpl.php');
         // func. showVarTypeTable
     }
 
+    public static function getVarClassObj($classNameData, $pNs){
+        $className = $classNameData['file'];
+        $className = substr($className, 0, strlen($className) - 4);
+        $className = str_replace('/', '\\', $className);
+
+        $className = '\\core\\comp\\'.$pNs.'vars\\'.$className;
+        $className = $classNameData['isOut'] ? '\\site'.$className : $className;
+
+        return new $className();
+        // func. getVarClassObj
+    }
+
+
+
+    public static function getVarClassTree($pNsPath) {
+        // ==================== Преоопределённые классы компонента для сайта
+        $classFilePath = comp::getVarClassSitePath(false, $pNsPath);
+        $treeInner = dhtmlxTree::createTreeOfDir($classFilePath);
+        $treeInner = array_merge($treeInner,
+                                 ['id' => '#in',
+                                 'text' => 'Встроеные',
+                                 'userdata' => [['name' => 'type', 'content' => dhtmlxTree::FOLDER]],
+                                 'im0' => 'folderClosed.gif']);
+
+        // ==================== Кастомные классы компонента для сайта
+        $classFilePath = comp::getVarClassSitePath(true, $pNsPath);
+        // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID
+        $treeOuter = dhtmlxTree::createTreeOfDir($classFilePath, '[o]');
+        $treeOuter = array_merge($treeOuter,
+                                 ['id' => '#out',
+                                 'text' => 'Внешние',
+                                 'userdata' => [['name' => 'type', 'content' => dhtmlxTree::FOLDER]],
+                                 'im0' => 'folderClosed.gif']);
+
+        $treeClass = ['id' => 0, 'item' => [$treeInner, $treeOuter]];
+        return $treeClass;
+        // func. getClassTree
+    }
+
     public static function getVarDataByActionId(integer $pAcId) {
-        $actionTree = new routeTree();
-        $data = $actionTree->select('a.varType, v.comp_id', 'a')
-                ->join(varTree::TABLE . ' v', 'v.action_id=a.id')
-                ->where('a.id=' . $pAcId)
-                ->comment(__METHOD__)
-                ->fetchFirst();
-        return $data;
+        return (new routeTree())->select('a.varType, v.comp_id', 'a')
+            ->join(varTree::TABLE . ' v', 'v.action_id=a.id')
+            ->where('a.id=' . $pAcId)
+            ->comment(__METHOD__)
+            ->fetchFirst();
         // func. getVarDataByActionId
     }
 
-// class model
+    // class model
 }

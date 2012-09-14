@@ -57,14 +57,12 @@ class compprop extends \core\classes\mvc\controllerAbstract {
         if (!$loadData) {
             // Выставляем их по умолчанию или ищем выше веткой
             $loadData = comp::findCompPropUpToRoot($contId);
-            // Выставляем флаг, что данные загружены от родителя(хотя их может и не быть)
-            //$loadData['parentLoad'] = 1;
         } // if
 
         $extendsSettings = 0;
         // Если настроеки были или мы их нашли
         if ( $loadData ){
-            // ===== Есть ли рассширенные настройки
+            // Есть ли рассширенные настройки
             $extendsSettings = model::isClassHasExtendsProp($loadData['classFile'], $compProp['ns']);
         } // if
 
@@ -140,7 +138,6 @@ class compprop extends \core\classes\mvc\controllerAbstract {
         $extendsSettings = model::isClassHasExtendsProp($classFile, $compProp['ns']);
         $data = ['extSettings' => $extendsSettings];
         self::setVar('json', $data);
-
         // func. saveDataAction
     }
 

@@ -6,29 +6,34 @@ namespace admin\library\mvc\manager\varible;
 use core\classes\mvc\controllerAbstract;
 use core\classes\render;
 use core\classes\filesystem;
-use core\classes\validation\filesystem as filesystemValid;
 use core\classes\event as eventCore;
+use core\classes\comp;
+use core\classes\validation\filesystem as filevalid;
+
 // ORM
 use ORM\tree\routeTree;
 use ORM\urlTreePropVar;
 use ORM\tree\compContTree;
 use ORM\tree\componentTree;
+
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
+
 // Model
 use admin\library\mvc\manager\complist\model as complistModel;
+
 // Conf
 use \DIR;
 
 /**
  * Управление переменными у action. Установка типа переменной. Сохранение.
- * 
+ *
  * @author Козленко В.Л.
  */
 class varible extends controllerAbstract {
 
     public function init() {
-        
+
     }
 
     /**
@@ -40,31 +45,25 @@ class varible extends controllerAbstract {
         self::setVar('acId', $actionId);
 
         $routeTree = new routeTree();
-        $urlTreePropVar = new urlTreePropVar();
         // Получаем название переменной
-        $actData = $urlTreePropVar->selectFirst(
-                'varType, storageType'
-                , 'acId=' . $actionId);
+        $actData = (new urlTreePropVar())->selectFirst('varType', 'acId=' . $actionId);
 
         $treeUrl = $routeTree->getTreeUrlById(routeTree::TABLE, $actionId);
         $varName = model::makeActionUrl($treeUrl);
         self::setVar('varName', $varName);
 
-        $varList = model::getVarList($routeTree, $treeUrl);
+        $varList = model::getVarList($routeTree, $actionId);
         $varCount = count($varList);
         self::setVar('varCount', $varCount);
 
-        // Получаем список названий, и, если было сохранение, выбранное значение
+        // Получаем список типов веток, и если было сохранение, выбранное значение
+        // tree и comp
         $typeList = model::getTypeList();
-        self::setVar('varType', [
-                'list' => $typeList,
-                'val' => $actData['varType']]);
+        self::setVar('varType',
+                     ['list' => $typeList,
+                      'val' => $actData['varType']]);
 
-        // Получаем источников хранения, и, если было сохранение, выбранное значение
-        $storageList = model::getStorageList();
-        self::setVar('varStorage', ['list' => $storageList,
-                                   'val' => $actData['storageType']]);
-
+        // Тип уже выбранного значаения, может быть пустым
         switch ($actData['varType']) {
             // Тип переменной дерево
             case model::VAR_TYPE_TREE:
@@ -72,7 +71,7 @@ class varible extends controllerAbstract {
                 break;
             // Тип переменной таблица
             case model::VAR_TYPE_COMP:
-                varComp::show($this, $actionId, $actData['storageType'], 'typeBox');
+                varComp::show($this, $actionId, 'typeBox');
                 break;
         }
 
@@ -88,9 +87,9 @@ class varible extends controllerAbstract {
         $this->view->setRenderType(render::JSON);
         // action ID
         $acId = self::postInt('acid');
-		(new routeTree())->update('isSave="yes"', 'id='.$acId);
-		eventCore::callOffline(event::NAME, event::ITEM_SAVE);
-		
+        (new routeTree())->update('isSave="yes"', 'id=' . $acId);
+        eventCore::callOffline(event::NAME, event::ITEM_SAVE);
+
         // Тип переменной
         $vartype = self::post('varType');
         switch ($vartype) {
@@ -106,39 +105,86 @@ class varible extends controllerAbstract {
         // func. saveDataAction
     }
 
+    public function compLoadMethodsAction(){
+        $this->view->setRenderType(render::JSON);
+
+        $compId = self::getInt('compId');
+        $compData = comp::getClassDataByCompId($compId);
+
+        // Название класса
+        $classFile = self::get('classFile');
+        if ( !$classFile ){
+            return;
+        } // if
+        $classFileData = comp::getFileType($classFile);
+        // Правильно ли имя файла
+        filevalid::isSafe($classFileData['file'], new \Exception('Неверное имя файла:' .$classFileData['file']));
+
+        $nsPath = filesystem::nsToPath($compData['ns']);
+        // Проверяем налачие файла
+        $classFilePath = comp::getVarClassSitePath($classFileData['isOut'], $nsPath);
+        if ( !is_file($classFilePath.$classFileData['file']) ){
+            throw new \Exception('File : ' . $classFileData['file'] . ' not found', 235);
+        } // if
+
+        // Получаем методы класа
+        $varClassObj = model::getVarClassObj($classFileData, $compData['ns']);
+        $methodList = get_class_methods($varClassObj);
+
+        $classMethods = [];
+        self::setVar('json', $methodList);
+        // func. compLoadMethodsAction
+    }
+
     /**
      * Получение ветки контента
      */
-    public function loadContTreeAction() {
-        // TODO: Подумать, над тем что бы вынести все loadContTree в отдельный Controller
+    /*public function loadContTreeAction() {
         $this->view->setRenderType(render::JSON);
+
         // ID компонента. см. табл. component_tree
         $compId = self::getInt('compid');
-        // Получаем весь контент для компонента
-        $json = complistModel::getOnlyContTreeByCompId($compId);
-        self::setVar('json', $json);
+
+        // Получаем дерево контена, если $compId доступен, т.е. был выбран компонент
+        $contTree = $compId ? dhtmlxTree::createTreeOfTable(
+            new compContTree(),
+            ['comp_id' => $compId, 'isDel'=>'no']) : null;
+
+        self::setVar('json', $contTree);
         // func. loadContTreeAction
+    }*/
+
+    public function compLoadCompDataAction(){
+        $this->view->setRenderType(render::JSON);
+
+        $compId = self::getInt('compid');
+        $compData = comp::getClassDataByCompId($compId);
+
+        $nsPath = filesystem::nsToPath($compData['ns']);
+
+        $classTree = model::getVarClassTree($nsPath);
+
+        $contTree = dhtmlxTree::createTreeOfTable(
+            new compContTree(),
+            ['comp_id' => $compId, 'isDel'=>'no']);
+
+        self::setVar('json', ['classTree'=>$classTree, 'contTree' => $contTree]);
+        // func. compLoadCompDataAction
     }
 
     public function loadTypeVarAction() {
         $actionId = self::getInt('acid');
         $type = self::get('type');
-        $storageType = self::get('storageType');
-        if (!isset(model::$storageList[$storageType])) {
-            throw new \Exception('Неверный тип storage type: ' . $storageType, 39);
-        }
-        
-        $routeTree = new routeTree();
-        $treeUrl = $routeTree->getTreeUrlById(routeTree::TABLE, $actionId);
-        $varList = model::getVarList($routeTree, $treeUrl);
+
+        $varList = model::getVarList((new routeTree()), $actionId);
         $varCount = count($varList);
-        
+
         switch ($type) {
             case model::VAR_TYPE_TREE:
                 varTree::show($this, $actionId, '', $varCount);
                 break;
             case model::VAR_TYPE_COMP:
-                varComp::show($this, $actionId, $storageType);
+                varComp::show($this, $actionId, '');
                 break;
             default :
                 $this->view->setRenderType(render::NONE);
@@ -146,49 +192,5 @@ class varible extends controllerAbstract {
         // func. loadTypeVarAction
     }
 
-    public function compLoadCompDataAction() {
-        $this->view->setRenderType(render::JSON);
-        // ID компонента. см. табл. component_tree
-        $compId = self::getInt('compid');
-
-        $classType = self::get('classType');
-        if ( !in_array($classType, ['user', 'core'])){
-            throw new \Exception('Неверный тип class type: ' . $classType, 35);
-        }
-
-        $storageType = self::get('varStorage');
-        if (!isset(model::$storageList[$storageType])) {
-            throw new \Exception('Неверный тип storage type: ' . $storageType, 33);
-        }
-        $fileList = varComp::getFileClassList($compId, $classType, $storageType);
-
-        self::setVar('json', $fileList);
-        // func. compLoadCompDataAction
-    }
-
-    public function compLoadMethodDataAction() {
-        $this->view->setRenderType(render::JSON);
-        // ID компонента. см. табл. component_tree
-        $compId = self::getInt('compid');
-        // Название хранилища
-        $storageType = self::get('varStorage');
-        if (!isset(model::$storageList[$storageType])) {
-            throw new \Exception('Неверный тип storage type: ' . $storageType, 33);
-        }
-        $classType = self::get('classType');
-        if ( !in_array($classType, ['user', 'core'])){
-            throw new \Exception('Неверный тип class type: ' . $classType, 41);
-        }
-
-        // Имя выбранно файла классов
-        $className = self::get('className');
-        filesystemValid::isSafe($className, new \Exception('Неверное имя: ' . $className, 34));
-
-        $methodList = varComp::fileClassToMethod($compId, $classType, $storageType, $className);
-
-        self::setVar('json', $methodList);
-        // func. compLoadMethodDataAction
-    }
-
-// class varible
+    // class varible
 }

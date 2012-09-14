@@ -97,25 +97,6 @@
                         </div>
 
                         <div class="dt">Функциональный класс</div>
-                        <!--<div class="dd">
-                            <label><?= self::radio('name="classType" value="default"', self::get('classType') == 'default'); ?> 
-                            По умолчанию</label>
-                        </div>
-                        <div class="dd">
-                            <label><?= self::radio('name="classType" value="user"', self::get('classType') == 'user'); ?>
-                            Пользовательский</label>
-                        </div>
-                        <div class="dd2x">
-                            <? self::selectIdName(self::get('classUserList'), 'name="classUser"') ?>
-                        </div>
-                        <div class="dd">
-                            <label><?= self::radio('name="classType" value="ext"', self::get('classType') == 'ext'); ?>
-                            Встроенный</label>
-                        </div>
-                        <div class="dd2x">
-                            <? self::selectIdName(self::get('classExtList'), 'name="classExt"') ?>
-                        </div>-->
-
                         <div class="dd">
                             <a id="classBtn" href="#classTreeDlg" class="btn">
                                 <img src="<?= self::res('images/folder_16.png') ?>" alt="Класс компонента"/>

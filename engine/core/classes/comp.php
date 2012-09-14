@@ -67,42 +67,7 @@ class comp {
         // func. getFileType;
     }
 
-    // Получение объекта по настройкам
-    /*public static function getCompObject($pProp, $pCompProp = null) {
-        if (!$pProp) {
-            $pProp['classType'] = self::DEFAULT_VALUE;
-            $pProp['category'] = '';
-        }
-        if (!$pCompProp) {
-            $pCompProp = [
-                'ns' => $pProp['ns'],
-                'classname' => $pProp['classname']
-            ];
-        } // if
-        //var_dumP($pProp);
-        if ( $pProp['category'] && $pProp['classType'] != self::DEFAULT_VALUE ){
-            compInit::$objProp['category'] = $pProp['category'].'/'.$pProp['classType'];
-            $pProp['classType'] = self::DEFAULT_VALUE;
-        }
-        $className = 'admin\library\mvc\comp\\';
-        switch ($pProp['classType']) {
-            case self::DEFAULT_VALUE:
-                $className .= $pCompProp['ns'] . $pCompProp['classname'];
-                return new $className('', '');
-            case  'user':
-                $file = filesystem::getName($pProp['classUserFile']);
-                $className .= $pCompProp['ns'] . 'user\\' . $file;
-                return new $className('', '');
-            case 'ext':
-                $file = filesystem::getName($pProp['classExtFile']);
-                $className .= $pCompProp['ns'] . 'ext\\' . $file;
-                return new $className('', '');
-        }
-        throw new \Exception('Неизвестный classType', 97);
-        // func. getCompObject
-    }*/
-
-    /**
+     /**
      * Получаем первую настройку контента в дереве т.е.
      * снизу вверх к корню и ищем любую настройка, если настройки не будет
      * то функцию вернёт значения по умолчанию.
@@ -134,12 +99,6 @@ class comp {
             ->order('ct.id DESC')
             ->comment(__METHOD__)
             ->fetchFirst();
-
-        // Если настроек нет, значит надо выставить найтройки по умолчанию
-        if (!$propData) {
-            //$propData['classFile'] = '';
-            //$propData['tplFile'] = '';
-        } // if
 
         return $propData;
         // func. findCompPropUpToRoot
@@ -207,6 +166,14 @@ class comp {
         // func. getClassFullName
     }
 
+    /**
+     * Классы-админка. Возвращает путь до:
+     * При $pIsOut == true - кастомных классов админки
+     * При $pIsOut == false - вшитых классов админки
+     * @param $pIsOut
+     * @param $pNsPath
+     * @return string
+     */
     public static function getCompClassPath($pIsOut, $pNsPath){
         // Проверяем существование класса
         if ( $pIsOut){
@@ -215,6 +182,24 @@ class comp {
             return DIR::getCompClassPath().$pNsPath.'logic/';
         } // if
         // func. getCompClassPath
+    }
+
+    /**
+     * Классы-сборщик. Возвращает путь до:
+     * При $pIsOut == true - кастомных классов сборщика(build)
+     * При $pIsOut == false - вшитых классов сборщика(build)
+     * @param $pIsOut
+     * @param $pNsPath
+     * @return string
+     */
+    public static function getCompBuildClassPath($pIsOut, $pNsPath){
+        // Проверяем существование класса
+        if ( $pIsOut){
+            return DIR::getSiteClassCoreAdmin($pNsPath).'build/';
+        }else{
+            return DIR::getCompClassPath().$pNsPath.'build/';
+        } // if
+        // func. getCompBuildClassPath
     }
 
     public static function createClassAdminObj($pClassFileName, $pNs){
@@ -229,6 +214,14 @@ class comp {
         // func. createClassAdminObj
     }
 
+    /**
+     * Шаблоны-админка. Возвращает путь до:
+     * При $pIsOut == true - кастомных шаблонов админки
+     * При $pIsOut == false - вшитых шаблонов админки
+     * @param $pIsOut
+     * @param $pNsPath
+     * @return string
+     */
     public static function getCompTplPath($pIsOut, $pNsPath){
         // Проверяем существование класса
         if ( $pIsOut ){
@@ -239,5 +232,22 @@ class comp {
         // func. getCompTplPath
     }
 
+    public static function getCompClassSitePath($pIsOut, $pNsPath){
+        if ( $pIsOut){
+            return DIR::getSiteClassCore($pNsPath).'logic/';
+        }else{
+            return DIR::getCoreScript().'comp/'.$pNsPath.'logic/';
+        } // if
+    }
+
+
+    public static function getVarClassSitePath($pIsOut, $pNsPath){
+        if ( $pIsOut){
+            return DIR::getSiteClassCore($pNsPath).'vars/';
+        }else{
+            return DIR::getCoreScript().'comp/'.$pNsPath.'vars/';
+        } // if
+        // func. getVarClassPath
+    }
     // class comp
 }

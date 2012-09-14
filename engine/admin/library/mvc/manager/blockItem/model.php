@@ -54,24 +54,15 @@ class model {
         // func. getCompData
     }
 
-    /*public static function isBlockLink(integer $pId){
-        $return = (new blockItemOrm())
-            ->select('bl.*', 'bi')
-            ->join(blockLinkOrm::TABLE.' bl', 'bi.block_id=bl.linkBlockId and bi.wf_id=bl.linkMainId')
-            ->where('bi.id='.$pId)
-            ->fetchAll();
 
-        return (boolean)$return;
-        // func. isBlockLink
-    }*/
-
-    public static function getClassTree($nsPath){
+    public static function getClassTree($pNsPath){
         // Встроенные шаблоны для компонента для сайта
-        $classFilePath = DIR::getCoreScript().'comp/'.$nsPath.'logic/';
+        $classFilePath = comp::getCompClassSitePath(false, $pNsPath);
         $treeInner = dhtmlxTree::createTreeOfDir($classFilePath);
         $treeInner = array_merge($treeInner, ['id'=>'#in', 'text'=>'Встроеные', 'userdata'=>[['name'=>'type', 'content'=>dhtmlxTree::FOLDER]]]);
+
         // Внешние шаблоны компонента для сайта
-        $classFilePath = DIR::getSiteClassCore($nsPath).'logic/';
+        $classFilePath = comp::getCompClassSitePath(false, $pNsPath);
         // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID
         $treeOuter = dhtmlxTree::createTreeOfDir($classFilePath, '[o]');
         $treeOuter = array_merge($treeOuter, ['id'=>'#out', 'text'=>'Внешние', 'userdata'=>[['name'=>'type', 'content'=>dhtmlxTree::FOLDER]]]);
@@ -85,6 +76,7 @@ class model {
         $siteTplPath = DIR::getSiteCompTplPath($nsPath);
         $treeInner = dhtmlxTree::createTreeOfDir($siteTplPath);
         $treeInner = array_merge($treeInner, ['id'=>'#in', 'text'=>'Встроеные', 'userdata'=>[['name'=>'type', 'content'=>dhtmlxTree::FOLDER]]]);
+
         // Внешние шаблоны компонента для сайта
         $siteTplPath = DIR::getSiteCompTplOuter($nsPath);
         // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID

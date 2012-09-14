@@ -22,16 +22,15 @@ use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 // Event
 use admin\library\mvc\comp\spl\oiLaster\event;
 
+// Model
+use admin\library\mvc\comp\spl\oiList\model;
+
 /**
  * Управление список последних objItem компонентов
  *
  * @author Козленко В.Л.
  */
 class oiLaster extends \core\classes\component\abstr\admin\comp {
-
-    public function __construct(string $pTplPath, string $pThemeResUrl) {
-        parent::__construct($pTplPath, $pThemeResUrl);
-    }
 
     public function init() {
 
@@ -56,8 +55,8 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
         self::setJson('contTree', $contTree);
 
         // Получаем список id веток ранее выбранных и сохранённых
-        $oiLaster = (new oiLasterOrm)->selectList('*', 'selContId', 'contId=' . $contId);
-        self::setJson('oiLaster', $oiLaster);
+        $selItem = (new oiLasterOrm)->selectList('*', 'selContId', 'contId=' . $contId);
+        self::setJson('selItem', $selItem);
 
         // Получаем количество элементов для списка, которые было ранее сохранено
         $oiLasterProp = (new oiLasterPropOrm())->selectFirst('*', 'contId=' . $contId);
@@ -65,18 +64,15 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
         if ($oiLasterProp) {
             foreach ($oiLasterProp as $key => $val) {
                 self::setVar($key, $val);
-            }
+            } // foreach
         } // if
 
         // Получаем список разновидностей objItem
         $nsPath = filesystem::nsToPath($objItemProp['ns']);
-        $categoryDir = DIR::CORE . 'admin/library/mvc/comp/' . $nsPath . 'category/';
-        if (is_dir($categoryDir)) {
-            $categoryList = [];
-            $categoryList['list'] = filesystem::dir2array($categoryDir, filesystem::DIR);
-            $categoryList['val'] = $oiLasterProp['category'];
-            self::setVar('categoryList', $categoryList);
-        } // if is_dir
+
+        // Дерево классов для builder
+        $classTree = model::getBuildClassTree($nsPath);
+        self::setJson('classTree', $classTree);
 
         // Получаем названия шаблона. Настраиваеться в настройках компонента
         $this->view->setBlock('panel', $this->tplFile);
@@ -95,8 +91,10 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
      */
     public function saveDataAction() {
         $this->view->setRenderType(render::JSON);
-        if (!self::isPost())
+        if (!self::isPost()){
             return;
+        }
+
         $contId = $this->contId;
 
         // Установка события, что произошло сохранение
@@ -116,7 +114,7 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
         $selData = self::post('sel');
         // Убераем последую запятую
         $selData = trim($selData, ',');
-        if ($selData) {
+        if ($selData){
             // Получаем массив ID
             $selData = explode(',', $selData);
             // Для безопастности преобразуем их в числа
@@ -127,6 +125,16 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
             $oiLasterOrm->update('contId=' . $contId, 'contId=0');
         } // if selData
 
+        $classFile = self::post('class');
+        if ( !$classFile ){
+            return;
+        } // if
+        // Получаем данные по компоненту objItem
+        $objItemProp = (new componentTree())->selectFirst('*', 'sysname="objItem"');
+        // Получаем список разновидностей objItem
+        $nsPath = filesystem::nsToPath($objItemProp['ns']);
+        model::isClassFileExit($classFile, $nsPath);
+
         // Сохраняем количество выбранных элементов, которое необходимо отоброжать в списке
         $saveData = [
             'itemsCount' => self::postInt('itemsCount'),
@@ -134,7 +142,7 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
             'previewWidth' => self::postInt('previewWidth'),
             'isAddMiniText' => self::postInt('isAddMiniText'),
             'isCreatePreview' => self::postInt('isCreatePreview'),
-            'category' => self::post('category')
+            'classFile' => $classFile
         ];
         // Сохраняем данные
         (new oiLasterPropOrm())->saveExt(['contId' => $contId], $saveData);

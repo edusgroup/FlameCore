@@ -22,6 +22,8 @@ use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 // Event
 use admin\library\mvc\comp\spl\oiRandom\event;
 
+// Model
+use admin\library\mvc\comp\spl\oiList\model;
 
 /**
  * Description of oiPopular
@@ -50,8 +52,8 @@ class oiRandom extends \core\classes\component\abstr\admin\comp {
         self::setJson('contTree', $contTree);
 
         // Получаем список id веток ранее выбранных и сохранённых
-        $oiRandom = (new oiRandomOrm)->selectList('*', 'selContId', 'contId='.$contId);
-        self::setJson('oiRandom', $oiRandom);
+        $selItem = (new oiRandomOrm)->selectList('*', 'selContId', 'contId='.$contId);
+        self::setJson('selItem', $selItem);
 
         // Получаем количество элементов для списка, которые было ранее сохранено
         $oiPopularProp = ( new oiRandomPropOrm() )->selectFirst('*', 'contId='.$contId);
@@ -64,13 +66,10 @@ class oiRandom extends \core\classes\component\abstr\admin\comp {
 
         // Получаем список разновидностей objItem
         $nsPath = filesystem::nsToPath($objItemProp['ns']);
-        $categoryDir = DIR::CORE . 'admin/library/mvc/comp/' . $nsPath . 'category/';
-        if (is_dir($categoryDir)) {
-            $categoryList = [];
-            $categoryList['list'] = filesystem::dir2array($categoryDir, filesystem::DIR);
-            $categoryList['val'] = $oiPopularProp['category'];
-            self::setVar('categoryList', $categoryList);
-        } // if is_dir
+
+        // Дерево классов для builder
+        $classTree = model::getBuildClassTree($nsPath);
+        self::setJson('classTree', $classTree);
 
         $this->view->setBlock('panel', $this->tplFile);
         $this->view->setTplPath(DIR::getTplPath('manager'));
@@ -106,6 +105,16 @@ class oiRandom extends \core\classes\component\abstr\admin\comp {
             $oiRandomOrm->update('contId='.$contId, 'contId=0');
         } // if selData
 
+        $classFile = self::post('class');
+        if ( !$classFile ){
+            return;
+        } // if
+        // Получаем данные по компоненту objItem
+        $objItemProp = (new componentTree())->selectFirst('*', 'sysname="objItem"');
+        // Получаем список разновидностей objItem
+        $nsPath = filesystem::nsToPath($objItemProp['ns']);
+        model::isClassFileExit($classFile, $nsPath);
+
         // Сохраняем настроки по oiRandom
         $saveData = [
             'itemsCount' => self::postInt('itemsCount'),
@@ -113,8 +122,9 @@ class oiRandom extends \core\classes\component\abstr\admin\comp {
             'previewWidth' => self::postInt('previewWidth'),
             'isAddMiniText' => self::postInt('isAddMiniText'),
             'isCreatePreview' => self::postInt('isCreatePreview'),
-            'category' => self::post('category')
+            'classFile' => $classFile
         ];
+
         (new oiRandomPropOrm())->saveExt(['contId' => $contId], $saveData);
 
         // func. saveDataAction

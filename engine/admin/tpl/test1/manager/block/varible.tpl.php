@@ -5,6 +5,9 @@
 
 <script src="res/plugin/classes/utils.js" type="text/javascript"></script>
 
+<script type="text/javascript" src="/res/plugin/fancybox/source/jquery.fancybox.js"></script>
+<link rel="stylesheet" type="text/css" href="/res/plugin/fancybox/source/jquery.fancybox.css" media="screen"/>
+
 <style type="text/css">
     .bold {font-weight: bold}
     .vmiddle{vertical-align: middle; height: 40px}
@@ -37,9 +40,9 @@
     varible.typeVarChange = function(pElement){
         // Получаем тип переменной: Дерево, компонент
         var type = pElement.currentTarget.value;
-        var storageType = $('#varStorage').val();
+
         // Подгрузаем HTML блок в код
-        var query = { acid: varible.acid, type: type, storageType: storageType};
+        var query = { acid: varible.acid, type: type};
         var url = utils.url({method: 'loadTypeVar', query:query});
         $('#typeBox').load(url);
     }
@@ -105,9 +108,6 @@
 
                         <div class="dt">Описание:</div>
                         <div class="dd"><?= self::textarea('name="descrip"', self::get('descrip')); ?></div>
-
-                        <div class="dt">Хранилице данных</div>
-                        <div class="dd"><? self::selectIdName($this->get('varStorage'), 'id="varStorage" name="varStorage"'); ?></div>
 
                         <div class="dt">Источник данных</div>
                         <div class="dd"><? self::selectIdName($this->get('varType'), 'id="varType" name="varType"'); ?></div>

@@ -8,3 +8,12 @@
 Настройка кастомных шаблонов админки
 Положить шаблон в
 {SiteCoreFlame}\{siteName}\tpl\admin\comp\{NS}\{allFolder}
+
+
+
+
+TypeError: this.parentObject is null
+[Прерывать на этой ошибке]
+this.parentObject.style.overflow = "hidden";
+
+Не создан бокс для дерева, т.е. дерево-объект создали, а <div id="{idTree}"></div> нету

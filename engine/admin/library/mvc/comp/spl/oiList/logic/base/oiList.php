@@ -9,6 +9,8 @@ use \DIR;
 use core\classes\render;
 use core\classes\event as eventCore;
 use core\classes\filesystem;
+use core\classes\comp;
+use core\classes\validation\filesystem as filevalid;
 
 // ORM
 use ORM\comp\spl\oiList\oiList as oiListOrm;
@@ -22,16 +24,15 @@ use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 // Event
 use admin\library\mvc\comp\spl\oiList\event;
 
+// Model
+use admin\library\mvc\comp\spl\oiList\model;
+
 /**
  * Description of oiList
  *
  * @author Козленко В.Л.
  */
 class oiList extends \core\classes\component\abstr\admin\comp {
-
-    public function __construct(string $pTplPath, string $pThemeResUrl) {
-        parent::__construct($pTplPath, $pThemeResUrl);
-    }
 
     public function init() {
 
@@ -44,37 +45,33 @@ class oiList extends \core\classes\component\abstr\admin\comp {
         // Получаем данные по компоненту objItem
         $objItemProp = (new componentTree())->selectFirst('*', 'sysname="objItem"');
 
+        // Получаем список разновидностей objItem
+        $nsPath = filesystem::nsToPath($objItemProp['ns']);
+
         // Получаем весь список контента по oiList
         $contData = (new compcontTree())->select('cc.*', 'cc')
             ->where('cc.isDel="no" AND cc.comp_id=' . $objItemProp['id'])
             ->fetchAll();
-        // Преобразуем список в дерево
+        // Преобразуем список в дерево Контента
         $contTree = dhtmlxTree::all($contData, 0);
         self::setJson('contTree', $contTree);
 
+        // Дерево классов для builder
+        $classTree = model::getBuildClassTree($nsPath);
+        self::setJson('classTree', $classTree);
+
         // Получаем список id веток ранее выбранных и сохранённых
-        $oiList = (new oiListOrm)->selectList('*', 'selContId', 'contId=' . $contId);
-        self::setJson('oiList', $oiList);
+        $selItem = (new oiListOrm)->selectList('*', 'selContId', 'contId=' . $contId);
+        self::setJson('selItem', $selItem);
 
         // Получаем ранее сохранённые настройки по текущему contId в oiList
-        $oiListProp = (new oiListPropOrm())->selectFirst('*', 'contId='.$contId);
+        $oiListPropLoad = (new oiListPropOrm())->selectFirst('*', 'contId='.$contId);
         // Передаём все сохранённые переменные из настроек в шаблоны
-        if ( $oiListProp){
-            foreach( $oiListProp as $key => $val ){
+        if ( $oiListPropLoad){
+            foreach( $oiListPropLoad as $key => $val ){
                 self::setVar($key, $val );
-            }
+            } // foreach
         } // if
-
-        // Получаем список разновидностей objItem
-		$nsPath = filesystem::nsToPath($objItemProp['ns']);
-        $categoryDir = DIR::CORE . 'admin/library/mvc/comp/' . $nsPath . 'category/';
-
-        if (is_dir($categoryDir)) {
-            $categoryList = [];
-            $categoryList['list'] = filesystem::dir2array($categoryDir, filesystem::DIR);
-            $categoryList['val'] = $oiListProp['category'];
-            self::setVar('categoryList', $categoryList);
-        } // if is_dir
 
         // Получаем имя шаблона. Можно изменить через свойство компонента
         $this->view->setBlock('panel', $this->tplFile);
@@ -95,8 +92,9 @@ class oiList extends \core\classes\component\abstr\admin\comp {
      */
     public function saveDataAction() {
         $this->view->setRenderType(render::JSON);
-        if (!self::isPost())
+        if (!self::isPost()){
             return;
+        } // if
         $contId = $this->contId;
 
         eventCore::callOffline(
@@ -122,30 +120,26 @@ class oiList extends \core\classes\component\abstr\admin\comp {
             $oiListOrm->update('contId=' . $contId, 'contId=0');
         } // if selData
 
+        $classFile = self::post('class');
+        if ( !$classFile ){
+            return;
+        } // if
+        // Получаем данные по компоненту objItem
+        $objItemProp = (new componentTree())->selectFirst('*', 'sysname="objItem"');
+        // Получаем список разновидностей objItem
+        $nsPath = filesystem::nsToPath($objItemProp['ns']);
+        model::isClassFileExit($classFile, $nsPath);
+
         // Сохраняем настроки по oiList
         $saveData = [
             'itemsCount' => self::postInt('itemsCount'),
             'memcacheCount' => self::postInt('memcacheCount'),
             'fileCount' => self::postInt('fileCount'),
-            'category' => self::post('category'),
+            'classFile' => $classFile,
             'isCreateCategory' => self::postInt('isCreateCategory', 0)
         ];
         (new oiListPropOrm())->saveExt(['contId' => $contId], $saveData);
-
         // func. saveDataAction
-    }
-
-    public function getTableData($pContId) {
-
-    }
-
-    public function getTableOrm() {
-
-    }
-
-    public function blockItemShowAction() {
-        $this->view->setRenderType(render::NONE);
-        echo 'Нет данных';
     }
 
     // class oiList

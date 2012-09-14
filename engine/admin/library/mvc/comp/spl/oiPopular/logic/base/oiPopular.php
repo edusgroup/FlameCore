@@ -22,6 +22,9 @@ use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 // Event
 use admin\library\mvc\comp\spl\oiPopular\event;
 
+// Model
+use admin\library\mvc\comp\spl\oiList\model;
+
 
 /**
  * Description of oiPopular
@@ -50,8 +53,8 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
         self::setJson('contTree', $contTree);
 
         // Получаем список id веток ранее выбранных и сохранённых
-        $oiPopular = (new oiPopularOrm)->selectList('*', 'selContId', 'contId='.$contId);
-        self::setJson('oiPopular', $oiPopular);
+        $selItem = (new oiPopularOrm)->selectList('*', 'selContId', 'contId='.$contId);
+        self::setJson('selItem', $selItem);
 
         // Получаем количество элементов для списка, которые было ранее сохранено
         $oiPopularProp = ( new oiPopularPropOrm() )->selectFirst('*', 'contId='.$contId);
@@ -63,14 +66,11 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
         } // if
 
         // Получаем список разновидностей objItem
-		$nsPath = filesystem::nsToPath($objItemProp['ns']);
-        $categoryDir = DIR::CORE . 'admin/library/mvc/comp/' . $nsPath . 'category/';
-        if (is_dir($categoryDir)) {
-            $categoryList = [];
-            $categoryList['list'] = filesystem::dir2array($categoryDir, filesystem::DIR);
-            $categoryList['val'] = $oiPopularProp['category'];
-            self::setVar('categoryList', $categoryList);
-        } // if is_dir
+        $nsPath = filesystem::nsToPath($objItemProp['ns']);
+
+        // Дерево классов для builder
+        $classTree = model::getBuildClassTree($nsPath);
+        self::setJson('classTree', $classTree);
 
         $this->view->setBlock('panel', $this->tplFile);
         $this->view->setTplPath(DIR::getTplPath('manager'));
@@ -105,13 +105,23 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
             $oiPopularOrm->update('contId='.$contId, 'contId=0');
         } // if selData
 
+        $classFile = self::post('class');
+        if ( !$classFile ){
+            return;
+        } // if
+        // Получаем данные по компоненту objItem
+        $objItemProp = (new componentTree())->selectFirst('*', 'sysname="objItem"');
+        // Получаем список разновидностей objItem
+        $nsPath = filesystem::nsToPath($objItemProp['ns']);
+        model::isClassFileExit($classFile, $nsPath);
+
         $saveData = [
             'itemsCount' => self::postInt('itemsCount'),
             'resizeType' => self::post('resizeType'),
             'previewWidth' => self::postInt('previewWidth'),
             'isAddMiniText' => self::postInt('isAddMiniText'),
             'isCreatePreview' => self::postInt('isCreatePreview'),
-            'category' => self::post('category')
+            'classFile' => $classFile
         ];
         (new oiPopularPropOrm())->saveExt(['contId' => $contId], $saveData);
 

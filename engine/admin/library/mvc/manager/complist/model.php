@@ -16,14 +16,11 @@ use admin\library\classes\mvc\model\compprop as compPropModel;
 
 // Conf
 use \DIR;
-use \CONSTANT;
-use \SITE as ADMIN_CONF;
 
 // Engine
 use core\classes\validation\word;
 use core\classes\DB\tree;
 use core\classes\event;
-use core\classes\component\abstr\admin\comp as compAbs;
 
 /**
  * Description of action
@@ -33,21 +30,9 @@ use core\classes\component\abstr\admin\comp as compAbs;
 class model {
 
     public static function getCompIdBySysname(string $pName) {
-        return (int)(new componentTree())->get('id',
-                                               ['sysname' => $pName],
-                                               new \Exception('Component sysname: ' . $pName . ' не найден', 23));
+        $ext = new \Exception('Component sysname: ' . $pName . ' не найден', 23);
+        return (int)(new componentTree())->get('id', ['sysname' => $pName], $ext);
         // func. getClassDataByCompIds
-    }
-
-    /**
-     * Получаение всего контента по компоненту
-     * @param integer $pCompId ID компонента. см. табл. component_tree
-     * @return array
-     * Возвращает данные в формате для DHTMLX Tree. см. класс dhtmlx
-     */
-    public static function getOnlyContTreeByCompId(integer $pCompId) {
-        return dhtmlxTree::createTreeOfTable(new compContTree(), ['comp_id' => $pCompId]);
-        // func. getOnlyContTreeByCompId
     }
 
     // Возвращает дерево с форматированными картинками
@@ -59,8 +44,6 @@ class model {
             ->comment(__METHOD__)
             ->fetchAll();
 
-
-
         dhtmlxTree::$endBrunch = function(&$pDist, $pType, $pSource, $pNum, $pParam) {
             dhtmlxTree::endBrunch($pDist, $pType, $pSource, $pNum, $pParam);
             $isProp = $pSource[$pNum]['contId'];
@@ -68,7 +51,7 @@ class model {
                 $pDist['im0'] = 'folderEmpty.gif';
                 $pDist['im1'] = 'folderEmpty.gif';
                 $pDist['im2'] = 'folderEmpty.gif';
-            }
+            } // if
             // funct. endBrunch
         };
         $tree = dhtmlxTree::all($data, 0);
