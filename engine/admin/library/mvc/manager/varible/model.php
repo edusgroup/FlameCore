@@ -36,18 +36,6 @@ class model {
     const VAR_TYPE_COMP = 'comp';
 
     /**
-     * Проверка на существование переменной будет происходить через БД
-     * @var integer
-     */
-    const VAR_STORAGE_DB = 'db';
-
-    /**
-     * Проверка на существование переменной будет происходить чере memcache
-     * @var integer
-     */
-    const VAR_STORAGE_MEMCACHE = 'memcache';
-
-    /**
      * Список типо источников данных переменных
      * @var array
      */

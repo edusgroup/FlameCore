@@ -19,10 +19,14 @@
 
 <div class="dt">Контент:</div>
 <div class="dd">
+    <a id="rmContDataBtn" href="#rmContData">
+        <img src="<?= self::res('images/del_16.png') ?>" />
+    </a>
     <a href="#contDlg" id="contBtn">
         <img src="<?= self::res('images/folder_16.png') ?>" />
+        <span id="contPath"></span>
     </a>
-    <span id="contPath"></span>
+
 </div>
 
 
@@ -233,7 +237,6 @@ var varibleMvc = (function () {
         // Чистим дерево класса
         classTree.deleteChildItems(0);
 
-
         $('#contPath').html('');
 
         HAjax.compLoadCompData({data:{
@@ -242,6 +245,16 @@ var varibleMvc = (function () {
 
         $.fancybox.close();
         // func. compTreeDbClick
+    }
+
+    function rmContDataBtnClick(){
+        // Запрашиваем удаление данные
+        if (!confirm('Очистить элемент?')) {
+            return;
+        }
+        varibleData.contTreeSelectId = '';
+        $('#contPath').html('');
+        // func. rmContDataBtnClick
     }
 
     function init(pOptions) {
@@ -257,25 +270,27 @@ var varibleMvc = (function () {
         });
 
         $(options.classBtn).fancybox({
-            beforeOpen:beforeClassDlgShow
+            beforeShow:beforeClassDlgShow
         });
 
         $(options.contBtn).fancybox({
-            beforeOpen:beforeContDlgShow
+            beforeShow:beforeContDlgShow
         });
 
         $(options.methodNameObj).val(varibleData.methodName);
 
         $(options.compBtn).fancybox({
-            beforeOpen:beforeCompDlgShow
+            beforeShow:beforeCompDlgShow
         });
+
+        $(options.rmContDataBtn).click(rmContDataBtnClick);
 
         // func. init
     }
 
     return{
         init:init,
-        getSaveData:getSaveData
+        getSaveData: getSaveData
     }
 })();
 
@@ -287,7 +302,8 @@ $(document).ready(function () {
         classFileText:'#classFileText',
         contBtn: '#contBtn',
         compBtn: '#compBtn',
-        varStorage: '#varStorage'
+        varStorage: '#varStorage',
+        rmContDataBtn: '#rmContDataBtn'
     });
 
     // func $.ready

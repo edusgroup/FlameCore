@@ -136,24 +136,6 @@ class varible extends controllerAbstract {
         // func. compLoadMethodsAction
     }
 
-    /**
-     * Получение ветки контента
-     */
-    /*public function loadContTreeAction() {
-        $this->view->setRenderType(render::JSON);
-
-        // ID компонента. см. табл. component_tree
-        $compId = self::getInt('compid');
-
-        // Получаем дерево контена, если $compId доступен, т.е. был выбран компонент
-        $contTree = $compId ? dhtmlxTree::createTreeOfTable(
-            new compContTree(),
-            ['comp_id' => $compId, 'isDel'=>'no']) : null;
-
-        self::setVar('json', $contTree);
-        // func. loadContTreeAction
-    }*/
-
     public function compLoadCompDataAction(){
         $this->view->setRenderType(render::JSON);
 

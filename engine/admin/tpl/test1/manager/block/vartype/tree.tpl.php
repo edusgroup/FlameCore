@@ -1,134 +1,158 @@
-
 <div class="dt">Компонент:</div>
 <div class="dd">
-    <img src="<?= self::res('images/folder_16.png') ?>" id="compBtn"/>
-    <span id="compPath"></span>
+    <a href="#compDlg" id="compBtn">
+        <img src="<?= self::res('images/folder_16.png') ?>"/>
+        <span id="compPath"></span>
+    </a>
 </div>
 <div class="dt">
     Тип данных:
 </div>
 <div class="dd">
     TreeId:
-    <img src="<?= self::res('images/folder_16.png') ?>" id="contBt"/>
-    <span id="contPath"></span>
+    <a id="contBtn" href="#contDlg">
+        <img src="<?= self::res('images/folder_16.png') ?>"/>
+        <span id="contPath"></span>
+    </a>
 </div>
 
-<div id="contDlg" style="display: none"></div>
-<div id="compDlg" style="display: none"></div>
+<div id="contDlg" style="width:250px;height:350px; display: none"></div>
+<div id="compDlg" style="width:250px;height:350px; display: none"></div>
 <script type="text/javascript">
-    var varType = {
-        tree:{
-            data:{
-                comp: <?= self::get('compTree') ?>
-                ,cont: <?= self::get('contTree', 'null') ?>
+
+    var varTypeData = {
+        compTreeSelectId: <?= self::get('compid', 'null') ?>,
+        contTreeSelectId: <?= self::get('contid', 'null') ?>,
+        contTreeJson: <?= self::get('contTree', 'null') ?>,
+        compTreeJson: <?= self::get('compTree', 'null') ?>
+    }
+
+    varible.saveDataClick = function () {
+        var data = $('#contentForm').serialize();
+        data += '&compId=' + varTypeData.compTreeSelectId;
+        data += '&contId=' + varTypeData.contTreeSelectId;
+        HAjax.saveData({data:data, methodType:'POST'});
+        // func. varible.saveDataClick
+    }
+
+    var varibleMvc = (function () {
+        var options;
+        var compTree;
+        var contTree;
+
+        function initTree() {
+            dhtmlxInit.init({
+                'comp':{
+                    tree:{ id:'compDlg', json:varTypeData.compTreeJson }, dbClick:compTreeDbClick
+                },
+                'cont':{
+                    tree:{ id:'contDlg', json:varTypeData.contTreeJson }, dbClick:contTreeDbClick
+                }
+            });
+            compTree = dhtmlxInit.tree['comp'];
+            contTree = dhtmlxInit.tree['cont'];
+            // func. initTree
+        }
+
+        /**
+         * Нажатие на кнопку компоненты. Вызов окна с компонентами
+         */
+        function beforeCompDlgShow() {
+            compTree.selectItem(varTypeData.compTreeSelectId);
+            // func. beforeCompDlgShow
+        }
+
+        function beforeContDlgShow() {
+            contTree.selectItem(varTypeData.contTreeSelectId);
+            // func. beforeContDlgShow
+        }
+
+        /**
+         * Выбор компонента. Закрытие окна
+         */
+        function compTreeDbClick(pTreeId, pTree) {
+            if (varTypeData.compTreeSelectId == pTreeId) {
+                return false;
             }
-            
-        },
-        compId: <?= self::get('compid', 'null') ?>,
-        contId: <?= self::get('contid', 'null') ?>
-    }
- 
-    /**
-     * Нажатие на кнопку компоненты. Вызов окна с компонентами
-     */
-    varType.compBtnClick = function(){
-        varType.tree.comp.selectItem(varType.compId);
-        $dialog.open('compDlg');
-    }
-    
-    /**
-     * Выбор компонента. Закрытие окна
-     */
-    varType.tree.compDbClick = function(pTreeId, pTree){
-        //var itemId = varType.tree.comp.getSelectedItemId();
-        if ( varType.compid != pTreeId){
+            $('#compPath').html(utils.getTreeUrl(pTree, pTreeId));
+
             $('#contPath').html('');
-            varType.contId = null;
+            varTypeData.compTreeSelectId = pTreeId;
+            varTypeData.contTreeSelectId = '';
+            contTree.deleteChildItems(0);
+
+            HAjax.compLoadCompData({
+                query:{compid:pTreeId}
+            });
+
+            $.fancybox.close();
+            // func. compTreeDbClick
         }
-        varType.compId = pTreeId;
-        $('#compPath').html(utils.getTreeUrl(pTree, pTreeId));
-        $dialog.close('compDlg');
-    }
-    
-    /**
-     * Выбор контента. Вызов окна с контентом
-     */
-    varType.contBtnClick = function(){
-        if ( !varType.compId ){
-            alert('Выбирите компонент');
-            return;
+
+        function initLoad() {
+            var text = utils.getTreeUrl(compTree, varTypeData.compTreeSelectId);
+            $('#compPath').html(text);
+            text = utils.getTreeUrl(contTree, varTypeData.contTreeSelectId)
+            $('#contPath').html(text);
+
+            // func. initLoad
         }
-        if ( varType.contId ){
-            varType.tree.cont.selectItem(varType.contId);
-            $dialog.open('contDlg');
-            return;
+
+        function cbSaveData(pData) {
+            if (pData['error']) {
+                alert(pData['error']['msg']);
+                return;
+            }
+            alert('Данные успешно сохранены');
+            // func. cbSaveData
         }
-        HAjax.loadContTree({query: {compid: varType.compId}});
-        // TODO: Поставить прогресс бар
-    }
-    
-    varType.loadContTree = function(pData){
-        var contTree = varType.tree.cont;
-        contTree.deleteChildItems(0);
-        contTree.loadJSONObject(pData);
-        $dialog.open('contDlg');
-    }
-    
-    varType.tree.contDbClick = function(){
-        var itemId = varType.tree.cont.getSelectedItemId();
-        varType.contId = itemId;
-        var text = utils.getTreeUrl(varType.tree.cont, itemId);
-        $('#contPath').html(text);
-        $dialog.close('contDlg');
-    }
-    
-    varType.tree.data.comp = {
-        tree: { id: 'compDlg', json: varType.tree.data.comp }
-        ,dbClick: varType.tree.compDbClick
-    }
-    
-    varType.tree.data.cont = {
-        tree:{ id: 'contDlg', json: varType.tree.data.cont }
-        ,dbClick: varType.tree.contDbClick
-    }
-    
-    varType.saveData = function(pData){
-        if (pData['error']){
-            alert(pData['error']['msg']);
-            return;
+
+        function cbCompLoadCompData(pData) {
+            contTree.loadJSONObject(pData['contTree']);
+            // func. cbCompLoadCompData
         }
-        alert('Данные успешно сохранены');
-    }
-    
-    $(document).ready(function(){
-        $('#compBtn').click(varType.compBtnClick);
-        $('#contBt').click(varType.contBtnClick);
-        
-        dhtmlxInit.init({
-            'comp': varType.tree.data.comp,
-            'cont': varType.tree.data.cont});
-        varType.tree.comp = dhtmlxInit.tree['comp'];
-        varType.tree.cont = dhtmlxInit.tree['cont'];
-    
-        HAjax.create({
-            loadContTree: varType.loadContTree,
-            saveData: varType.saveData
+
+        function contTreeDbClick(pItemId, pContTree) {
+            varTypeData.contTreeSelectId = pItemId;
+            var text = utils.getTreeUrl(pContTree, pItemId);
+            $('#contPath').html(text);
+            $.fancybox.close();
+            // func. contTreeDbClick
+        }
+
+        function init(pOptions) {
+            options = pOptions;
+
+            initTree();
+            initLoad();
+
+            HAjax.create({
+                compLoadCompData:cbCompLoadCompData,
+                saveData:cbSaveData
+            });
+
+            $(options.compBtn).fancybox({
+                beforeShow:beforeCompDlgShow
+            });
+
+            $(options.contBtn).fancybox({
+                beforeShow:beforeContDlgShow
+            });
+
+            // func. init
+        }
+
+        return{
+            init:init
+        }
+    })(); // varibleMvc
+
+
+    $(document).ready(function () {
+        varibleMvc.init({
+            compBtn:'#compBtn',
+            contBtn:'#contBtn'
         });
-        
-        varible.saveDataClick = function(){
-            var data = $('#contentForm').serialize();
-            data += '&compId='+varType.compId;
-            data += '&contId='+varType.contId;
-            HAjax.saveData({data: data, methodType: 'POST'});
-            // func. varible.saveDataClick
-        }
-        
-        $('#compPath').html(utils.getTreeUrl(varType.tree.comp, varType.compId));
-        $('#contPath').html(utils.getTreeUrl(varType.tree.cont, varType.contId));
-        
-        //if ( varible.varCount > 1 ){
-        //   $('#contDivSel').hide();
-        // }
     });
 
 </script>

@@ -133,14 +133,10 @@ class varComp {
             'contId' => $contId
         ];
 
-        $varCompOrm = new varCompOrm();
-        $varCompOrm->save('acId=' . $pAcId, $saveArr);
+        (new varCompOrm())->saveExt(['acId' => $pAcId], $saveArr);
 
-        $urlTreePropVar = new urlTreePropVar();
         $routeData = ['varType' => model::VAR_TYPE_COMP];
-        $urlTreePropVar->update($routeData, 'acId=' . $pAcId);
-
-        $pController->setVar('json', ['ok' => 1]);
+        (new urlTreePropVar())->saveExt(['acId' => $pAcId ], $routeData);
         // func. saveData
     }
 
