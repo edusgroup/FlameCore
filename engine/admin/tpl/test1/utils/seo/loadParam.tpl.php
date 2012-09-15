@@ -34,5 +34,5 @@
     ?>
 </div>
 <script>
-    $('#paramBox select[name=blCompId]').change(seoMvc.loadClassMethod);
+    $('#paramBox select[name=blCompId]').change(seoMvc.compListChange);
 </script>

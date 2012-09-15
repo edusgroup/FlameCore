@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\objItem\category\review;
+namespace admin\library\mvc\comp\spl\objItem\build\review;
 
 // Orm
 use ORM\comp\spl\objItem\review\review as reviewOrm;
@@ -8,6 +8,7 @@ use ORM\comp\spl\objItem\review\review as reviewOrm;
 // Model
 use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
+use admin\library\mvc\comp\spl\objItem\help\model\base\model as baseModel;
 
 // Conf
 use \DIR;
@@ -17,7 +18,7 @@ use \DIR;
  *
  * @author Козленко В.Л.
  */
-class builder implements \admin\library\mvc\comp\spl\objItem\category\builderAbs {
+class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
 
     public static function getTable(){
         return [reviewOrm::TABLE];
@@ -25,14 +26,14 @@ class builder implements \admin\library\mvc\comp\spl\objItem\category\builderAbs
 
     public static function getOIListArray($objItemItem, $objItemCompId){
         // Получаем путь до папки, где храняться данные превью
-        $loadDir = objItemModel::getPath($objItemCompId, $objItemItem->treeId, $objItemItem->id);
+        $loadDir = baseModel::getPath($objItemCompId, $objItemItem->treeId, $objItemItem->id);
         $loadDir = DIR::getSiteDataPath($loadDir);
         $text = '';
         if (is_readable($loadDir . 'text.txt')) {
             $text = file_get_contents($loadDir . 'text.txt');
         } // if is_readable
 
-        $idSplit = objItemModel::getPath($objItemCompId, $objItemItem->treeId, $objItemItem->id);
+        $idSplit = baseModel::getPath($objItemCompId, $objItemItem->treeId, $objItemItem->id);
         return [
             'caption' => $objItemItem->caption,
             'id' => $objItemItem->id,
@@ -61,5 +62,5 @@ class builder implements \admin\library\mvc\comp\spl\objItem\category\builderAbs
         // func. getOIRandomArray
     }
 
-    // class. builder
+    // class. build
 }

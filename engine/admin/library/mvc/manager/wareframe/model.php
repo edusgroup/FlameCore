@@ -149,11 +149,9 @@ class model {
     }
 
     public static function makeTree(integer $pWfId, $pActionId) {
-        $actionId = $pActionId ? : 'null';
-        $blockfile = new blockfile();
         // Получем по WfID, в какие блоки были добавлены другие шаблоны
-        $blockLoadList = $blockfile->select('id, file, file_id, block, action_id', 't')
-            ->where('wf_id=' . $pWfId . ' AND ( action_id IS NULL OR action_id=' . $actionId . ')')
+        $blockLoadList = (new blockfile())->select('id, file, file_id, block, action_id', 't')
+            ->where('wf_id=' . $pWfId . ' AND ( action_id = 0 OR action_id=' . $pActionId . ')')
             ->order('id')
             ->comment(__METHOD__)
             ->fetchAll();
@@ -173,15 +171,16 @@ class model {
          * у корневого шаблона нет названия шаблона
          */
 
-        $blockItem = new blockItem();
-        $blockItemList = $blockItem->select('block_id')
-            ->where('wf_id=' . $pWfId . ' AND ( acId IS NULL OR acId=' . $actionId . ')')
+        $blockItemList = (new blockItem())->select('block_id')
+            ->where('wf_id=' . $pWfId . ' AND ( acId = 0 OR acId=' . $pActionId . ')')
             ->group('block_id')
             ->comment(__METHOD__)
             ->toList('block_id');
 
         // Буффер всех ссылок для блоков, если они есть
-        $linkBlockBuff = (new blockLinkOrm())->selectAll('blockId, linkMainId, linkBlockId, acId', 'wfId='.$pWfId.' and (acId=0 or acId='.$actionId.')');
+        $linkBlockBuff = (new blockLinkOrm())->selectAll(
+            'blockId, linkMainId, linkBlockId, acId',
+            'wfId='.$pWfId.' and (acId=0 or acId='.$pActionId.')');
         // Обрабатываем массив, для удобства пользования
         // делаем ключом blockId
         if ( $linkBlockBuff ){
@@ -434,14 +433,13 @@ class model {
 
     public static function getBlockItemList($pAcId, string $bBlId, integer $pWfId) {
         $blockItem = new blockItem();
-        $acId = $pAcId ? : 'null';
         $wfLinkId = $pWfId;
         $blockOrgId = $blockItem->addQuote($bBlId);
         $blockLinkId = $blockOrgId;
         $linkMainId = -1;
 
         // Получаем информацию по ссылкам
-        $where = '(acId=0 or acId='.$acId.') and wfId='.$pWfId.' and blockId='.$blockLinkId;
+        $where = '(acId=0 or acId='.$pAcId.') and wfId='.$pWfId.' and blockId='.$blockLinkId;
         $linkData = (new blockLinkOrm())->selectFirst('linkMainId, linkBlockId, acId', $where );
         if ( $linkData ){
             // Нужно сделать подмены с инфомации по линкам
@@ -455,7 +453,7 @@ class model {
             $blockLinkId = $blockItem->addQuote($blockLinkId);
         } // if
 
-        $where = '(wf_id=' . $pWfId .' or wf_id='.$wfLinkId.') AND ( acId IS NULL OR acId=' . $acId . ' OR acId=' . $linkMainId . ') AND ( block_id=' . $blockLinkId.' or block_id='.$blockOrgId.')';
+        $where = '(wf_id=' . $pWfId .' or wf_id='.$wfLinkId.') AND ( acId = 0 OR acId=' . $pAcId . ' OR acId=' . $linkMainId . ') AND ( block_id=' . $blockLinkId.' or block_id='.$blockOrgId.')';
 
         // Если мы щас находимся в окне редактирования(т.е. запрос пришёл от туда )
         // Тогда мы можем сделать персональную сортировку с помощью blockItemOrderOrm

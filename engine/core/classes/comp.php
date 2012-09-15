@@ -8,13 +8,11 @@ use ORM\tree\compContTree;
 use ORM\compprop as compPropOrm;
 
 // Engine
-use core\classes\validation\word;
+use core\classes\validation\word as wordValid;
 
 // Conf
 use \DIR;
 
-// Init
-use admin\library\init\comp as compInit;
 
 /**
  * Класс работы с компонентами. Создание объектов, получение свойств.
@@ -122,10 +120,6 @@ class comp {
         $className = substr($className, 0, strlen($className) - 4);
         $className = str_replace('/', '\\', $className);
 
-        word::isNsClassName(
-            $className
-            , new \Exception('Bad Ns name: [' . __METHOD__ . '(className=>' . $className . ')]', 23)
-        );
         $classNameData['file'] = $className;
         return $classNameData;
         // func. getClassName
@@ -167,7 +161,7 @@ class comp {
         // func. getCompBuildClassPath
     }
 
-    public static function createClassAdminObj($pClassFileName, $pNs){
+    public static function fullNameClassAdmin($pClassFileName, $pNs){
         $classNameData = self::getClassName($pClassFileName);
         if ( $classNameData['isOut']){
             $className = '\\site\\core\\admin\\comp\\'.$pNs.'logic\\';
@@ -175,11 +169,23 @@ class comp {
             $className = '\\admin\\library\\mvc\\comp\\'.$pNs.'logic\\';
         } // if
         $className .= $classNameData['file'];
-        return new $className('', '');
-        // func. createClassAdminObj
+        return $className;
+        // func. fullNameClassAdmin
     }
 
-    public static function createClassSiteObj($pClassFileName, $pNs){
+    public static function fullNameBuildClassAdmin($pClassFileName, $pNs){
+        $classNameData = self::getClassName($pClassFileName);
+        if ( $classNameData['isOut']){
+            $className = '\\site\\core\\admin\\comp\\'.$pNs.'build\\';
+        }else{
+            $className = '\\admin\\library\\mvc\\comp\\'.$pNs.'build\\';
+        } // if
+        $className .= $classNameData['file'];
+        return $className;
+        // func. fullNameClassAdmin
+    }
+
+    public static function fullNameClassSite($pClassFileName, $pNs){
         $classNameData = self::getClassName($pClassFileName);
         if ( $classNameData['isOut']){
             $className = '\\site\\core\\comp\\'.$pNs.'logic\\';
@@ -187,8 +193,18 @@ class comp {
             $className = '\\core\\comp\\'.$pNs.'logic\\';
         } // if
         $className .= $classNameData['file'];
-        return new $className();
-        // func. createClassAdminObj
+        return $className;
+        // func. fullNameClassSite
+    }
+
+    public static function fullNameVarClass($classNameData, $pNs){
+        $className = $classNameData['file'];
+        $className = substr($className, 0, strlen($className) - 4);
+        $className = str_replace('/', '\\', $className);
+
+        $className = '\\core\\comp\\'.$pNs.'vars\\'.$className;
+        return $classNameData['isOut'] ? '\\site'.$className : $className;
+        // func. fullNameVarClass
     }
 
     /**

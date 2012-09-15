@@ -20,6 +20,7 @@ use core\classes\validation\filesystem as fileValid;
 
 // Model
 use admin\library\mvc\comp\spl\objItem\category\engart\model as engartModel;
+use admin\library\mvc\comp\spl\objItem\help\model\base\model as baseModel;
 
 // Event
 use admin\library\mvc\comp\spl\objItem\category\article\event;
@@ -81,7 +82,7 @@ trait category{
         );
 
         // Директория с данными статьи
-        $saveDir = objItemModel::getPath($compId, $contId, $objItemId);
+        $saveDir = baseModel::getPath($compId, $contId, $objItemId);
         $saveDir = DIR::getSiteDataPath($saveDir);
         $seoKeywords = self::post('seoKeywords');
         $seoDescr = self::post('seoDescr');
@@ -150,7 +151,7 @@ trait category{
         $name = self::get('name');
         fileValid::isSafe($name, new \Exception('Неверное имя файла', 234));
 
-        $pathPrefix = objItemModel::getPath($compId, $contId, $id);
+        $pathPrefix = baseModel::getPath($compId, $contId, $id);
 
         // Директория, где храняться все файлы и изображения
         $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;

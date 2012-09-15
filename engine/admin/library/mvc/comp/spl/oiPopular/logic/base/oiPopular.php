@@ -105,7 +105,7 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
             $oiPopularOrm->update('contId='.$contId, 'contId=0');
         } // if selData
 
-        $classFile = self::post('class');
+        $classFile = self::post('classFile');
         if ( !$classFile ){
             return;
         } // if

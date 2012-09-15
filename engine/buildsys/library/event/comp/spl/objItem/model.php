@@ -108,12 +108,7 @@ class model {
 
         // Для начала нужно получить список всех детей веток и ID родителей
         // которые пользователь отметил в дереве sitemap, после посмотреть
-        $tree = new tree();
         foreach ($childList as $contId) {
-            /*$parentList = $tree->getTreeUrlById(compContTreeOrm::TABLE, (int)$contId);
-            $parentList = array_map(function($pItem) {
-                return $pItem['id'];
-            }, $parentList);*/
             // Получаем рекурсивно все папки входящие в выбранные пользователем при настройках компонента
             self::_rGetChildList($pTreeTableOrm, $compContTreeOrm, $childList, $contId);
 
@@ -135,27 +130,6 @@ class model {
         if (!array_intersect($buffTreeIdList, $where)) {
             return;
         }
-        /*$where = implode(',', $where);
-    $isCreate = $eventBufferOrm
-        ->select('userId', 'eb')
-        ->where('eventName = "' . eventObjitem::ACTOIN_CUSTOM_PROP_SAVE . '" AND userId in (' . $where . ')')
-        ->comment(__METHOD__)
-        ->fetchFirst();*/
-
-
-        // Если изменений не было, может были измнения в статьях
-        // К примеру Удаление статьи (eventObjitem::ACTION_DELETE)
-        // или изменение названия статьи, сео названия, изменение публикации (eventObjitem::ACTION_TABLE_SAVE)
-
-        /*if (!$isCreate) {
-            // Делаем выборку из буффера Event на наличие измений по статьям
-            $eventBufferOrm
-                ->select('userId', 'eb')
-                ->where('eventName in ("' . eventObjitem::ACTION_DELETE
-                            . '","' . eventObjitem::ACTION_TABLE_SAVE . '") AND userId in (' . $where . ')')
-                ->fetchFirst();
-
-        } // if $isCreate*/
 
         $where = implode(',', $where);
         // Делаем выборку всех статей по детям выбранным в дереве sitemap
@@ -198,7 +172,8 @@ class model {
             // Проверяем были ли настройки компонента
             $isSaveProp = $pEventBuffer->selectFirst(
                 'id',
-                ['eventName' => $pSaveActionName, 'userId' => $itemPropContId]
+                ['eventName' => $pSaveActionName,
+                'userId' => $itemPropContId]
             );
             if ($isSaveProp) {
                 $buffTreeIdList = $childList;

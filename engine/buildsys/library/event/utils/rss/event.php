@@ -20,9 +20,8 @@ use core\classes\seo\blog\weblogUpdates;
 use \DIR;
 use \site\conf\SITE as SITE_CONF;
 use admin\library\mvc\comp\spl\objItem\event as eventObjitem;
+use admin\library\mvc\comp\spl\objItem\help\model\base\model as baseModel;
 
-// Event
-use admin\library\mvc\utils\rss\event as eventrss;
 
 // Model
 use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
@@ -65,7 +64,7 @@ class event {
         $list = [];
         while ($item = $handleObjitem->fetch_object()) {
             // Директория с данными статьи
-            $saveDir = objItemModel::getPath($item->compId, $item->treeId, $item->id);
+            $saveDir = baseModel::getPath($item->compId, $item->treeId, $item->id);
             $saveDir = DIR::getSiteDataPath($saveDir);
 
             // Если файл есть, то получаем первых 50 слов

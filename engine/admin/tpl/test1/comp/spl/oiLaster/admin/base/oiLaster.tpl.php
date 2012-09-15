@@ -236,11 +236,10 @@
         }
 
         function initLoadData(){
-            if ( oiLasterData.classTreeSelectId ){
-                var text = utils.getTreeUrl(classTree, oiLasterData.classTreeSelectId);
-            }else{
-                var text = '/base/objItem.php';
+            if ( !oiLasterData.classTreeSelectId ){
+                oiLasterData.classTreeSelectId = '/base/build.php';
             } // if
+            var text = utils.getTreeUrl(classTree, oiLasterData.classTreeSelectId);
             $(options.classFileText).html(text);
 
             for (var i in oiLasterData.selItem) {

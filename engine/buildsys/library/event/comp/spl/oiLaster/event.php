@@ -19,6 +19,7 @@ use admin\library\mvc\comp\spl\oiLaster\event as eventoiLaster;
 
 // Engine
 use core\classes\filesystem;
+use core\classes\comp as compCore;
 
 // Conf
 use \DIR;
@@ -40,8 +41,7 @@ class event {
             return;
         }
 
-		// Получаем compId objItem
-        $objItemCompId = (new componentTreeOrm())->get('id', 'sysname="objItem"');
+        $objItemProp = (new componentTreeOrm())->selectFirst('id, ns', 'sysname="objItem"');
 
         // Получаем список всех oiLast, которые были созданы
         $contList = (new oiLasterPropOrm())
@@ -51,50 +51,36 @@ class event {
 
         // Бегаем по сохранённым группам oiLast
         foreach( $contList as $oiLasterItemProp ){
-
-            // Получаем подтип objItem и создаём его класс
-            $categoryObjItem = $oiLasterItemProp['category'];
-            $objItemCategory = '\admin\library\mvc\comp\spl\objItem\category\\'.$categoryObjItem.'\builder';
-            $objItemCatEvent = new $objItemCategory();
-
-            // Директория к данным группы
-            $saveDir = 'comp/' . $oiLasterItemProp['compId'] . '/' . $oiLasterItemProp['contId'] . '/';
-            $saveDir = DIR::getSiteDataPath($saveDir);
-
             $itemsCount = $oiLasterItemProp['itemsCount'];
 
             // Получаем список детей в выбранной группе
+            // т.е. получаем всех выбранные ветки в дереве objItem, которые мы приозвели
+            // при настройке oiList в админке
             $oiLasterOrm = new oiLasterOrm();
             $childList = $oiLasterOrm->selectList(
                 'selContId as contId',
                 'contId',
                 'contId='.$oiLasterItemProp['contId']);
-				
-			/*// Получаем все TreeId которые есть в буффере, это нужно для того
-			// что бы понять какие из oiList нужно перегенерить, без этого, генерилось бы 
-			// все oiList
-			$buffTreeIdList = $pEventBuffer->select('cc.treeId', 'eb')
-						 ->join(objItemOrm::TABLE.' cc', 'cc.id=eb.userId')
-						 ->group('cc.treeId')
-						 ->toList('treeId');	
-			// Если данных в $buffTreeIdList нет, то скорей всего было сохранение по настройкам компонента
-			if ( !$buffTreeIdList ){
-				// Проверяем были ли настройки компонента
-				$isSaveProp = $pEventBuffer->selectFirst(
-					'id', 
-					['eventName'=>eventoiLaster::ACTION_SAVE, 'userId'=>$oiLasterItemProp['contId']]
-				);
-				if ( $isSaveProp ){
-					$buffTreeIdList = $childList;
-				} // if $isSaveProp
-									
-			} // if ( !$buffTreeIdList )*/
+
+            // Теперь нужно проверить, а есть ли пересечения из выбранных веток в дереве и в
+            // буффере event. Вдруг пересечений нет,
+            // тогда не данный класс должен обрабатывать текущее событие
             $buffTreeIdList = eventModelObjitem::getBuffTreeIdList(
                     $pEventBuffer,
                     $childList,
                     $oiLasterItemProp['contId'],
                     eventoiLaster::ACTION_SAVE
             );
+
+            $classFile = $oiLasterItemProp['classFile'];
+            if ( !$classFile || $classFile == '/base/build.php' ){
+                echo "\tioLaster[condI:".$oiLasterItemProp['contId']."] className is default. Abort".PHP_EOL;
+                continue;
+            }
+
+            // Получаем подтип objItem и создаём его класс
+            $className = compCore::fullNameBuildClassAdmin($classFile, $objItemProp['ns']);
+            $objItemCatEvent = new $className();
 				
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
@@ -108,19 +94,27 @@ class event {
 			
 			// Выборка представляем ли смысл
             if ( !$handleObjitem ){
-                //print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
                 continue;
             }
 			// Больше ли данных нуля
 			if ( !$handleObjitem->num_rows ){
-                print "ERROR(" . __METHOD__ . "() | Num rows = 0" . PHP_EOL;
+                echo "\tioLaster[condI:".$oiLasterItemProp['contId']."] not data found. Error".PHP_EOL;
                 continue;
             }
+
+            // Директория к данным группы
+            $saveDir = 'comp/' . $oiLasterItemProp['compId'] . '/' . $oiLasterItemProp['contId'] . '/';
+            $saveDir = DIR::getSiteDataPath($saveDir);
+
+            $numRows = $handleObjitem->num_rows;
+            echo "\tioLaster[condI:".$oiLasterItemProp['contId']."] Row:$numRows itemC: $itemsCount".PHP_EOL;
+            echo "\t$classFile".PHP_EOL;
+            echo "\t$saveDir".PHP_EOL.PHP_EOL;
 
             $listArr = [];
             $listCount = 0;
             while($objItemObj = $handleObjitem->fetch_object()){
-                $listArr[$listCount] = $objItemCatEvent::getOILasterArray($objItemObj, $objItemCompId, $oiLasterItemProp, $listCount);
+                $listArr[$listCount] = $objItemCatEvent::getOILasterArray($objItemObj, $objItemProp['id'], $oiLasterItemProp, $listCount);
                 ++$listCount;
             } // while
 
@@ -128,8 +122,8 @@ class event {
             filesystem::saveFile($saveDir, 'data.txt', $data);
             unset($data);
         } // foreach
-        // func. createoiLaster
 
+        // func. createoiLaster
     }
 
 // class event

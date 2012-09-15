@@ -52,12 +52,12 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/?$t=manager&$c=wareframe" id="" title="WF">
+                        <a href="/?$t=manager&$c=wareframe" title="WF">
                             <img src="<?= self::res('images/wf_32.png') ?>" alt="WF" /><span>Wareframe</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/?$t=manager&$c=complist" id="" title="Component List">
+                        <a href="/?$t=manager&$c=complist" title="Component List">
                             <img src="<?= self::res('images/refresh_32.png') ?>" alt="Component List" /><span>Component List</span>
                         </a>
                     </li>
@@ -134,12 +134,17 @@
             // func. acTreeClick
         }
 
-        function loadClassMethod(pEvent){
+        function compListChange(pEvent){
+            var compId =  pEvent.target.value;
+            if ( compId == -1 ){
+                $('#paramBox select[name=method]>option').remove()
+                return;
+            }
             var data = {
-                biCompId: pEvent.target.value
-            };
+                biCompId: compId
+            }
             HAjax.loadClassMethod({data: data});
-            // func. loadClassMethod
+            // func. compListChange
         }
 
         function loadClassMethodSuccess(pData){
@@ -147,7 +152,6 @@
                 alert(pData['error']['msg']);
                 return;
             }
-
             // Ощичаем старый набор методом
             var $select = $('#paramBox select[name=method]');
             var $methodName = $select.find('option').remove().end();
@@ -189,7 +193,7 @@
         }
         return {
             init: init,
-            loadClassMethod: loadClassMethod
+            compListChange: compListChange
         }
     })();
 

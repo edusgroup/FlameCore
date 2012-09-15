@@ -77,7 +77,8 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             $tableOrm = null;
             // Если есть деление на таблицу и сохранён статический ID элемента таблиц, то нужно вытащить его название
             if ($onlyFolder && isset($itemData['statId'])) {
-                $contrAdminObj = comp::createClassAdminObj($itemData['classFile'], $itemData['ns']);
+                $className = comp::fullNameClassAdmin($itemData['classFile'], $itemData['ns']);
+                $contrAdminObj = new $className('', '');
                 $tableOrm = $contrAdminObj->getTableOrm();
 
                 $statName = $tableOrm->get('caption', 'id=' . (int)$itemData['tableId']);
@@ -176,7 +177,8 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             throw new \Exception('ContId не найден: ' . $contId, 25);
         }
 
-        $adminObj = comp::createClassAdminObj($classFile, $compData['ns']);
+        $className = comp::fullNameClassAdmin($classFile, $compData['ns']);;
+        $adminObj = new $className('', '');
 
         if (!method_exists($adminObj, 'getTableData')) {
             throw new \Exception(' getTableData не найден: ' . $contId, 24);
@@ -303,7 +305,8 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         // Имя класса который задали в настройках
         $classFile = $objProp['classFile']?: '/base/'.$objProp['classname'].'.php';
 
-        $adminObj = comp::createClassAdminObj($classFile, $objProp['ns']);
+        $className = comp::fullNameClassAdmin($classFile, $objProp['ns']);;
+        $adminObj = new $className('', '');
         if (!method_exists($adminObj, 'blockItemSave')) {
             throw new \Exception(' getTableData не найден', 24);
         }

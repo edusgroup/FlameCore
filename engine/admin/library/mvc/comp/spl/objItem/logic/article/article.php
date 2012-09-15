@@ -18,6 +18,7 @@ use ORM\comp\spl\objItem\article\article as articleOrm;
 
 // Model
 use admin\library\mvc\comp\spl\objItem\help\model\base\model as objItemModel;
+use admin\library\mvc\comp\spl\objItem\help\model\base\model as baseModel;
 
 // Event
 use admin\library\mvc\comp\spl\objItem\help\event\base\event as eventBase;
@@ -69,7 +70,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         self::setVar('caption', $objItemData['caption']);
 
         // Получаем путь до папки, где храняться данные статьи
-        $loadDir = objItemModel::getPath($compId, $contId, $objItemId);
+        $loadDir = baseModel::getPath($compId, $contId, $objItemId);
         $loadDir = DIR::getSiteDataPath($loadDir);
 
         $textData = '';
@@ -122,7 +123,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         );
 
         // Директория с данными статьи
-        $saveDir = objItemModel::getPath($compId, $contId, $objItemId);
+        $saveDir = baseModel::getPath($compId, $contId, $objItemId);
         $saveDir = DIR::getSiteDataPath($saveDir);
         $seoKeywords = self::post('seoKeywords');
         $seoDescr = self::post('seoDescr');

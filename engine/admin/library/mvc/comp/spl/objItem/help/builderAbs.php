@@ -1,5 +1,5 @@
 <?php
-namespace admin\library\mvc\comp\spl\objItem\category;
+namespace admin\library\mvc\comp\spl\objItem\help;
 
 /**
  * Description of event

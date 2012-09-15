@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\objItem\help\build\article;
+namespace admin\library\mvc\comp\spl\objItem\build\article;
 
 // Orm
 use ORM\comp\spl\objItem\article\article as articleOrm;
@@ -8,6 +8,7 @@ use ORM\comp\spl\objItem\article\article as articleOrm;
 // Model
 use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
+use admin\library\mvc\comp\spl\objItem\help\model\base\model as baseModel;
 
 // Conf
 use \DIR;
@@ -17,15 +18,16 @@ use \DIR;
  *
  * @author Козленко В.Л.
  */
-class build implements \admin\library\mvc\comp\spl\objItem\category\builderAbs {
+class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
 
     public static function getTable(){
         return [articleOrm::TABLE];
+        // func. getTable
     }
 
     public static function getOIListArray($objItemItem, $objItemCompId){
         $url = sprintf($objItemItem->urlTpl, $objItemItem->seoName, $objItemItem->seoUrl);
-        $idSplit = objItemModel::getPath($objItemCompId, $objItemItem->treeId, $objItemItem->id);
+        $idSplit = baseModel::getPath($objItemCompId, $objItemItem->treeId, $objItemItem->id);
         return [
             'caption' => $objItemItem->caption,
             'id' => $objItemItem->id,
@@ -65,7 +67,7 @@ class build implements \admin\library\mvc\comp\spl\objItem\category\builderAbs {
         ];
 
         if ( $oiLasterItemProp['isAddMiniText']){
-            $objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
+            $objItemDataDir = baseModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
             $miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
             if (is_readable($miniDescrFile)) {
                 $listArr['miniDesck'] = file_get_contents($miniDescrFile);
@@ -99,7 +101,7 @@ class build implements \admin\library\mvc\comp\spl\objItem\category\builderAbs {
         ];
 
         if ( $oiPopularItemProp['isAddMiniText']){
-            $objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
+            $objItemDataDir = baseModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
             $miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
             if (is_readable($miniDescrFile)) {
                 $listArr['miniDesck'] = file_get_contents($miniDescrFile);
@@ -133,7 +135,7 @@ class build implements \admin\library\mvc\comp\spl\objItem\category\builderAbs {
         ];
 
         if ( $rndObjItemProp['isAddMiniText']){
-            $objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
+            $objItemDataDir = baseModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
             $miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
             if (is_readable($miniDescrFile)) {
                 $listArr['miniDesck'] = file_get_contents($miniDescrFile);

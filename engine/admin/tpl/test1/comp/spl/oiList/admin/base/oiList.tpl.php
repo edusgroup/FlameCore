@@ -212,11 +212,10 @@
         }
 
         function initLoadData(){
-            if ( oiListData.classTreeSelectId ){
-                var text = utils.getTreeUrl(classTree, oiListData.classTreeSelectId);
-            }else{
-                var text = '/base/objItem.php';
+            if ( !oiListData.classTreeSelectId ){
+                oiListData.classTreeSelectId = '/base/build.php';
             } // if
+            var text = utils.getTreeUrl(classTree, oiListData.classTreeSelectId);
             $(options.classFileText).html(text);
 
             for (var i in oiListData.selItem) {

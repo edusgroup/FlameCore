@@ -18,6 +18,7 @@ use core\classes\userUtils;
 
 // Model
 use admin\library\mvc\comp\spl\objItem\model as objItemModel;
+use admin\library\mvc\comp\spl\objItem\help\model\base\model as baseModel;
 
 class event{
 
@@ -48,7 +49,7 @@ class event{
             $whereIdList .= ',' . $delItem['id'];
 
             // Удаляем загруженные файлы
-            $pathPrefix = objItemModel::getPath($delItem['comp_id'], $delItem['treeId'], $delItem['id']);
+            $pathPrefix = baseModel::getPath($delItem['comp_id'], $delItem['treeId'], $delItem['id']);
             userUtils::rmFolder($pathPrefix);
 
             // Удаляем кешированные файлы комментариев

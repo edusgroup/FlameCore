@@ -67,8 +67,8 @@ class varComp {
             if ( $dataLoad['classFile'] ){
                 $classFileData = comp::getFileType($dataLoad['classFile']);
                 // Получаем методы класа
-                $varClassObj = model::getVarClassObj($classFileData, $dataLoad['ns']);
-                $methodList = get_class_methods($varClassObj);
+                $className = comp::fullNameVarClass($classFileData, $dataLoad['ns']);
+                $methodList = get_class_methods(new $className());
             } // if
             $pController->setJson('methodList', $methodList);
 

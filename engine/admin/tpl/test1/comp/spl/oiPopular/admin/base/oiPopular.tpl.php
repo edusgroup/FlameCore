@@ -165,7 +165,7 @@
         function saveBtnClick() {
             var sel = compContTree.getAllCheckedBranches();
             var propData = $('#' + options.propBox).serialize();
-            propData += '&class='+oiPopularData.classTreeSelectId;
+            propData += '&classFile='+oiPopularData.classTreeSelectId;
 
             HAjax.saveData({
                 data:'sel=' + sel + '&'+propData,
@@ -183,11 +183,10 @@
         }
 
         function initLoadData(){
-            if ( oiPopularData.classTreeSelectId ){
-                var text = utils.getTreeUrl(classTree, oiPopularData.classTreeSelectId);
-            }else{
-                var text = '/base/objItem.php';
+            if ( !oiPopularData.classTreeSelectId ){
+                oiPopularData.classTreeSelectId = '/base/build.php';
             } // if
+            var text = utils.getTreeUrl(classTree, oiPopularData.classTreeSelectId);
             $(options.classFileText).html(text);
 
             for (var i in oiPopularData.selItem) {

@@ -46,7 +46,8 @@ class comp {
         $classFile = $objProp['classFile']?: '/base/'.$objProp['classname'].'.php';
         $compNs = $objProp['ns'];
         // Создаём контроллер класса
-        $contrObj = compCore::createClassAdminObj($classFile, $compNs);
+        $className = compCore::fullNameClassAdmin($classFile, $compNs);;
+        $contrObj = new $className('', '');
         // Получаем путь до ресурсов админки
         $themeResUrl = sprintf(DIR::THEME_RES_URL, SITE::THEME_NAME);
         // Получаем имя шаблона

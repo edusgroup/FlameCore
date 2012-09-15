@@ -17,9 +17,10 @@ use core\classes\filesystem;
 
 // Model
 use admin\library\mvc\comp\spl\objItem\model as objItemModel;
+use admin\library\mvc\comp\spl\objItem\help\model\base\model as baseModel;
 
 // Event
-use admin\library\mvc\comp\spl\objItem\event as eventObjItem;
+use admin\library\mvc\comp\spl\objItem\help\event\base\event as eventBase;
 
 /**
  * Description of event
@@ -32,7 +33,7 @@ class model {
         // Если были какие либо новые сохранениея, то у них пустой urlTpl
         $isArctileSave = $pEventBuffer->selectFirst(
             'id',
-            ['eventName' => eventObjItem::ACTION_TABLE_SAVE]
+            ['eventName' => eventBase::ACTION_TABLE_SAVE]
         );
         $objItemOrm = new objItemOrm();
         // Если произошло сохранение
@@ -82,13 +83,13 @@ class model {
         // Изменение шаблона в кастом настройках
         $isSettChange = $pEventBuffer->selectFirst(
             'id',
-            ['eventName' => eventObjItem::ACTOIN_CUSTOM_PROP_SAVE]
+            ['eventName' => eventBase::ACTOIN_CUSTOM_PROP_SAVE]
         );
         if ($isSettChange) {
             $compContTree = new compContTree();
             $idList = $pEventBuffer
                 ->select('userId', 'eb')
-                ->where(['eventName' => eventObjItem::ACTOIN_CUSTOM_PROP_SAVE])
+                ->where(['eventName' => eventBase::ACTOIN_CUSTOM_PROP_SAVE])
                 ->group('userId')
                 ->toList('userId');
             foreach ($idList as $contId) {
@@ -136,7 +137,7 @@ class model {
         // Если что обрабатывать с предыдущей ссылкой
         if ($prevData) {
             // Обработка предыщуей статьи
-            $saveDir = objItemModel::getPath($pCompId, $pContId, $prevData['id']);
+            $saveDir = baseModel::getPath($pCompId, $pContId, $prevData['id']);
             $saveDir = DIR::getSiteDataPath($saveDir);
 
             $data = $prevData;
@@ -226,7 +227,7 @@ class model {
 
     public static function saveDataInfo(integer $pId, objItemOrm $pObjItemOrm, integer $pCompId, integer $pContId) {
 
-        $objItemDirData = objItemModel::getPath($pCompId, $pContId, $pId);
+        $objItemDirData = baseModel::getPath($pCompId, $pContId, $pId);
         $objItemDirData = DIR::getSiteDataPath($objItemDirData);
 
         // Получаем все данные по статье

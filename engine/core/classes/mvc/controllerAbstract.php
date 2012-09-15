@@ -1,5 +1,4 @@
 <?php
-
 namespace core\classes\mvc;
 
 use core\classes\render;

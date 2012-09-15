@@ -5,8 +5,6 @@ namespace buildsys\library\event\comp\spl\oiRandom;
 // ORM
 use ORM\event\eventBuffer;
 use ORM\tree\compContTree;
-use ORM\blockItem;
-use ORM\blockItemSettings;
 use ORM\comp\spl\oiRandom\oiRandom as oiRandomOrm;
 use ORM\comp\spl\oiRandom\oiRandomProp as oiRandomPropOrm;
 use ORM\tree\componentTree as componentTreeOrm;
@@ -17,15 +15,14 @@ use admin\library\mvc\comp\spl\oiRandom\event as eventoiRandom;
 
 // Engine
 use core\classes\filesystem;
-use core\classes\image\resize;
-use core\classes\word;
+use core\classes\comp as compCore;
+
 // Conf
 use \DIR;
 use \site\conf\SITE as SITE_CONF;
 
 // Model
 use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
-use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 
 /**
  * Обработчик событий для меню
@@ -46,24 +43,23 @@ class event {
             ->join(compContTree::TABLE . ' cc', 'cc.id=alp.contId')
             ->fetchAll();
 
-        $objItemCompId = (new componentTreeOrm())->get('id', 'sysname="objItem"');
+        $objItemProp = (new componentTreeOrm())->selectFirst('id, ns', 'sysname="objItem"');
 
         // Бегаем по сохранённым группам
         foreach ($contList as $rndObjItemProp) {
-
-            // Получаем подтип objItem и создаём его класс
-            $categoryObjItem = $rndObjItemProp['category'];
-            $objItemCategory = '\admin\library\mvc\comp\spl\objItem\category\\'.$categoryObjItem.'\builder';
-            $objItemCatEvent = new $objItemCategory();
-
             $oiRandomOrm = new oiRandomOrm();
             // Получаем список детей в выбранной группе
+            // т.е. получаем всех выбранные ветки в дереве objItem, которые мы приозвели
+            // при настройке oiList в админке
             $childList = $oiRandomOrm->selectList(
                 'selContId as contId',
                 'contId',
                 'contId=' . $rndObjItemProp['contId']
             );
 
+            // Теперь нужно проверить, а есть ли пересечения из выбранных веток в дереве и в
+            // буффере event. Вдруг пересечений нет,
+            // тогда не данный класс должен обрабатывать текущее событие
             $buffTreeIdList = eventModelObjitem::getBuffTreeIdList(
                 $pEventBuffer,
                 $childList,
@@ -71,6 +67,19 @@ class event {
                 eventoiRandom::ACTION_SAVE
             );
 
+            $classFile = $rndObjItemProp['classFile'];
+            if ( !$classFile || $classFile == '/base/build.php' ){
+                echo "\tioRandom[condI:".$rndObjItemProp['contId']."] className is default. Abort".PHP_EOL;
+                continue;
+            }
+
+            // Получаем подтип objItem и создаём его класс
+            $className = compCore::fullNameBuildClassAdmin($classFile, $objItemProp['ns']);
+            $objItemCatEvent = new $className();
+
+            $itemsCount = (int)$rndObjItemProp['itemsCount'];
+
+            // число 30 взято набом, в целом нужно взять блок, побольше, его посортировать и записать
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
                 $objItemCatEvent::getTable(),
@@ -78,11 +87,16 @@ class event {
                 new compContTreeOrm(),
                 $childList,
                 $buffTreeIdList,
-                ['order'=>'rand()', 'limit'=>30*$rndObjItemProp['itemsCount']]
+                ['order' => 'rand()', 'limit' => 30 * $itemsCount]
             );
 
-            if (!$handleObjitem || $handleObjitem->num_rows == 0) {
-                print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
+            // Выборка представляем ли смысл
+            if (!$handleObjitem) {
+                continue;
+            }
+
+            if ($handleObjitem->num_rows == 0) {
+                echo "\tioRandom[condI:" . $rndObjItemProp['contId'] . "] not data found. Error" . PHP_EOL;
                 continue;
             }
 
@@ -90,30 +104,37 @@ class event {
             $saveDir = 'comp/' . $rndObjItemProp['comp_id'] . '/' . $rndObjItemProp['contId'] . '/';
             $saveDir = DIR::getSiteDataPath($saveDir);
 
+            $numRows = $handleObjitem->num_rows;
+
+            echo "\tioRandom[condI:" . $rndObjItemProp['contId'] . "] Row:$numRows itemC: $itemsCount" . PHP_EOL;
+            echo "\t$classFile".PHP_EOL;
+            echo "\t$saveDir" . PHP_EOL . PHP_EOL;
+
             $listArr = [];
             $arrCount = 1;
-			$listCount = 0;
+            $listCount = 0;
             while ($objItemObj = $handleObjitem->fetch_object()) {
-                $listArr[$listCount] = $objItemCatEvent::getOIRandomArray($objItemObj, $objItemCompId, $rndObjItemProp, $listCount, $arrCount);
+                $listArr[$listCount] = $objItemCatEvent::getOIRandomArray($objItemObj, $objItemProp['id'], $rndObjItemProp, $listCount, $arrCount);
 
-                if ( $rndObjItemProp['itemsCount'] == $arrCount ){
+                if ($itemsCount == $arrCount) {
                     $data = serialize($listArr);
-                    filesystem::saveFile($saveDir, 'rnd'.($listCount+1).'.txt', $data);
+                    filesystem::saveFile($saveDir, 'rnd' . ($listCount + 1) . '.txt', $data);
                     $arrCount = 0;
                     $listArr = [];
                 } // if
 
                 ++$arrCount;
-				++$listCount;
+                ++$listCount;
 
-            }// while
+            }
+            // while
 
-            if ( $listArr ){
-				$data = serialize($listArr);
-                filesystem::saveFile($saveDir, 'rnd'.($listCount+1).'.txt', $data);
+            if ($listArr) {
+                $data = serialize($listArr);
+                filesystem::saveFile($saveDir, 'rnd' . ($listCount + 1) . '.txt', $data);
             }
 
-            $data = serialize(['fileNum' => ($listCount+1)]);
+            $data = serialize(['fileNum' => ($listCount + 1)]);
             filesystem::saveFile($saveDir, 'data.txt', $data);
         } // foreach ($contList as $rndObj)
 

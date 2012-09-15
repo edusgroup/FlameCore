@@ -47,7 +47,8 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
         $objItemProp = (new componentTree())->selectFirst('*', 'sysname="objItem"');
 
         // Получаем весь список контента по oiLaster
-        $contData = (new compcontTree())->select('cc.*', 'cc')
+        $contData = (new compcontTree())
+            ->select('cc.*', 'cc')
             ->where('cc.isDel="no" AND cc.comp_id=' . $objItemProp['id'])
             ->fetchAll();
         // Преобразуем масси в dhtmlTree

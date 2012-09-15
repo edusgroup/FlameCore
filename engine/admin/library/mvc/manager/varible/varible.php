@@ -128,10 +128,9 @@ class varible extends controllerAbstract {
         } // if
 
         // Получаем методы класа
-        $varClassObj = model::getVarClassObj($classFileData, $compData['ns']);
-        $methodList = get_class_methods($varClassObj);
+        $className = comp::fullNameVarClass($classFileData, $compData['ns']);
+        $methodList = get_class_methods(new $className());
 
-        $classMethods = [];
         self::setVar('json', $methodList);
         // func. compLoadMethodsAction
     }

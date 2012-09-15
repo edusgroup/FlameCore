@@ -64,100 +64,30 @@ class eventModel {
         }
         // if ===========================================================================
 
-        // Получаем Wareframe id выставленный для actionId
+        // Получаем WareframeId выставленный для actionId,
+        // т.е то что мы выберали при настройке action
         $wfId = $propData['wf_id'];
         // Если шаблон не был задан, выходим из обработки текущего event-a
+        // т.е. при настройке мы не выбрали wf, значит отображать нечего
         if ($wfId == -1) {
             return;
         }
 
         // ====================== Работа с переменными==========================
-        // TODO: по хорошему лучше сделать процедурой в БД, что бы меньше фильровать тут
         $varList = varibleModel::getVarList($pRouteTree, $pAcId);
         // Теперь в $varList храняться переменные, которые были заданы в URL
         // Буффер для доступных переменных
         $varListRender = [];
-        $varTree = new varTree();
-        $varComp = new varComp();
         $isUsecompContTree = false;
         $varIdtoName = [];
         // Если есть переменные, то нужно их обработать
         if ($varList) {
-            $varListCount = count($varList);
-            // Бегаем по переменным
-            for ($j = $varListCount - 1; $j >= 0; $j--) {
-                $acItem = $varList[$j];
-                // Получаем настроки переменных
-                $acProp = $urlTreePropVar->selectFirst('*', 'acId=' . $acItem['id']);
-                // Если ничего не найдено, выходим из обработки
-                if ($acProp['varType'] == varibleModel::VARR_TYPE_NONE) {
-                    echo "\tError(" . __METHOD__ . "): Not set varible properties in action. AcId: {$acItem['id']}" . PHP_EOL;
-                    echo "\tSee: URL '?\$t=manager&\$c=action' and set put varible type in Varbile settings" . PHP_EOL;
-                    exit;
-                }
-
-                // Название переменной
-                $name = $acItem['name'];
-                $varIdtoName[$acProp['acId']] = $name;
-
-                // Буффер для переменных, для рендера
-                $varListRender[$name] = [];
-                // Тип переменной: tree или comp
-                $varListRender[$name]['type'] = $acProp['varType'];
-                // Если переменная имеет тип дерево
-                if ($acProp['varType'] == 'tree') {
-                    // Меняем флаг, если флаг стоит, то в шаблоне будет создана переменная
-                    // $compContTree
-                    $isUsecompContTree = true;
-                    // Получаем ID родительской ветки
-                    $treeId = -1;
-                    // У первого элемента дерева это стат число, у других это пред значение 
-                    // дерева, по этом ставим -1
-                    if ($j == $varListCount - 1) {
-                        $treeId = $varTree->get('treeIdStat', 'action_id=' . $acItem['id']);
-                    }
-                    $varListRender[$name]['treeId'] = $treeId;
-                } else
-                    // Если тип переменной компонент
-                    if ($acProp['varType'] == 'comp') {
-                        // Получаем настройки переременной
-                        $varCompData = $varComp->select('vc.*, c.ns', 'vc')
-                            ->join(componentTree::TABLE . ' c', 'vc.compId=c.id')
-                            ->comment(__METHOD__)
-                            ->where('acId=' . $pAcId)
-                            ->fetchFirst();
-                        // Переменная может быть удалена или что то с ней случится,
-                        // если её нет, берём следующую переменную
-                        if (!$varCompData) {
-                            echo "ERROR(" . __METHOD__ . ")" . PHP_EOL . "\tVarible not set in AcId: {$acItem['id']}" . PHP_EOL;
-                            exit;
-                        }
-                        // Название класса
-                        $classFile = $varCompData['className'];
-                        $className = filesystem::getName($classFile);
-                        // Добавляем в буффер namespace classname и название метода
-                        $nsClassMethod = comp::getFullCompClassName(
-                            $varCompData['classType'],
-                            $varCompData['ns'],
-                            'vars\\' . $acProp['storageType'],
-                            $className);
-                        $nsClassMethod .= '::' . $varCompData['methodName'];
-
-                        if (!$varCompData['contId']) {
-                            echo "NOTICE(" . __METHOD__ . ")" . PHP_EOL . "\tIn varible not set contId AcId: {$acItem['id']}" . PHP_EOL;
-                        }
-
-                        $varListRender[$name]['comp'] = $nsClassMethod;
-                        $varListRender[$name]['contId'] = $varCompData['contId'];
-                        $varListRender[$name]['compId'] = $varCompData['compId'];
-                    } // if varType == comp
-            } // foreach
+            self::_initVarible($pAcId, $varList, $urlTreePropVar, new varComp(), new varTree(), $varListRender, $varIdtoName, $isUsecompContTree);
         } // if
 
         $buildTpl = DIR::CORE . 'buildsys/tpl/';
         $render = new render($buildTpl, '');
-        $render->setMainTpl('index.tpl.php')
-            ->setContentType(null);
+        $render->setMainTpl('index.tpl.php')->setContentType(null);
 
         $render->setVar('siteConf', SITE_DIR_CONF::SITE_CORE);
         $render->setVar('varList', $varListRender);
@@ -182,74 +112,26 @@ class eventModel {
 
         // ========================== Wareframe ================================
         // Далее идёт построение шаблона для сайта
-        $blockfile = new blockfile();
-        $blockItem = new blockItem();
+
         // Вытаскиваем все блоки которые заданы в WF( глобальные и локальные для actionId )
-        $wfArr = $blockfile->select('id, file, file_id, wf_id as wfId, block')
-            ->where('wf_id=' . $wfId . ' AND ( action_id is null or action_id = ' . $pAcId . ')')
-            ->order('file_id, id')
-            ->comment(__METHOD__)
-            ->fetchAll();
-        if (!$wfArr) {
+        $wfAllBlock = self::_getAllWFItem(new blockfile(), $wfId, $pAcId);
+        if (!$wfAllBlock) {
             return "WF[$wfId] is empty";
         }
 
         $blockFileList = [];
         // Бегаем по блокам WF, строим удобный для нас массив
         // Строим нечто такое: $blockFileList[blockId] = [file="", id=""]
-        foreach ($wfArr as $item) {
+        foreach ($wfAllBlock as $item) {
             $blockId = $item['block'] . ':' . $item['file_id'];
             $blockFileList[$blockId] = [
                 'file' => $item['file'],
-                'id' => $item['id']
-            ];
+                'id' => $item['id']];
         } // foreach
-        unset($item);
 
-        // После того как массив блоков получили, нам вытащить настроки blockItem для всех блоков
-        // В настройках храняться компоненты и их параметры
-        $selectField = 'bi.id, c.ns, bi.sysname, bi.block_id, bi.compId, c.onlyFolder' .
-            ',bis.tplFile, bis.classFile, bis.methodName' .
-            ',bi.userReg, bi.tplAccess, bis.custContId' .
-            ',bis.statId, bis.tableId, bis.varId, bis.varTableId, bi.position';
-        //$selectField .= ',bi.name';
-
-        // Сортировка данных для следующего запроса
-        $orderPrefix = '';
-        $position = (new blockItemOrderOrm())->selectList('position', 'position', ['acId' => $pAcId]);
-        $position = implode(',', $position);
-        if ($position) {
-            $orderPrefix = 'field(t.id, ' . $position . '),';
-        }
-
+        $blockItemArr = self::_getAllBlockItem($wfId, $pAcId);
         /*
-         Запрос состоит из двух частей.
-         1 часть до union - делает выборку всех компонентов, по всем блокам в
-         указаной wareframeId + кастомные компоненты в блоках по action Id
-         2 часть. После union - делает выборку всех компонентов также, но уже в разрезе link
-         выципляет все wf-link и также ac-link
-         Сортировка глобальная по всему запросу. Если при редактировании были установки позиция,
-         то они сохранятся и будут доступны через blockItemOrderOrm, для этого сверху была подготовка позиций, если
-         сохранения и растоновки не было, то идёт простая сортировка по position
-        */
-        $blockItemArr = $blockItem->sql(
-            'SELECT * FROM (
-    (SELECT ' . $selectField . ' FROM ' . blockItem::TABLE . ' bi
-        LEFT OUTER JOIN ' . blockItemSettings::TABLE . ' bis  ON bis.blockItemId = bi.id
-        JOIN ' . componentTree::TABLE . ' c  ON bi.compId = c.id
-        WHERE bi.wf_id = ' . $wfId . ' AND (bi.acId IS NULL OR bi.acId = ' . $pAcId . '))
-    UNION
-        (SELECT ' . $selectField . ' FROM ' . blockLinkOrm::TABLE . ' bl
-        LEFT OUTER JOIN ' . urlTreePropVar::TABLE . ' utp ON utp.acId = bl.linkMainId
-        JOIN ' . blockItem::TABLE . ' bi ON ((bl.acId = 0 AND bi.wf_id = bl.linkMainId) OR bl.acId ='.$pAcId.') AND bi.block_id = bl.linkBlockId
-        LEFT OUTER JOIN ' . blockItemSettings::TABLE . ' bis ON bis.blockItemId = bi.id
-        JOIN ' . componentTree::TABLE . ' c ON bi.compId = c.id
-        WHERE bl.wfId = ' . $wfId . ')) t
-            ORDER BY ' . $orderPrefix . ' t.position')
-            ->comment(__METHOD__)
-            ->fetchAll();
-        /*
-        После этого запроса, у нас в $blockItemArr содержится все блоки и линки на блоки, которые были
+        После метода self::_getAllBlockItem, у нас в $blockItemArr содержится все блоки и линки на блоки, которые были
         когда сохранены в wareframe и action-wf
         */
 
@@ -258,7 +140,7 @@ class eventModel {
         $blockItemInitList = [];
         $sysnameNum = 0;
 
-        // Бегаем по настройкам блоков, которые получили из большого запроса
+        // Бегаем по настройкам блоков, которые получили из метода self::_getAllBlockItem
         foreach ($blockItemArr as $item) {
             // Если компонент был удалён, то пишем ошибку и берём следующий компонент
             if (!$item['compId']) {
@@ -295,10 +177,9 @@ class eventModel {
             $sysname = $item['sysname'] ? : 'sys_' . $sysnameNum;
 
             // Имя класс-файла, выбранного в blockItem. Пример: /objItem.php
-            $className = comp::getClassFullName($item['classFile'], $item['ns']);
+            $className = comp::fullNameClassSite($item['classFile'], $item['ns']);// getClassFullName($item['classFile'], $item['ns']);
             $methodName = $item['methodName'];
             $callParam = '(\'' . $sysname . '\');';
-
             $nsPath = filesystem::nsToPath($item['ns']);
 
             $tplFileData = comp::getFileType($item['tplFile']);;
@@ -359,17 +240,7 @@ class eventModel {
 
             // ================= Создание блока для кастомных настроек ===================
             if ($item['custContId'] || $item['statId']) {
-                $custContId = (int)($item['custContId'] ? : $item['statId']);
-                if ($custContId) {
-                    // Создаём объекта класса компонента, который стоит в blockItem
-                    //global $gObjProp;
-                    compInit::$objProp = comp::getCompContProp($custContId);
-                    $contrObj = comp::getCompObject(compInit::$objProp);
-
-                    if (method_exists($contrObj, 'getBlockItemParam')) {
-                        $codeTmp .= $contrObj->getBlockItemParam($item['id'], $pAcId);
-                    } // if method_exists
-                } // if $custContId
+                $codeTmp .= self::_getCodeBlSettCust($item, $pAcId);
             } // if ($item['custContId'] || $item['statId'])
             // ---------------------------------------------------------------------------
 
@@ -386,15 +257,10 @@ class eventModel {
         $blockLinkData = (new blockLinkOrm())->selectAll('blockId, linkBlockId', 'wfId=' . $wfId);
         $blockLinkData = arrays::dbQueryToAssoc($blockLinkData, 'blockId', 'linkBlockId');
 
-        // =====================================================================
-        // ============ Инициализация компонентов =============================
-        foreach ($blockItemInitList as $name => $obj) {
-            $itemCount = count($obj);
-            for ($i = 0; $i < $itemCount; $i++) {
-                $codeBuffer .= 'dbus::$comp[\'' . $name . '\'] = ' . $obj[$i];
-            } // for
-        } // foreach.
+        // Инициализация(объявление в коде) компонентов
+        $codeBuffer .= self::_getCodeCompInit($blockItemInitList);
 
+        // Создание кода classs::init()
         $codeBuffer .= self::_getInitClassCode($blockItemList);
         $codeBuffer .= "\n\n?>";
 
@@ -402,13 +268,12 @@ class eventModel {
         $tplVarList = (new tplvarOrm())->sql('select * from (
               select name, value
               from ' . tplvarOrm::TABLE . '
-              where acid=' . $pAcId . ' or acid is null
+              where acid=' . $pAcId . ' or acid = 0
               order by acid desc
               ) t group by t.name')->fetchAll();
 
         $tplVarList = arrays::dbQueryToAssoc($tplVarList);
 
-        // TODO: Вписать обработку controller
         // Включаем шаблонизатор, что бы получить код страницы
         $tplSitePath = DIR::getSiteTplPath();
         $resSiteUrl = DIR::getSiteResUrl();
@@ -450,6 +315,170 @@ class eventModel {
 
         return $codeBuffer;
         // func. createFileTpl
+    }
+
+    private static function _initVarible($pAcId, $varList, $urlTreePropVar, $varComp, $varTree, &$varListRender, &$varIdtoName, &$isUsecompContTree){
+        $varListCount = count($varList);
+        // Бегаем по переменным
+        for ($j = $varListCount - 1; $j >= 0; $j--) {
+            $acItem = $varList[$j];
+            // Получаем настроки переменных
+            $acProp = $urlTreePropVar->selectFirst('*', 'acId=' . $acItem['id']);
+            // Если ничего не найдено, выходим из обработки
+            if ($acProp['varType'] == varibleModel::VARR_TYPE_NONE) {
+                echo "\tError(" . __METHOD__ . "): Not set varible properties in action. AcId: {$acItem['id']}" . PHP_EOL;
+                echo "\tSee: URL '?\$t=manager&\$c=action' and set put varible type in Varbile settings" . PHP_EOL;
+                exit;
+            }
+
+            // Название переменной
+            $name = $acItem['name'];
+            $varIdtoName[$acProp['acId']] = $name;
+
+            // Буффер для переменных, для рендера
+            $varListRender[$name] = [];
+            // Тип переменной: tree или comp
+            $varListRender[$name]['type'] = $acProp['varType'];
+            // Если переменная имеет тип дерево
+            if ($acProp['varType'] == 'tree') {
+                // Меняем флаг, если флаг стоит, то в шаблоне будет создана переменная
+                // $compContTree
+                $isUsecompContTree = true;
+                // Получаем ID родительской ветки
+                $treeId = -1;
+                // У первого элемента дерева это стат число, у других это пред значение
+                // дерева, по этом ставим -1
+                if ($j == $varListCount - 1) {
+                    $treeId = $varTree->get('treeIdStat', 'action_id=' . $acItem['id']);
+                }
+                $varListRender[$name]['treeId'] = $treeId;
+            } else
+                // Если тип переменной компонент
+                if ($acProp['varType'] == 'comp') {
+                    // Получаем настройки переременной
+                    $varCompData = $varComp->select('vc.*, c.ns', 'vc')
+                        ->join(componentTree::TABLE . ' c', 'vc.compId=c.id')
+                        ->comment(__METHOD__)
+                        ->where('acId=' . $pAcId)
+                        ->fetchFirst();
+                    // Переменная может быть удалена или что то с ней случится,
+                    // если её нет, берём следующую переменную
+                    if (!$varCompData) {
+                        echo "ERROR(" . __METHOD__ . ")" . PHP_EOL . "\tVarible not set in AcId: {$acItem['id']}" . PHP_EOL;
+                        exit;
+                    }
+                    $classFileData = comp::getFileType($varCompData['classFile']);
+                    // Получаем методы класа
+                    $nsClassMethod = comp::fullNameVarClass($classFileData, $varCompData['ns']);
+
+                    $nsClassMethod .= '::' . $varCompData['methodName'];
+
+                    if (!$varCompData['contId']) {
+                        echo "NOTICE(" . __METHOD__ . ")" . PHP_EOL . "\tIn varible not set contId AcId: {$acItem['id']}" . PHP_EOL;
+                    }
+
+                    $varListRender[$name]['comp'] = $nsClassMethod;
+                    $varListRender[$name]['contId'] = $varCompData['contId'];
+                    $varListRender[$name]['compId'] = $varCompData['compId'];
+                } // if varType == comp
+        } // foreach
+        // func. _initVarible
+    }
+
+    private static function _getCodeBlSettCust($item, $pAcId){
+        $codeTmp = '';
+        $custContId = (int)($item['custContId'] ? : $item['statId']);
+        if ($custContId) {
+            // Получаем настройки ветки
+            $objProp = comp::getBrunchPropByContId($custContId);
+            if ( !$objProp ){
+                $objProp = comp::findCompPropUpToRoot($custContId);
+            }
+            // Проверяем нашли мы что то, если нет то говорит что ошибка поиска
+            if ( !$objProp ){
+                throw new \Exception('Prop on contId: ' . $custContId . ' not found', 345);
+            } // if
+
+            // Имя класса который задали в настройках
+            $classFile = $objProp['classFile']?: '/base/'.$objProp['classname'].'.php';
+
+            $classNameAdmin = comp::fullNameClassAdmin($classFile, $objProp['ns']);
+            $compAdmObj = new $classNameAdmin('', '');
+
+            if (method_exists($compAdmObj, 'getBlockItemParam')) {
+                $codeTmp .= $compAdmObj->getBlockItemParam($item['id'], $pAcId);
+            } // if method_exists
+        } // if $custContId
+        return $codeTmp;
+        // func. _getCodeBlSettCust
+    }
+
+    private static function _getCodeCompInit($blockItemInitList){
+        $codeBuffer = '';
+        // =====================================================================
+        // ============ Инициализация компонентов =============================
+        foreach ($blockItemInitList as $name => $obj) {
+            $itemCount = count($obj);
+            for ($i = 0; $i < $itemCount; $i++) {
+                $codeBuffer .= 'dbus::$comp[\'' . $name . '\'] = ' . $obj[$i];
+            } // for
+        } // foreach.
+        return $codeBuffer;
+    }
+
+    private static function _getAllWFItem($blockfile, $wfId, $pAcId){
+        return $blockfile->select('id, file, file_id, wf_id as wfId, block')
+            ->where('wf_id=' . $wfId . ' AND ( action_id = 0 or action_id = ' . $pAcId . ')')
+            ->order('file_id, id')
+            ->comment(__METHOD__)
+            ->fetchAll();
+        // func. __getAllWFItem
+    }
+
+    private static function _getAllBlockItem($wfId, $pAcId){
+        // После того как массив блоков получили, нам вытащить настроки blockItem для всех блоков
+        // В настройках храняться компоненты и их параметры
+        $selectField = 'bi.id, c.ns, bi.sysname, bi.block_id, bi.compId, c.onlyFolder' .
+            ',bis.tplFile, bis.classFile, bis.methodName' .
+            ',bi.userReg, bi.tplAccess, bis.custContId' .
+            ',bis.statId, bis.tableId, bis.varId, bis.varTableId, bi.position';
+
+        // Сортировка данных для следующего запроса
+        $orderPrefix = '';
+        $position = (new blockItemOrderOrm())->selectList('position', 'position', ['acId' => $pAcId]);
+        $position = implode(',', $position);
+        if ($position) {
+            $orderPrefix = 'field(t.id, ' . $position . '),';
+        }
+
+        /*
+         Запрос состоит из двух частей.
+         1 часть до union - делает выборку всех компонентов, по всем блокам в
+         указаной wareframeId + кастомные компоненты в блоках по action Id
+         2 часть. После union - делает выборку всех компонентов также, но уже в разрезе link
+         выципляет все wf-link и также ac-link
+         Сортировка глобальная по всему запросу. Если при редактировании были установки позиция,
+         то они сохранятся и будут доступны через blockItemOrderOrm, для этого сверху была подготовка позиций, если
+         сохранения и растоновки не было, то идёт простая сортировка по position
+        */
+        $blockItem = new blockItem();
+        return $blockItem->sql(
+            'SELECT * FROM (
+    (SELECT ' . $selectField . ' FROM ' . blockItem::TABLE . ' bi
+        LEFT OUTER JOIN ' . blockItemSettings::TABLE . ' bis  ON bis.blockItemId = bi.id
+        JOIN ' . componentTree::TABLE . ' c  ON bi.compId = c.id
+        WHERE bi.wf_id = ' . $wfId . ' AND (bi.acId = 0 OR bi.acId = ' . $pAcId . '))
+    UNION
+        (SELECT ' . $selectField . ' FROM ' . blockLinkOrm::TABLE . ' bl
+        LEFT OUTER JOIN ' . urlTreePropVar::TABLE . ' utp ON utp.acId = bl.linkMainId
+        JOIN ' . blockItem::TABLE . ' bi ON ((bl.acId = 0 AND bi.wf_id = bl.linkMainId) OR bl.acId ='.$pAcId.') AND bi.block_id = bl.linkBlockId
+        LEFT OUTER JOIN ' . blockItemSettings::TABLE . ' bis ON bis.blockItemId = bi.id
+        JOIN ' . componentTree::TABLE . ' c ON bi.compId = c.id
+        WHERE bl.wfId = ' . $wfId . ')) t
+            ORDER BY ' . $orderPrefix . ' t.position')
+            ->comment(__METHOD__)
+            ->fetchAll();
+        // func. _getAllBlockItem
     }
 
     private static function getScriptStaticData() {
@@ -528,7 +557,7 @@ CODE_STRING;
                 if (method_exists(new $item[$i]['class'](), 'init')) {
                     $codeBuffer .= $item[$i]['class'] . '::init' . $item[$i]['callParam'] . ";\n";
                 } // if
-            } // ofr
+            } // for
         } // foreach
         // Если ни какого кода нет, то не делает try..catch
         if ($codeBuffer) {
@@ -581,7 +610,7 @@ CODE_STRING;
         ";
 
         if ($seoData['sysname']) {
-            $headData .= comp::getClassFullName($seoData['classFile'], $seoData['ns']);
+            $headData .= comp::fullNameClassSite($seoData['classFile'], $seoData['ns']);
             $headData .= "::{$seoData['method']}('{$seoData['name']}', [" .
                 "'linkNextTitle'=>'{$seoData['linkNextTitle']}'," .
                 "'linkNextUrl'=>'{$seoData['linkNextUrl']}'" .

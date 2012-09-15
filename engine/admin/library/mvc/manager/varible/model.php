@@ -87,20 +87,6 @@ class model {
         // func. showVarTypeTable
     }
 
-    public static function getVarClassObj($classNameData, $pNs){
-        $className = $classNameData['file'];
-        $className = substr($className, 0, strlen($className) - 4);
-        $className = str_replace('/', '\\', $className);
-
-        $className = '\\core\\comp\\'.$pNs.'vars\\'.$className;
-        $className = $classNameData['isOut'] ? '\\site'.$className : $className;
-
-        return new $className();
-        // func. getVarClassObj
-    }
-
-
-
     public static function getVarClassTree($pNsPath) {
         // ==================== Преоопределённые классы компонента для сайта
         $classFilePath = comp::getVarClassSitePath(false, $pNsPath);

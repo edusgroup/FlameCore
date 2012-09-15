@@ -22,6 +22,9 @@ use ORM\tree\componentTree as componentTreeOrm;
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
+// Model
+use admin\library\mvc\manager\blockItem\model as blockItemModel;
+
 /**
  * Description of breadCrumbs
  *
@@ -29,7 +32,7 @@ use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
  */
 class model {
 
-    public static function getloadData($pAcId) {
+    public static function getLoadData($pAcId) {
         // Получаем сохранённые данные
         $seoData = (new seoOrm())->select(
             's.title, s.descr, s.keywords, s.blItemId, s.method, bis.classFile'
@@ -65,43 +68,24 @@ class model {
         // func. loadCompList
     }
 
-    /**
-     * Загружаем список методов класса
-     * @static
-     * @param $pBlockItemId
-     * @return array
-     */
-    public static function getMethodListByBiId($pBlockItemId) {
-        $seoData = (new blockItemOrm())->select('bis.classFile, ct.ns', 'bi')
-            ->join(componentTreeOrm::TABLE . ' ct', 'ct.id = bi.compId')
-            ->join(blockItemSettingsOrm::TABLE . ' bis', 'bis.blockItemId = bi.id')
-            ->where('bi.id=' . $pBlockItemId)
-            ->comment(__METHOD__)
-            ->fetchFirst();
 
-        $className = comp::getClassFullName($seoData['classFile'], $seoData['ns']);
-        $methodList = get_class_methods(new $className());
-        $methodList = array_filter($methodList, function($pItem) {
+    public static function getMethodListByBlockItemId(integer $pBlockItemId){
+        $blItemProp = blockItemModel::getCompData($pBlockItemId);
+        if ( !$blItemProp){
+            throw new \Exception('BlockItem '.$pBlockItemId.' not found');
+        } // if
+        if ( !$blItemProp['classFile'] ){
+            throw new \Exception('ClassFile not set in blID: '.$pBlockItemId);
+        } // if
+
+        $className = comp::fullNameClassSite($blItemProp['classFile'], $blItemProp['ns']);
+        $compObj = new $className();
+        $methodList = get_class_methods($compObj);
+        return array_filter($methodList, function($pItem) {
             return substr($pItem, -3) === 'Seo';
         });
-        return $methodList;
-        // func. getMethodSeoList
+        // func. getMethodListByBlockItemId
     }
 
-    public static function getMethodSeoList($pNs, $pClassName, $pClassType) {
-        if (!$pClassName) {
-            return;
-        }
-        $className = substr($pClassName, 1, strlen($pClassName) - 5);
-        $className = str_replace('/', '\\', $className);
-        $className = comp::getFullCompClassName($pClassType, $pNs, 'logic', $className);
-
-        $methodList = get_class_methods(new $className());
-        $methodList = array_filter($methodList, function($pItem) {
-            return substr($pItem, -3) === 'Seo';
-        });
-        return $methodList;
-        // func. getMethodSeoList
-    }
     // class model
 }

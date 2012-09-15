@@ -17,8 +17,7 @@ use admin\library\mvc\comp\spl\oiPopular\event as eventoiPopular;
 
 // Engine
 use core\classes\filesystem;
-use core\classes\image\resize;
-use core\classes\word;
+use core\classes\comp as compCore;
 
 // Conf
 use \DIR;
@@ -42,28 +41,18 @@ class event {
             return;
         }
 
+        $objItemProp = (new componentTreeOrm())->selectFirst('id, ns', 'sysname="objItem"');
+
         $contList = (new oiPopularPropOrm())
             ->select('alp.*, cc.comp_id', 'alp')
             ->join(compContTree::TABLE . ' cc', 'cc.id=alp.contId')
             ->fetchAll();
 
-        $objItemCompId = (new componentTreeOrm())->get('id', 'sysname="objItem"');
-
         // Бегаем по сохранённым группам
         foreach ($contList as $oiPopularItemProp) {
-
-            // Директория к данным группы
-            $saveDir = 'comp/' . $oiPopularItemProp['comp_id'] . '/' . $oiPopularItemProp['contId'] . '/';
-            $saveDir = DIR::getSiteDataPath($saveDir);
-
-            $itemsCount = $oiPopularItemProp['itemsCount'];
-
-            // Получаем подтип objItem и создаём его класс
-            $categoryObjItem = $oiPopularItemProp['category'];
-            $objItemCategory = '\admin\library\mvc\comp\spl\objItem\category\\'.$categoryObjItem.'\builder';
-            $objItemCatEvent = new $objItemCategory();
-
             // Получаем список детей в выбранной группе
+            // т.е. получаем всех выбранные ветки в дереве objItem, которые мы приозвели
+            // при настройке oiList в админке
             $oiPopularOrm = new oiPopularOrm();
             $childList = $oiPopularOrm->selectList(
                 'selContId as contId',
@@ -71,12 +60,27 @@ class event {
                 'contId=' . $oiPopularItemProp['contId']
             );
 
+            // Теперь нужно проверить, а есть ли пересечения из выбранных веток в дереве и в
+            // буффере event. Вдруг пересечений нет,
+            // тогда не данный класс должен обрабатывать текущее событие
             $buffTreeIdList = eventModelObjitem::getBuffTreeIdList(
                 $pEventBuffer,
                 $childList,
                 $oiPopularItemProp['contId'],
                 eventoiPopular::ACTION_SAVE
             );
+
+            $classFile = $oiPopularItemProp['classFile'];
+            if ( !$classFile || $classFile == '/base/build.php' ){
+                echo "\tioPopular[condI:".$oiPopularItemProp['contId']."] className is default. Abort".PHP_EOL;
+                continue;
+            }
+
+            // Получаем подтип objItem и создаём его класс
+            $className = compCore::fullNameBuildClassAdmin($classFile, $objItemProp['ns']);
+            $objItemCatEvent = new $className();
+
+            $itemsCount = $oiPopularItemProp['itemsCount'];
 
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
@@ -88,15 +92,29 @@ class event {
                 ['order' => 'dayCount desc, RAND()', 'limit' => $itemsCount]
             );
 
-            if (!$handleObjitem || $handleObjitem->num_rows == 0) {
-                print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
+            // Выборка представляем ли смысл
+            if (!$handleObjitem) {
                 continue;
             }
+
+            if ($handleObjitem->num_rows == 0) {
+                echo "\tioPopular[condI:".$oiPopularItemProp['contId']."] not data found. Abort".PHP_EOL;
+                continue;
+            }
+
+            // Директория к данным группы
+            $saveDir = 'comp/' . $oiPopularItemProp['comp_id'] . '/' . $oiPopularItemProp['contId'] . '/';
+            $saveDir = DIR::getSiteDataPath($saveDir);
+
+            $numRows = $handleObjitem->num_rows;
+            echo "\tioPopular[condI:".$oiPopularItemProp['contId']."] Row:$numRows itemC: $itemsCount".PHP_EOL;
+            echo "\t$classFile".PHP_EOL;
+            echo "\t$saveDir".PHP_EOL.PHP_EOL;
 
             $listArr = [];
             $listCount = 0;
             while ($objItemObj = $handleObjitem->fetch_object()) {
-                $listArr[$listCount] = $objItemCatEvent::getOIPopularArray($objItemObj, $objItemCompId, $oiPopularItemProp, $listCount);
+                $listArr[$listCount] = $objItemCatEvent::getOIPopularArray($objItemObj, $objItemProp['id'], $oiPopularItemProp, $listCount);
                 ++$listCount;
             } // while
 

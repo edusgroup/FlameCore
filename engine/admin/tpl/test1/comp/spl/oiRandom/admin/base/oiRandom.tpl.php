@@ -161,9 +161,9 @@
 
         // Клик по кноке Сохранить
         function saveBtnClick() {
-            var sel = classTree.getAllCheckedBranches();
+            var sel = compContTree.getAllCheckedBranches();
             var propData = $('#' + options.propBox).serialize();
-            propData += '&class='+oiRandomData.classTreeSelectId;
+            propData += '&classFile='+oiRandomData.classTreeSelectId;
 
             HAjax.saveData({
                 data:'sel=' + sel + '&'+propData,
@@ -174,11 +174,10 @@
         }
 
         function initLoadData(){
-            if ( oiRandomData.classTreeSelectId ){
-                var text = utils.getTreeUrl(classTree, oiRandomData.classTreeSelectId);
-            }else{
-                var text = '/base/objItem.php';
+            if ( !oiRandomData.classTreeSelectId ){
+                oiRandomData.classTreeSelectId = '/base/build.php';
             } // if
+            var text = utils.getTreeUrl(classTree, oiRandomData.classTreeSelectId);
             $(options.classFileText).html(text);
 
             for (var i in oiRandomData.selItem) {

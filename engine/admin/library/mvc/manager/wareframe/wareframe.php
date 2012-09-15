@@ -49,11 +49,11 @@ class wareframe extends controllerAbstract {
      */
     public function indexAction() {
         // Получаем ID action
-        $acId = self::getInt('acid', '');
+        $acId = self::getInt('acid', 0);
         self::setVar('acId', $acId);
 
         $urlTreePropVar = new urlTreePropVar();
-        $wfId = $urlTreePropVar->getWFId($acId ? : -1);
+        $wfId = $urlTreePropVar->getWFId($acId);
         //if ( !$wfId )
         //    throw new \Exception('WF не найден', 25);
         self::setVar('wfId', $wfId);
@@ -164,16 +164,14 @@ class wareframe extends controllerAbstract {
     public function loadBlockTreeAction() {
         $this->view->setRenderType(render::JSON);
         // Получаем action Id
-        $acId = self::getInt('acid', null);
+        $acId = self::getInt('acid', 0);
         // Получаем wareframe Id
         $wfId = self::getInt('wfid', null);
         if ( !$wfId && $acId ){
-            //$wfId = (int)(new urlTreePropVar())->get('wf_id', 'acId='.$acId);
             $wfId = (int)(new urlTreePropVar())->getWFId($acId);
         } // if
-        $wareframeTree = new wareframeTree();
         // Проверяем существует ли такой wareframe Id
-        $wareframeTree->isExists($wfId, new \Exception('WF not found', 33));
+        (new wareframeTree())->isExists($wfId, new \Exception('WF not found', 33));
         // Получаем дерево в формате JSON
         $json = model::makeTree($wfId, $acId);
         $json['wfid'] = $wfId;
@@ -201,7 +199,7 @@ class wareframe extends controllerAbstract {
         $rmList = self::post('del');
         $linkList = self::post('link');
 
-        $acId = self::postInt('acid', null);
+        $acId = self::postInt('acid', 0);
         $wfId = self::postInt('wfid');
         // Проверка на существование wareframe Id
         $wareframeTree = new wareframeTree();
@@ -256,7 +254,7 @@ class wareframe extends controllerAbstract {
         $data = self::post('data');
         // action id. см. таблицу url_tree
         // если значение пришло null, мы находим в общей WF
-        $acId = self::getInt('acid', null);
+        $acId = self::getInt('acid', 0);
         $blId = self::get('blid');
         $wfId = self::getInt('wfid');
 
@@ -287,7 +285,7 @@ class wareframe extends controllerAbstract {
         $this->view->setRenderType(render::NONE);
         header('Content-Type: text/xml; charset=UTF-8');
 
-        $acId = self::getInt('acid', null);
+        $acId = self::getInt('acid', 0);
         $blId = self::get('blid');
         $wfId = self::getInt('wfid');
 

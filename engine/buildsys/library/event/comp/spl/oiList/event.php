@@ -12,6 +12,7 @@ use ORM\tree\componentTree as componentTreeOrm;
 
 // Engine
 use core\classes\filesystem;
+use core\classes\comp as compCore;
 
 // Conf
 use \DIR;
@@ -35,49 +36,48 @@ class event {
         if (!$isData) {
             return;
         }
-		echo 'oiList::createList'.PHP_EOL;
-        $objItemCompId = (new componentTreeOrm())->get('id', 'sysname="objItem"');
+
+        $objItemProp = (new componentTreeOrm())->selectFirst('id, ns', 'sysname="objItem"');
 
 		// Получаем все oiList, которые заведенены в системе
-        $contList = (new oiListPropOrm())
+        $oiListPropList = (new oiListPropOrm())
             ->select('alp.*, cc.comp_id', 'alp')
             ->join(compContTreeOrm::TABLE . ' cc', 'cc.id=alp.contId')
             ->fetchAll();
-			
-		// Получаем все TreeId которые есть в буффере, это нужно для того
-		// что бы понять какие из oiList нужно перегенерить, без этого, генерилось бы 
-		// все oiList
-		/*$buffTreeIdList = $pEventBuffer->select('cc.treeId', 'eb')
-		  			 ->join(objItemOrm::TABLE.' cc', 'cc.id=eb.userId')
-				     ->group('cc.treeId')
-					 ->toList('treeId');*/
-
 
         // Бегаем по сохранённым oiList
-        foreach ($contList as $oiListItemProp){
-
-			// Получаем подтип objItem и создаём его класс
-            $categoryObjItem = $oiListItemProp['category'];
-            $objItemCategory = '\admin\library\mvc\comp\spl\objItem\category\\'.$categoryObjItem.'\builder';
-            $objItemCatEvent = new $objItemCategory();
-			
-			echo "\tContId: {$oiListItemProp['contId']} $categoryObjItem".PHP_EOL;
-
-            // Получаем список детей в выбранной группе
+        foreach ($oiListPropList as $oiListPropItem){
             $oiListOrm = new oiListOrm();
+            // Получаем список детей в выбранной группе
+            // т.е. получаем всех выбранные ветки в дереве objItem, которые мы приозвели
+            // при настройке oiList в админке
             $childList = $oiListOrm->selectList(
                 'selContId as contId',
                 'contId',
-                'contId=' . $oiListItemProp['contId']
+                'contId=' . $oiListPropItem['contId']
             );
 
+            // Теперь нужно проверить, а есть ли пересечения из выбранных веток в дереве и в
+            // буффере event. Вдруг пересечений нет,
+            // тогда не данный класс должен обрабатывать текущее событие
             $buffTreeIdList = eventModelObjitem::getBuffTreeIdList(
                 $pEventBuffer,
                 $childList,
-                $oiListItemProp['contId'],
+                $oiListPropItem['contId'],
                 eventOiList::ACTION_SAVE
             );
 
+            $classFile = $oiListPropItem['classFile'];
+            if ( !$classFile || $classFile == '/base/build.php' ){
+                echo "\tioList[condI:".$oiListPropItem['contId']."] className is default. Abort".PHP_EOL;
+                continue;
+            }
+
+            // Получаем подтип objItem и создаём его класс
+            $className = compCore::fullNameBuildClassAdmin($classFile, $objItemProp['ns']);
+            $objItemCatEvent = new $className();
+
+            // Тут, мы провереим пересечение, если оно есть, то выбирим все нужные элементы objItem
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
                 $objItemCatEvent::getTable(),
@@ -87,34 +87,35 @@ class event {
 				$buffTreeIdList
             );
 
-			// Директория к данным группы
-            $saveDir = 'comp/' . $oiListItemProp['comp_id'] . '/' . $oiListItemProp['contId'] . '/';
-            $saveDir = DIR::getSiteDataPath($saveDir);
-			
-			// Если данное условие верно, то скорей всего, мы не в той ветке oiList, переходим на след ветку
-			if ( !$handleObjitem ){
-				continue;
-			}
-
-            // Если данных нет, то переходим к след обработке oiList
-            if (!$handleObjitem || $handleObjitem->num_rows == 0) {
-                print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
+            // Если данное условие верно, то скорей всего, мы не в той ветке oiList, переходим на след ветку
+            if ( !$handleObjitem ){
                 continue;
             } // if
-			
-			echo "\t\tNumRows: ".$handleObjitem->num_rows.PHP_EOL;
 
-            $categoryBuffer = [];
+            // Если данных нет, то переходим к след обработке oiList
+            if ($handleObjitem->num_rows == 0) {
+                echo "\tioList[condI:".$oiListPropItem['contId']."] Not data found. Error".PHP_EOL;
+                continue;
+            } // if
+
+            // Директория к данным группы
+            $saveDir = 'comp/' . $oiListPropItem['comp_id'] . '/' . $oiListPropItem['contId'] . '/';
+            $saveDir = DIR::getSiteDataPath($saveDir);
 
             // Получаем какое должно быть количество объектов в файле
-            $itemsCount = $oiListItemProp['itemsCount'];
-			echo "\t\tItemsCount: ".$itemsCount.PHP_EOL;
+            $itemsCount = $oiListPropItem['itemsCount'];
+            $numRows = $handleObjitem->num_rows;
+            echo "\tioList[condI:".$oiListPropItem['contId']."] Row:$numRows itemC: $itemsCount".PHP_EOL;
+            echo "\t$classFile".PHP_EOL;
+            echo "\t$saveDir".PHP_EOL.PHP_EOL;
+
+            $categoryBuffer = [];
             $listArr = [];
             $fileNum = 0;
 			// Бегаем по всех полученным ItemObj и сохраняем результаты
             while ($objItemItem = $handleObjitem->fetch_object()) {
 				// Получаем массив данных, которые нужно сохранить
-                $artData = $objItemCatEvent::getOIListArray($objItemItem, $objItemCompId);
+                $artData = $objItemCatEvent::getOIListArray($objItemItem, $objItemProp['id']);
 
                 $catBuff = &$categoryBuffer[$objItemItem->treeId];
 
@@ -130,7 +131,7 @@ class event {
                 } // if
 
                 // Если накопили достаточно, то сохраняем списки по категории
-                if ( $oiListItemProp['isCreateCategory'] && count($catBuff['data']) == $itemsCount) {
+                if ( $oiListPropItem['isCreateCategory'] && count($catBuff['data']) == $itemsCount) {
                     $catBuff['fileNum'] = isset($catBuff['fileNum']) ? 1 + $catBuff['fileNum'] : 1;
                     $data = serialize($catBuff['data']);
                     filesystem::saveFile($saveDir . $objItemItem->treeId . '/', $catBuff['fileNum'] . '.txt', $data);
@@ -151,7 +152,7 @@ class event {
 
             // TODO: Слить настройки и списки в один файл, меньше будет обращений к файловой системе
             // Досохраняем данные по категориям и создаём настройки
-            if ( $oiListItemProp['isCreateCategory'] ){
+            if ( $oiListPropItem['isCreateCategory'] ){
                 foreach ($categoryBuffer as $contId => $categoryData) {
                     $fileNum = isset($categoryData['fileNum']) ? $categoryData['fileNum'] : 0;
                     if ($categoryData['data']) {
@@ -164,6 +165,7 @@ class event {
                 } // foreach
             } // if $oiListItemProp['isCreateCategory']
             unset($data, $categoryBuffer);
+
         } // foreach
 
         // func. createOIList

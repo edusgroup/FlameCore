@@ -112,7 +112,8 @@ class model {
         // Получаем информацию по компоненту, который указан для блока
         $itemData = self::getCompData($pBlockItemId);
 
-        $compObj = comp::createClassSiteObj($pClassFile, $itemData['ns']);
+        $className = comp::fullNameClassSite($pClassFile, $itemData['ns']);
+        $compObj = new $className();
         $methodList = get_class_methods($compObj);
         // Фильтруем методы. Нам нужны только в окончанием Action
         $methodList = array_filter($methodList, function($pItem) {

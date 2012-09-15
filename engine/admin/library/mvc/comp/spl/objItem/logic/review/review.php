@@ -19,6 +19,7 @@ use ORM\comp\spl\objItem\objItem as objItemOrm;
 
 // Model
 use admin\library\mvc\comp\spl\objItem\help\model\base\model as objItemModel;
+use admin\library\mvc\comp\spl\objItem\help\model\base\model as baseModel;
 
 // Event
 use admin\library\mvc\comp\spl\objItem\help\event\base\event as eventBase;
@@ -57,7 +58,7 @@ class review extends \core\classes\component\abstr\admin\comp implements \core\c
         }
 
         // Получаем путь до папки, где храняться данные превью
-        $loadDir = objItemModel::getPath($compId, $contId, $itemObjId);
+        $loadDir = baseModel::getPath($compId, $contId, $itemObjId);
         $loadDir = DIR::getSiteDataPath($loadDir);
         if (is_readable($loadDir . 'text.txt')) {
             self::setVar('textDesc', file_get_contents($loadDir . 'text.txt'));
@@ -94,7 +95,7 @@ class review extends \core\classes\component\abstr\admin\comp implements \core\c
                                    'videoUrl' => $videoUrl]);
 
         // Директория с данными статьи
-        $saveDir = objItemModel::getPath($compId, $contId, $itemObjId);
+        $saveDir = baseModel::getPath($compId, $contId, $itemObjId);
         $saveDir = DIR::getSiteDataPath($saveDir);
 
         $textDesc = self::post('textDesc');
