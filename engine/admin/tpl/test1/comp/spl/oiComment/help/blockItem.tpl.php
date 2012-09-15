@@ -24,7 +24,7 @@
 <script>
     var oiCommentBlockItemData = {
         tplTree: <?= self::get('tplTree') ?>,
-        comData: <?= self::get('oiCommentData', 'null'); ?>
+        comData: <?= self::get('oiCommentData'); ?>
     };
     
     var oiCommentBlockItemMvc = (function(){

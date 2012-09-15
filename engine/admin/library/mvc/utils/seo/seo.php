@@ -117,12 +117,5 @@ class seo extends \core\classes\component\abstr\admin\comp {
         // func. loadClassMethod
     }
 
-    public function getTableData($pContId) {
-        
-    }
-
-    public function getTableOrm() {
-        
-    }
 // class breadCrumbs
 }

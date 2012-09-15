@@ -183,6 +183,7 @@ trait category{
     public function blockItemShowAction() {
         $this->view->setRenderType(render::NONE);
         echo 'article::blockItemShowAction() | No settings in this';
+        // func. blockItemShowAction
     }
 
     // class category ( itemObj->engart )

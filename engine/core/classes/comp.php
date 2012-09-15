@@ -23,34 +23,6 @@ use admin\library\init\comp as compInit;
  */
 class comp {
 
-    const DEFAULT_VALUE = 'default';
-
-    /**
-     * Тип файла: out - файл кастомный, создан исключительно под сайт
-     */
-    const FILE_OUT = 'user';
-    /**
-     * Тип файла: in - файл общий, создан и доступен для всех сайтов
-     */
-    const FILE_IN = 'in';
-
-    /**
-     * Получение молного имени класса компонента
-     * @static
-     * @param $pType Тип данных: 'user' или ''
-     * @param $pNs namespace класса
-     * @param $pDir дополнительная под директория, если есть, иначе передовать пустою строку
-     * @param $pClassName имя класса
-     * @return string полное имя класса с namespace
-     */
-    public static function getFullCompClassName($pType, $pNs, $pDir, $pClassName) {
-        $prefix = '';
-        if ($pType == self::FILE_OUT) {
-            $prefix = 'site\\';
-        }
-        return $prefix . 'core\comp\\' . $pNs . $pDir . '\\' . $pClassName;
-    }
-
     public static function getFileType($tplFile){
         // Внешний ли это файл
         $isTplFileOut = 0;
@@ -87,6 +59,8 @@ class comp {
                 $strTmp .= ',' . $item['id'];
             }
             $where .= ' AND ct.id in (' . substr($strTmp, 1) . ')';
+        }else{
+            $where .= ' AND ct.id = '.$pContId;
         }
         // Находим настроку контента, ближайщую к ветке
         // Для этого делаем выборку, сортируем по ID ветки и берём верхнюю запись
@@ -99,7 +73,6 @@ class comp {
             ->order('ct.id DESC')
             ->comment(__METHOD__)
             ->fetchFirst();
-
         return $propData;
         // func. findCompPropUpToRoot
     }
@@ -110,7 +83,7 @@ class comp {
      * ns - namespace. См. ORM compContTree<br/>
      * classname - имя класса. См. ORM compContTree<br/>
      * Пример:<br/>
-     * array('ns'=>'objItem', 'classname'=>'spl/objItem', 'compId'=>12)
+     * ['ns'=>'objItem', 'classname'=>'spl/objItem', 'compId'=>12]
      * @param integer $pContId ID контента компонента
      * @return array
      */
@@ -148,6 +121,7 @@ class comp {
         $className = $classNameData['file'];
         $className = substr($className, 0, strlen($className) - 4);
         $className = str_replace('/', '\\', $className);
+
         word::isNsClassName(
             $className
             , new \Exception('Bad Ns name: [' . __METHOD__ . '(className=>' . $className . ')]', 23)
@@ -155,15 +129,6 @@ class comp {
         $classNameData['file'] = $className;
         return $classNameData;
         // func. getClassName
-    }
-
-    public static function getClassFullName($pClassFile, $pNs){
-        $classNameData = self::getClassName($pClassFile);
-        $className = $classNameData['file'];
-
-        $classType = $classNameData['isOut'] ? comp::FILE_OUT : comp::FILE_IN;
-        return comp::getFullCompClassName($classType, $pNs, 'logic', $className);
-        // func. getClassFullName
     }
 
     /**
@@ -211,6 +176,18 @@ class comp {
         } // if
         $className .= $classNameData['file'];
         return new $className('', '');
+        // func. createClassAdminObj
+    }
+
+    public static function createClassSiteObj($pClassFileName, $pNs){
+        $classNameData = self::getClassName($pClassFileName);
+        if ( $classNameData['isOut']){
+            $className = '\\site\\core\\comp\\'.$pNs.'logic\\';
+        }else{
+            $className = '\\core\\comp\\'.$pNs.'logic\\';
+        } // if
+        $className .= $classNameData['file'];
+        return new $className();
         // func. createClassAdminObj
     }
 

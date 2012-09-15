@@ -46,8 +46,7 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
         $contId = $this->contId;
         self::setVar('contId', $contId);
 
-        $oiCommentPropOrm = new oiCommentPropOrm();
-        $data = $oiCommentPropOrm->selectFirst('type', 'contId=' . $contId);
+        $data = (new oiCommentPropOrm())->selectFirst('type', 'contId=' . $contId);
         self::setJson('data', $data);
 
         $this->view->setBlock('panel', $this->tplFile);
@@ -62,8 +61,7 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
         $type = self::post('type');
         $contId = $this->contId;
 
-        $oiCommentPropOrm = new oiCommentPropOrm();
-        $oiCommentPropOrm->save(
+        (new oiCommentPropOrm())->save(
             'contId=' . $contId,
             ['type' => $type, 'contId' => $contId]
         );
@@ -82,8 +80,7 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
             'actionId' => $pContr::postInt('varName'),
             'blockItemId' => $pBlockItemId
         ];
-        $oiCommentBiOrm = new oiCommentBiOrm();
-        $oiCommentBiOrm->save('blockItemId=' . $pBlockItemId, $save);
+        (new oiCommentBiOrm())->save('blockItemId=' . $pBlockItemId, $save);
         // func. blockItemSave
     }
 
@@ -93,14 +90,14 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
      * @return string
      */
     public function getBlockItemParam($pBlockItemId, $pAcId) {
-        $oiCommentBiOrm = new oiCommentBiOrm();
-        $data = $oiCommentBiOrm->select('r.name, acp.type', 'acb')
+        $data = (new oiCommentBiOrm())->select('r.name, acp.type', 'acb')
             ->join(routeTree::TABLE . ' r', 'r.id=acb.actionId')
             ->join(blockItemSettings::TABLE . ' bis', 'bis.blockItemId=acb.blockItemId')
             ->join(oiCommentpPropOrm::TABLE . ' acp', 'acp.contId=bis.custContId')
             ->where('acb.blockItemId=' . $pBlockItemId)
             ->comment(__METHOD__)
             ->fetchFirst();
+
         return "\t'varible' => '{$data['name']}'," . PHP_EOL .
             "\t'blockItemId' => '$pBlockItemId'," . PHP_EOL .
             "\t'type' => '{$data['type']}'" . PHP_EOL;
@@ -112,22 +109,16 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
      */
     public function blockItemShowAction() {
         $blockItemId = self::getInt('blockitemid');
-        $acId = self::getInt('acid');
+        $acId = self::getInt('acid', 0);
 
         $oiCommentData = (new oiCommentBiOrm())->selectFirst('actionId, tplListFile, tplComFile', 'blockItemId=' . $blockItemId);
-        if ($oiCommentData) {
-            self::setJson('oiCommentData', $oiCommentData);
-        } // if
+        $oiCommentData = $oiCommentData ?: 'null';
+        self::setJson('oiCommentData', $oiCommentData);
 
         $itemData = blockItemModel::getCompData($blockItemId);
-
-        if ($acId != -1) {
-            $routeTree = new routeTree();
-            $treeUrl = $routeTree->getTreeUrlById(routeTree::TABLE, $acId);
-            if ($treeUrl) {
-                $varList = varModel::getVarList($routeTree, $treeUrl);
-                self::setVar('varList', ['list' => $varList]);
-            } // if
+        if ($acId != 0) {
+            $varList = varModel::getVarList((new routeTree()), $acId);
+            self::setVar('varList', ['list' => $varList]);
         } // if ($acId)
 
         $nsPath = filesystem::nsToPath($itemData['ns']);
@@ -137,7 +128,7 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
         $tree = dhtmlxTree::createTreeOfDir($siteTplPath);
         self::setJson('tplTree', $tree);
 
-        $this->view->setMainTpl('blockItem.tpl.php');
+        $this->view->setMainTpl('../help/blockItem.tpl.php');
         // func. blockItemShowAction
     }
 

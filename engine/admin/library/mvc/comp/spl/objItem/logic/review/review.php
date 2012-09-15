@@ -69,11 +69,6 @@ class review extends \core\classes\component\abstr\admin\comp implements \core\c
         // func. itemAction
     }
 
-    public function blockItemShowAction() {
-        $this->view->setRenderType(render::NONE);
-        echo 'people::blockItemShowAction() | No settings in this';
-    }
-
     public function saveDataAction() {
         $this->view->setRenderType(render::JSON);
 
@@ -106,6 +101,12 @@ class review extends \core\classes\component\abstr\admin\comp implements \core\c
         filesystem::saveFile($saveDir, 'text.txt', $textDesc);
 
         // func. saveDataAction
+    }
+
+    public function blockItemShowAction() {
+        $this->view->setRenderType(render::NONE);
+        echo 'article::blockItemShowAction() | No settings in this';
+        // func. blockItemShowAction
     }
 
     // class review

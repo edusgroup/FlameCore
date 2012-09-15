@@ -152,14 +152,6 @@
                         </div>
                     </div>
 
-                    <!--<div class="dt">Настройки URL</div>
-                    <div class="dd">
-                        <a href="#urlSettingsDlg" id="urlSettings">
-                            <img src="<?= self::res('images/settings_16.png') ?>" alt="Настроки URL"/>
-                            Настроить
-                        </a>
-                    </div>-->
-
                     <div class="dt">Url Regexp</div>
                     <div class="dd">
                         <a href="#add" id="addBtn" class="btn">
@@ -209,23 +201,6 @@ HAjax.setType(callType);
 //TODO: Перевести аттрибут name в TR и переделать получение в методах
 // name через TR
 var blockItem = {
-    acId:'<?= self::get('acId') ?>',
-    id: <?= self::get('blockItemId') ?>,
-    resUrl:'<?= self::res('images/') ?>',
-    // Есть ли у компонента таблицы
-    onlyFolder: <?= self::get('onlyfolder') ?>,
-    // Сохранённые данные
-    saveData: <?= self::get('saveData', 'null') ?>,
-    // Методы сохранённого класса
-    classData: <?= self::get('classData', '[]') ?>,
-    // Значаение contId выбранные для regexp Url
-    regxList: <?= self::get('regxList', '{}') ?>,
-    // Название табличной части у статичного компонента.
-    // Используется только при onlyFolder=1 и при сохранённых данных
-    statName:'<?= self::get('statName') ?>',
-    // Равен ли acIdBlock текущему acId. т.е. правим страницу через
-    // URL tree или через Wareframe
-    isLock: <?= self::get('isLock') ?>,
     // Деревья
     tree:{},
     // Название выбранного шаблона для компонента
@@ -243,16 +218,47 @@ var blockItem = {
     // Выбранное значение static компонента
     statId:'',
     varId:-1,
-    // Для тех компонентов у которых в классе нужно заполнить urlTpl
-    urlTplList: <?= self::get('urlTplList', '{}') ?>,
     // Редактируемый urlTpl
     urlTplCurrent:null
 } // var blockItem
 
+var blockItemData = {
+    treeClassJson: <?= self::get('classTree') ?>,
+    blId: <?= self::get('blockItemId') ?>,
+    resUrl:'<?= self::res('images/') ?>',
+    acId:<?= self::get('acId') ?>,
+    id: <?= self::get('blockItemId') ?>,
+    // Есть ли у компонента таблицы
+    onlyFolder: <?= self::get('onlyfolder') ?>,
+    // Сохранённые данные
+    saveData: <?= self::get('saveData', 'null') ?>,
+    // Методы сохранённого класса
+    classData: <?= self::get('classData', '[]') ?>,
+    // Значаение contId выбранные для regexp Url
+    regxList: <?= self::get('regxList', '{}') ?>,
+    // Название табличной части у статичного компонента.
+    // Используется только при onlyFolder=1 и при сохранённых данных
+    statName:'<?= self::get('statName') ?>',
+    // Равен ли acIdBlock текущему acId. т.е. правим страницу через
+    // URL tree или через Wareframe
+    isLock: <?= self::get('isLock') ?>,
+    // Для тех компонентов у которых в классе нужно заполнить urlTpl
+    urlTplList: <?= self::get('urlTplList', '{}') ?>,
+    actionTreeJson: <?= self::get('actionTree') ?>,
+    contTreeJson: <?= self::get('contTree') ?>,
+    tplTreeJson: <?= self::get('tplTree') ?>
+} // var blockItemData
+
+var tplTree;
+var classTree;
+var contTree;
+var actionTree;
+
+
 /**
  * OnDbClick по ветке в дереве шаблонов. Выбор шаблона
  */
-blockItem.tplTreeDbClick = function (pItemId, pTree) {
+function tplTreeDbClick (pItemId, pTree) {
     // Получаем тип ветки: 1-папка, 0-файл
     var type = pTree.getUserData(pItemId, 'type');
     // Выбрать можно только файл
@@ -267,14 +273,14 @@ blockItem.tplTreeDbClick = function (pItemId, pTree) {
 
     // Закрываем диалоговое окно
     $.fancybox.close();
-    // blockItem.tplTreeDbClick
+    // tplTreeDbClick
 }
 
 /**
  * Событие fancyBox. Для выборка ветки при повторном пока.
  */
 blockItem.beforeShowTplDlg = function () {
-    blockItem.tree.tpl.selectItem(blockItem.tplFile);
+    tplTree.selectItem(blockItem.tplFile);
     // func. blockItem.beforeShowTplDlg
 }
 
@@ -282,16 +288,16 @@ blockItem.beforeShowTplDlg = function () {
  * Событие fancyBox. Для выборка ветки при повторном пока.
  */
 blockItem.beforeShowClassDlg = function () {
-    blockItem.tree.clss.selectItem(blockItem.classFile);
+    classTree.selectItem(blockItem.classFile);
     // func. blockItem.beforeShowClassDlg
 }
 
-blockItem.actionTreeDbClick = function (pItemId, pTree) {
-    blockItem.urlTplList[blockItem.urlTplCurrent] = pItemId;
+function actionTreeDbClick(pItemId, pTree) {
+    blockItemData.urlTplList[blockItem.urlTplCurrent] = pItemId;
     var text = utils.getTreeUrlTpl(pTree, pItemId);
     $('#' + blockItem.urlTplCurrent + 'Text').html(text);
     $.fancybox.close();
-    // func. blockItem.actionTreeDbClick
+    // func. actionTreeDbClick
 }
 
 blockItem.showActionTree = function (pUrlTpl) {
@@ -320,7 +326,7 @@ blockItem.contBtnStatClick = function () {
     // контента
     blockItem.contType = 'stat';
     // Выбираем ветку и сразу вызываем её onClick событие(true)
-    blockItem.tree.cont.selectItem(blockItem.statId, true);
+    contTree.selectItem(blockItem.statId, true);
     // func. blockItem.contBtnStatClick
 }
 
@@ -337,11 +343,11 @@ blockItem.contBtnUrlClick = function () {
     // Запоминаем что окно с деревом вышло для обработки Url Regexp
     blockItem.contType = 'url';
     // Если мы по нему что нить уже записывали
-    if (blockItem.regxList[id]) {
-        var obj = blockItem.regxList[id];
+    if (blockItemData.regxList[id]) {
+        var obj = blockItemData.regxList[id];
         // То выбирем ветку в дереве при диалоге с деревом
         // Сразу стартуем событие onClick у дерева.
-        blockItem.tree.cont.selectItem(obj['contId'], true);
+        contTree.selectItem(obj['contId'], true);
     }
     // func. blockItem.contBtnUrlClick
 }
@@ -353,12 +359,12 @@ blockItem.appendAddBtn = function (id, regxValue) {
     // Хранит название папки, при возможности редактировать
     var folderImgSrc = 'folder_16.png';
     // Содержит HTML код кнопки для удаления элемента regexp url
-    var delImgHtml = '<img src="' + blockItem.resUrl + 'del_16.png" class="rmBtn"/> ';
+    var delImgHtml = '<img src="' + blockItemData.resUrl + 'del_16.png" class="rmBtn"/> ';
     // Хранит HTML код, readonly ли поле ввода фильтра regexp
     var readOnly = '';
     // Если мы создали в общей Wareframe и редактируем для конкретного acId
     // то делаем ограничения
-    if (blockItem.isLock) {
+    if (blockItemData.isLock) {
         // Меняем картинку папки
         folderImgSrc = 'folderGray_16.png';
         // Убераем кнопку удаления элемента regexp url
@@ -368,13 +374,13 @@ blockItem.appendAddBtn = function (id, regxValue) {
     }
     // Добавлеям новый элемент
     $('#contentList').append(
-        '<div id="cont_' + id + '">'
-            + delImgHtml
-            + '<input type="text" name="regx[' + id + ']" value="' + regxValue + '"' + readOnly + '/> '
-            + '<img src="' + blockItem.resUrl + folderImgSrc + '" class="compBtn"/> <span class="regxContText"></span>'
-            + '</div>');
+            '<div id="cont_' + id + '">'
+                    + delImgHtml
+                    + '<input type="text" name="regx[' + id + ']" value="' + regxValue + '"' + readOnly + '/> '
+                    + '<img src="' + blockItemData.resUrl + folderImgSrc + '" class="compBtn"/> <span class="regxContText"></span>'
+                    + '</div>');
     // см. описания переменной. в кратце acIdParent == acId под которым вошли
-    if (!blockItem.isLock) {
+    if (!blockItemData.isLock) {
         // Прописываем на кнопку папки событие onClick, что бы показать диалоговое
         // окно
         $('#cont_' + id + ' .compBtn').click(blockItem.contBtnUrlClick).fancybox({
@@ -390,11 +396,16 @@ blockItem.appendAddBtn = function (id, regxValue) {
 /**
  * onClick по ветке дерева контента
  */
-blockItem.contTreeClick = function (pItemId, pTree) {
+function contTreeClick(pItemId, pTree) {
     // если компонент blockItem имеет onlyFolder = 1
-    if (blockItem.onlyFolder) {
+    if (blockItemData.onlyFolder) {
         // То подгружаем его табличные данные
-        HAjax.loadCompTable({query:{contid:pItemId}});
+        HAjax.loadCompTable({
+            query:{
+                contid:pItemId,
+                classFile:blockItem.classFile
+            }
+        });
         return false;
     }
     // Если это кнопка нажата у статики то обработка статики, если regexp url
@@ -407,7 +418,7 @@ blockItem.contTreeClick = function (pItemId, pTree) {
 
     // Закрываем диалоговое окно
     $.fancybox.close();
-    // func. blockItem.contTreeClick
+    // func. contTreeClick
 }
 
 /**
@@ -427,7 +438,7 @@ blockItem.contTreeStatClick = function (pItemId, pTree) {
  */
 blockItem.contTreeUrlClick = function (pItemId, pTree) {
     // Запоминаем наш выбор статичного компонента
-    blockItem.regxList[blockItem.regxSelId] = {contId:pItemId, tableId:''};
+    blockItemData.regxList[blockItem.regxSelId] = {contId:pItemId, tableId:''};
     // Отображаем наш выбор
     var text = utils.getTreeUrl(pTree, pItemId);
     $('#cont_' + blockItem.regxSelId + ' span.regxContText').html(text);
@@ -450,15 +461,15 @@ blockItem.contStatClearBtnClick = function () {
 /**
  * Загрузка табличных даных для контента. При onlyFolder = 1
  */
-blockItem.loadCompTableSuccess = function (pData) {
+function cbLoadCompTableSuccess(pData) {
     // Очищаем старые табличные данные
     var $contTableName = $('#contSelect select').find('option').remove().end();
     // Добавляем новые
     $.each(pData, function (key, value) {
         $contTableName
-            .append($("<option></option>")
-            .attr("value", value['id'])
-            .text(value['caption']));
+                .append($("<option></option>")
+                .attr("value", value['id'])
+                .text(value['caption']));
     });
 
     var selId = null;
@@ -468,20 +479,20 @@ blockItem.loadCompTableSuccess = function (pData) {
         selId = blockItem.tableId;
     } else {
         selId = blockItem.regxSelId;
-        if (blockItem.regxList[selId]) {
-            selId = blockItem.regxList[selId]['tableId']
+        if (blockItemData.regxList[selId]) {
+            selId = blockItemData.regxList[selId]['tableId']
         }
     }
     // Выбыраем в списке табличного контента ранее сохранёный выбор, если он был
     $('#contSelect select').val(selId);
-    // func. blockItem.loadCompTableSuccess
+    // func. cbLoadCompTableSuccess
 }
 
 /**
  * OnClick по select при выборе контента.  При onlyFolder = 1
  */
-blockItem.contSelectBtnClick = function () {
-    var tree = blockItem.tree.cont;
+function contSelectBtnClick() {
+    var tree = contTree;
     var itemId = tree.getSelectedItemId();
     // Select возле дерева, хранить названия контента
     var $select = $('#contSelect select');
@@ -505,13 +516,13 @@ blockItem.contSelectBtnClick = function () {
             text += '/' + $select.find('option:selected').html();
             $('#cont_' + blockItem.regxSelId + ' span.regxContText').html(text);
             // Запоминаем наш выбор
-            blockItem.regxList[blockItem.regxSelId] = {contId:itemId, tableId:contSelId};
+            blockItemData.regxList[blockItem.regxSelId] = {contId:itemId, tableId:contSelId};
         }
     }
     // =====================================================================
     // Закрываем диалоговое окно
     $.fancybox.close();
-    // func. blockItem.contSelectBtnClick
+    // func. contSelectBtnClick
 }
 
 /**
@@ -526,7 +537,7 @@ blockItem.rmRegxContBtnClick = function () {
     var $parent = $(this).parent()
     var id = $parent.attr('id').substr(5);
     // Удаляем ранее сохранённые данные, если они были
-    delete blockItem.regxList[id];
+    delete blockItemData.regxList[id];
     $parent.remove();
     return false;
     // func. blockItem.rmRegxContBtnClick
@@ -546,18 +557,20 @@ blockItem.saveBtnClick = function () {
     // Выбранные контента для статичного контента
     data += '&statId=' + blockItem.statId;
     // Regexp URL данные, будут сохранены в виде массива
-    for (var item in blockItem.regxList) {
-        data += '&cont[' + item + '][contid]=' + blockItem.regxList[item]['contId'];
-        data += '&cont[' + item + '][tableid]=' + blockItem.regxList[item]['tableId'];
+    for (var item in blockItemData.regxList) {
+        data += '&cont[' + item + '][contid]=' + blockItemData.regxList[item]['contId'];
+        data += '&cont[' + item + '][tableid]=' + blockItemData.regxList[item]['tableId'];
     } // for
 
-    for (var name in blockItem.urlTplList) {
-        data += '&urlTpl[' + name + ']=' + blockItem.urlTplList[name]
+    for (var name in blockItemData.urlTplList) {
+        data += '&urlTpl[' + name + ']=' + blockItemData.urlTplList[name]
     } // for
 
-    HAjax.saveData({methodType:'POST',
-        query:{acid:blockItem.acId, id:blockItem.id},
-        data:data});
+    HAjax.saveData({
+        methodType:'POST',
+        query:{acid:blockItemData.acId, id:blockItemData.blId},
+        data:data
+    });
     // func. blockItem.saveBtnClick
 }
 
@@ -565,78 +578,56 @@ blockItem.saveBtnClick = function () {
  * CallBack функция
  * Обработка результата сохранения данных
  */
-blockItem.saveDataSuccess = function (pData) {
+function cbSaveDataSuccess (pData) {
     if (pData['error']) {
         alert(pData['error']['msg']);
         return;
     }
 
     alert('Данные успешно сохранены');
-    // func. blockItem.saveDataSuccess
+    // func. cbSaveDataSuccess
 }
 
-function userAccessBtnClick(){
+function userAccessBtnClick() {
     var url = utils.url({
         contr:'biUserAccess',
         query:{
-            blockItemId: blockItem.id
+            blockItemId:blockItemData.blId
         }
     });
     utils.go(url);
+    return false;
     // func. userAccessBtnClick
 }
 
-function backBtnClick(){
+function backBtnClick() {
     // URL кнопки назад
     var url = utils.url({
         contr:'wareframe',
         query:{
-            acid:blockItem.acId,
-            blockitemid:blockItem.id
+            acid: blockItemData.acId,
+            blockitemid: blockItemData.blId
         }
     });
     utils.go(url);
+    return false;
     // func. backBtnClick
 }
 
-function customSettingsBtnClick(){
+function customSettingsBtnClick() {
     // URL кнопки частных настроек
     var url = utils.url({
         method:'customSettings',
         query:{
-            acid:blockItem.acId,
-            blockitemid:blockItem.id
+            acid: blockItemData.acId,
+            blockitemid: blockItemData.blId
         }
     });
     utils.go(url);
+    return false;
     // func. customSettingsBtnClick
 }
 
-/**
- * Конфиг дерева шаблонов
- */
-var tplTreeConf = {
-    tree:{ json: <?= self::get('tplTree') ?>, id:'tplDlg' },
-    dbClick:blockItem.tplTreeDbClick
-} // var tplTreeConf
-
-/**
- * Конфиг дерева контента
- */
-var contTreeConf = {
-    tree:{ json: <?= self::get('contTree') ?>, id:'contTree'},
-    clickEnd:blockItem.contTreeClick
-} // var contTreeConf
-
-var actionTreeConf = {
-    tree:{ json: <?= self::get('actionTree') ?>, id:'actionDlg'},
-    dbClick:blockItem.actionTreeDbClick
-} // var actionTreeConf
-
-var blockItemData = {
-    treeClassJson: <?= self::get('classTree') ?>,
-    blId : <?= self::get('blockItemId') ?>
-}
 
 var blockItemMvc = (function () {
     /**
@@ -657,8 +648,8 @@ var blockItemMvc = (function () {
         // Загружаем методы класса
         HAjax.loadClassMethod({
             query:{
-                'class': pItemId,
-                blockitemid: blockItemData.blId
+                'class':pItemId,
+                blockitemid:blockItemData.blId
             }
         });
 
@@ -685,9 +676,9 @@ var blockItemMvc = (function () {
             // Добавляем новый набор методов
             $.each(pData['method'], function (key, value) {
                 $methodName
-                    .append($("<option></option>")
-                    .attr("value", value)
-                    .text(value));
+                        .append($("<option></option>")
+                        .attr("value", value)
+                        .text(value));
             });
         } // if method
 
@@ -696,12 +687,12 @@ var blockItemMvc = (function () {
             var $urlTplBox = $('#urlTplBox').html('');
             $.each(pData['urlTpl'], function (key, value) {
                 $urlTplBox
-                    .append('<div>'
-                    + value + ' '
-                    + '<img src="' + blockItem.resUrl + 'folder_16.png" '
-                    + 'onclick="blockItem.showActionTree(\'' + value + '\')"/> '
-                    + '<span id="' + value + 'Text"></span>'
-                    + '</div>');
+                        .append('<div>'
+                        + value + ' '
+                        + '<img src="' + blockItemData.resUrl + 'folder_16.png" '
+                        + 'onclick="blockItem.showActionTree(\'' + value + '\')"/> '
+                        + '<span id="' + value + 'Text"></span>'
+                        + '</div>');
             }); // each
         } // if
         // func. blockItem.loadClassMethodSuccess
@@ -711,28 +702,29 @@ var blockItemMvc = (function () {
         options = pOptions;
 
         HAjax.create({
-            loadClassMethod: loadClassMethodSuccess
+            loadClassMethod:loadClassMethodSuccess
         });
 
         // Создаём наши деревья
         dhtmlxInit.init({
             'class':{
                 tree:{
-                    json: blockItemData.treeClassJson,
-                    id: options.classTreeBox
+                    json:blockItemData.treeClassJson,
+                    id:options.classTreeBox
                 },
                 dbClick:classTreeDbClick
             } // class
         });
-        blockItem.tree.clss = dhtmlxInit.tree['class'];
+        classTree = dhtmlxInit.tree['class'];
         // func. init
     }
 
     return{
         init:init,
-        loadClassMethodSuccess: loadClassMethodSuccess
+        loadClassMethodSuccess:loadClassMethodSuccess
     }
 })();
+
 
 /**
  * Событие onReady
@@ -746,94 +738,107 @@ $(document).ready(function () {
     });
 
     // Создаём наши деревья
-    dhtmlxInit.init({ 'tpl':tplTreeConf,
-        'cont':contTreeConf,
-        'action':actionTreeConf});
-    blockItem.tree.tpl = dhtmlxInit.tree['tpl'];
-    blockItem.tree.cont = dhtmlxInit.tree['cont'];
-    blockItem.tree.action = dhtmlxInit.tree['action'];
+    dhtmlxInit.init({
+        'tpl':{
+            tree:{ json: blockItemData.tplTreeJson, id:'tplDlg' },
+            dbClick: tplTreeDbClick
+        } ,
+        'cont':{
+            tree:{ json: blockItemData.contTreeJson, id:'contTree'},
+            clickEnd: contTreeClick
+        },
+        'action':{
+            tree:{ json: blockItemData.actionTreeJson, id:'actionDlg'},
+            dbClick: actionTreeDbClick
+        }});
+    
+    
+    tplTree = dhtmlxInit.tree['tpl'];
+    contTree = dhtmlxInit.tree['cont'];
+    actionTree = dhtmlxInit.tree['action'];
 
     HAjax.create({
-        loadCompTable:blockItem.loadCompTableSuccess,
-        saveData:blockItem.saveDataSuccess
+        loadCompTable: cbLoadCompTableSuccess,
+        saveData: cbSaveDataSuccess
     });
 
     // Если у компонента onlyFolder = 1
-    if (blockItem.onlyFolder) {
+    if (blockItemData.onlyFolder) {
         // Отображаем select который будет хранить табличные данные контента
         $('#contSelect').show();
         // Ставим на кнопку выбора табличных данных контета обработчик onClick
-        $('#contSelectBtn').click(blockItem.contSelectBtnClick);
+        $('#contSelectBtn').click(contSelectBtnClick);
     } else {
         $('.onlyFolder').hide();
-    } // if blockItem.onlyFolder
+    } // if blockItemData.onlyFolder
 // ==========================================================
 
 // ==========================================================
     // Если есть сохранённые данные, нужно отобразить их на странице
-    if (blockItem.saveData) {
-        for (var key in blockItem.saveData) {
-            blockItem[key] = blockItem.saveData[key];
+    if (blockItemData.saveData['isSaveProp']) {
+        for (var key in blockItemData.saveData) {
+            blockItem[key] = blockItemData.saveData[key];
         }
+        delete blockItemData.saveData;
         // ----- Отображаем на экране выбранное значение шаблона
-        var text = utils.getTreeUrl(blockItem.tree.tpl, blockItem.tplFile);
+        var text = utils.getTreeUrl(tplTree, blockItem.tplFile);
         $('#tplFileText').html(text);
 
         // ----- Отображаем на экране выбранное значение класса
-        text = utils.getTreeUrl(blockItem.tree.clss, blockItem.classFile);
+        text = utils.getTreeUrl(classTree, blockItem.classFile);
         $('#classFileText').html(text);
 
         // ----- Отображаем на экране выбранное значение статичного контента
-        text = utils.getTreeUrl(blockItem.tree.cont, blockItem.statId);
-        if (blockItem.onlyFolder && blockItem.tableId != "" && blockItem.statName != "") {
-            text += '/' + (blockItem.statName ? blockItem.statName : '[не найден]');
+        text = utils.getTreeUrl(contTree, blockItem.statId);
+        if (blockItemData.onlyFolder && blockItem.tableId != "" && blockItemData.statName != "") {
+            text += '/' + (blockItemData.statName ? blockItemData.statName : '[не найден]');
         }
         $('#statContText').html(text);
 
         // Загружуаем методы класса
-        blockItemMvc.loadClassMethodSuccess(blockItem.classData);
+        blockItemMvc.loadClassMethodSuccess(blockItemData.classData);
 
-        if (!blockItem.isLock) {
+        if (!blockItemData.isLock) {
             // Отображаем на экране выбранное значение метода
             $('#methodName').val(blockItem.methodName);
         } else {
             // Убераем методы, ставим скрытую переменную и выводим ранее выбранное значение
             var html = '<input type="hidden" name="methodName" value="' + blockItem.methodName + '"/>' + blockItem.methodName;
             $('#methodName').parent().append(html).end().remove();
-        } // if ( blockItem.isLock )
+        } // if ( blockItemData.isLock )
 
-    } // if ( blockItem.saveData )
+    } // if ( blockItemData.saveData )
 // ==========================================================
 
-    if (blockItem.acId == -1) {
+    if (blockItemData.acId == 0) {
         var html = 'Только при настройке Url Tree';
         html += '<input type="hidden" name="varName" value="' + blockItem.varId + '"/>';
         $('#varContDiv').html(html);
     } else {
         $('#varName').val(blockItem.varId);
         $('#varTableName').val(blockItem.varTableId);
-    } // if ( blockItem.acId == -1 )
+    } // if ( blockItemData.acId == 0 )
 // ==========================================================
 
     // Если есть сохранёные данные по элемента regexp URL, нужно их отобразить
-    if (blockItem.regxList) {
+    if (blockItemData.regxList) {
         // Бегаем по сохранёным данным
-        for (var i in blockItem.regxList) {
-            var item = blockItem.regxList[i];
+        for (var i in blockItemData.regxList) {
+            var item = blockItemData.regxList[i];
             var id = blockItem.contCurrent++;
             // Добавляем их
             blockItem.appendAddBtn(id, item['regexp']);
             // Отображаем их название
-            var text = utils.getTreeUrl(blockItem.tree.cont, item['contId']);
+            var text = utils.getTreeUrl(contTree, item['contId']);
 
-            if (blockItem.onlyFolder) {
+            if (blockItemData.onlyFolder) {
                 var caption = item['caption'];
                 text += '/' + (caption ? caption : '[не найден]' );
             }
             $('#cont_' + id + ' span.regxContText').html(text);
 
         } // for
-    } // if ( blockItem.regxList )
+    } // if ( blockItemData.regxList )
 // ==========================================================
 
     // Кнопка назад
@@ -841,15 +846,17 @@ $(document).ready(function () {
     // Обработка onClick на кнопку сохранения данных
     $('#saveBtn').click(blockItem.saveBtnClick);
 
-    if (blockItem.isLock) {
+    if (blockItemData.isLock) {
         var folderImgSrc = 'folderGray_16.png';
         $('select').prop("disabled", true);
-        $('.btn').click(function(){return false;});
+        $('.btn').click(function () {
+            return false;
+        });
         // Скрываем кнопку добавления элементов URL regexp
         $('#addBtn').hide();
         // Скрываем кнопку очистки статичного контета
         $('#contStatClearBtn').hide();
-    }else{
+    } else {
         $('#userAccessBtn').click(userAccessBtnClick);
         $('#customSettings').click(customSettingsBtnClick);
         var folderImgSrc = 'folder_16.png';
@@ -870,12 +877,12 @@ $(document).ready(function () {
         // Обработка onClick на кнопке очистки статичного контета
         $('#contStatClearBtn').click(blockItem.contStatClearBtnClick);
     }
-    $('img.folderBtn').attr('src', blockItem.resUrl + folderImgSrc);
+    $('img.folderBtn').attr('src', blockItemData.resUrl + folderImgSrc);
 
-    if (blockItem.urlTplList) {
-        for (var name in blockItem.urlTplList) {
-            var acId = blockItem.urlTplList[name];
-            var text = utils.getTreeUrlTpl(blockItem.tree.action, acId);
+    if (blockItemData.urlTplList) {
+        for (var name in blockItemData.urlTplList) {
+            var acId = blockItemData.urlTplList[name];
+            var text = utils.getTreeUrlTpl(actionTree, acId);
             $('#' + name + 'Text').html(text);
         } // for
     } // if

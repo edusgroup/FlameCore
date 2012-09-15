@@ -23,10 +23,6 @@ use admin\library\mvc\manager\complist\model as complistModel;
  */
 class comp {
 
-    public static $objProp;
-
-    const DEFAULT_VALUE = 'default';
-
     /**
      * Создание и рендеринг страницы компонента в админке
      * @param $pSiteName название сайта который мы редактируем
@@ -38,9 +34,12 @@ class comp {
 
         // Получаем настройки ветки
         $objProp = compCore::getBrunchPropByContId($contId);
+        if ( !$objProp ){
+            $objProp = compCore::findCompPropUpToRoot($contId);
+        }
         // Проверяем нашли мы что то, если нет то говорит что ошибка поиска
         if ( !$objProp ){
-            throw new \Exception('ContId: ' . $contId . ' not found', 345);
+            throw new \Exception('Prop on contId: ' . $contId . ' not found', 345);
         } // if
 
         // Имя класса который задали в настройках

@@ -9,6 +9,11 @@ use \DIR;
  * @author Козленко В.Л.
  */
 class objItem extends \core\classes\component\abstr\admin\comp{
+
+    public function init(){
+
+    }
+
     public function indexAction(){
 
         self::setVar('contId', $this->contId);
@@ -23,8 +28,11 @@ class objItem extends \core\classes\component\abstr\admin\comp{
 
     }
 
-    public function init(){
-
+    public function blockItemShowAction() {
+        $this->view->setRenderType(render::NONE);
+        echo 'article::blockItemShowAction() | No settings in this';
+        // func. blockItemShowAction
     }
+
     // class tsetad
 }

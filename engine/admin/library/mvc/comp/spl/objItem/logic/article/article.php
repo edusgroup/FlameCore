@@ -163,5 +163,11 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         // func. saveDataAction
     }
 
+    public function blockItemShowAction() {
+        $this->view->setRenderType(render::NONE);
+        echo 'article::blockItemShowAction() | No settings in this';
+        // func. blockItemShowAction
+    }
+
     // class article
 }

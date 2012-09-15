@@ -61,28 +61,26 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         // Важный параметр. Есть ли у компонента разделение на таблицу
         $onlyFolder = (int)$itemData['onlyFolder'];
         self::setVar('onlyfolder', $onlyFolder);
-        $acId = self::getInt('acid', '');
+        $acId = self::getInt('acid', 0);
         self::setVar('acId', $acId);
 
         $isLock = self::getInt('islock');
         self::setVar('isLock', $isLock);
 
         // Загружаем сохранённые настройки
-        $saveData = (new blockItemSettings())->selectFirst('*', 'blockItemId=' . $blockItemId);
-        if ($saveData) {
+        //$saveData = (new blockItemSettings())->selectFirst('*', 'blockItemId=' . $blockItemId);
+        if ($itemData['isSaveProp']) {
             // Загрузаем методы класса компонента
-            $classData = model::getSiteClassData($saveData['classFile'], $blockItemId);
+            $classData = model::getSiteClassData($itemData['classFile'], $blockItemId);
             self::setJson('classData', $classData);
 
             $tableOrm = null;
             // Если есть деление на таблицу и сохранён статический ID элемента таблиц, то нужно вытащить его название
-            if ($onlyFolder && isset($saveData['statId'])) {
-
-                $classFile = (new compPropOrm())->get('classFile', 'classFile', 'contId=' . $saveData['statId']);
-                $contrAdminObj = comp::createClassAdminObj($classFile, $itemData['ns']);
+            if ($onlyFolder && isset($itemData['statId'])) {
+                $contrAdminObj = comp::createClassAdminObj($itemData['classFile'], $itemData['ns']);
                 $tableOrm = $contrAdminObj->getTableOrm();
 
-                $statName = $tableOrm->get('caption', 'id=' . (int)$saveData['tableId']);
+                $statName = $tableOrm->get('caption', 'id=' . (int)$itemData['tableId']);
                 self::setVar('statName', $statName);
             } // if
 
@@ -90,11 +88,11 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             self::setJson('regxList', $regxList);
 
             // Избавление от NULL
-            $saveData['statId'] = $saveData['statId'] ? : '';
-            $saveData['tableId'] = $saveData['tableId'] ? : '';
+            $itemData['statId'] = $itemData['statId'] ? : '';
+            $itemData['tableId'] = $itemData['tableId'] ? : '';
         } // if (saveData)
 
-        self::setJson('saveData', $saveData);
+        self::setJson('saveData', $itemData);
 
         // Получаем дерево контента
         $contTree = dhtmlxTree::createTreeOfTable(
@@ -130,7 +128,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             } // if
         } // if ($acId)
 
-        if ($saveData) {
+        if ($itemData['isSaveProp']) {
             $urlTplListOrm = new urlTplListOrm();
             $urlTplArr = $urlTplListOrm->selectAll('name, acId', 'blockItemId=' . $blockItemId);
             $urlTplList = [];
@@ -170,12 +168,20 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
     public function loadCompTableAction() {
         $this->view->setRenderType(render::JSON);
         $contId = self::getInt('contid');
-        compInit::$objProp = comp::getCompContProp($contId);
-        $contrObj = comp::getCompObject(compInit::$objProp);
-        if (!method_exists($contrObj, 'getTableData')) {
+
+        $classFile = self::get('classFile');
+
+        $compData = comp::getCompPropByContId($contId);
+        if ( !$compData ){
+            throw new \Exception('ContId не найден: ' . $contId, 25);
+        }
+
+        $adminObj = comp::createClassAdminObj($classFile, $compData['ns']);
+
+        if (!method_exists($adminObj, 'getTableData')) {
             throw new \Exception(' getTableData не найден: ' . $contId, 24);
         }
-        $contList = $contrObj->getTableData($contId);
+        $contList = $adminObj->getTableData($contId);
         self::setVar('json', $contList);
         // func. loadCompTableAction
     }
@@ -205,8 +211,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             'varTableId' => self::postInt('varTableName', null)
         ];
 
-        $blockItemSettings = new blockItemSettings();
-        $blockItemSettings->save('blockItemId=' . $blockItemId, $saveData);
+        (new blockItemSettings())->save('blockItemId=' . $blockItemId, $saveData);
 		unset($saveData);
 
         $blockItemRegxUrl = new blockItemRegxUrl();
@@ -243,17 +248,13 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             $urlTplListOrm->delete('blockItemId=' . $blockItemId);
             foreach ($urlTpl as $name => $acId) {
                 $urlTplListOrm->insert(
-                    [
-                    'blockItemId' => $blockItemId,
+                    ['blockItemId' => $blockItemId,
                     'name' => $name,
-                    'acId' => $acId
-                    ]
+                    'acId' => $acId]
                 );
             } // foreach
         } // if is_array
 		unset($urlTpl);
-
-        self::setVar('json', []);
         // func. saveDataAction
     }
 
@@ -263,14 +264,11 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $blockItemId = self::getInt('blockitemid');
         self::setVar('blockItemId', $blockItemId);
 
-        $blockItemSettings = new blockItemSettings();
-        $custContId = $blockItemSettings->get('custContId', 'blockItemId=' . $blockItemId);
-        self::setVar('custContId', $custContId);
-
         // Получаем ID компонента для объекта
         $itemData = model::getCompData($blockItemId);
+        self::setVar('custContId', $itemData['custContId']);
 
-        $acId = self::getInt('acid', '');
+        $acId = self::getInt('acid', 0);
         self::setVar('acId', $acId);
 
         // Получаем дерево контента
@@ -290,25 +288,33 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $this->view->setRenderType(render::JSON);
 
         $blockItemId = self::getInt('blockitemid');
-
-        $eventData = ['biId' => $blockItemId];
-        eventsys::callOffline(event::BLOCKITEM, event::CHANGE, $eventData);
-
         $custContId = self::postInt('contid');
 
-        $blockItemSettings = new blockItemSettings();
-        $blockItemSettings->update(
+        // Получаем настройки ветки
+        $objProp = comp::getBrunchPropByContId($custContId);
+        if ( !$objProp ){
+            $objProp = comp::findCompPropUpToRoot($custContId);
+        }
+        // Проверяем нашли мы что то, если нет то говорит что ошибка поиска
+        if ( !$objProp ){
+            throw new \Exception('Prop on contId: ' . $custContId . ' not found', 345);
+        } // if
+
+        // Имя класса который задали в настройках
+        $classFile = $objProp['classFile']?: '/base/'.$objProp['classname'].'.php';
+
+        $adminObj = comp::createClassAdminObj($classFile, $objProp['ns']);
+        if (!method_exists($adminObj, 'blockItemSave')) {
+            throw new \Exception(' getTableData не найден', 24);
+        }
+        $adminObj->blockItemSave($blockItemId, $this);
+
+        (new blockItemSettings())->update(
             'custContId=' . $custContId
             ,'blockItemId=' . $blockItemId);
 
-        // Создаём объекта класса
-        compInit::$objProp = comp::getCompContProp($custContId);
-        $contrObj = comp::getCompObject(compInit::$objProp);
-
-        if (!method_exists($contrObj, 'blockItemSave')) {
-            throw new \Exception(' getTableData не найден', 24);
-        }
-        $contrObj->blockItemSave($blockItemId, $this);
+        $eventData = ['biId' => $blockItemId];
+        eventsys::callOffline(event::BLOCKITEM, event::CHANGE, $eventData);
         // func. custSettSaveAction
     }
 

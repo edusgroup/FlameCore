@@ -41,7 +41,7 @@ class model {
             ->comment(__METHOD__)
             ->fetchFirst();
         return $seoData;
-
+        // func. getloadData
     }
 
     /**
