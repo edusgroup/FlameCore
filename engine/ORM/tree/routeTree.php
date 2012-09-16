@@ -27,5 +27,14 @@ class routeTree extends \core\classes\DB\tree {
         // func. getActVarCountById
     }
 
+    public function getAllChildrenFromUrlTree(integer $pId){
+        self::parseProcedure('getAllChildrenFromUrlTree(:id, :result)')
+            ->bindIn(':id', $pId)
+            ->bindOut(':result');
+        // Убрием лишнюю "," слева
+        return ltrim(self::exec()->result, ',');
+        // func. getAllChildrenFromUrlTree
+    }
+
 // class routeTree
 }

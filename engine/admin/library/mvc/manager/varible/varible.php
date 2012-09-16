@@ -87,9 +87,16 @@ class varible extends controllerAbstract {
         $this->view->setRenderType(render::JSON);
         // action ID
         $acId = self::postInt('acid');
+
+        $routeOrm = new routeTree();
         // Говорит системе, что, хорошо бы эту страницу пересоздать
-        (new routeTree())->update('isSave="yes"', 'id=' . $acId);
+        $routeOrm->update('isSave="yes"', 'id=' . $acId);
         eventCore::callOffline(event::NAME, event::ITEM_SAVE);
+
+        $childList = $routeOrm->getAllChildrenFromUrlTree($acId);
+        if ( $childList ){
+            $routeOrm->update('isSave="yes"', 'id in (' . $childList.')');
+        } // if
 
         // Тип переменной
         $vartype = self::post('varType');

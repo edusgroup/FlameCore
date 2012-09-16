@@ -39,7 +39,7 @@ class tplvar extends controllerAbstract {
      * <b>acid</b> int - action ID. По умолчанию acid = null.
      */
     public function indexAction() {
-        $actionId = self::getInt('acid', '');
+        $actionId = self::getInt('acid');
         self::setVar('acid', $actionId);
 
         // Получаем список файлов для WF или по всему сайту
@@ -54,8 +54,8 @@ class tplvar extends controllerAbstract {
             $saveData = (new tplvarOrm())->selectAll('name, value', 'acId=' . $actionId);
         } else {
             $blockFileOrm->select('file', 'bf');
-            $saveData = (new tplvarOrm())->selectAll('name, value', 'acId is null');
-        }
+            $saveData = (new tplvarOrm())->selectAll('name, value', 'acId = 0');
+        } // if
         // Список всех шаблонов сайта по WF
         $blockFileList = $blockFileOrm->comment(__METHOD__)->fetchAll();
 
@@ -95,7 +95,7 @@ class tplvar extends controllerAbstract {
     public function saveDataAction() {
         $this->view->setRenderType(render::JSON);
 
-        $actionId = self::getInt('acid', null);
+        $actionId = self::getInt('acid');
         // Получаем занчение переменных,
         // var - ассоцив. массив формата: var[varName]=varValue
         $varibleList = self::post('var');
@@ -108,7 +108,7 @@ class tplvar extends controllerAbstract {
                 $routeTreeWhere = 'id=' . $actionId;
             } else {
                 // Иначе это глобальные переменные
-                $tplvarOrm->delete('acid is null');
+                $tplvarOrm->delete('acid = 0');
                 eventsys::callOffline(eventBlockItem::BLOCKITEM, eventBlockItem::CHANGE, ['vartype'=>1]);
                 $routeTreeWhere = 'id != 0';
             } // if else

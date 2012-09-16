@@ -135,8 +135,8 @@ class blog {
 			
             $categoryUrlTpl = isset($comp['urlTpl']['category'])?$comp['urlTpl']['category']:'';
             $nsPath = $comp['nsPath'];
-            $tplFile = DIR::TPL . 'comp/' . $nsPath;
-            (new render($tplFile, ''))
+            $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
+            (new render($tplPath, ''))
                 ->setVar('oiListData', $oiListData)
                 ->setVar('paginationList', self::$_paginationList)
                 ->setVar('paginationUrlTpl', self::$_paginationUrlTpl)
