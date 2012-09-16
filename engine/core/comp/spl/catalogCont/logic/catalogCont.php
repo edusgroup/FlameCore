@@ -10,6 +10,7 @@ use site\conf\SITE;
 use core\classes\dbus;
 use core\classes\render;
 use core\classes\userUtils;
+use core\classes\site\dir as sitePath;
 
 /**
  * Description of objItem
@@ -24,7 +25,6 @@ class catalogCont {
         $compId = $comp['compId'];
         $contId = $comp['contId'];
 
-
         $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/list.txt';
         $data = file_get_contents($file);
         if (!$data) {
@@ -34,9 +34,8 @@ class catalogCont {
         unset($data);
         if ($list) {
             $tpl = userUtils::getCompTpl($comp);
-            $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
-            $tplFile .= $comp['nsPath'];
-            (new render($tplFile, ''))
+            $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
+            (new render($tplPath, ''))
                 ->setVar('list', $list)
                 ->setMainTpl($tpl)
                 ->setContentType(null)

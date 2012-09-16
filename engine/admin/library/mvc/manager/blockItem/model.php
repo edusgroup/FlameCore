@@ -19,6 +19,7 @@ use core\classes\arrays;
 use core\classes\validation\word;
 use core\classes\filesystem;
 use core\classes\comp;
+use core\classes\site\dir as sitePath;
 
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
@@ -66,12 +67,12 @@ class model {
 
     public static function getClassTree($pNsPath){
         // Встроенные шаблоны для компонента для сайта
-        $classFilePath = comp::getCompClassSitePath(false, $pNsPath);
+        $classFilePath = comp::getSiteCompClassPath(false, $pNsPath);
         $treeInner = dhtmlxTree::createTreeOfDir($classFilePath);
         $treeInner = array_merge($treeInner, self::_getBrunchParam('#in', 'Встроеные'));
 
         // Внешние шаблоны компонента для сайта
-        $classFilePath = comp::getCompClassSitePath(false, $pNsPath);
+        $classFilePath = comp::getSiteCompClassPath(true, $pNsPath);
         // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID
         $treeOuter = dhtmlxTree::createTreeOfDir($classFilePath, '[o]');
         $treeOuter = array_merge($treeOuter, self::_getBrunchParam('#out', 'Внешние'));
@@ -82,12 +83,12 @@ class model {
 
     public static function getTplTree($nsPath){
         // Встроенные шаблоны для компонента для сайта
-        $siteTplPath = DIR::getSiteCompTplPath($nsPath);
+        $siteTplPath = sitePath::getSiteCompTplPath(false, $nsPath);
         $treeInner = dhtmlxTree::createTreeOfDir($siteTplPath);
         $treeInner = array_merge($treeInner, self::_getBrunchParam('#in', 'Встроеные'));
 
         // Внешние шаблоны компонента для сайта
-        $siteTplPath = DIR::getSiteCompTplOuter($nsPath);
+        $siteTplPath = sitePath::getSiteCompTplPath(true, $nsPath);
         // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID
         $treeOuter = dhtmlxTree::createTreeOfDir($siteTplPath, '[o]');
         $treeOuter = array_merge($treeOuter, self::_getBrunchParam('#out', 'Внешние'));
@@ -111,18 +112,27 @@ class model {
 
         // Получаем информацию по компоненту, который указан для блока
         $itemData = self::getCompData($pBlockItemId);
-
         $className = comp::fullNameClassSite($pClassFile, $itemData['ns']);
-        $compObj = new $className();
-        $methodList = get_class_methods($compObj);
-        // Фильтруем методы. Нам нужны только в окончанием Action
-        $methodList = array_filter($methodList, function($pItem) {
-            return substr($pItem, -6) == 'Action';
-        });
+        // Вполне возможно класс, может быть удалён с файловой системы, а уже используется
+        // тогда системы выдаст исключение, от том что файла нет, исключение нужно перехватить
+        try{
+            $compObj = new $className();
+            $methodList = get_class_methods($compObj);
+            // Фильтруем методы. Нам нужны только в окончанием Action
+            $methodList = array_filter($methodList, function($pItem) {
+                return substr($pItem, -6) == 'Action';
+            });
+            $urlTplList = isset($compObj::$urlTplList) ? array_keys($compObj::$urlTplList) : [];
+        }catch (\Exception $ex){
+            // если мы тут, значит файл был удалён и при этом используется в системе
+            $methodList = [];
+            $urlTplList = [];
+        } // catch
+
         // Получаем его методы
         return [
             'method' => $methodList,
-            'urlTpl' => isset($compObj::$urlTplList) ? array_keys($compObj::$urlTplList) : null
+            'urlTpl' => $urlTplList
         ];
         // func. getSiteClassData
     }

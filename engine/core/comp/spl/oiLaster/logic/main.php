@@ -9,6 +9,7 @@ use site\conf\SITE;
 use core\classes\dbus;
 use core\classes\render;
 use core\classes\userUtils;
+use core\classes\site\dir as sitePath;
 
 /**
  * Рендеринг списка последних obiItem компонентов
@@ -48,9 +49,8 @@ class main {
             // Получаем имя шаблона, который выбрали в админке
             $tpl = userUtils::getCompTpl($comp);
             // Папка, где храняться шаблоны
-            $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
-            $tplFile .= $comp['nsPath'];
-            (new render($tplFile, ''))
+            $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
+            (new render($tplPath, ''))
                 ->setVar('list', $list)
                 ->setMainTpl($tpl)
                 ->setContentType(null)

@@ -3,9 +3,10 @@
 namespace admin\library\mvc\manager\varible;
 
 /**
- * @author Козленко В.Л.
+ * @author РљРѕР·Р»РµРЅРєРѕ Р’.Р›.
  */
 class event {
     const NAME = 'varible';
     const ITEM_SAVE = 'varible:save';
+    // event
 }

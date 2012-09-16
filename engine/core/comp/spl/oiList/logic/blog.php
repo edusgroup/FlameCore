@@ -9,13 +9,14 @@ use site\conf\SITE;
 use core\classes\dbus;
 use core\classes\render;
 use core\classes\userUtils;
+use core\classes\site\dir as sitePath;
 
 /**
  * Description of main
  *
  * @author Козленко В.Л.
  */
-class main {
+class blog {
     
     public static $urlTplList = [
         'pageNav' => null,
@@ -70,9 +71,8 @@ class main {
 			self::$_paginationPageNum = $pageNum;
             $categoryUrlTpl = isset($comp['urlTpl']['category'])?$comp['urlTpl']['category']:'';
 
-            $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
-            $tplFile .= $comp['nsPath'];
-            (new render($tplFile, ''))
+            $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
+            (new render($tplPath, ''))
                 ->setVar('oiListData', $oiListData)
                 ->setVar('paginationList', self::$_paginationList)
                 ->setVar('pagionationUrlParam', [])
@@ -281,5 +281,5 @@ class main {
         // func. getPaginationList
     }
 
-    // class. main
+    // class blog
 }

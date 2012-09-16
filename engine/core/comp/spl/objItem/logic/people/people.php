@@ -11,6 +11,7 @@ use core\classes\word;
 use core\classes\userUtils;
 use core\classes\dbus;
 use core\classes\render;
+use core\classes\site\dir as sitePath;
 
 /**
  * Description of article

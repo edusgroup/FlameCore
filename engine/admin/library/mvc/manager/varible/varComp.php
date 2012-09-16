@@ -119,7 +119,7 @@ class varComp {
 
         $nsPath = filesystem::nsToPath($compData['ns']);
         // Проверяем налачие файла
-        $classFilePath = comp::getVarClassSitePath($classFileData['isOut'], $nsPath);
+        $classFilePath = comp::getSiteVarClassPath($classFileData['isOut'], $nsPath);
         if ( !is_file($classFilePath.$classFileData['file']) ){
             throw new \Exception('File : ' . $classFileData['file'] . ' not found', 235);
         } // if

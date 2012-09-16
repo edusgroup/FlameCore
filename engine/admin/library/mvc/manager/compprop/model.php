@@ -44,11 +44,11 @@ class model {
 
     public static function getClassTree($pNsPath) {
         // ==================== Преоопределённые классы компонента для сайта
-        $classFilePath = comp::getCompClassPath(false, $pNsPath);
+        $classFilePath = comp::getAdminCompClassPath(false, $pNsPath);
         $treeInner = dhtmlxTree::createTreeOfDir($classFilePath);
         $treeInner = array_merge($treeInner, self::_getBrunchParam('#in', 'Встроеные'));
         // ==================== Кастомные классы компонента для сайта
-        $classFilePath = comp::getCompClassPath(true, $pNsPath);
+        $classFilePath = comp::getAdminCompClassPath(true, $pNsPath);
         // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID
         $treeOuter = dhtmlxTree::createTreeOfDir($classFilePath, '[o]');
         $treeOuter = array_merge($treeOuter, self::_getBrunchParam('#out', 'Внешние'));
@@ -59,11 +59,11 @@ class model {
 
     public static function getTplTree($pNsPath) {
         // ==================== Преоопределённые шаблоны компонента для сайта
-        $tplFilePath = comp::getCompTplPath(false, $pNsPath);
+        $tplFilePath = comp::getAdminCompTplPath(false, $pNsPath);
         $treeInner = dhtmlxTree::createTreeOfDir($tplFilePath);
         $treeInner = array_merge($treeInner, self::_getBrunchParam('#in', 'Встроеные'));
         // ==================== Кастомные шаблоны компонента для сайта
-        $tplFilePath = comp::getCompTplPath(true, $pNsPath);
+        $tplFilePath = comp::getAdminCompTplPath(true, $pNsPath);
         // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID
         $treeOuter = dhtmlxTree::createTreeOfDir($tplFilePath, '[o]');
         $treeOuter = array_merge($treeOuter, self::_getBrunchParam('#out', 'Внешние'));

@@ -74,7 +74,7 @@ class event {
 
             $classFile = $oiLasterItemProp['classFile'];
             if ( !$classFile || $classFile == '/base/build.php' ){
-                echo "\tioLaster[condI:".$oiLasterItemProp['contId']."] className is default. Abort".PHP_EOL;
+                echo "\tioLaster[contId:".$oiLasterItemProp['contId']."] className is default. Abort".PHP_EOL;
                 continue;
             }
 
@@ -98,7 +98,7 @@ class event {
             }
 			// Больше ли данных нуля
 			if ( !$handleObjitem->num_rows ){
-                echo "\tioLaster[condI:".$oiLasterItemProp['contId']."] not data found. Error".PHP_EOL;
+                echo "\tioLaster[contId:".$oiLasterItemProp['contId']."] not data found. Error".PHP_EOL;
                 continue;
             }
 
@@ -107,7 +107,7 @@ class event {
             $saveDir = DIR::getSiteDataPath($saveDir);
 
             $numRows = $handleObjitem->num_rows;
-            echo "\tioLaster[condI:".$oiLasterItemProp['contId']."] Row:$numRows itemC: $itemsCount".PHP_EOL;
+            echo "\tioLaster[contId:".$oiLasterItemProp['contId']."] Row:$numRows itemC: $itemsCount".PHP_EOL;
             echo "\t$classFile".PHP_EOL;
             echo "\t$saveDir".PHP_EOL.PHP_EOL;
 

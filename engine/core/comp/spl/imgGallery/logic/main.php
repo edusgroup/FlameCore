@@ -10,6 +10,7 @@ use site\conf\SITE;
 use core\classes\dbus;
 use core\classes\render;
 use core\classes\userUtils;
+use core\classes\site\dir as sitePath;
 
 /**
  * Description of html
@@ -30,9 +31,8 @@ class main {
 		// Есть ли что нибудь в списке
         if ($dataList) {
             $tpl = userUtils::getCompTpl($comp);
-            $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
-            $tplFile .= $comp['nsPath'];
-            (new render($tplFile, ''))
+            $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
+            (new render($tplPath, ''))
                 ->setVar('list', $dataList)
                 ->setVar('hrefResize', DIR::URL_IMG_RESIZE_PUBLIC.$prefix)
                 ->setVar('hrefDist', DIR::URL_FILE_DIST.$prefix)

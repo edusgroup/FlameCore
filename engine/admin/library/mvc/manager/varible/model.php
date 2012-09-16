@@ -89,7 +89,7 @@ class model {
 
     public static function getVarClassTree($pNsPath) {
         // ==================== Преоопределённые классы компонента для сайта
-        $classFilePath = comp::getVarClassSitePath(false, $pNsPath);
+        $classFilePath = comp::getSiteVarClassPath(false, $pNsPath);
         $treeInner = dhtmlxTree::createTreeOfDir($classFilePath);
         $treeInner = array_merge($treeInner,
                                  ['id' => '#in',
@@ -98,7 +98,7 @@ class model {
                                  'im0' => 'folderClosed.gif']);
 
         // ==================== Кастомные классы компонента для сайта
-        $classFilePath = comp::getVarClassSitePath(true, $pNsPath);
+        $classFilePath = comp::getSiteVarClassPath(true, $pNsPath);
         // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID
         $treeOuter = dhtmlxTree::createTreeOfDir($classFilePath, '[o]');
         $treeOuter = array_merge($treeOuter,

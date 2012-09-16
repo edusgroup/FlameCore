@@ -9,6 +9,7 @@ use site\conf\SITE;
 use core\classes\dbus;
 use core\classes\render;
 use core\classes\userUtils;
+use core\classes\site\dir as sitePath;
 
 /**
  * Description of main
@@ -20,7 +21,7 @@ class review {
 	public static $urlTplList = [];
 
     /**
-     * ����� ����� ������ ( ��� ��������� )
+     * Отображение отзывов.
      * @param type $pName 
      */
     public static function renderAction($pName) {
@@ -36,9 +37,8 @@ class review {
         $oiListData = \unserialize($data);
 		if ( $oiListData ){
 			$tpl = userUtils::getCompTpl($comp);
-            $nsPath = $comp['nsPath'];
-            $tplFile = DIR::TPL . 'comp/' . $nsPath;
-            (new render($tplFile, ''))
+            $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
+            (new render($tplPath, ''))
                 ->setVar('oiListData', $oiListData)
                 ->setMainTpl($tpl)
                 ->setContentType(null)

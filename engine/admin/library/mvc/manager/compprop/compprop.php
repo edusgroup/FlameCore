@@ -105,7 +105,7 @@ class compprop extends \core\classes\mvc\controllerAbstract {
         filevalid::isSafe($classFileData['file'], new \Exception('Неверное имя файла:' .$classFileData['file']));
 
         // Проверяем налачие файла
-        $classFilePath = comp::getCompClassPath($classFileData['isOut'], $nsPath);
+        $classFilePath = comp::getAdminCompClassPath($classFileData['isOut'], $nsPath);
         if ( !is_file($classFilePath.$classFileData['file']) ){
             throw new \Exception('File : ' . $classFileData['file'] . ' not found', 235);
         } // if
@@ -121,7 +121,7 @@ class compprop extends \core\classes\mvc\controllerAbstract {
         filevalid::isSafe($tplFileData['file'], new \Exception('Неверное имя файла:' .$tplFileData['file']));
 
         // Проверяем налачие файла
-        $tplFilePath = comp::getCompTplPath($tplFileData['isOut'], $nsPath);
+        $tplFilePath = comp::getAdminCompTplPath($tplFileData['isOut'], $nsPath);
         if ( !is_file($tplFilePath.$tplFileData['file']) ){
             throw new \Exception('File : ' . $tplFileData['file'] . ' not found', 235);
         } // if

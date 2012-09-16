@@ -323,7 +323,7 @@ var wareframeMvc = (function(){
         var blId = blockTree.getSelectedItemId();
         var type = blockTree.getUserData(blId, 'type');
         var linkData = blockTree.getUserData(blId, 'link');
-        if ( type == FOLDER_LINK && ( wareframeData.acId == '' || linkData.acId != '0') ){
+        if ( type == FOLDER_LINK && ( wareframeData.acId == '0' || linkData.acId != '0') ){
             alert('В ветке типа LINK-wf нельзя производить сохранение');
             return false;
         } // if
@@ -332,7 +332,14 @@ var wareframeMvc = (function(){
             return;
         }
         var rowsId = itemGrid.getCheckedRows(0);
-        HAjax.rmBlockItem({data:{idlist:rowsId, blid:blId, acid: wareframeData.acId }, methodType:'POST'});
+        HAjax.rmBlockItem({
+            data:{
+                idlist:rowsId,
+                blid:blId,
+                acid: wareframeData.acId,
+                wfid: getWFId()
+            },
+            methodType:'POST'});
         // func. itemRmBtnClick
     }
 
@@ -353,7 +360,7 @@ var wareframeMvc = (function(){
         var type = blockTree.getUserData(blockId, 'type');
         var linkData = blockTree.getUserData(blockId, 'link');
         // Пропускаем только линки wareframe и только в окне редактирования action->wf
-        if ( type == FOLDER_LINK && ( wareframeData.acId == '' || linkData.acId != '0') ){
+        if ( type == FOLDER_LINK && ( wareframeData.acId == '0' || linkData.acId != '0') ){
             alert('В ветку типа LINK-wf нельзя добавлять объекты');
             return;
         } // if
@@ -379,8 +386,8 @@ var wareframeMvc = (function(){
     function itemOnBeforeDrag(rId) {
         // Запрещаем при редактировании через actoin,
         // двигать родительские компоненты
-        var acId = itemGrid.getUserData(rId, 'acId');
-        return wareframeData.acId == acId || acId == '';
+        var rowAcId = itemGrid.getUserData(rId, 'acId');
+        return wareframeData.acId == rowAcId || rowAcId == '';
         // func. itemOnBeforeDrag
     }
 
@@ -392,8 +399,8 @@ var wareframeMvc = (function(){
     function itemOnRowDblClicked(rId) {
         // Запрещаем при редактировании через actoin,
         // редактировать родительские компоненты
-        var acId = itemGrid.getUserData(rId, 'acId');
-        return wareframeData.acId == acId || acId == '';
+        var rowAcId = itemGrid.getUserData(rId, 'acId');
+        return wareframeData.acId == rowAcId || rowAcId == '';
         // func. itemOnRowDblClicked
     }
 
@@ -675,7 +682,7 @@ var wareframeMvc = (function(){
             var acId = itemGrid.getUserData(id, 'acId');
             var islock = 0;
             // Разрешено ли редактировать компонента в таблице (в зависимости от линка)
-            var isLinkDisable = blockType == FOLDER_LINK && ( wareframeData.acId == '' || linkData.acId != '0');
+            var isLinkDisable = blockType == FOLDER_LINK && ( wareframeData.acId == '0' || linkData.acId != '0');
             if (acId != wareframeData.acId || isLinkDisable ) {
                 itemGrid.cells(id, 2).setTextColor('#00008B');
                 itemGrid.cells(id, 0).setDisabled(true);
@@ -857,7 +864,7 @@ var wareframeMvc = (function(){
         var blId = blockTree.getSelectedItemId();
         var type = blockTree.getUserData(blId, 'type');
         var linkData = blockTree.getUserData(blId, 'link');
-        if ( type == FOLDER_LINK && ( wareframeData.acId == '' || linkData.acId != '0') ){
+        if ( type == FOLDER_LINK && ( wareframeData.acId == '0' || linkData.acId != '0') ){
             alert('В ветке типа LINK-wf нельзя производить сохранение');
             return false;
         } // if
@@ -916,7 +923,7 @@ var wareframeMvc = (function(){
         // Получаем ID ветки основного дерева блоков
         var blockBrunchId = blockTree.getSelectedItemId();
         // Меняем картинка ветки на линковую ветку
-        var filename = wareframeData.acId ? 'linka.gif' : 'linkw.gif';
+        var filename = wareframeData.acId != '0' ? 'linka.gif' : 'linkw.gif';
         blockTree.setItemImage(blockBrunchId, filename);
         // Устанавливаем тип ветки на линк
         blockTree.setUserData(blockBrunchId, 'type', FOLDER_LINK);

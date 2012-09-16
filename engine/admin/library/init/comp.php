@@ -57,7 +57,7 @@ class comp {
         // Получаем данные по шаблону
         $tplFileData = compCore::getFileType($tplFile);
         // Получаем полный путь до папки с шаблонами
-        $tplPath = compCore::getCompTplPath($tplFileData['isOut'], $nsPath);
+        $tplPath = compCore::getAdminCompTplPath($tplFileData['isOut'], $nsPath);
         // Устанавливаем путь к шаблонам и ресурсам для рендера
         $contrObj->setPathUrl($tplPath, $themeResUrl);
 

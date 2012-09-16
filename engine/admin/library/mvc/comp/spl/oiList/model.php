@@ -26,11 +26,11 @@ class model {
 
     public static function getBuildClassTree($pNsPath){
         // ==================== Преоопределённые классы компонента для сайта
-        $classFilePath = comp::getCompBuildClassPath(false, $pNsPath);
+        $classFilePath = comp::getBuildCompClassPath(false, $pNsPath);
         $treeInner = dhtmlxTree::createTreeOfDir($classFilePath);
         $treeInner = array_merge($treeInner, ['id'=>'#in', 'text'=>'Встроеные', 'userdata'=>[['name'=>'type', 'content'=>dhtmlxTree::FOLDER]]]);
         // ==================== Кастомные классы компонента для сайта
-        $classFilePath = comp::getCompBuildClassPath(true, $pNsPath);
+        $classFilePath = comp::getBuildCompClassPath(true, $pNsPath);
         // Добавляем префикс, что бы если встретятся одинаковый папки, были разные ID
         $treeOuter = dhtmlxTree::createTreeOfDir($classFilePath, '[o]');
         $treeOuter = array_merge($treeOuter,
@@ -48,7 +48,7 @@ class model {
         filevalid::isSafe($classFileData['file'], new \Exception('Неверное имя файла:' .$classFileData['file']));
 
         // Проверяем налачие файла
-        $classFilePath = comp::getCompBuildClassPath($classFileData['isOut'], $pNsPath);
+        $classFilePath = comp::getBuildCompClassPath($classFileData['isOut'], $pNsPath);
         if ( !is_file($classFilePath.$classFileData['file']) ){
             throw new \Exception('File : ' . $classFileData['file'] . ' not found', 235);
         } // if

@@ -15,6 +15,7 @@ use ORM\comp\spl\oiComment\oiComment as oiCommentOrm;
 use ORM\tree\componentTree as componentOrm;
 use ORM\tree\compContTree as compContTreeOrm;
 use ORM\blockItemSettings;
+use core\classes\site\dir as sitePath;
 
 // Conf
 use \site\conf\DIR;
@@ -76,6 +77,8 @@ class create {
             throw new \Exception('No data from blockItemId=' . $blockItemId);
         }
         // Название шаблона для комментариев
+        // TODO: Сделать обработку внешних шаблонов. Убрать [o],
+        // TODO: внизу заменить sitePath::getSiteCompTplPath(false, на sitePath::getSiteCompTplPath($isOut,
         $tplListFile = substr($oiCommentData['tplListFile'], 1);
         $tplComFile = substr($oiCommentData['tplComFile'], 1);
         // Тип комментариев
@@ -100,14 +103,15 @@ class create {
         // ======= Создаём код Комментария
         // Преобразуем NameSpace имя в путь папки
         $nsPath = filesystem::nsToPath($oiCommentData['ns']);
-        $tplDir = DIR::TPL . 'comp/' . $nsPath;
+        $tplPath = sitePath::getSiteCompTplPath(false, $nsPath);
         // Создаём шаблон
-        $render = new render($tplDir, '');
+        $render = new render($tplPath, '');
         $render->setMainTpl($tplComFile)
             ->setVar('author', $author)
             ->setVar('comment', $comment)
             ->setVar('id', $newId)
-            ->setVar('isFirst', $isFirst)            ->setVar('dateAdd', date("d-m-y H:i"))
+            ->setVar('isFirst', $isFirst)
+            ->setVar('dateAdd', date("d-m-y H:i"))
             ->render();
 
         // Формируем правильное дерево 

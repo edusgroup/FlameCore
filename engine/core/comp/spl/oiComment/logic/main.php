@@ -10,6 +10,7 @@ use core\classes\dbus;
 use core\classes\render;
 use core\classes\word;
 use core\classes\userUtils;
+use core\classes\site\dir as sitePath;
 
 /**
  * Description of main
@@ -22,15 +23,18 @@ class main {
         $comp = dbus::$comp[$pName];
 
         $tpl = userUtils::getCompTpl($comp);
-        
+
+        if ( $comp['varible'] == 'root'){
+            echo 'Not set varible in oiCommnet';
+            return;
+        }
         $objItemId = dbus::$vars[$comp['varible']]['id'];
         
         $splitId = word::idToSplit($objItemId);
         $commFile = DIR::APP_DATA . 'comp/' . $comp['compId'] . '/' . $comp['type'] . '/'. $splitId.'comm.html';
 
-        $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
-        $tplFile .= $comp['nsPath'];
-        $render = new render($tplFile, '');
+        $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
+        $render = new render($tplPath, '');
         $render->setMainTpl($tpl)
                 ->setContentType(null)
                 ->setVar('blockItemId', $comp['blockItemId'])

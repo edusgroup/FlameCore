@@ -171,13 +171,13 @@
     Сделать
 </div>
 
-<div id="tplDlg" style="width:150px;height:150px; display: none"></div>
+<div id="tplDlg" style="width:200px;height:300px; display: none"></div>
 
-<div id="actionDlg" style="width:150px;height:150px; display: none"></div>
+<div id="actionDlg" style="width:200px;height:300px; display: none"></div>
 
-<div id="classDlg" style="width:250px;height:350px; display: none"></div>
+<div id="classDlg" style="width:200px;height:300px; display: none"></div>
 
-<div id="contDlg" style="width:400px;height:150px; display: none">
+<div id="contDlg" style="width:400px;height:300px; display: none">
     <div class="bothPanel" id="contTree">
     </div>
     <div id="contSelect" class="bothPanel" style="display: none;">
@@ -217,7 +217,8 @@ var blockItem = {
     contType:'',
     // Выбранное значение static компонента
     statId:'',
-    varId:-1,
+    varId: '',
+    varTableId: '',
     // Редактируемый urlTpl
     urlTplCurrent:null
 } // var blockItem
@@ -812,7 +813,7 @@ $(document).ready(function () {
 
     if (blockItemData.acId == 0) {
         var html = 'Только при настройке Url Tree';
-        html += '<input type="hidden" name="varName" value="' + blockItem.varId + '"/>';
+        html += '<input type="hidden" name="varName" value=""/>';
         $('#varContDiv').html(html);
     } else {
         $('#varName').val(blockItem.varId);

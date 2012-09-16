@@ -26,6 +26,7 @@ use ORM\tree\wareframeTree;
 use ORM\tree\routeTree as routeTreeOrm;
 use ORM\urlTreePropVar;
 use ORM\tree\compContTree;
+use ORM\block\blockLink as blockLinkOrm;
 
 // Event
 use admin\library\mvc\manager\blockItem\event as eventBlockItem;
@@ -49,7 +50,7 @@ class wareframe extends controllerAbstract {
      */
     public function indexAction() {
         // Получаем ID action
-        $acId = self::getInt('acid', 0);
+        $acId = self::getInt('acid');
         self::setVar('acId', $acId);
 
         $urlTreePropVar = new urlTreePropVar();
@@ -109,7 +110,7 @@ class wareframe extends controllerAbstract {
         if (!self::isPost())
             return;
 
-        $treeId = self::postInt('treeid', 0);
+        $treeId = self::postInt('treeid');
         $name = self::post('name');
         $objJson = dhtmlxTree::add(new wareframeTree(), $name, $treeId, 0);
         $objJson['treeName'] = self::post('treeName');
@@ -122,7 +123,7 @@ class wareframe extends controllerAbstract {
         if (!self::isPost())
             return;
 
-        $treeId = self::postInt('treeid', 0);
+        $treeId = self::postInt('treeid');
         $name = self::post('name');
         $objJson = dhtmlxTree::add(new wareframeTree(), $name, $treeId, 1);
         $objJson['treeName'] = self::post('treeName');
@@ -164,7 +165,7 @@ class wareframe extends controllerAbstract {
     public function loadBlockTreeAction() {
         $this->view->setRenderType(render::JSON);
         // Получаем action Id
-        $acId = self::getInt('acid', 0);
+        $acId = self::getInt('acid');
         // Получаем wareframe Id
         $wfId = self::getInt('wfid', null);
         if ( !$wfId && $acId ){
@@ -199,7 +200,7 @@ class wareframe extends controllerAbstract {
         $rmList = self::post('del');
         $linkList = self::post('link');
 
-        $acId = self::postInt('acid', 0);
+        $acId = self::postInt('acid');
         $wfId = self::postInt('wfid');
         // Проверка на существование wareframe Id
         $wareframeTree = new wareframeTree();
@@ -254,7 +255,7 @@ class wareframe extends controllerAbstract {
         $data = self::post('data');
         // action id. см. таблицу url_tree
         // если значение пришло null, мы находим в общей WF
-        $acId = self::getInt('acid', 0);
+        $acId = self::getInt('acid');
         $blId = self::get('blid');
         $wfId = self::getInt('wfid');
 
@@ -285,7 +286,7 @@ class wareframe extends controllerAbstract {
         $this->view->setRenderType(render::NONE);
         header('Content-Type: text/xml; charset=UTF-8');
 
-        $acId = self::getInt('acid', 0);
+        $acId = self::getInt('acid');
         $blId = self::get('blid');
         $wfId = self::getInt('wfid');
 
@@ -299,17 +300,30 @@ class wareframe extends controllerAbstract {
     }
 
     /**
-     * Ajax.Json.Удаление данных из таблицы.
+     * Ajax.Json.Удаление компонента из таблицы.
      */
     public function rmBlockItemAction() {
         $this->view->setRenderType(render::JSON);
         $listId = self::post('idlist');
         eventsys::callOffline(eventBlockItem::BLOCKITEM, eventBlockItem::DELETE, $listId);
-        $list = dhtmlxGrid::rmRows($listId, new blockItem());
 
+        $wfId = self::postInt('wfid');
         $blockId = self::post('blid');
-
         $acId = self::postInt('acid');
+
+        $blockItem = new blockItem();
+
+        $list = dhtmlxGrid::rmRows($listId, $blockItem);
+
+        $itemCount = $blockItem->selectFirst(
+            'count(1) as c',
+            ['wf_id' => $wfId, 'block_id' => $blockId, 'acId' => $acId]
+        )['c'];
+
+        if ( $itemCount == 0 ){
+            (new blockLinkOrm())->delete(['linkMainId' => $wfId, 'linkBlockId' => $blockId, 'acId' => $acId]);
+        }
+
         $where = $acId ? ' AND id=' . $acId : '';
         (new routeTreeOrm())->update('isSave="yes"', 'id != 0' . $where);
 

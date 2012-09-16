@@ -68,7 +68,6 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         self::setVar('isLock', $isLock);
 
         // Загружаем сохранённые настройки
-        //$saveData = (new blockItemSettings())->selectFirst('*', 'blockItemId=' . $blockItemId);
         if ($itemData['isSaveProp']) {
             // Загрузаем методы класса компонента
             $classData = model::getSiteClassData($itemData['classFile'], $blockItemId);
@@ -121,12 +120,12 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
 
         if ($acId) {
             $routeTree = new routeTree();
-            $treeUrl = $routeTree->getTreeUrlById(routeTree::TABLE, $acId);
-            if ($treeUrl) {
-                $varList = varModel::getVarList($routeTree, $treeUrl);
+            //$treeUrl = $routeTree->getTreeUrlById(routeTree::TABLE, $acId);
+            //if ($treeUrl) {
+                $varList = varModel::getVarList($routeTree, $acId);
                 array_unshift($varList, ['name' => '---', 'id' => '']);
                 self::setVar('varList', ['list' => $varList]);
-            } // if
+           // } // if
         } // if ($acId)
 
         if ($itemData['isSaveProp']) {
@@ -201,6 +200,15 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $eventData = ['biId' => $blockItemId];
         eventsys::callOffline(event::BLOCKITEM, event::CHANGE, $eventData);
 
+        // varId представляет собой ветку в дереве actionTree, помеченной как переменная
+        $varId = self::postInt('varName', 0);
+        if ( $varId ){
+            $isVar = (new routeTree())->get('id', 'id='.$varId);
+            if ( !$isVar ){
+                throw new \Exception('Varible not found: '.$varId);
+            }
+        } // if $varId
+
         $saveData = [
             'blockItemId' => $blockItemId,
             'tplFile' => self::post('tplFile'),
@@ -209,7 +217,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             // Данные по статичному контенту
             'statId' => self::postInt('statId', null),
             'tableId' => self::postInt('tableId', null),
-            'varId' => self::postInt('varName', null),
+            'varId' => $varId,
             'varTableId' => self::postInt('varTableName', null)
         ];
 

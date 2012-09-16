@@ -133,14 +133,14 @@ class comp {
      * @param $pNsPath
      * @return string
      */
-    public static function getCompClassPath($pIsOut, $pNsPath){
+    public static function getAdminCompClassPath($pIsOut, $pNsPath){
         // Проверяем существование класса
         if ( $pIsOut){
             return DIR::getSiteClassCoreAdmin($pNsPath).'logic/';
         }else{
-            return DIR::getCompClassPath().$pNsPath.'logic/';
+            return DIR::getAdminCompClassPath().$pNsPath.'logic/';
         } // if
-        // func. getCompClassPath
+        // func. getAdminCompClassPath
     }
 
     /**
@@ -151,14 +151,14 @@ class comp {
      * @param $pNsPath
      * @return string
      */
-    public static function getCompBuildClassPath($pIsOut, $pNsPath){
+    public static function getBuildCompClassPath($pIsOut, $pNsPath){
         // Проверяем существование класса
         if ( $pIsOut){
             return DIR::getSiteClassCoreAdmin($pNsPath).'build/';
         }else{
-            return DIR::getCompClassPath().$pNsPath.'build/';
+            return DIR::getAdminCompClassPath().$pNsPath.'build/';
         } // if
-        // func. getCompBuildClassPath
+        // func. getBuildCompClassPath
     }
 
     public static function fullNameClassAdmin($pClassFileName, $pNs){
@@ -215,32 +215,33 @@ class comp {
      * @param $pNsPath
      * @return string
      */
-    public static function getCompTplPath($pIsOut, $pNsPath){
+    public static function getAdminCompTplPath($pIsOut, $pNsPath){
         // Проверяем существование класса
         if ( $pIsOut ){
             return DIR::getTplAdminOuter($pNsPath);
         }else{
             return DIR::getTplPath('comp/' . $pNsPath).'admin/';
         } // if
-        // func. getCompTplPath
+        // func. getAdminCompTplPath
     }
 
-    public static function getCompClassSitePath($pIsOut, $pNsPath){
+    public static function getSiteCompClassPath($pIsOut, $pNsPath){
         if ( $pIsOut){
             return DIR::getSiteClassCore($pNsPath).'logic/';
         }else{
             return DIR::getCoreScript().'comp/'.$pNsPath.'logic/';
         } // if
+        // func. getSiteCompClassPath
     }
 
 
-    public static function getVarClassSitePath($pIsOut, $pNsPath){
+    public static function getSiteVarClassPath($pIsOut, $pNsPath){
         if ( $pIsOut){
             return DIR::getSiteClassCore($pNsPath).'vars/';
         }else{
             return DIR::getCoreScript().'comp/'.$pNsPath.'vars/';
         } // if
-        // func. getVarClassPath
+        // func. getSiteVarClassPath
     }
     // class comp
 }

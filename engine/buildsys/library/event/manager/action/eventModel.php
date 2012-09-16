@@ -85,6 +85,9 @@ class eventModel {
             self::_initVarible($pAcId, $varList, $urlTreePropVar, new varComp(), new varTree(), $varListRender, $varIdtoName, $isUsecompContTree);
         } // if
 
+        echo "\tcrAction[acId:".$pAcId."]".PHP_EOL;
+        echo "\tPath: $pFolder".PHP_EOL;
+
         $buildTpl = DIR::CORE . 'buildsys/tpl/';
         $render = new render($buildTpl, '');
         $render->setMainTpl('index.tpl.php')->setContentType(null);
@@ -122,104 +125,105 @@ class eventModel {
         $blockFileList = [];
         // Бегаем по блокам WF, строим удобный для нас массив
         // Строим нечто такое: $blockFileList[blockId] = [file="", id=""]
-        foreach ($wfAllBlock as $item) {
-            $blockId = $item['block'] . ':' . $item['file_id'];
+        foreach ($wfAllBlock as $biItem) {
+            $blockId = $biItem['block'] . ':' . $biItem['file_id'];
             $blockFileList[$blockId] = [
-                'file' => $item['file'],
-                'id' => $item['id']];
+                'file' => $biItem['file'],
+                'id' => $biItem['id']];
         } // foreach
 
-        $blockItemArr = self::_getAllBlockItem($wfId, $pAcId);
+        $blockItemList = self::_getAllBlockItem($wfId, $pAcId);
         /*
-        После метода self::_getAllBlockItem, у нас в $blockItemArr содержится все блоки и линки на блоки, которые были
+        После метода self::_getAllBlockItem, у нас в $blockItemList содержится все блоки и линки на блоки, которые были
         когда сохранены в wareframe и action-wf
         */
 
         // Создаём доп буфферы
-        $blockItemList = [];
+        $buffBlockToClass = [];
         $blockItemInitList = [];
         $sysnameNum = 0;
 
         // Бегаем по настройкам блоков, которые получили из метода self::_getAllBlockItem
-        foreach ($blockItemArr as $item) {
+        foreach ($blockItemList as $biItem) {
             // Если компонент был удалён, то пишем ошибку и берём следующий компонент
-            if (!$item['compId']) {
+            if (!$biItem['compId']) {
                 echo "ERROR(" . __METHOD__ . "):" . PHP_EOL;
-                echo "\tBlockId({$item['id']}) AcId($pAcId) SysName({$item['sysname']})" . PHP_EOL;
-                echo "\tComponent [{$item['compId']}] not found." . PHP_EOL;
+                echo "\tBlockId({$biItem['id']}) AcId($pAcId) SysName({$biItem['sysname']})" . PHP_EOL;
+                echo "\tComponent [{$biItem['compId']}] not found." . PHP_EOL;
                 continue;
             } // if
 
             // Если контент был удалён, то пишем ошибку и берём следующий компонент
-            if (!$item['statId'] && !$item['varId']) {
-                echo "ERROR(" . __METHOD__ . "):" . PHP_EOL;
-                echo "\tBlockId({$item['id']}) AcId($pAcId) SysName({$item['sysname']})" . PHP_EOL;
+            if (!$biItem['statId'] && !$biItem['varId']) {
+                var_dump($biItem);
+                echo "\tERROR(" . __METHOD__ . "):" . PHP_EOL;
+                echo "\tBlockId({$biItem['id']}) AcId($pAcId) SysName({$biItem['sysname']})" . PHP_EOL;
                 echo "\tNot set contId in blockItem.";
                 continue;
             } // if
             // Если табличные данные контента были удалёны, то пишем ошибку и берём следующий компонент
-            if (!$item['tableId'] && $item['onlyFolder'] && !$item['varId']) {
-                print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tTableId not found. BlockId: [{$item['id']}]. AcId: $pAcId" . PHP_EOL;
+            if (!$biItem['tableId'] && $biItem['onlyFolder'] && !$biItem['varId']) {
+                print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tTableId not found. BlockId: [{$biItem['id']}]. AcId: $pAcId" . PHP_EOL;
                 continue;
             } // if
             // Если табличные данные контента были удалёны, то пишем ошибку и берём следующий компонент
-            if (!$item['methodName']) {
-                print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tMethodName not found. BlockId: [{$item['id']}]. AcId: $pAcId" . PHP_EOL;
+            if (!$biItem['methodName']) {
+                print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tMethodName not found. BlockId: [{$biItem['id']}]. AcId: $pAcId" . PHP_EOL;
                 continue;
             } // if
 
-            $blockId = $item['block_id'];
-            if (!$item['ns'] || !$item['classFile']) {
-                echo PHP_EOL . "\t" . 'Notice: blockItem ID: [' . $item['id'] . '] not have prop' . PHP_EOL . PHP_EOL;
+            $blockId = $biItem['block_id'];
+            if (!$biItem['ns'] || !$biItem['classFile']) {
+                echo PHP_EOL . "\t" . 'Notice: blockItem ID: [' . $biItem['id'] . '] not have prop' . PHP_EOL . PHP_EOL;
                 continue;
             }
             ++$sysnameNum;
-            $sysname = $item['sysname'] ? : 'sys_' . $sysnameNum;
+            $sysname = $biItem['sysname'] ? : 'sys_' . $sysnameNum;
 
             // Имя класс-файла, выбранного в blockItem. Пример: /objItem.php
-            $className = comp::fullNameClassSite($item['classFile'], $item['ns']);// getClassFullName($item['classFile'], $item['ns']);
-            $methodName = $item['methodName'];
+            $className = comp::fullNameClassSite($biItem['classFile'], $biItem['ns']);
+            $methodName = $biItem['methodName'];
             $callParam = '(\'' . $sysname . '\');';
-            $nsPath = filesystem::nsToPath($item['ns']);
+            $nsPath = filesystem::nsToPath($biItem['ns']);
 
-            $tplFileData = comp::getFileType($item['tplFile']);;
+            $tplFileData = comp::getFileType($biItem['tplFile']);;
             $tplFile = $tplFileData['file'];
             $isTplFileOut = $tplFileData['isOut'];
-            $urlTplListOrm = new urlTplListOrm();
-            $urlTplList = $urlTplListOrm->selectAll('name, acId', 'blockItemId=' . $item['id']);
+            $urlTplList = (new urlTplListOrm())->selectAll('name, acId', 'blockItemId=' . $biItem['id']);
 
             $codeTmp = "[\n" .
                 "\t'tpl' => '$tplFile'," . PHP_EOL .
                 "\t'isTplOut' => $isTplFileOut,".PHP_EOL.
-                "\t'compId' => '{$item['compId']}'," . PHP_EOL .
+                "\t'compId' => '{$biItem['compId']}'," . PHP_EOL .
                 "\t'nsPath' => '$nsPath'," . PHP_EOL;
 
             // Если ограничения по авторизации пользователя
-            if ($item['userReg']) {
-                $groupList = $biGroupRelationOrm->selectList('groupId', 'groupId', 'biId=' . $item['id']);
+            if ($biItem['userReg']) {
+                $groupList = $biGroupRelationOrm->selectList('groupId', 'groupId', 'biId=' . $biItem['id']);
                 if ($groupList) {
                     $codeTmp .= "\t'userGroup' => [" . implode(',', $groupList) . "]," . PHP_EOL;
                 }
                 // Есть ли доступы для авторизованных пользователей
-                if ($item['tplAccess']) {
-                    $codeTmp .= "\t'tplAccess' => '{$item['tplAccess']}'," . PHP_EOL;
+                if ($biItem['tplAccess']) {
+                    $codeTmp .= "\t'tplAccess' => '{$biItem['tplAccess']}'," . PHP_EOL;
                 } // if $item[userReg]
             } // if
 
-            if ($item['varId']) {
-                $varName = $varIdtoName[$item['varId']];
+            // Переменная в настройках blockItem должна быть задана в настройках
+            if ($biItem['varId']) {
+                $varName = $varIdtoName[$biItem['varId']];
                 $codeTmp .= "\t'varName' => '$varName'," . PHP_EOL;
             } // if
 
-            $codeTmp .= "\t'contId' => '{$item['statId']}'," . PHP_EOL;
+            $codeTmp .= "\t'contId' => '{$biItem['statId']}'," . PHP_EOL;
 
-            if ($item['onlyFolder']) {
-                if ($item['varTableId']) {
-                    $varName = $varIdtoName[$item['varTableId']];
+            if ($biItem['onlyFolder']) {
+                if ($biItem['varTableId']) {
+                    $varName = $varIdtoName[$biItem['varTableId']];
                     $codeTmp .= "\t// Component has onlyFolder, varTableName - name vars of category" . PHP_EOL;
                     $codeTmp .= "\t'varTableName' => '$varName'," . PHP_EOL;
                 } else {
-                    $codeTmp .= "\t'tableId' => '{$item['tableId']}'," . PHP_EOL;
+                    $codeTmp .= "\t'tableId' => '{$biItem['tableId']}'," . PHP_EOL;
                 } // if
             } // if onlyFolder
 
@@ -239,19 +243,31 @@ class eventModel {
             } // if ( $urlTplList )
 
             // ================= Создание блока для кастомных настроек ===================
-            if ($item['custContId'] || $item['statId']) {
-                $codeTmp .= self::_getCodeBlSettCust($item, $pAcId);
+            if ($biItem['custContId'] || $biItem['statId']) {
+                $codeTmp .= self::_getCodeBlSettCust($biItem, $pAcId);
             } // if ($item['custContId'] || $item['statId'])
             // ---------------------------------------------------------------------------
 
             $codeTmp .= "];\n";
 
             $blockItemInitList[$sysname][] = $codeTmp;
-            $blockItemList[$blockId][] = [
-                'class' => $className,
-                'method' => $methodName,
-                'callParam' => $callParam
-            ];
+
+            // Теперь необходимо проверить существование класса, вполне возможно что класс
+            // удалили, а он используется в системе
+            try{
+                new $className();
+                $buffBlockToClass[$blockId][] = [
+                    'class' => $className,
+                    'method' => $methodName,
+                    'callParam' => $callParam
+                ];
+            }catch(\Exception $ex){
+                // если мы тту, то файл был удалён и использовался в системе
+                // нужно сообщить об этом
+                echo "\tError: ".__METHOD__.PHP_EOL;
+                echo "\tClass $className was remove. acId[$pAcId]".PHP_EOL;
+            } // catch
+
         } // foreach
 
         $blockLinkData = (new blockLinkOrm())->selectAll('blockId, linkBlockId', 'wfId=' . $wfId);
@@ -261,7 +277,7 @@ class eventModel {
         $codeBuffer .= self::_getCodeCompInit($blockItemInitList);
 
         // Создание кода classs::init()
-        $codeBuffer .= self::_getInitClassCode($blockItemList);
+        $codeBuffer .= self::_getInitClassCode($buffBlockToClass);
         $codeBuffer .= "\n\n?>";
 
         // получаем значение выставленных переменных для шаблонов сайта
@@ -301,7 +317,7 @@ class eventModel {
         unset($scriptOnlineData, $scriptOfflineData);
 
         $tplBlockCreator->setBlockFileList($blockFileList);
-        $tplBlockCreator->setBlockItemList($blockItemList);
+        $tplBlockCreator->setBlockItemList($buffBlockToClass);
         $tplBlockCreator->setBlockLinkList($blockLinkData);
 
         $tplBlockCreator->start($blockFileList[':']['file']);
@@ -313,6 +329,7 @@ class eventModel {
             $codeBuffer .= '<?$bodyCustom->onDestroy();?>';
         } // if
 
+        echo PHP_EOL;
         return $codeBuffer;
         // func. createFileTpl
     }
@@ -373,9 +390,13 @@ class eventModel {
 
                     $nsClassMethod .= '::' . $varCompData['methodName'];
 
+                    // Если не установлен контент для компонента, возможно это может быть плохо
+                    // всё зависит от логики компонента, вполне возможно может установить любое значение
+                    // что бы этого NOTICE не было
                     if (!$varCompData['contId']) {
-                        echo "NOTICE(" . __METHOD__ . ")" . PHP_EOL . "\tIn varible not set contId AcId: {$acItem['id']}" . PHP_EOL;
-                    }
+                        echo "NOTICE(" . __METHOD__ . ")" . PHP_EOL;
+                        echo "\tIn varible not set contId AcId: {$acItem['id']}" . PHP_EOL;
+                    } // if
 
                     $varListRender[$name]['comp'] = $nsClassMethod;
                     $varListRender[$name]['contId'] = $varCompData['contId'];
@@ -527,7 +548,7 @@ CODE_STRING;
                 <?php
             $dbusHeadCount = count(dbus::$head['jsDyn']);
             for( $i = 0; $i < $dbusHeadCount; $i++ ){
-                 echo '_import("'.dbus::$head['jsDyn'][$i].'");';
+                 echo '_importJs("'.dbus::$head['jsDyn'][$i].'");';
             } // if
 ?>			for( var i in importResList["js"] ){
 				_importJs(importResList["js"][i].src, importResList["js"][i].func);
@@ -554,7 +575,8 @@ CODE_STRING;
         foreach ($blockItemList as $item) {
             $itemCount = count($item);
             for ($i = 0; $i < $itemCount; $i++) {
-                if (method_exists(new $item[$i]['class'](), 'init')) {
+                $classObj = new $item[$i]['class']();
+                if (method_exists($classObj, 'init')) {
                     $codeBuffer .= $item[$i]['class'] . '::init' . $item[$i]['callParam'] . ";\n";
                 } // if
             } // for

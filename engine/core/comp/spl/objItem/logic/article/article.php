@@ -11,6 +11,7 @@ use core\classes\word;
 use core\classes\userUtils;
 use core\classes\dbus;
 use core\classes\render;
+use core\classes\site\dir as sitePath;
 
 /**
  * Description of article
@@ -25,29 +26,28 @@ class article {
 
     public static function renderAction($pName) {
         $comp = dbus::$comp[$pName];
-
         $infoData = $comp['data'];
-
         $infoData['isCloaking'] = $infoData['isCloaking'] && preg_match('/Google|Yandex/', $_SERVER['HTTP_USER_AGENT']);
-        $dir = $comp['dir'];
+
         // Получаем шаблон для статьи
         $tpl = userUtils::getCompTpl($comp);
 
         // Директорию, где храняться шаблоны компонента
         // Кастомный ли это шаблон или нет
-        $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
-        $tplFile .= $comp['nsPath'];
-        $render = new render($tplFile, '');
+        $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
+        $render = new render($tplPath, '');
         // Настройки статьи
-        $render->setVar('infoData', $infoData);
+
         if (isset($comp['urlTpl']['category'])) {
             $render->setVar('categoryUrlTpl', $comp['urlTpl']['category']);
         }
-        $render->setVar('dir', $dir);
+
         $render->setMainTpl($tpl)
+            ->setVar('dir', $comp['dir'])
+            ->setVar('infoData', $infoData)
             ->setContentType(null)
             ->render();
-        // func. run3
+        // func. renderAction
     }
 
     public static function init($pName) {
@@ -92,7 +92,9 @@ class article {
 
         $comp = dbus::$comp[$pName];
 
-        if (isset(dbus::$vars[$comp['varTableName']]['seoUrl'])) {
+        $isCanonical = isset($comp['varTableName']);
+        $isCanonical =  $isCanonical && isset(dbus::$vars[$comp['varTableName']]['seoUrl']);
+        if ($isCanonical) {
             echo '<link rel="canonical" href="' . $infoData['canonical'] . '" />';
         } // if
         if (isset($infoData['prev'])) {
@@ -105,7 +107,7 @@ class article {
                 . 'title="' . sprintf($linkNextTitle, $infoData['next']['caption']) . '" '
                 . 'href="' . $infoData['next']['url'] . '" />';
         } // if
-        // func. setSeo
+        // func. setDataSeo
     }
 
     // class article

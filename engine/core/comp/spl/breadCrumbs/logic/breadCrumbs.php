@@ -10,6 +10,7 @@ use site\conf\SITE;
 use core\classes\dbus;
 use core\classes\word;
 use core\classes\render;
+use core\classes\site\dir as sitePath;
 
 /**
  * Description of objItem
@@ -33,9 +34,8 @@ class breadCrumbs {
         } // foreach
 
         $tpl = $comp['tpl'];
-        $tplFile = $comp['isTplOut'] ? DIR::SITE_CORE . '/tpl/comp/' : DIR::TPL . SITE::THEME_NAME. '/comp/';
-        $tplFile .= $comp['nsPath'];
-        $render = new render($tplFile, '');
+        $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
+        $render = new render($tplPath, '');
         $render->setMainTpl($tpl)
             ->setVar('breadcrumbs', $breadcrumbs)
             ->setContentType(null)

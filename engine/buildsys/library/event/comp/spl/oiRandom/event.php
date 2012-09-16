@@ -69,7 +69,7 @@ class event {
 
             $classFile = $rndObjItemProp['classFile'];
             if ( !$classFile || $classFile == '/base/build.php' ){
-                echo "\tioRandom[condI:".$rndObjItemProp['contId']."] className is default. Abort".PHP_EOL;
+                echo "\tioRandom[contId:".$rndObjItemProp['contId']."] className is default. Abort".PHP_EOL;
                 continue;
             }
 
@@ -96,7 +96,7 @@ class event {
             }
 
             if ($handleObjitem->num_rows == 0) {
-                echo "\tioRandom[condI:" . $rndObjItemProp['contId'] . "] not data found. Error" . PHP_EOL;
+                echo "\tioRandom[contId:" . $rndObjItemProp['contId'] . "] not data found. Error" . PHP_EOL;
                 continue;
             }
 
@@ -106,7 +106,7 @@ class event {
 
             $numRows = $handleObjitem->num_rows;
 
-            echo "\tioRandom[condI:" . $rndObjItemProp['contId'] . "] Row:$numRows itemC: $itemsCount" . PHP_EOL;
+            echo "\tioRandom[contId:" . $rndObjItemProp['contId'] . "] Row:$numRows itemC: $itemsCount" . PHP_EOL;
             echo "\t$classFile".PHP_EOL;
             echo "\t$saveDir" . PHP_EOL . PHP_EOL;
 

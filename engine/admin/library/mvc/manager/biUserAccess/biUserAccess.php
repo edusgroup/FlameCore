@@ -34,22 +34,21 @@ class biUserAccess extends controllerAbstract {
         $blockItemId = self::getInt('blockItemId');
         // Получаем ID компонента для объекта
         $itemData = blockItemModel::getCompData($blockItemId);
+        self::setJson('itemData', $itemData);
+
         $nsPath = filesystem::nsToPath($itemData['ns']);
+
         // Дерево с шаблонами сайта
-        $siteTplPath = DIR::getSiteCompTplPath($nsPath);
-        $tree = dhtmlxTree::createTreeOfDir($siteTplPath);
-        self::setJson('tplTree', $tree);
+        $treeTpl = blockItemModel::getTplTree($nsPath);
+        self::setJson('tplTree', $treeTpl);
 
         $groupTree = dhtmlxTree::createTreeOfTable(new usersGroupOrm());
         self::setJSON('groupTree', $groupTree);
         
         self::setVar('blockItemId', $itemData['id']);
         self::setVar('acId', $itemData['acId']);
-        
-        self::setJson('itemData', $itemData); 
 
-        $biGroupOrm = new biGroupOrm();
-        $biGroupData = $biGroupOrm->selectList('groupId', 'groupId', 'biId='.$blockItemId);
+        $biGroupData = (new biGroupOrm())->selectList('groupId', 'groupId', 'biId='.$blockItemId);
         self::setJson('biGroupData', $biGroupData);
 
         $this->view->setBlock('panel', 'block/biUserAccess.tpl.php');

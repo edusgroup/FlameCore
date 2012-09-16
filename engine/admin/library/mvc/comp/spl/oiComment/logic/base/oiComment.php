@@ -69,22 +69,6 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
     }
 
     /**
-     * Сохранение данных, при настройке в blockItem
-     * @param int $pBlockItemId
-     * @param $pContr
-     */
-    public function blockItemSave(integer $pBlockItemId, $pContr) {
-        $save = [
-            'tplListFile' => $pContr::post('tplListItemId'),
-            'tplComFile' => $pContr::post('tplComItemId'),
-            'actionId' => $pContr::postInt('varName'),
-            'blockItemId' => $pBlockItemId
-        ];
-        (new oiCommentBiOrm())->save('blockItemId=' . $pBlockItemId, $save);
-        // func. blockItemSave
-    }
-
-    /**
      * Создание кода, при создании страницы WF
      * @param $pBlockItemId
      * @return string
@@ -124,12 +108,27 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
         $nsPath = filesystem::nsToPath($itemData['ns']);
 
         // Дерево с шаблонами сайта для компонента
-        $siteTplPath = DIR::getSiteCompTplPath($nsPath);
-        $tree = dhtmlxTree::createTreeOfDir($siteTplPath);
-        self::setJson('tplTree', $tree);
+        $treeTpl = blockItemModel::getTplTree($nsPath);
+        self::setJson('tplTree', $treeTpl);
 
         $this->view->setMainTpl('../help/blockItem.tpl.php');
         // func. blockItemShowAction
+    }
+
+    /**
+     * Сохранение данных, при настройке в blockItem
+     * @param int $pBlockItemId
+     * @param $pContr
+     */
+    public function blockItemSave(integer $pBlockItemId, $pContr) {
+        $save = [
+            'tplListFile' => $pContr::post('tplListItemId'),
+            'tplComFile' => $pContr::post('tplComItemId'),
+            'actionId' => $pContr::postInt('varName'),
+            'blockItemId' => $pBlockItemId
+        ];
+        (new oiCommentBiOrm())->save('blockItemId=' . $pBlockItemId, $save);
+        // func. blockItemSave
     }
 
     // class oiCommnet

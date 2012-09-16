@@ -8,6 +8,7 @@ use site\conf\SITE;
 
 // Engine
 use core\classes\dbus;
+use core\classes\site\dir as sitePath;
 
 
 /**
@@ -16,17 +17,19 @@ use core\classes\dbus;
  * @author Козленко В.Л.
  */
 class html {
-    //public static $urlTplList = ['category' => null];
 
     public static function renderAction($pName) {
         $comp = dbus::$comp[$pName];
         $compId = $comp['compId'];
         $contId = $comp['contId'];
 
-
         $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/html.txt';
-        print file_get_contents($file);
+
+        $fr = fopen($file, 'r');
+        fpassthru($fr);
+        fclose($fr);
         // func. render
     }
+
     // class. html
 }

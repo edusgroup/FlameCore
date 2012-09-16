@@ -72,7 +72,7 @@ class event {
 
             $classFile = $oiPopularItemProp['classFile'];
             if ( !$classFile || $classFile == '/base/build.php' ){
-                echo "\tioPopular[condI:".$oiPopularItemProp['contId']."] className is default. Abort".PHP_EOL;
+                echo "\tioPopular[contId:".$oiPopularItemProp['contId']."] className is default. Abort".PHP_EOL;
                 continue;
             }
 
@@ -98,7 +98,7 @@ class event {
             }
 
             if ($handleObjitem->num_rows == 0) {
-                echo "\tioPopular[condI:".$oiPopularItemProp['contId']."] not data found. Abort".PHP_EOL;
+                echo "\tioPopular[contId:".$oiPopularItemProp['contId']."] not data found. Abort".PHP_EOL;
                 continue;
             }
 
@@ -107,7 +107,7 @@ class event {
             $saveDir = DIR::getSiteDataPath($saveDir);
 
             $numRows = $handleObjitem->num_rows;
-            echo "\tioPopular[condI:".$oiPopularItemProp['contId']."] Row:$numRows itemC: $itemsCount".PHP_EOL;
+            echo "\tioPopular[contId:".$oiPopularItemProp['contId']."] Row:$numRows itemC: $itemsCount".PHP_EOL;
             echo "\t$classFile".PHP_EOL;
             echo "\t$saveDir".PHP_EOL.PHP_EOL;
 
