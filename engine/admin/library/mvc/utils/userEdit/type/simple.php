@@ -4,12 +4,16 @@ namespace admin\library\mvc\utils\userEdit\type;
 
 // Conf
 use \DIR;
+
 // Engine
 use core\classes\render;
+use core\classes\admin\dirFunc;
+
 // ORM
 use ORM\users as usersOrm;
 use ORM\users\relation as usersRelationOrm;
 use ORM\users\group as usersGroupOrm;
+
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
@@ -39,7 +43,7 @@ class simple {
         $this->contr->setJson('groupTree', $groupTree);
 
         $this->contr->view->setBlock('panel', 'users/type/simple.tpl.php');
-        $this->contr->view->setTplPath(DIR::getTplPath('manager'));
+        $this->contr->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->contr->view->setMainTpl('main.tpl.php');
     }
 
@@ -60,12 +64,12 @@ class simple {
         $group = $this->contr->post('group');
         if ($group) {
             $group = explode(',', $group);
-            array_map(function($pGroupId)use($userId, $usersRelationOrm) {
-                        $usersRelationOrm->insert(array(
-                            'userId' => $userId,
-                            'groupId' => (int) $pGroupId
-                        ));
-                    }, $group);
+            array_map(function ($pGroupId) use ($userId, $usersRelationOrm) {
+                $usersRelationOrm->insert(array(
+                                               'userId' => $userId,
+                                               'groupId' => (int)$pGroupId
+                                          ));
+            }, $group);
         } // if
 
         $saveData = array(

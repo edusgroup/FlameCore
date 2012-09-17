@@ -17,6 +17,7 @@ use core\classes\image\resize;
 use core\classes\DB\tree;
 use core\classes\image\imageProp;
 use core\classes\validation\filesystem as fileValid;
+use core\classes\admin\dirFunc;
 
 // Model
 use admin\library\mvc\comp\spl\objItem\category\engart\model as engartModel;
@@ -54,7 +55,7 @@ trait category{
         $tplFile = self::getTplFile();
 
         $this->view->setBlock('panel', $tplFile);
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. itemAction
     }
@@ -83,7 +84,7 @@ trait category{
 
         // Директория с данными статьи
         $saveDir = baseModel::getPath($compId, $contId, $objItemId);
-        $saveDir = DIR::getSiteDataPath($saveDir);
+        $saveDir = dirFunc::getSiteDataPath($saveDir);
         $seoKeywords = self::post('seoKeywords');
         $seoDescr = self::post('seoDescr');
 
@@ -154,12 +155,12 @@ trait category{
         $pathPrefix = baseModel::getPath($compId, $contId, $id);
 
         // Директория, где храняться все файлы и изображения
-        $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
+        $fileDistPath = dirFunc::getSiteUploadPathData() . $pathPrefix;
 
         // Директория, куда положим маштабированные изображения
         $pathPrefix .= $dataSize['type'] . '/' . $dataSize['val'] . '/';
-        $fileResizePath = DIR::getSiteImgResizePath() . $pathPrefix;
-        $fileResizeUrl = DIR::getSiteImgResizeUrl() . $pathPrefix;
+        $fileResizePath = dirFunc::getSiteImgResizePath() . $pathPrefix;
+        $fileResizeUrl = dirFunc::getSiteImgResizeUrl() . $pathPrefix;
 
         // ===== Проверяем, есть ли уже такое маштабированное изображение
         if (is_file($fileResizePath . $name)) {

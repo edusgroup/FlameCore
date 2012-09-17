@@ -7,8 +7,8 @@ use core\classes\render;
 use core\classes\filesystem;
 use core\classes\event as eventCore;
 use core\classes\validation\filesystem as fileValid;
+use core\classes\admin\dirFunc;
 
-//use core\classes\filesystem;
 // Conf
 use \DIR;
 use \SITE;
@@ -54,7 +54,7 @@ class form extends \core\classes\component\abstr\admin\comp {
 
         $this->view->setBlock('panel', $this->tplFile);
 
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

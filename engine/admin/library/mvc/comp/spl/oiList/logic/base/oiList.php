@@ -11,6 +11,7 @@ use core\classes\event as eventCore;
 use core\classes\filesystem;
 use core\classes\comp;
 use core\classes\validation\filesystem as filevalid;
+use core\classes\admin\dirFunc;
 
 // ORM
 use ORM\comp\spl\oiList\oiList as oiListOrm;
@@ -75,7 +76,7 @@ class oiList extends \core\classes\component\abstr\admin\comp {
 
         // Получаем имя шаблона. Можно изменить через свойство компонента
         $this->view->setBlock('panel', $this->tplFile);
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

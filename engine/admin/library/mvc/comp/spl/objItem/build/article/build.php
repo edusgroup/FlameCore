@@ -10,6 +10,9 @@ use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
 use admin\library\mvc\comp\spl\objItem\help\model\base\model as baseModel;
 
+// Engine
+use core\classes\admin\dirFunc;
+
 // Conf
 use \DIR;
 
@@ -68,7 +71,7 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
 
         if ( $oiLasterItemProp['isAddMiniText']){
             $objItemDataDir = baseModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
-            $miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
+            $miniDescrFile = dirFunc::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
             if (is_readable($miniDescrFile)) {
                 $listArr['miniDesck'] = file_get_contents($miniDescrFile);
             }
@@ -102,7 +105,7 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
 
         if ( $oiPopularItemProp['isAddMiniText']){
             $objItemDataDir = baseModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
-            $miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
+            $miniDescrFile = dirFunc::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
             if (is_readable($miniDescrFile)) {
                 $listArr['miniDesck'] = file_get_contents($miniDescrFile);
             }
@@ -136,7 +139,7 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
 
         if ( $rndObjItemProp['isAddMiniText']){
             $objItemDataDir = baseModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
-            $miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
+            $miniDescrFile = dirFunc::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
             if (is_readable($miniDescrFile)) {
                 $listArr['miniDesck'] = file_get_contents($miniDescrFile);
             }

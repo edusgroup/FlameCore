@@ -6,8 +6,8 @@ namespace admin\library\mvc\comp\spl\html\logic\base;
 use core\classes\render;
 use core\classes\filesystem;
 use core\classes\event as eventCore;
+use core\classes\admin\dirFunc;
 
-//use core\classes\filesystem;
 // Conf
 use \DIR;
 use \SITE;
@@ -29,7 +29,7 @@ class html extends \core\classes\component\abstr\admin\comp {
         self::setVar('compId', $compId, -1);
 
         $pathPrefix = 'comp/' . $compId . '/' . $contId . '/';
-        $loadDir = DIR::getSiteDataPath($pathPrefix);
+        $loadDir = dirFunc::getSiteDataPath($pathPrefix);
 
         $htmlCodeData = filesystem::loadFileContent($loadDir . 'source.txt');
         self::setVar('htmlCode', $htmlCodeData);
@@ -43,7 +43,7 @@ class html extends \core\classes\component\abstr\admin\comp {
 
         $this->view->setBlock('panel', $this->tplFile);
 
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }
@@ -58,7 +58,7 @@ class html extends \core\classes\component\abstr\admin\comp {
 
         // Папка, куда будем сохранять данные
         $pathPrefix = 'comp/' . $compId . '/' . $contId . '/';
-        $saveDir = DIR::getSiteDataPath($pathPrefix);
+        $saveDir = dirFunc::getSiteDataPath($pathPrefix);
 
         // Данные HTML
         $htmlCode = self::post('htmlCode');

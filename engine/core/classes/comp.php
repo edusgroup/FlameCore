@@ -8,7 +8,7 @@ use ORM\tree\compContTree;
 use ORM\compprop as compPropOrm;
 
 // Engine
-use core\classes\validation\word as wordValid;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -136,9 +136,9 @@ class comp {
     public static function getAdminCompClassPath($pIsOut, $pNsPath){
         // Проверяем существование класса
         if ( $pIsOut){
-            return DIR::getSiteClassCoreAdmin($pNsPath).'logic/';
+            return dirFunc::getSiteClassCoreAdmin($pNsPath).'logic/';
         }else{
-            return DIR::getAdminCompClassPath().$pNsPath.'logic/';
+            return dirFunc::getAdminCompClassPath().$pNsPath.'logic/';
         } // if
         // func. getAdminCompClassPath
     }
@@ -154,9 +154,9 @@ class comp {
     public static function getBuildCompClassPath($pIsOut, $pNsPath){
         // Проверяем существование класса
         if ( $pIsOut){
-            return DIR::getSiteClassCoreAdmin($pNsPath).'build/';
+            return dirFunc::getSiteClassCoreAdmin($pNsPath).'build/';
         }else{
-            return DIR::getAdminCompClassPath().$pNsPath.'build/';
+            return dirFunc::getAdminCompClassPath().$pNsPath.'build/';
         } // if
         // func. getBuildCompClassPath
     }
@@ -218,18 +218,18 @@ class comp {
     public static function getAdminCompTplPath($pIsOut, $pNsPath){
         // Проверяем существование класса
         if ( $pIsOut ){
-            return DIR::getTplAdminOuter($pNsPath);
+            return dirFunc::getTplAdminOuter($pNsPath);
         }else{
-            return DIR::getTplPath('comp/' . $pNsPath).'admin/';
+            return dirFunc::getTplPath('comp/' . $pNsPath).'admin/';
         } // if
         // func. getAdminCompTplPath
     }
 
     public static function getSiteCompClassPath($pIsOut, $pNsPath){
         if ( $pIsOut){
-            return DIR::getSiteClassCore($pNsPath).'logic/';
+            return dirFunc::getSiteClassCore($pNsPath).'logic/';
         }else{
-            return DIR::getCoreScript().'comp/'.$pNsPath.'logic/';
+            return dirFunc::getCoreScript().'comp/'.$pNsPath.'logic/';
         } // if
         // func. getSiteCompClassPath
     }
@@ -237,9 +237,9 @@ class comp {
 
     public static function getSiteVarClassPath($pIsOut, $pNsPath){
         if ( $pIsOut){
-            return DIR::getSiteClassCore($pNsPath).'vars/';
+            return dirFunc::getSiteClassCore($pNsPath).'vars/';
         }else{
-            return DIR::getCoreScript().'comp/'.$pNsPath.'vars/';
+            return dirFunc::getCoreScript().'comp/'.$pNsPath.'vars/';
         } // if
         // func. getSiteVarClassPath
     }

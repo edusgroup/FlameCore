@@ -15,6 +15,7 @@ use \DIR;
 // Engine
 use core\classes\filesystem;
 use core\classes\userUtils;
+use core\classes\admin\dirFunc;
 
 // Model
 use admin\library\mvc\comp\spl\objItem\model as objItemModel;
@@ -54,7 +55,7 @@ class event{
 
             // Удаляем кешированные файлы комментариев
             $pPathPrefix = 'comp/'.$oiCommentCompId.'/objItem/'.$delItem['id'].'/';
-            $path = DIR::getSiteDataPath($pPathPrefix);
+            $path = dirFunc::getSiteDataPath($pPathPrefix);
             filesystem::rmdir($path);
         } // for($i)
 

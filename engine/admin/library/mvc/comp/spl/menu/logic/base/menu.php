@@ -4,10 +4,10 @@ namespace admin\library\mvc\comp\spl\menu\logic\base;
 
 // Engine
 use core\classes\render;
-use core\classes\image\resize;
 use core\classes\filesystem;
 use core\classes\upload;
 use core\classes\event as eventCore;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -34,7 +34,7 @@ class menu extends \core\classes\component\abstr\admin\comp {
         $compId = $this->compId;
 
         $pathPrefix = 'comp/' . $compId . '/' . $contId . '/';
-        $loadDir = DIR::getSiteDataPath($pathPrefix);
+        $loadDir = dirFunc::getSiteDataPath($pathPrefix);
 
         $compTree = dhtmlxTree::createTreeOfTable(new menuOrm(), 'contId=' . $contId);
         self::setJson('menuTree', $compTree);
@@ -50,7 +50,7 @@ class menu extends \core\classes\component\abstr\admin\comp {
         } // if $saveData
 
         $this->view->setBlock('panel', $this->tplFile);
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }
@@ -111,7 +111,7 @@ class menu extends \core\classes\component\abstr\admin\comp {
 
         // Папка, куда будем сохранять данные
         $pathPrefix = 'comp/' . $compId . '/' . $contId . '/';
-        $saveDir = DIR::getSiteDataPath($pathPrefix);
+        $saveDir = dirFunc::getSiteDataPath($pathPrefix);
 
         // ID элемента дерева меню, чьи данные обрабатываем
         $menuId = self::postInt('menuid');

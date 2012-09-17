@@ -6,6 +6,7 @@ namespace admin\library\mvc\comp\spl\objItem\logic\review;
 use core\classes\render;
 use core\classes\filesystem;
 use core\classes\event as eventCore;
+use core\classes\admin\dirFunc;
 
 // Plugin
 use admin\library\mvc\plugin\fileManager\fileManager;
@@ -59,13 +60,13 @@ class review extends \core\classes\component\abstr\admin\comp implements \core\c
 
         // Получаем путь до папки, где храняться данные превью
         $loadDir = baseModel::getPath($compId, $contId, $itemObjId);
-        $loadDir = DIR::getSiteDataPath($loadDir);
+        $loadDir = dirFunc::getSiteDataPath($loadDir);
         if (is_readable($loadDir . 'text.txt')) {
             self::setVar('textDesc', file_get_contents($loadDir . 'text.txt'));
         } // if is_readable
 
         $this->view->setBlock('panel', $this->tplFile);
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. itemAction
     }
@@ -96,7 +97,7 @@ class review extends \core\classes\component\abstr\admin\comp implements \core\c
 
         // Директория с данными статьи
         $saveDir = baseModel::getPath($compId, $contId, $itemObjId);
-        $saveDir = DIR::getSiteDataPath($saveDir);
+        $saveDir = dirFunc::getSiteDataPath($saveDir);
 
         $textDesc = self::post('textDesc');
         filesystem::saveFile($saveDir, 'text.txt', $textDesc);

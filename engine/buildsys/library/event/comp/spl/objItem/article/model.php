@@ -14,6 +14,7 @@ use \DIR;
 
 // Engine
 use core\classes\filesystem;
+use core\classes\admin\dirFunc;
 
 // Model
 use admin\library\mvc\comp\spl\objItem\model as objItemModel;
@@ -138,7 +139,7 @@ class model {
         if ($prevData) {
             // Обработка предыщуей статьи
             $saveDir = baseModel::getPath($pCompId, $pContId, $prevData['id']);
-            $saveDir = DIR::getSiteDataPath($saveDir);
+            $saveDir = dirFunc::getSiteDataPath($saveDir);
 
             $data = $prevData;
             if (is_file($saveDir . 'info.txt')) {
@@ -228,7 +229,7 @@ class model {
     public static function saveDataInfo(integer $pId, objItemOrm $pObjItemOrm, integer $pCompId, integer $pContId) {
 
         $objItemDirData = baseModel::getPath($pCompId, $pContId, $pId);
-        $objItemDirData = DIR::getSiteDataPath($objItemDirData);
+        $objItemDirData = dirFunc::getSiteDataPath($objItemDirData);
 
         // Получаем все данные по статье
         $objItemData = $pObjItemOrm

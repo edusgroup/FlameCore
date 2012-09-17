@@ -10,6 +10,7 @@ use admin\library\mvc\plugin\dhtmlx\model\grid as dhtmlxGrid;
 // Engine
 use core\classes\render;
 use core\classes\event as eventCore;
+use core\classes\admin\dirFunc;
 
 // ORM
 use ORM\comp\spl\objItem\objItem as objItemOrm;
@@ -37,7 +38,7 @@ trait table {
         self::setVar('listXML', $listXML, false);
 
         $this->view->setBlock('panel', '../help/table.tpl.php');
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

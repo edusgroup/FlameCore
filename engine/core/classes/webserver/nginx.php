@@ -6,9 +6,12 @@ namespace core\classes\webserver;
 use core\classes\render;
 use core\classes\filesystem;
 use core\classes\arrays;
+use core\classes\admin\dirFunc;
+
 // ORM
 use ORM\tree\routeTree;
 use ORM\event\eventBuffer;
+
 // Conf
 use \DIR;
 use \SITE;
@@ -20,7 +23,7 @@ use \site\conf\SITE as SITE_CONF;
  * @author Козленко В.Л.
  */
 class nginx {
-    
+
     const REGEX_VARIBLE = '([^/]+)';
 
     public static function createConf($pRouteTree) {
@@ -29,10 +32,10 @@ class nginx {
 
         // Получаем ID всех переменных т.е. все actionId которые выделены как переменная
         $varIdList = $pRouteTree
-			->select('id')
-			->where('propType = 1 and isDel=0')
-			->order('brunchNum DESC, varCount')
-			->toList('id');
+            ->select('id')
+            ->where('propType = 1 and isDel=0')
+            ->order('brunchNum DESC, varCount')
+            ->toList('id');
 
         $varIdListCount = count($varIdList);
         for ($i = 0; $i < $varIdListCount; $i++) {
@@ -45,12 +48,12 @@ class nginx {
             $varCount = 1;
 
             // Получаем URL для переменной, вдруг там еще есть переменные
-			$actionId = (int) $varIdList[$i];
+            $actionId = (int)$varIdList[$i];
             $pathUrl = $pRouteTree->getActionUrlById($actionId);
             $pathUrlCount = count($pathUrl);
             for ($j = $pathUrlCount - 1; $j >= 0; $j--) {
                 $name = $pathUrl[$j]['name'];
-                $propType = (int) $pathUrl[$j]['propType'];
+                $propType = (int)$pathUrl[$j]['propType'];
                 $reg = $propType == 1 ? self::REGEX_VARIBLE : $pathUrl[$j]['name'];
                 $regexp .= '/' . $reg;
                 $scriptFile .= '/' . $name;
@@ -60,29 +63,29 @@ class nginx {
 
             // Смотрим, вдруг есть в папке с переменой, статичные блоки
             $statFolderList = $pRouteTree->selectList(
-                'name', 'name', 'propType = 0 and isDel=0 and tree_id='.$pathUrl[0]['treeId']
+                'name', 'name', 'propType = 0 and isDel=0 and tree_id=' . $pathUrl[0]['treeId']
             );
-			
-			/* Debug info
-			foreach( $pathUrl as $item){
-				echo $item['name'].'/';
-			}
-			echo PHP_EOL;
-			echo 'F:'.(implode(',', $statFolderList));
-			echo PHP_EOL.PHP_EOL;
-			*/			
+
+            /* Debug info
+               foreach( $pathUrl as $item){
+                   echo $item['name'].'/';
+               }
+               echo PHP_EOL;
+               echo 'F:'.(implode(',', $statFolderList));
+               echo PHP_EOL.PHP_EOL;
+               */
 
             // Если есть, то их нужно добавить перед конфигом nginx
-            if ( $statFolderList ){
-                foreach( $statFolderList as $name ){
+            if ($statFolderList) {
+                foreach ($statFolderList as $name) {
                     $count = strlen($regexp) - strlen(self::REGEX_VARIBLE);
-                    $stRegexp = substr($regexp, 0, $count).$name.'/';
-                     
+                    $stRegexp = substr($regexp, 0, $count) . $name . '/';
+
                     $count = strlen($queryString) - strlen($varName);
-                    $stQueryString =  substr($queryString, 0, $count);
-                     
+                    $stQueryString = substr($queryString, 0, $count);
+
                     $count = strlen($scriptFile) - strlen($name);
-                    $stScriptFile = substr($scriptFile, 0, $count).$name.'/';
+                    $stScriptFile = substr($scriptFile, 0, $count) . $name . '/';
                     $varList[] = [
                         'regexp' => $stRegexp,
                         'scriptFile' => $stScriptFile,
@@ -90,7 +93,7 @@ class nginx {
                     ];
                 } // foreach
             } // if
-            
+
             $regexp .= '/';
             $scriptFile .= '/';
             $needle = str_replace('/', '\/', $scriptFile);
@@ -112,23 +115,23 @@ class nginx {
         $buildTpl = DIR::CORE . 'buildsys/tpl/';
         $render = new render($buildTpl, '');
         $render->setMainTpl('site_nginx.conf.php')
-                ->setContentType(null);
+            ->setContentType(null);
         $render->setVar('vars', $varList);
 
-        $webCoreScript = DIR::getCoreScript();
+        $webCoreScript = dirFunc::getCoreScript();
         $webCoreScript = rtrim($webCoreScript, '/');
 
         $siteName = SITE_CONF::NAME;
         // Если это машина разработчика, то нужно изменить адреса с боевого
         // на локальный. т.е. site.ru -> site.lo
-        if ( SITE::IS_DEVELOPER ){
+        if (SITE::IS_DEVELOPER) {
             $siteName = preg_replace('/(com|ru|org)$/', 'lo', $siteName);
         } // if
         $render->setVar('siteName', $siteName);
         $render->setVar('fastcgiPass', SITE::FASTCGI_PASS);
-        $render->setVar('nginxLog', DIR::getSiteNginxLog());
-        $render->setVar('siteRoot', DIR::getSiteRoot());
-        $render->setVar('coreScript', $webCoreScript );
+        $render->setVar('nginxLog', dirFunc::getSiteNginxLog());
+        $render->setVar('siteRoot', dirFunc::getSiteRoot());
+        $render->setVar('coreScript', $webCoreScript);
 
         ob_start();
         $render->render();
@@ -136,5 +139,5 @@ class nginx {
         filesystem::saveFile(DIR::NGINX_CONF, $siteName . '.conf', $nginxConfData);
         // func. createConf
     }
-// class nginx
+    // class nginx
 }

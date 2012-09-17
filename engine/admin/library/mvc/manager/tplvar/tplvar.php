@@ -8,6 +8,7 @@ use core\classes\render;
 use core\classes\tplParser\tplBlockParser;
 use core\classes\arrays;
 use core\classes\event as eventsys;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -60,7 +61,7 @@ class tplvar extends controllerAbstract {
         $blockFileList = $blockFileOrm->comment(__METHOD__)->fetchAll();
 
         // Директория, где храняться шаблоны
-        $tplDir = DIR::getSiteTplPath();
+        $tplDir = dirFunc::getSiteTplPath();
         $tplBlockParser = new tplBlockParser('');
         $varibleList = [];
         // Бегаем по всем файлам

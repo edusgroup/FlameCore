@@ -11,6 +11,7 @@ use buildsys\library\event\comp\spl\objItem\logparse;
 
 // Engine
 use core\classes\filesystem;
+use core\classes\admin\dirFunc;
 
 
 /**
@@ -31,7 +32,7 @@ class log {
      * @see http://www.nginx.org/ru/docs/http/ngx_http_log_module.html
      */
     public function run() {
-        $fileNLog = DIR::getNLogFile();
+        $fileNLog = dirFunc::getNLogFile();
         if (!is_readable($fileNLog)) {
             print "Error: file $fileNLog no reading" . PHP_EOL;
         } // if

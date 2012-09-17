@@ -15,8 +15,8 @@ use core\classes\DB\tree;
 use core\classes\word;
 use core\classes\filesystem;
 use core\classes\validation\filesystem as fileValid;
-use core\classes\component\abstr\admin\comp as compAbs;
 use core\classes\event as eventCore;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -85,9 +85,9 @@ class model {
 
         $pathPrefix = self::getPath($pCompId, $pCondId, $pArtId);
 
-        $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
-        $filePreviewPath = DIR::getPreviewImgPath($pathPrefix);
-        $fileResizePath = DIR::getSiteImgResizePath() . $pathPrefix;
+        $fileDistPath = dirFunc::getSiteUploadPathData() . $pathPrefix;
+        $filePreviewPath = dirFunc::getPreviewImgPath($pathPrefix);
+        $fileResizePath = dirFunc::getSiteImgResizePath() . $pathPrefix;
 
         foreach ($pNameList as $name) {
             fileValid::isSafe($name, new \Exception('Неверное имя файла', 234));

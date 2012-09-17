@@ -11,6 +11,7 @@ use core\classes\storage\storage;
 use core\classes\render;
 use core\classes\event as eventCore;
 use core\classes\DB\tree;
+use core\classes\admin\dirFunc;
 
 // Plugin
 use admin\library\mvc\plugin\fileManager\fileManager;
@@ -47,7 +48,7 @@ trait prop {
 
         $this->view->setBlock('panel', '../prop/objItem.tpl.php');
 
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. compPropAction
     }

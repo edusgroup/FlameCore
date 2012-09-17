@@ -7,6 +7,7 @@ use \DIR;
 
 // Engine
 use core\classes\filesystem;
+use core\classes\admin\dirFunc;
 
 /**
  * @author Козленко В.Л.
@@ -31,17 +32,17 @@ class userUtils {
     }
 
     public static function rmFolder($pPathPrefix) {
-        $path = DIR::getSiteUploadPathData() . $pPathPrefix;
+        $path = dirFunc::getSiteUploadPathData() . $pPathPrefix;
 
         filesystem::rmdir($path);
         // Удаляем пресью в админке
-        $path = DIR::getPreviewImgPath($pPathPrefix);
+        $path = dirFunc::getPreviewImgPath($pPathPrefix);
         filesystem::rmdir($path);
         // Удаляем маштабируемые изображения
-        $path = DIR::getSiteImgResizePath() . $pPathPrefix;
+        $path = dirFunc::getSiteImgResizePath() . $pPathPrefix;
         filesystem::rmdir($path);
         // Удаляем данные по компоненту
-        $path = DIR::getSiteDataPath($pPathPrefix);
+        $path = dirFunc::getSiteDataPath($pPathPrefix);
         filesystem::rmdir($path);
         // func. rmFolder
     }

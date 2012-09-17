@@ -14,6 +14,7 @@ use core\classes\image\resize;
 use core\classes\DB\tree;
 use core\classes\image\imageProp;
 use core\classes\validation\filesystem as fileValid;
+use core\classes\admin\dirFunc;
 
 // ORM
 use ORM\imgSizeList;
@@ -54,8 +55,8 @@ trait file {
         $fileName = fileManagerModel::getFileNewName($upload, $varName);
         $pathPrefix = baseModel::getPath($compId, $contId, $id);
         // Получаем директорию куда будет заливать файл
-        $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
-        $filePreviewPath = DIR::getPreviewImgPath($pathPrefix);
+        $fileDistPath = dirFunc::getSiteUploadPathData() . $pathPrefix;
+        $filePreviewPath = dirFunc::getPreviewImgPath($pathPrefix);
 
         // Устанавливаем новоемя имя, папку куда сохранять
         $upload->setFileName($fileName)
@@ -93,9 +94,9 @@ trait file {
 
         $pathPrefix = baseModel::getPath($compId, $contId, $id);
         // Получаем директорию куда будет заливать файл
-        $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
-        $filePublicUrl = DIR::getSiteUploadUrlData() . $pathPrefix;
-        $filePreviewUrl = DIR::getPreviewImgUrl($pathPrefix);
+        $fileDistPath = dirFunc::getSiteUploadPathData() . $pathPrefix;
+        $filePublicUrl = dirFunc::getSiteUploadUrlData() . $pathPrefix;
+        $filePreviewUrl = dirFunc::getPreviewImgUrl($pathPrefix);
 
         $sizeList = baseModel::getSizeList($contId);
         $sizeList['list'] = baseModel::makeSelect($sizeList);
@@ -106,7 +107,7 @@ trait file {
 
         $fileManager->showFile($this, $fileDistPath, $filePreviewUrl, $filePublicUrl, $sizeList);
 
-        $this->view->setTplPath(DIR::getTplPath('plugin'));
+        $this->view->setTplPath(dirFunc::getTplPath('plugin'));
         $this->view->setMainTpl('fileManager/ckedit.tpl.php');
         // func. fileManagerAction
     }
@@ -144,12 +145,12 @@ trait file {
         $pathPrefix = baseModel::getPath($compId, $contId, $id);
 
         // Директория, где храняться все файлы и изображения
-        $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
+        $fileDistPath = dirFunc::getSiteUploadPathData() . $pathPrefix;
 
         // Директория, куда положим маштабированные изображения
         $pathPrefix .= $dataSize['type'] . '/' . $dataSize['val'] . '/';
-        $fileResizePath = DIR::getSiteImgResizePath() . $pathPrefix;
-        $fileResizeUrl = DIR::getSiteImgResizeUrl() . $pathPrefix;
+        $fileResizePath = dirFunc::getSiteImgResizePath() . $pathPrefix;
+        $fileResizeUrl = dirFunc::getSiteImgResizeUrl() . $pathPrefix;
 
         // ===== Проверяем, есть ли уже такое маштабированное изображение
         if (is_file($fileResizePath . $name)) {

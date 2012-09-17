@@ -12,6 +12,7 @@ use ORM\comp\spl\objItem\article\article as articleOrm;
 use core\classes\filesystem;
 use core\classes\render;
 use core\classes\DB\tree;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -69,7 +70,7 @@ class event {
             ->render();
         $codeData = ob_get_clean();
 
-        $path = DIR::getSiteRoot();
+        $path = dirFunc::getSiteRoot();
         // Запись готового sitemap в файл
         filesystem::saveFile($path, 'sitemap.xml', $codeData);
 

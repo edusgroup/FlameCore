@@ -8,6 +8,7 @@ use \SITE;
 
 // Engine
 use core\classes\render;
+use core\classes\admin\dirFunc;
 
 // ORM
 use ORM\tree\routeTree;
@@ -47,7 +48,7 @@ class breadCrumbs extends \core\classes\component\abstr\admin\comp {
         self::setJson('acTree', $tree);
 
         $this->view->setBlock('panel', $this->tplFile);
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

@@ -3,10 +3,13 @@
 namespace admin\library\init;
 
 use core\classes\request;
+
 // Conf
 use \DIR;
 use \SITE;
-use \CONSTANT as CONSTANT;
+
+// Engine
+use core\classes\admin\dirFunc;
 
 /**
  * Класс инициализации управление всеми структруами GUI в адмнике.
@@ -24,9 +27,9 @@ class manager {
         if (!class_exists($contrClassName)) {
             throw new \Exception('Not found controller: ' . $contrClassName, 24);
         }
-        
+
         $themeResUrl = sprintf(DIR::THEME_RES_URL, SITE::THEME_NAME);
-        $contrObj = new $contrClassName(DIR::getTplPath('manager'), $themeResUrl);
+        $contrObj = new $contrClassName(dirFunc::getTplPath('manager'), $themeResUrl);
         // Получаем метод, который хотим вызвать
         $methodName = trim(request::getVar('$m'));
         $contrObj->setSiteName($pSiteName);

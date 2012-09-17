@@ -1,7 +1,11 @@
 <?php
 namespace admin\library\mvc\comp\spl\objItem\logic\base;
 
+// Conf
 use \DIR;
+
+// Engine
+use core\classes\admin\dirFunc;
 
 /**
  * Description of article
@@ -19,7 +23,7 @@ class objItem extends \core\classes\component\abstr\admin\comp{
         self::setVar('contId', $this->contId);
 
         $this->view->setBlock('panel', $this->tplFile);
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

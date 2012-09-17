@@ -15,9 +15,9 @@ use core\classes\filesystem;
 use core\classes\valid;
 use core\classes\render;
 use core\classes\storage\storage;
-use core\classes\DB\adapter\DBException;
 use core\classes\mvc\controllerAbstract;
 use core\classes\event as eventsys;
+use core\classes\admin\dirFunc;
 
 // ORM
 use ORM\blockItem;
@@ -90,7 +90,7 @@ class wareframe extends controllerAbstract {
         } // if
 
         // Дерево с файловой системой шаблонов сайта
-        $siteTplPath = DIR::getSiteTplPath();
+        $siteTplPath = dirFunc::getSiteTplPath();
         $treeFS = dhtmlxTree::createTreeOfDir($siteTplPath);
         self::setJson('filesysTree', $treeFS);
 

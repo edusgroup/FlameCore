@@ -9,6 +9,7 @@ use core\classes\upload;
 use core\classes\image\resize;
 use core\classes\image\imageProp;
 use core\classes\event as eventCore;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -48,9 +49,9 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
 
         $pathPrefix = 'comp/' . $compId . '/' . $contId . '/';
         // Получаем директорию куда будет заливать файл
-        $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
-        $filePublicUrl = DIR::getSiteUploadUrlData() . $pathPrefix;
-        $filePreviewUrl = DIR::getPreviewImgUrl($pathPrefix);
+        $fileDistPath = dirFunc::getSiteUploadPathData() . $pathPrefix;
+        $filePublicUrl = dirFunc::getSiteUploadUrlData() . $pathPrefix;
+        $filePreviewUrl = dirFunc::getPreviewImgUrl($pathPrefix);
 
         // Список размеров изображений, заданных при настройки в ветке компонента
         $sizeList = objItemModel::getSizeList($contId);
@@ -62,7 +63,7 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
 
         // Файл с ранее сохранёными данными, если было ранее сохранение
         $contDir = 'comp/' . $compId . '/' . $contId . '/data.txt';
-        $contFileData = DIR::getSiteDataPath($contDir);
+        $contFileData = dirFunc::getSiteDataPath($contDir);
         // Если файла нет, то скорей всего сохранения не было
         if (is_file($contFileData)) {
             $data = file_get_contents($contFileData);
@@ -74,10 +75,10 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
 
         $this->view->setBlock('panel', $this->tplFile);
 
-        $this->view->setTplPath(DIR::getTplPath('plugin'));
+        $this->view->setTplPath(dirFunc::getTplPath('plugin'));
         $this->view->setBlock('imgGallery', 'fileManager/imgGallery.tpl.php');
 
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }
@@ -90,9 +91,9 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
 
         $pathPrefix = 'comp/' . $compId . '/' . $contId . '/';
         // Получаем директорию куда будет заливать файл
-        $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
-        $filePublicUrl = DIR::getSiteUploadUrlData() . $pathPrefix;
-        $filePreviewUrl = DIR::getPreviewImgUrl($pathPrefix);
+        $fileDistPath = dirFunc::getSiteUploadPathData() . $pathPrefix;
+        $filePublicUrl = dirFunc::getSiteUploadUrlData() . $pathPrefix;
+        $filePreviewUrl = dirFunc::getPreviewImgUrl($pathPrefix);
 
         $sizeList = objItemModel::getSizeList($contId);
         $sizeList['list'] = objItemModel::makeSelect($sizeList);
@@ -102,7 +103,7 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
 
         $fileManager->showFile($this, $fileDistPath, $filePreviewUrl, $filePublicUrl, $sizeList);
 
-        $this->view->setTplPath(DIR::getTplPath('plugin'));
+        $this->view->setTplPath(dirFunc::getTplPath('plugin'));
         $this->view->setMainTpl('fileManager/imgGallery.tpl.php');
 
         // func. fileManagerAction
@@ -120,7 +121,7 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
 
         $this->view->setBlock('panel', 'prop/gallery.tpl.php');
 
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. compPropAction
     }
@@ -178,8 +179,8 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
         $fileName = fileManagerModel::getFileNewName($upload, $varName);
         $pathPrefix = 'comp/' . $compId . '/' . $contId . '/';
         // Получаем директорию куда будет заливать файл
-        $fileDistPath = DIR::getSiteUploadPathData() . $pathPrefix;
-        $filePreviewPath = DIR::getPreviewImgPath($pathPrefix);
+        $fileDistPath = dirFunc::getSiteUploadPathData() . $pathPrefix;
+        $filePreviewPath = dirFunc::getPreviewImgPath($pathPrefix);
 
         // Устанавливаем новоемя имя, папку куда сохранять
         $upload->setFileName($fileName)
@@ -253,7 +254,7 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
         $dataBuffer['isCrPreview'] = self::postInt('isCrPreview');
         // Всё сохраняем в файл
         $saveDir = 'comp/' . $compId . '/' . $contId . '/';
-        $saveDir = DIR::getSiteDataPath($saveDir);
+        $saveDir = dirFunc::getSiteDataPath($saveDir);
         filesystem::saveFile($saveDir, 'data.txt', \serialize($dataBuffer));
 
         // Получаем список файлов, для удаления

@@ -18,6 +18,7 @@ use admin\library\mvc\comp\spl\oiPopular\event as eventoiPopular;
 // Engine
 use core\classes\filesystem;
 use core\classes\comp as compCore;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -104,7 +105,7 @@ class event {
 
             // Директория к данным группы
             $saveDir = 'comp/' . $oiPopularItemProp['comp_id'] . '/' . $oiPopularItemProp['contId'] . '/';
-            $saveDir = DIR::getSiteDataPath($saveDir);
+            $saveDir = dirFunc::getSiteDataPath($saveDir);
 
             $numRows = $handleObjitem->num_rows;
             echo "\tioPopular[contId:".$oiPopularItemProp['contId']."] Row:$numRows itemC: $itemsCount".PHP_EOL;

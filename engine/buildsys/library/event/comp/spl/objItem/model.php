@@ -1,6 +1,7 @@
 <?php
 
 namespace buildsys\library\event\comp\spl\objItem;
+
 //ORM
 use ORM\event\eventBuffer;
 use ORM\comp\spl\objItem\objItem as objItemOrm;
@@ -14,6 +15,7 @@ use core\classes\image\resize;
 use core\classes\word;
 use core\classes\filesystem;
 use core\classes\DB\table as tableDb;
+use core\classes\admin\dirFunc;
 
 // Event
 use admin\library\mvc\comp\spl\objItem\event as eventObjitem;
@@ -47,38 +49,20 @@ class model {
             // Формируем имя файла, в который будет сохранять картинку
             $resizeFile = 'comp/' . $pCompId . '/' . $pContId . '/' . $pObjItemObj->treeId . '/' . word::idToSplit($pObjItemObj->id) . '/';
 
-            $fileResizePath = DIR::getSiteImgResizePath();
+            $fileResizePath = dirFunc::getSiteImgResizePath();
             filesystem::mkdir($fileResizePath . $resizeFile);
             //print $fileResizePath . $resizeFile;
             $resizeFile .= $pFileNum . '.' . filesystem::getExt($imgFile);
             $resize = new resize();
             $resize->setWidth($pImgPreviewWidth);
             $resize->setType($pResizeType == 'prop' ? resize::PROPORTIONAL : resize::SQUARE);
-            $resize->resize(DIR::getSiteRoot() . $imgFile, $fileResizePath . $resizeFile);
+            $resize->resize(dirFunc::getSiteRoot() . $imgFile, $fileResizePath . $resizeFile);
             //print $fileResizePath . $resizeFile." $pResizeType".PHP_EOL;
-            $pObjItemObj->prevImgUrl = DIR::getSiteImgResizeUrl() . $resizeFile . '?' . time();
+            $pObjItemObj->prevImgUrl = dirFunc::getSiteImgResizeUrl() . $resizeFile . '?' . time();
         } // if $pObjItemObj->prevImgUrl
         return $pObjItemObj;
         // func. createMiniPreview
     }
-
-    /*public static function createBinaryMiniDesc($objItemObj, &$miniDescrHead, &$miniDescrData){
-        // ----------------------------------------
-        // Теперь нужно сгенерить файл со списком новостей и их мини описаниями
-        // Будем всё упаковывать бинарно
-        // Директория с данными статьи
-        $objItemDataDir = objItemModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
-        $miniDescrFile = DIR::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
-        if (is_readable($miniDescrFile)) {
-            $data = file_get_contents($miniDescrFile);
-            $miniDescrHead .= pack('i', strlen($data));
-            $miniDescrData .= $data;
-        } else {
-            $miniDescrHead .= pack('i', 0);
-        } // if
-        // func. createBinaryMiniDesc
-    }*/
-
 
     private static function _rGetChildList($sitemapOrm, compContTreeOrm $compContTreeOrm, &$pChildList, $pContId) {
         $childList = $compContTreeOrm->selectList('id', 'id', 'tree_id=' . $pContId);
@@ -99,7 +83,7 @@ class model {
      * @param array $pQuery доп настройки
      * @return bool|\core\classes\DB\adapter\type
      */
-    public static function objItemChange(eventBufferOrm  $eventBufferOrm, array $pTableJoinList, tableDb $pTreeTableOrm, compContTreeOrm $compContTreeOrm, array $childList, array $buffTreeIdList, $pQuery = null) {
+    public static function objItemChange(eventBufferOrm $eventBufferOrm, array $pTableJoinList, tableDb $pTreeTableOrm, compContTreeOrm $compContTreeOrm, array $childList, array $buffTreeIdList, $pQuery = null) {
 
         $where = [];
         // Если не было изменений, в статьях,

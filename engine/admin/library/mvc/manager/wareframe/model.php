@@ -9,6 +9,7 @@ use \site\conf\SITE as SITE_CONF;
 // Engine
 use core\classes\valid;
 use core\classes\tplParser\tplBlockParser;
+use core\classes\admin\dirFunc;
 
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
@@ -110,7 +111,7 @@ class model {
      * @throws \Exception
      */
     public static function tplBlockParser(string $pFId, \Exception $ex = null) {
-        $path = DIR::getSiteTplPath();
+        $path = dirFunc::getSiteTplPath();
         // Убераем первый слэшь у имени файла
         $file = substr($pFId, 1);
         $file = $path . str_replace('..', '', $file);

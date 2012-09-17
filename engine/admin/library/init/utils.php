@@ -26,7 +26,7 @@ class utils {
         }
         
         $themeResUrl = sprintf(DIR::THEME_RES_URL, SITE::THEME_NAME);
-        $contrObj = new $contrClassName(DIR::getTplPath('utils'), $themeResUrl);
+        $contrObj = new $contrClassName(dirFunc::getTplPath('utils'), $themeResUrl);
         // Получаем метод, который хотим вызвать
         $methodName = trim(request::getVar('$m'));
         // Вызываем метод. Методы доступные для вызова должны иметь окончание Action

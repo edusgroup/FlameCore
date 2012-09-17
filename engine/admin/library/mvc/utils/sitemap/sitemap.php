@@ -4,17 +4,21 @@ namespace admin\library\mvc\utils\sitemap;
 
 // Conf
 use \DIR;
+
 // Engine
 use core\classes\render;
 use core\classes\mvc\controllerAbstract;
 use core\classes\filesystem;
 use core\classes\event as eventCore;
+use core\classes\admin\dirFunc;
+
 // ORM
 use ORM\tree\compContTree;
 use ORM\tree\routeTree;
 use ORM\tree\wareframeTree;
 use ORM\sitemaps as sitemapsOrm;
 use ORM\tree\componentTree;
+
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
@@ -24,25 +28,25 @@ use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 class sitemap extends controllerAbstract {
 
     public function init() {
-        
+
     }
 
     public function indexAction() {
-        
+
         $compcontTree = new compcontTree();
         $contData = $compcontTree->select('cc.*', 'cc')
-                     ->join(componentTree::TABLE.' c', 'c.id=cc.comp_id')
-                     ->where('c.sysname="objItem" AND cc.isDel="no"')
-                     ->fetchAll();
-        
+            ->join(componentTree::TABLE . ' c', 'c.id=cc.comp_id')
+            ->where('c.sysname="objItem" AND cc.isDel="no"')
+            ->fetchAll();
+
         $contTree = dhtmlxTree::all($contData, 0);
         self::setJson('contTree', $contTree);
-        
+
         $sitemapsOrm = new sitemapsOrm();
         self::setJson('sitemaps', $sitemapsOrm->selectList('*', 'contId'));
-        
+
         $this->view->setBlock('panel', 'sitemaps/sitemaps.tpl.php');
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }
@@ -62,8 +66,8 @@ class sitemap extends controllerAbstract {
         $sitemapsOrm->delete();
 
         $selData = self::post('sel');
-        $selData = substr($selData, 0, strlen($selData)-1);
-        if ( $selData ){
+        $selData = substr($selData, 0, strlen($selData) - 1);
+        if ($selData) {
             $selData = explode(',', $selData);
             $selData = array_map('intVal', $selData);
 
@@ -73,5 +77,5 @@ class sitemap extends controllerAbstract {
         // func. saveDataAction
     }
 
-// class action
+    // class action
 }

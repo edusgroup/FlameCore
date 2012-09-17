@@ -4,11 +4,14 @@ namespace admin\library\mvc\utils\robots;
 
 // Conf
 use \DIR;
+
 // Engine
 use core\classes\render;
 use core\classes\mvc\controllerAbstract;
 use core\classes\filesystem;
 use core\classes\event as eventsys;
+use core\classes\admin\dirFunc;
+
 //ORM
 use ORM\robots as robotsOrm;
 
@@ -24,45 +27,45 @@ use ORM\robots as robotsOrm;
 class robots extends controllerAbstract {
 
     public function init() {
-        
+
     }
 
     public function indexAction() {
-        
+
         $robotsOrm = new robotsOrm();
         $engineList = $robotsOrm->selectAll('*');
         self::setVar('engineList', $engineList);
-        
+
         $this->view->setBlock('panel', 'robots/robots.tpl.php');
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }
 
-    public function saveDataAction(){
+    public function saveDataAction() {
         $this->view->setRenderType(render::JSON);
         if (!self::isPost())
             return;
-        
+
         eventsys::callOffline(event::NAME, event::ITEM_SAVE);
-        
+
         $crawlDelay = self::post('crawlDelay');
         $cleanParam = self::post('cleanParam');
 
         $robotsOrm = new robotsOrm();
-        
-        if ( is_array($crawlDelay) ){
-            foreach( $crawlDelay as $id => $crawlDelayVal ){
-                $id = (int) $id;
+
+        if (is_array($crawlDelay)) {
+            foreach ($crawlDelay as $id => $crawlDelayVal) {
+                $id = (int)$id;
                 $saveData = array(
                     'crawlDelay' => $crawlDelayVal,
-                    'cleanParam' => isset($cleanParam[$id])?$cleanParam[$id]:''
+                    'cleanParam' => isset($cleanParam[$id]) ? $cleanParam[$id] : ''
                 ); // array
-                $robotsOrm->update($saveData, 'id='.$id);
+                $robotsOrm->update($saveData, 'id=' . $id);
             } // foreach
         } // if
         // func. saveDataAction
     }
 
-// class action
+    // class action
 }

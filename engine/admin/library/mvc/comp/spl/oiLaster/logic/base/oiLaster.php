@@ -9,6 +9,7 @@ use \DIR;
 use core\classes\render;
 use core\classes\event as eventCore;
 use core\classes\filesystem;
+use core\classes\admin\dirFunc;
 
 // ORM
 use ORM\comp\spl\oiLaster\oiLaster as oiLasterOrm;
@@ -77,7 +78,7 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
 
         // Получаем названия шаблона. Настраиваеться в настройках компонента
         $this->view->setBlock('panel', $this->tplFile);
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

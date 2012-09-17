@@ -11,6 +11,7 @@ use core\classes\event as eventCore;
 use core\classes\filesystem;
 use core\classes\word;
 use core\classes\DB\tree;
+use core\classes\admin\dirFunc;
 
 // ORM
 use ORM\comp\spl\objItem\objItem as objItemOrm;
@@ -71,7 +72,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
 
         // Получаем путь до папки, где храняться данные статьи
         $loadDir = baseModel::getPath($compId, $contId, $objItemId);
-        $loadDir = DIR::getSiteDataPath($loadDir);
+        $loadDir = dirFunc::getSiteDataPath($loadDir);
 
         $textData = '';
         if (is_readable($loadDir . 'data.txt')) {
@@ -95,7 +96,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         }
 
         $this->view->setBlock('panel', $this->tplFile);
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. itemAction
     }
@@ -124,7 +125,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
 
         // Директория с данными статьи
         $saveDir = baseModel::getPath($compId, $contId, $objItemId);
-        $saveDir = DIR::getSiteDataPath($saveDir);
+        $saveDir = dirFunc::getSiteDataPath($saveDir);
         $seoKeywords = self::post('seoKeywords');
         $seoDescr = self::post('seoDescr');
 

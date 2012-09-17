@@ -13,6 +13,7 @@ use ORM\comp\spl\catalogCont\catalogContProp as catalogContPropOrm;
 
 // Engine
 use core\classes\filesystem;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -65,7 +66,7 @@ class event {
 
         // Директория хранения блоков
         $saveDir = 'comp/' . $compId . '/';
-        $saveDir = DIR::getSiteDataPath($saveDir);
+        $saveDir = dirFunc::getSiteDataPath($saveDir);
 
         //echo 'catalogCont createFile START' . PHP_EOL;
         $catalogContOrm = new catalogContOrm();

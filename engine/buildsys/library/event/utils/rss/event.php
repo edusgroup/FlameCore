@@ -15,6 +15,7 @@ use core\classes\filesystem;
 use core\classes\render;
 use core\classes\DB\tree;
 use core\classes\seo\blog\weblogUpdates;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -65,7 +66,7 @@ class event {
         while ($item = $handleObjitem->fetch_object()) {
             // Директория с данными статьи
             $saveDir = baseModel::getPath($item->compId, $item->treeId, $item->id);
-            $saveDir = DIR::getSiteDataPath($saveDir);
+            $saveDir = dirFunc::getSiteDataPath($saveDir);
 
             // Если файл есть, то получаем первых 50 слов
             $filename = $saveDir . 'kat.txt';
@@ -105,7 +106,7 @@ class event {
         $render->render();
         $codeData = ob_get_clean();
 
-        $path = DIR::getSiteRoot() . 'res/';
+        $path = dirFunc::getSiteRoot() . 'res/';
         // Запись готового rss в файл
         filesystem::saveFile($path, 'main.rss', $codeData);
 

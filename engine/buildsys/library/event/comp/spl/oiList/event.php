@@ -13,6 +13,7 @@ use ORM\tree\componentTree as componentTreeOrm;
 // Engine
 use core\classes\filesystem;
 use core\classes\comp as compCore;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -100,7 +101,7 @@ class event {
 
             // Директория к данным группы
             $saveDir = 'comp/' . $oiListPropItem['comp_id'] . '/' . $oiListPropItem['contId'] . '/';
-            $saveDir = DIR::getSiteDataPath($saveDir);
+            $saveDir = dirFunc::getSiteDataPath($saveDir);
 
             // Получаем какое должно быть количество объектов в файле
             $itemsCount = $oiListPropItem['itemsCount'];

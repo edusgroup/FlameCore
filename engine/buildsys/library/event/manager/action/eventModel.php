@@ -15,6 +15,7 @@ use core\classes\builder\tplBlockCreator;
 use core\classes\render;
 use core\classes\comp;
 use core\classes\arrays;
+use core\classes\admin\dirFunc;
 
 // ORM
 use ORM\urlTreePropVar;
@@ -291,8 +292,8 @@ class eventModel {
         $tplVarList = arrays::dbQueryToAssoc($tplVarList);
 
         // Включаем шаблонизатор, что бы получить код страницы
-        $tplSitePath = DIR::getSiteTplPath();
-        $resSiteUrl = DIR::getSiteResUrl();
+        $tplSitePath = dirFunc::getSiteTplPath();
+        $resSiteUrl = dirFunc::getSiteResUrl();
         $tplBlockCreator = new tplBlockCreator(
             $tplSitePath,
             $resSiteUrl,

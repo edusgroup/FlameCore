@@ -20,6 +20,7 @@ use admin\library\mvc\comp\spl\oiLaster\event as eventoiLaster;
 // Engine
 use core\classes\filesystem;
 use core\classes\comp as compCore;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -104,7 +105,7 @@ class event {
 
             // Директория к данным группы
             $saveDir = 'comp/' . $oiLasterItemProp['compId'] . '/' . $oiLasterItemProp['contId'] . '/';
-            $saveDir = DIR::getSiteDataPath($saveDir);
+            $saveDir = dirFunc::getSiteDataPath($saveDir);
 
             $numRows = $handleObjitem->num_rows;
             echo "\tioLaster[contId:".$oiLasterItemProp['contId']."] Row:$numRows itemC: $itemsCount".PHP_EOL;

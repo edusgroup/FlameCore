@@ -10,6 +10,9 @@ use admin\library\mvc\comp\spl\objItem\model as objItemModel;
 use buildsys\library\event\comp\spl\objItem\model as eventModelObjitem;
 use admin\library\mvc\comp\spl\objItem\help\model\base\model as baseModel;
 
+// Engine
+use core\classes\admin\dirFunc;
+
 // Conf
 use \DIR;
 
@@ -27,7 +30,7 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
     public static function getOIListArray($objItemItem, $objItemCompId){
         // Получаем путь до папки, где храняться данные превью
         $loadDir = baseModel::getPath($objItemCompId, $objItemItem->treeId, $objItemItem->id);
-        $loadDir = DIR::getSiteDataPath($loadDir);
+        $loadDir = dirFunc::getSiteDataPath($loadDir);
         $text = '';
         if (is_readable($loadDir . 'text.txt')) {
             $text = file_get_contents($loadDir . 'text.txt');

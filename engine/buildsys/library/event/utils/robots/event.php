@@ -10,11 +10,11 @@ use ORM\event\eventBuffer;
 //Engine
 use core\classes\filesystem;
 use core\classes\render;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
 use \site\conf\SITE as SITE_CONF;
-use admin\library\mvc\utils\robots\event as eventAction;
 
 /**
  * Обработчик событий для каталога URL
@@ -64,7 +64,7 @@ class event {
         echo 'Sitemap: http://' . SITE_CONF::NAME . '/sitemap.xml';
         $codeData = ob_get_clean();
 
-        $path = DIR::getSiteRoot();
+        $path = dirFunc::getSiteRoot();
         filesystem::saveFile($path, 'robots.txt', $codeData);
 
         // func. createFile

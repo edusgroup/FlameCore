@@ -9,6 +9,7 @@ use \DIR;
 use core\classes\render;
 use core\classes\event as eventCore;
 use core\classes\filesystem;
+use core\classes\admin\dirFunc;
 
 // ORM
 use ORM\comp\spl\oiRandom\oiRandom as oiRandomOrm;
@@ -72,7 +73,7 @@ class oiRandom extends \core\classes\component\abstr\admin\comp {
         self::setJson('classTree', $classTree);
 
         $this->view->setBlock('panel', $this->tplFile);
-        $this->view->setTplPath(DIR::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getTplPath('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

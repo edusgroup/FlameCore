@@ -16,6 +16,7 @@ use admin\library\mvc\comp\spl\oiRandom\event as eventoiRandom;
 // Engine
 use core\classes\filesystem;
 use core\classes\comp as compCore;
+use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
@@ -102,7 +103,7 @@ class event {
 
             // Директория к данным группы
             $saveDir = 'comp/' . $rndObjItemProp['comp_id'] . '/' . $rndObjItemProp['contId'] . '/';
-            $saveDir = DIR::getSiteDataPath($saveDir);
+            $saveDir = dirFunc::getSiteDataPath($saveDir);
 
             $numRows = $handleObjitem->num_rows;
 
