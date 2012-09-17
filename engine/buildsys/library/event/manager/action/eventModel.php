@@ -83,11 +83,11 @@ class eventModel {
         $varIdtoName = [];
         // Если есть переменные, то нужно их обработать
         if ($varList) {
-            self::_initVarible($pAcId, $varList, $urlTreePropVar, new varComp(), new varTree(), $varListRender, $varIdtoName, $isUsecompContTree);
+            $isVar = self::_initVarible($pAcId, $varList, $urlTreePropVar, new varComp(), new varTree(), $varListRender, $varIdtoName, $isUsecompContTree);
+			if (!$isVar){
+				return;
+			}			
         } // if
-
-        echo "\tcrAction[acId:".$pAcId."]".PHP_EOL;
-        echo "\tPath: $pFolder".PHP_EOL;
 
         $buildTpl = DIR::CORE . 'buildsys/tpl/';
         $render = new render($buildTpl, '');
@@ -106,7 +106,6 @@ class eventModel {
             $controllerBody .= '$bodyCustom = new bodyCustom(); $bodyCustom->onCreate();'.PHP_EOL;
             $render->setVar('controllerBody', $controllerBody, false);
         } // if
-
 
         ob_start();
         $render->render();
@@ -175,7 +174,7 @@ class eventModel {
 
             $blockId = $biItem['block_id'];
             if (!$biItem['ns'] || !$biItem['classFile']) {
-                echo PHP_EOL . "\t" . 'Notice: blockItem ID: [' . $biItem['id'] . '] not have prop' . PHP_EOL . PHP_EOL;
+                echo PHP_EOL . "\t" . 'Notice: blockItem ID: [' . $biItem['id'] . '] not have prop' . PHP_EOL;
                 continue;
             }
             ++$sysnameNum;
@@ -330,7 +329,6 @@ class eventModel {
             $codeBuffer .= '<?$bodyCustom->onDestroy();?>';
         } // if
 
-        echo PHP_EOL;
         return $codeBuffer;
         // func. createFileTpl
     }
@@ -382,8 +380,9 @@ class eventModel {
                     // Переменная может быть удалена или что то с ней случится,
                     // если её нет, берём следующую переменную
                     if (!$varCompData) {
-                        echo "ERROR(" . __METHOD__ . ")" . PHP_EOL . "\tVarible not set in AcId: {$acItem['id']}" . PHP_EOL;
-                        exit;
+                        echo "\nERROR(" . __METHOD__ . ")";
+						echo "\tVarible not set in AcId: {$acItem['id']}" . PHP_EOL;
+                        return;
                     }
                     $classFileData = comp::getFileType($varCompData['classFile']);
                     // Получаем методы класа
@@ -397,6 +396,7 @@ class eventModel {
                     if (!$varCompData['contId']) {
                         echo "NOTICE(" . __METHOD__ . ")" . PHP_EOL;
                         echo "\tIn varible not set contId AcId: {$acItem['id']}" . PHP_EOL;
+						return;
                     } // if
 
                     $varListRender[$name]['comp'] = $nsClassMethod;
@@ -404,6 +404,7 @@ class eventModel {
                     $varListRender[$name]['compId'] = $varCompData['compId'];
                 } // if varType == comp
         } // foreach
+		return true;
         // func. _initVarible
     }
 

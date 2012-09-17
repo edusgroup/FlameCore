@@ -1,0 +1,8 @@
+DROP DATABASE test;
+CREATE DATABASE test;
+
+powershell
+	cat iorator.sql | mysql {dbname} -hlocalhost -u{user} -p{pwd}
+cmd
+	mysql {dbname} -hlocalhost -u{user} -p{pwd} < iorator.sql
+	

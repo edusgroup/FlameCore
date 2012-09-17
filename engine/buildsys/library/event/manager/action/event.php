@@ -66,13 +66,13 @@ class event {
 
     public static function createFolder($pListerUserData, $pOwnUserDataList) {
         $routeTree = new routeTree();
-        $itemList = $routeTree->selectAll('id, propType', 'isCreate="yes" and isDel=0');
+        $itemList = $routeTree->selectList('id', 'id', 'isCreate="yes" and isDel=0');
         if (!$itemList) {
             return;
         }
         $itemListCount = count($itemList);
         for ($i = 0; $i < $itemListCount; $i++) {
-            $acId = (int)$itemList[$i]['id'];
+            $acId = (int)$itemList[$i];
             // Создаём новые папки
             $path = eventModel::getActionPath($acId, $routeTree);
             if (in_array($path, ['{index}/', '{404}/', '{500}/'])) {
@@ -88,9 +88,6 @@ class event {
 
         nginx::createConf($routeTree);
 
-        $idList = array_map(function ($pItem) {
-            return $pItem['id'];
-        }, $itemList);
         $idList = implode(',', $idList);
         $routeTree->update('isCreate="no"', 'id in (' . $idList . ')');
         // func. createFolder
@@ -131,10 +128,13 @@ class event {
                     $path = '';
                 } // if in_array
                 $folder = dirFunc::getSiteRoot() . $path;
+				echo "\tcrAction[acId:$acId]".PHP_EOL;
+				echo "\tPath: $folder".$filename.PHP_EOL;
                 $codeBuffer = eventModel::createFileTpl($folder, $acId, $itemList[$i]['propType'], $routeTree);
                 if ($codeBuffer) {
                     filesystem::saveFile($folder, $filename, $codeBuffer);
                 }
+				echo PHP_EOL;
                 //echo 'Func: createFileTpl() end'.PHP_EOL;
             }
         } // for $i
