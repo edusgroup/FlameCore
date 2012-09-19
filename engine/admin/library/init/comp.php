@@ -34,7 +34,8 @@ class comp {
 
         // Получаем настройки ветки
         $objProp = compCore::getBrunchPropByContId($contId);
-        if ( !$objProp ){
+
+        if ( !$objProp['classFile'] ){
             $objProp = compCore::findCompPropUpToRoot($contId);
         }
         // Проверяем нашли мы что то, если нет то говорит что ошибка поиска
@@ -66,6 +67,7 @@ class comp {
         $contrObj->contId = $contId;
         $contrObj->compId = (int)$objProp['compId'];
         $contrObj->tplFile = $tplFileData['file'];
+        $contrObj->nsPath = $nsPath;
 
         // Устанавливаем имя сайта, который редактируем
         $contrObj->setSiteName($pSiteName);

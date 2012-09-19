@@ -29,7 +29,7 @@ class manager {
         }
 
         $themeResUrl = sprintf(DIR::THEME_RES_URL, SITE::THEME_NAME);
-        $contrObj = new $contrClassName(dirFunc::getTplPath('manager'), $themeResUrl);
+        $contrObj = new $contrClassName(dirFunc::getAdminTplPathIn('manager'), $themeResUrl);
         // Получаем метод, который хотим вызвать
         $methodName = trim(request::getVar('$m'));
         $contrObj->setSiteName($pSiteName);

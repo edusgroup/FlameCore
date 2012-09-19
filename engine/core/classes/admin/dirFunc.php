@@ -11,17 +11,6 @@ use CONSTANT;
 
 
 class dirFunc {
-    // =============================== Methods =====================================
-
-    public static function getAdminCompClassPath() {
-        return DIR::CORE . '/admin/library/mvc/comp/';
-        // func. getAdminCompClassPath
-    }
-
-    public static function getTplPath($pType) {
-        return sprintf(DIR::CORE . CONSTANT::TPL_ADMIN . $pType . '/', SITE::THEME_NAME);
-        // func. getTplPath
-    }
 
     /** @var string Хранение превью картинок для админки */
     public static function getPreviewImgPath($pPostfix) {
@@ -55,26 +44,38 @@ class dirFunc {
         return DIR_SITE::SITE_CORE . 'core/site/comp/' . $pNsPath;
     }
 
-    // ================== Каст Логика адмники ================
+    // ================== Логика адмники ================
     /**
      * Возвращает пусть для кастомной логики компонентов для админки
      * @static
      * @param $pNsPath
      * @return string
      */
-    public static function getSiteClassCoreAdmin($pNsPath) {
+    public static function getAdminCompClassPathOut($pNsPath) {
         return DIR_SITE::SITE_CORE . 'core/admin/comp/' . $pNsPath;
+        // func. getAdminClassSiteCore
     }
 
-    // ================== Каст Шаблон админки ================
+    public static function getAdminCompClassPathIn($pNsPath) {
+        return DIR::CORE . '/admin/library/mvc/comp/'. $pNsPath;;
+        // func. getAdminCompClassPathIn
+    }
+
+    // ============== Шаблоны админки
     /**
      * Возвращает пусть для кастомной шаблоны компонентов для админки
      * @static
      * @param $pNsPath
      * @return string
      */
-    public static function getTplAdminOuter($pNsPath) {
+    public static function getAdminTplPathOut($pNsPath) {
         return DIR_SITE::SITE_CORE . 'tpl/admin/comp/' . $pNsPath;
+        // func. getAdminTplOuter
+    }
+
+    public static function getAdminTplPathIn($pType) {
+        return sprintf(DIR::CORE . CONSTANT::TPL_ADMIN . $pType . '/', SITE::THEME_NAME);
+        // func. getTplPath
     }
 
 
@@ -109,7 +110,7 @@ class dirFunc {
     }
 
     public static function getNLogFile() {
-        return DIR_SITE::SITE_NGINX_LOG . 'access.log';
+        return self::getNLogFile() . 'access.log';
     }
 
     public static function getSiteNginxLog() {

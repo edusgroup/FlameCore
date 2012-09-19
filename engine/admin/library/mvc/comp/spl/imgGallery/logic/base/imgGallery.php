@@ -75,10 +75,10 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
 
         $this->view->setBlock('panel', $this->tplFile);
 
-        $this->view->setTplPath(dirFunc::getTplPath('plugin'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('plugin'));
         $this->view->setBlock('imgGallery', 'fileManager/imgGallery.tpl.php');
 
-        $this->view->setTplPath(dirFunc::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }
@@ -103,7 +103,7 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
 
         $fileManager->showFile($this, $fileDistPath, $filePreviewUrl, $filePublicUrl, $sizeList);
 
-        $this->view->setTplPath(dirFunc::getTplPath('plugin'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('plugin'));
         $this->view->setMainTpl('fileManager/imgGallery.tpl.php');
 
         // func. fileManagerAction
@@ -121,7 +121,7 @@ class imgGallery extends \core\classes\component\abstr\admin\comp {
 
         $this->view->setBlock('panel', 'prop/gallery.tpl.php');
 
-        $this->view->setTplPath(dirFunc::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. compPropAction
     }

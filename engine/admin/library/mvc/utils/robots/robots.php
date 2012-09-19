@@ -37,7 +37,7 @@ class robots extends controllerAbstract {
         self::setVar('engineList', $engineList);
 
         $this->view->setBlock('panel', 'robots/robots.tpl.php');
-        $this->view->setTplPath(dirFunc::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

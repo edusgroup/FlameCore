@@ -107,7 +107,7 @@ trait file {
 
         $fileManager->showFile($this, $fileDistPath, $filePreviewUrl, $filePublicUrl, $sizeList);
 
-        $this->view->setTplPath(dirFunc::getTplPath('plugin'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('plugin'));
         $this->view->setMainTpl('fileManager/ckedit.tpl.php');
         // func. fileManagerAction
     }

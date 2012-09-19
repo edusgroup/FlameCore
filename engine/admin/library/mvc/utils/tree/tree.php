@@ -34,7 +34,7 @@ class tree extends controllerAbstract {
         self::setJSON('utilsTree', $utilsTree);
 
         $this->view->setBlock('panel', 'tree/tree.tpl.php');
-        $this->view->setTplPath(dirFunc::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

@@ -60,35 +60,8 @@
                         <div class="dd">
                             <label><?= self::checkbox('name="parentLoad" value="1"', self::get('parentLoad') == 1); ?></label>
                         </div>
-                        <!--<div class="dt">Категория</div>
-                        <div class="dd">
-                            <? self::select(self::get('categoryList'), 'name="category"') ?>
-                        </div>-->
-                        
-                        <div class="dt">Шаблон админки</div>
-                        <!--<div class="dd">
-                            <label><?= self::radio('name="tplType" value="default"', self::get('tplType') == 'default'); ?>
-                            По умолчанию</label>
-                        </div>
-                        <div class="dd">
-                            <label><?= self::radio('name="tplType" value="user"', self::get('tplType') == 'user'); ?>
-                            Пользовательский</label>
-                        </div>
-                        <div class="dd2x">
-                            <? self::selectIdName(self::get('tplUserList'), 'name="tplUser"') ?>
-                        </div>
-                        <div class="dd">
-                            <label><?= self::radio('name="tplType" value="ext"', self::get('tplType') == 'ext'); ?>
-                            Встроенный</label>
-                        </div>
-                        <div class="dd2x">
-                            <? self::selectIdName(self::get('tplExtList'), 'name="tplExt"') ?>
-                        </div>
-                        <div class="dd">
-                            <label><?= self::radio('name="tplType" value="builder"', self::get('tplType') == 'builder'); ?> 
-                            FormBuilder</label>
-                        </div>-->
 
+                        <div class="dt">Шаблон админки</div>
                         <div class="dd">
                             <a id="tplBtn" href="#tplTreeDlg" class="btn">
                                 <img src="<?= self::res('images/folder_16.png') ?>" alt="Класс компонента"/>
@@ -303,7 +276,7 @@
             $(options.classFileText).html(classText);
             classTreeSelectId = classBrId;
 
-            $(options.tplFileText).html(tplTtext);
+            $(options.tplFileText).html(tplText);
             tplTreeSelectId = tplBrId;
             // func. initLoadData
         }

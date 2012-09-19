@@ -43,7 +43,7 @@ class simple {
         $this->contr->setJson('groupTree', $groupTree);
 
         $this->contr->view->setBlock('panel', 'users/type/simple.tpl.php');
-        $this->contr->view->setTplPath(dirFunc::getTplPath('manager'));
+        $this->contr->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->contr->view->setMainTpl('main.tpl.php');
     }
 

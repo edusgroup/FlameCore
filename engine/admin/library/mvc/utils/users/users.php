@@ -27,7 +27,7 @@ class users extends controllerAbstract {
 
     public function indexAction() {
         $this->view->setBlock('panel', 'users/users.tpl.php');
-        $this->view->setTplPath(dirFunc::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

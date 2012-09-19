@@ -136,9 +136,9 @@ class comp {
     public static function getAdminCompClassPath($pIsOut, $pNsPath){
         // Проверяем существование класса
         if ( $pIsOut){
-            return dirFunc::getSiteClassCoreAdmin($pNsPath).'logic/';
+            return dirFunc::getAdminCompClassPathOut($pNsPath).'logic/';
         }else{
-            return dirFunc::getAdminCompClassPath().$pNsPath.'logic/';
+            return dirFunc::getAdminCompClassPathIn().$pNsPath.'logic/';
         } // if
         // func. getAdminCompClassPath
     }
@@ -154,9 +154,9 @@ class comp {
     public static function getBuildCompClassPath($pIsOut, $pNsPath){
         // Проверяем существование класса
         if ( $pIsOut){
-            return dirFunc::getSiteClassCoreAdmin($pNsPath).'build/';
+            return dirFunc::getAdminCompClassPathOut($pNsPath).'build/';
         }else{
-            return dirFunc::getAdminCompClassPath().$pNsPath.'build/';
+            return dirFunc::getAdminCompClassPathIn($pNsPath) . 'build/';
         } // if
         // func. getBuildCompClassPath
     }
@@ -218,9 +218,9 @@ class comp {
     public static function getAdminCompTplPath($pIsOut, $pNsPath){
         // Проверяем существование класса
         if ( $pIsOut ){
-            return dirFunc::getTplAdminOuter($pNsPath);
+            return dirFunc::getAdminTplPathOut($pNsPath);
         }else{
-            return dirFunc::getTplPath('comp/' . $pNsPath).'admin/';
+            return dirFunc::getAdminTplPathIn('comp/' . $pNsPath).'admin/';
         } // if
         // func. getAdminCompTplPath
     }

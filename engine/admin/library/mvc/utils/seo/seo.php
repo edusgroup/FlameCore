@@ -37,7 +37,7 @@ class seo extends \core\classes\component\abstr\admin\comp {
         self::setJson('acTree', $tree);
 
         $this->view->setBlock('panel', 'seo/seo.tpl.php');
-        $this->view->setTplPath(dirFunc::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

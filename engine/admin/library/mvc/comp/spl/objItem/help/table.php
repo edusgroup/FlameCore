@@ -37,8 +37,9 @@ trait table {
 
         self::setVar('listXML', $listXML, false);
 
-        $this->view->setBlock('panel', '../help/table.tpl.php');
-        $this->view->setTplPath(dirFunc::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('comp').$this->nsPath);
+        $this->view->setBlock('panel', 'help/table.tpl.php');
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

@@ -51,7 +51,7 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
         self::setJson('data', $data);
 
         $this->view->setBlock('panel', $this->tplFile);
-        $this->view->setTplPath(dirFunc::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. indexAction
     }

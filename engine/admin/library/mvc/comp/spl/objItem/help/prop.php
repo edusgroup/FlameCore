@@ -48,7 +48,7 @@ trait prop {
 
         $this->view->setBlock('panel', '../prop/objItem.tpl.php');
 
-        $this->view->setTplPath(dirFunc::getTplPath('manager'));
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. compPropAction
     }
