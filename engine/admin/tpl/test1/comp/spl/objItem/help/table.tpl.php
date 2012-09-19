@@ -135,6 +135,13 @@
             grid.cells(oldId, 1).setValue(img);
             grid.changeRowId(oldId, newId);
         }
+
+        if ( pData['seoUrl'] ){
+            for (var id in pData['seoUrl']) {
+                var seoUrl = pData['seoUrl'][id];
+                grid.cells(id, 3).setValue(seoUrl);
+            } // for
+        } // if
         grid.clearChangedState();
         alert('Данные сохранены');
     }

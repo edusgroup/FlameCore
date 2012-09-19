@@ -15,6 +15,9 @@ use core\classes\admin\dirFunc;
 // ORM
 use ORM\comp\spl\objItem\objItem as objItemOrm;
 
+// Event
+use admin\library\mvc\comp\spl\objItem\help\event\base\event as eventBase;
+
 
 /**
  * Description of article
@@ -54,8 +57,8 @@ trait table {
 
         $data = self::post('data');
 
-        $listId = model\table\model::saveTableItemData($data, $contId);
-        $json = ['newId' => $listId];
+        $data = model\table\model::saveTableItemData($data, $contId);
+        $json = ['newId' => $data['listId'], 'seoUrl' => $data['seoUrl']];
         self::setVar('json', $json);
         // func. saveTableItemDataAction
     }
@@ -73,8 +76,8 @@ trait table {
         $userData = array_map('intVal', $userData);
 
         eventCore::callOffline(
-            event::NAME,
-            event::ACTION_DELETE,
+            eventBase::NAME,
+            eventBase::ACTION_DELETE,
             ['itemsId' => $userData,
             'compId' => $compId],
             $contId
@@ -111,5 +114,5 @@ trait table {
         // func. getTableOrm
     }
 
-    // trait tsetad
+    // trait table
 }

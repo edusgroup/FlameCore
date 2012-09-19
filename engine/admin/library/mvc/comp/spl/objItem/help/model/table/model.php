@@ -34,7 +34,7 @@ class model {
      * @throws \Exception
      */
     public static function saveTableItemData($pData, $pContId) {
-        $return = [];
+        $return = ['seoUrl' => [], 'listId' => []];
         // Парсим данны
         $data = json_decode($pData, true);
         if ($data) {
@@ -42,29 +42,44 @@ class model {
 
             // Бегаем по данным
             foreach ($data as $item) {
+                // Если ID не указан, что то тут не то, говорим что ошибка
                 if (!isset($item['id'])) {
                     throw new \Exception('Неверный JSON', 234);
-                }
+                } // if
+
                 $id = (int)$item['id'];
                 $saveData = [];
-                if (isset($item['data']['caption'])) {
-                    if (!$item['data']['caption']) {
-                        throw new \Exception('Заголовок не может быть пустым', 239);
+
+                // Получам заголовок записи
+                $caption = isset($item['data']['caption']) ? $item['data']['caption'] : null;
+                if ( $caption !== null ){
+                    if ( !$caption ){
+                        throw new \Exception('Пустой заголовок', 239);
                     }
-                    $saveData['caption'] = $item['data']['caption'];
-                }
-                if (isset($item['data']['seoUrl']) && $item['data']['seoUrl']) {
-                    $saveData['seoUrlTmp'] = $item['data']['seoUrl'];
-                }
-                if (!isset($saveData['seoUrlTmp'])) {
-                    $caption = $objItemOrm->get('caption', 'id=' . $id);
-                    $saveData['seoUrlTmp'] = word::wordToUrl($caption);
+                    $saveData['caption'] = $caption;
                 } // if
-                // if isset seoUrl
+
+                // Получаем URL заголовок для записи
+                $seoUrl = isset($item['data']['seoUrl']) ? $item['data']['seoUrl'] : null;
+                // Если запрос пустой, те. он не изменился или пришёл пустым
+                if ( !$seoUrl ) {
+                    // Получаем что раньше сохраняли
+                    $data = $objItemOrm->selectFirst('seoUrl, caption, seoUrlTmp', 'id=' . $id);
+                    // Если сохранений нет, или сео параметры пусты, или сео параметры пришли, но они пустые
+                    if (!$data || !$data['seoUrl'] && !$data['seoUrlTmp'] || $seoUrl !== null && !$seoUrl){
+                        // Получаем заголовок, тот который пришел или вытаскиваем ранее сохранёный
+                        $seoUrlTmp = $caption ?: $data['caption'];
+                        $saveData['seoUrlTmp'] = word::wordToUrl($seoUrlTmp);
+                    } // if !$seoUrl
+                }else{
+                    $saveData['seoUrlTmp'] = $seoUrl;
+                } // if
+
                 if (isset($item['data']['isPublic'])) {
                     $isPublic = (int)$item['data']['isPublic'];
                     $saveData['isPublic'] = $isPublic ? 'yes' : 'no';
-                }
+                } // if
+
                 $saveData['treeId'] = $pContId;
                 $newId = $objItemOrm->save(['id' => $id], $saveData);
 
@@ -75,11 +90,13 @@ class model {
                     $newId ? : $id
                 );
 
-                $return[$id] = $newId ? : $id;
-                ;
-            }
-            // foreach
-        }
+                $return['listId'][$id] = $newId ? : $id;
+                if ( isset($saveData['seoUrlTmp'])){
+                    $return['seoUrl'][$id] = $saveData['seoUrlTmp'];
+                }
+            } // foreach
+
+        } // if $data
         return $return;
 
         // func. saveTableItemData

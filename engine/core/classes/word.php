@@ -37,7 +37,7 @@ class word {
             $wordRus = iconv('UTF-8', 'cp1251', $wordRus);
         } // if
         $return = '';
-		// Если не поставить cp1251, то strToLower не переводит в нижний регистр буквы Я и Ч
+		// Если не поставить cp1251, то strToLower не переводит в нижний регистр буквы Я и Ч (вернего регистра)
         $wordRus = strToLower($wordRus, 'cp1251');
         $wordLenght = strlen($wordRus);
         for ($i = 0; $i < $wordLenght; $i++) {
@@ -47,7 +47,7 @@ class word {
                 continue;
             }
             $ord = ord($char);
-			//print $ord." ";
+
             if (isset(self::$translitCombi1251[$ord])) {
                 $return .= self::$translitCombi1251[$ord];
             }
