@@ -30,11 +30,8 @@ class element {
             $selValue = $pData['val'];
         }
         $list = $pData['list'];
-        //$listCount = count($list);
         echo '<SELECT ', $pAttributes, '>';
-        //for ($i = 0; $i < $listCount; $i++) {
         foreach ($list as $value) {
-            //$value = $list[$i];
             $selected = $value == $selValue ? ' selected="selected"' : '';
             echo '<OPTION VALUE="', $value, '"', $selected, '>', $value, '</OPTION>';
         }
@@ -46,20 +43,18 @@ class element {
         if (!$pData)
             return;
         $selValue = $pSelectValue;
+
         if ($selValue == -1 && isset($pData['val'])) {
             $selValue = $pData['val'];
         }
         $list = $pData['list'];
-        //$listCount = count($list);
         echo '<SELECT ', $pAttributes, '>';
-        //for ($i = 0; $i < $listCount; $i++) {
         foreach ($list as $key => $value) {
-            //$value = $list[$i];
             $selected = $key == $selValue ? ' selected="selected"' : '';
             echo '<OPTION VALUE="', $key, '"', $selected, '>', $value, '</OPTION>';
         }
         echo '</SELECT>';
-        // fucn. select
+        // fucn. selectKeyName
     }
 
     // TODO: Подумать о необходимости
