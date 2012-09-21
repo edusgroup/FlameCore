@@ -400,9 +400,13 @@ class table extends adapter\adapter {
         return $pExec ? self::query() : $this;
     }
 
-    public function insertMulti(array $pField, $pExec = true) {
+    public function insertMulti(array $pField, $pStatic=[], $pExec = true) {
         $this->sSQL = 'INSERT INTO `' . $this->sTable . '`';
-        $this->sSQL .= '(`' . implode('`,`', array_keys($pField)) . '`)';
+        $this->sSQL .= '(`' . implode('`,`', array_keys($pField)).'`';
+        if ( $pStatic ){
+            $this->sSQL .= ',`'.implode('`,`', array_keys($pStatic)).'`';
+        }
+        $this->sSQL .= ')';
         $insert = [];
 
         $count = current($pField);
@@ -413,10 +417,14 @@ class table extends adapter\adapter {
             } // foreach
         } // for
 
+        $static = '';
+        if ( $pStatic ){
+            $static = ',\''.implode('\',', array_values($pStatic)).'\'';
+        }
 
         for ($i = 0; $i < $count; $i++) {
             $insert[$i] = self::_prepare($insert[$i]);
-            $insert[$i] = implode(',', $insert[$i]);
+            $insert[$i] = implode(',', $insert[$i]).$static;
         } // for
 
         $insert = '(' . implode('),(', $insert) . ')';

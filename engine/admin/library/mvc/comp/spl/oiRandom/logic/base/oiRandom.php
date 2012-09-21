@@ -102,8 +102,7 @@ class oiRandom extends \core\classes\component\abstr\admin\comp {
             $selData = explode(',', $selData);
             $selData = array_map('intVal', $selData);
 
-            $oiRandomOrm->insertMulti(['selContId' => $selData]);
-            $oiRandomOrm->update('contId='.$contId, 'contId=0');
+            $oiRandomOrm->insertMulti(['selContId' => $selData], ['contId' => $contId]);
         } // if selData
 
         $classFile = self::post('classFile');

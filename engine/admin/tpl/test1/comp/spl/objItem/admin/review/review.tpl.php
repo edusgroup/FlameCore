@@ -11,7 +11,6 @@
     div .dt{font-weight: bold}
     div .dd{ padding-left: 25px}
     div.hidden{display: none}
-    #cloakingBox{width: 800px}
 </style>
 
 <div class="column" >

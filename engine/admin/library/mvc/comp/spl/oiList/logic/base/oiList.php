@@ -117,8 +117,7 @@ class oiList extends \core\classes\component\abstr\admin\comp {
             $selData = explode(',', $selData);
             $selData = array_map('intVal', $selData);
             // Добавляем новые id в таблицу
-            $oiListOrm->insertMulti(['selContId' => $selData]);
-            $oiListOrm->update('contId=' . $contId, 'contId=0');
+            $oiListOrm->insertMulti(['selContId' => $selData], ['contId' => $contId]);
         } // if selData
 
         $classFile = self::post('class');

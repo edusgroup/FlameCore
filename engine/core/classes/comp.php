@@ -138,7 +138,7 @@ class comp {
         if ( $pIsOut){
             return dirFunc::getAdminCompClassPathOut($pNsPath).'logic/';
         }else{
-            return dirFunc::getAdminCompClassPathIn().$pNsPath.'logic/';
+            return dirFunc::getAdminCompClassPathIn($pNsPath).'logic/';
         } // if
         // func. getAdminCompClassPath
     }

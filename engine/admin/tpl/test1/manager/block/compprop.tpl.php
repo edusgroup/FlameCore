@@ -270,7 +270,7 @@
                 var classText = utils.getTreeUrl(classTree, classBrId );
 
                 var tplBrId = '/base/'+compName+'.tpl.php';
-                var tplTtext = utils.getTreeUrl(tplTree, tplBrId );
+                var tplText = utils.getTreeUrl(tplTree, tplBrId );
             } // if
 
             $(options.classFileText).html(classText);

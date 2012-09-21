@@ -96,8 +96,7 @@ class catalogCont extends \core\classes\component\abstr\admin\comp {
             $selData = explode(',', $selData);
             $selData = array_map('intVal', $selData);
 
-            $catalogContOrm->insertMulti(['selContId' => $selData]);
-            $catalogContOrm->update('contId=' . $contId, 'contId=0');
+            $catalogContOrm->insertMulti(['selContId' => $selData], ['contId' => $contId]);
 
         } // if selData
 

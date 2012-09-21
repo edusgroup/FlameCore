@@ -38,7 +38,13 @@ class comp {
         if ( !$objProp['classFile'] ){
             $objProp = compCore::findCompPropUpToRoot($contId);
         }
-        // Проверяем нашли мы что то, если нет то говорит что ошибка поиска
+
+        // Если ни чего не нашли, то берём настройки и пытаемся загрузить по умолчанию классы
+        if ( !$objProp ){
+            $objProp = compCore::getCompPropByContId($contId);
+            $objProp['classFile'] = '';
+            $objProp['tplFile'] = '';
+        } // if
         if ( !$objProp ){
             throw new \Exception('Prop on contId: ' . $contId . ' not found', 345);
         } // if

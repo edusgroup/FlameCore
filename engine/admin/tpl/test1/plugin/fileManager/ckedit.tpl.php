@@ -122,7 +122,8 @@
                     alert(pData['error']['msg']);
                     return;
                 } // if
-                fileManager.returnInEditor(fileManager.funcNameCallBack, pData['url']);
+                var previewUrl  = fileManager.selectItem.preview;
+                fileManager.returnInEditor(fileManager.funcNameCallBack, pData['url'], previewUrl);
                 // func. cbMakePreviewUrl
             }
 
@@ -133,8 +134,9 @@
                 if ( sizeId == 'noResize'){
                     // Получаем URL файла
                     var fileUrl  = fileManager.selectItem.file;
+                    var previewUrl  = fileManager.selectItem.preview;
                     // Возвращаемся к ckEdit
-                    fileManager.returnInEditor(fileManager.funcNameCallBack, fileUrl);
+                    fileManager.returnInEditor(fileManager.funcNameCallBack, fileUrl, previewUrl);
                 }else{
                     // Получаем имя картинки
                     var name = fileManager.selectItem.name;
