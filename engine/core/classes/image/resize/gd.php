@@ -188,9 +188,6 @@ class resize {
     }
 
     public function resize($pFileSource, $pFileDist) {
-        if ( !is_readable($pFileSource)){
-            throw new \Exception('Файл '.$pFileSource.' не найден', 312);
-        }
         self::_initSize($pFileSource);
         if ( ! self::_math() ){
             copy($pFileSource, $pFileDist);

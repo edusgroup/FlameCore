@@ -1,6 +1,6 @@
 <?php
 
-namespace admin\library\mvc\comp\spl\imgGallery;
+namespace admin\library\mvc\comp\spl\objItem\help\event\gallery;
 
 /**
  * Description of event

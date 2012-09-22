@@ -56,7 +56,7 @@ class event {
             $childList = $oiListOrm->selectList(
                 'selContId as contId',
                 'contId',
-                'contId=' . oiListItemContId
+                'contId=' . $oiListItemContId
             );
 
             // Теперь нужно проверить, а есть ли пересечения из выбранных веток в дереве и в
@@ -71,7 +71,7 @@ class event {
 
             $classFile = $oiListPropItem['classFile'];
             if ( !$classFile || $classFile == '/base/build.php' ){
-                echo "\tioList[acId:$pAcId contId:$oiListItemContId] className is default. Abort".PHP_EOL;
+                echo "\tioList[contId:$oiListItemContId] className is default. Abort".PHP_EOL;
                 continue;
             }
 
@@ -96,7 +96,7 @@ class event {
 
             // Если данных нет, то переходим к след обработке oiList
             if ($handleObjitem->num_rows == 0) {
-                echo "\tioList[acId:$pAcId contId:$oiListItemContId] Not data found. Error".PHP_EOL;
+                echo "\tioList[contId:$oiListItemContId] Not data found. Error".PHP_EOL;
                 continue;
             } // if
 
@@ -107,7 +107,7 @@ class event {
             // Получаем какое должно быть количество объектов в файле
             $itemsCount = $oiListPropItem['itemsCount'];
             $numRows = $handleObjitem->num_rows;
-            echo "\tioList[acId:$pAcId contId:$oiListItemContId] Row:$numRows itemC: $itemsCount".PHP_EOL;
+            echo "\tioList[contId:$oiListItemContId] Row:$numRows itemC: $itemsCount".PHP_EOL;
             echo "\t$classFile".PHP_EOL;
             echo "\t$saveDir".PHP_EOL.PHP_EOL;
 

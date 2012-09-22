@@ -1,6 +1,6 @@
 <?php
 
-namespace core\comp\spl\imgGallery\logic;
+namespace core\comp\spl\objItem\logic\gallery;;
 
 // Conf
 use site\conf\DIR;
@@ -17,7 +17,7 @@ use core\classes\site\dir as sitePath;
  *
  * @author Козленко В.Л.
  */
-class main {
+class gallery {
 
     public static function renderAction($pName) {
         $comp = dbus::$comp[$pName];
@@ -42,5 +42,5 @@ class main {
         } // if $dataList
         // func. render
     }
-    // class. html
+    // class. gallery
 }

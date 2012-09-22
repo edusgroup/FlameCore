@@ -1,5 +1,5 @@
 <?php
-namespace admin\library\mvc\comp\spl\imgGallery;
+namespace admin\library\mvc\comp\spl\objItem\help\model\gallery;
 
 // Engine
 use core\classes\word;
@@ -14,24 +14,18 @@ use \DIR;
  * @author Козленко В.Л.
  */
 class model {
-    public static function fileRm($pCondId, $pCompId, $pNameList) {
-        $pathPrefix = 'comp/' . $pCompId . '/' . $pCondId . '/';
-
-        $fileDistPath = dirFunc::getSiteUploadPathData() . $pathPrefix;
-        $filePreviewPath = dirFunc::getPreviewImgPath($pathPrefix);
-        $fileResizePath = dirFunc::getSiteImgResizePath() . $pathPrefix;
+    public static function fileRm($pPathPostfix, $pNameList) {
+        $fileDistPath = dirFunc::getSiteUploadPathData() . $pPathPostfix;
+        $filePreviewPath = dirFunc::getPreviewImgPath($pPathPostfix);
+        $fileResizePath = dirFunc::getSiteImgResizePath() . $pPathPostfix;
         foreach ($pNameList as $name) {
             fileValid::isSafe($name, new \Exception('Неверное имя файла', 234));
-
-            //$where['md5'] = md5_file($pathDist.$name);
-            //$contFile->delete($where);
 
             filesystem::unlink($fileDistPath . $name);
             filesystem::unlink($filePreviewPath . $name);
             filesystem::unlink($fileResizePath . 'o-' . $name);
             filesystem::unlink($fileResizePath . 's-' . $name);
-            //filesystem::rUnlink($fileResizePath, filesystem::ALL_NO_FILTER_FOLDER, $name);
-        }
+        } // foreach
         // func. fileRm
     }
     // class model

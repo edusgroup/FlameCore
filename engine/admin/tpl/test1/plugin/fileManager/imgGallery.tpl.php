@@ -131,7 +131,9 @@ var file = {
     // Названия редактируемого сайта ( нужно для флеша, из-за кук )
     siteName:'<?=self::get('$siteName')?>',
     // Массив выбранных имён файлов
-    fileData: <?= self::get('fileData', 'null') ?>
+    fileData: <?= self::get('fileData', 'null') ?>,
+    // Пользовательские данные в URL, при загрузке файлов
+    userQuery: ''
 };
 
 utils.setType(file.callType);
