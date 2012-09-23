@@ -146,7 +146,7 @@
 <script type="text/javascript">
     var engartData = {
         contid: <?= self::get('contId') ?>,
-        itemObjId: <?= self::get('objItemId') ?>
+        objItemId: <?= self::get('objItemId') ?>
     };
 
     var contrName = engartData.contid;

@@ -44,7 +44,7 @@ class comp {
      * @param integer $pContId ID контента
      * @return array
      */
-    public static function findCompPropUpToRoot(integer $pContId) {
+    private static function _findCompPropUpToRoot(integer $pContId) {
 
         $compContTree = new compContTree();
         // получаем список папок-родителей в виде массива
@@ -72,7 +72,7 @@ class comp {
             ->comment(__METHOD__)
             ->fetchFirst();
         return $propData;
-        // func. findCompPropUpToRoot
+        // func. _findCompPropUpToRoot
     }
 
     /**
@@ -94,6 +94,30 @@ class comp {
             ->fetchFirst();
         return $data;
         // func. getContData
+    }
+
+    public static function findCompPropBytContId(integer $pContId, $ex=null){
+        // Получаем настройки конкретной ветки
+        $objProp = self::getBrunchPropByContId($pContId);
+
+        if ( !$objProp['classFile'] ){
+            // Если нет конкретных настроек веток, надо пройтись вверх и посмореть выше настройки по веткам
+            $objProp = self::_findCompPropUpToRoot($pContId);
+        }
+
+        // Если ни чего не нашли, то берём настройки и пытаемся загрузить по умолчанию классы
+        if ( !$objProp ){
+            // Берём просто настройки по компоненту
+            $objProp = self::getCompPropByContId($pContId);
+            $objProp['classFile'] = '';
+            $objProp['tplFile'] = '';
+        } // if
+        if ( !isset($objProp['classname']) && $ex){
+            /** @var $ex \Exception */
+            throw $ex;
+        } // if
+        return $objProp;
+        // func.
     }
 
     public static function getBrunchPropByContId(integer $pContId){

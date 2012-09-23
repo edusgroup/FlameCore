@@ -16,6 +16,7 @@ use core\classes\admin\dirFunc;
 // ORM
 use ORM\comp\spl\objItem\objItem as objItemOrm;
 use ORM\comp\spl\objItem\article\article as articleOrm;
+use ORM\tree\compContTree;
 
 // Model
 use admin\library\mvc\comp\spl\objItem\help\model\base\model as objItemModel;
@@ -56,7 +57,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         // Получаем параметры статьи и ранее сохранёные настройки (если они есть)
         $objItemData = (new objItemOrm())
             ->select('a.*, i.*', 'i')
-            ->joinLeftOuter(articleOrm::TABLE.' a', 'a.itemObjId=i.id')
+            ->joinLeftOuter(articleOrm::TABLE.' a', 'a.objItemId=i.id')
             ->where('i.id=' . $objItemId)
             ->fetchFirst();
 
@@ -135,7 +136,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         // Сохраняем превью изображения для статьи
         $prevImgUrl = self::post('prevImgUrl');
         (new articleOrm())->saveExt(
-            [ 'itemObjId' => $objItemId ]
+            [ 'objItemId' => $objItemId ]
             ,['prevImgUrl' => $prevImgUrl,
              'seoKeywords' => $seoKeywords,
              'isCloaking' => trim($cloakingText) != '',
@@ -169,6 +170,11 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         $this->view->setRenderType(render::NONE);
         echo 'article::blockItemShowAction() | No settings in this';
         // func. blockItemShowAction
+    }
+
+    // Возвращает частную таблицу с которой работает данных класс
+    public function getTableCustom(){
+        return articleOrm::TABLE;
     }
 
     // class article

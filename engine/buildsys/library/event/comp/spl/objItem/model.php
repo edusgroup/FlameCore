@@ -131,7 +131,7 @@ class model {
         $handleObjitem = (new objItemOrm())->select($select, 'i');
 
         foreach ($pTableJoinList as $num => $tableName) {
-            $handleObjitem->joinLeftOuter($tableName . ' a' . $num, 'a' . $num . '.itemObjId=i.id');
+            $handleObjitem->joinLeftOuter($tableName . ' a' . $num, 'a' . $num . '.objItemId=i.id');
         }
 
         return $handleObjitem->join(compContTreeOrm::TABLE . ' cc', 'cc.id=i.treeId')

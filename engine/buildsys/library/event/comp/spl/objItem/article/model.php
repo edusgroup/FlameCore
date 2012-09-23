@@ -15,6 +15,7 @@ use \DIR;
 // Engine
 use core\classes\filesystem;
 use core\classes\admin\dirFunc;
+use core\classes\comp as compCore;
 
 // Model
 use admin\library\mvc\comp\spl\objItem\model as objItemModel;
@@ -30,84 +31,109 @@ use admin\library\mvc\comp\spl\objItem\help\event\base\event as eventBase;
  */
 class model {
     public static function urlTplChange($pListerUserData, $pEventBuffer, $pEventList) {
-	
-        // Если были какие либо новые сохранениея, то у них пустой urlTpl
-        $isArctileSave = $pEventBuffer->selectFirst(
-            'id',
-            ['eventName' => eventBase::ACTION_TABLE_SAVE]
-        );
-        $objItemOrm = new objItemOrm();
-        // Если произошло сохранение
-        if ($isArctileSave) {
 
-            $idList = $objItemOrm->select('i.treeId', 'i')
-                ->join(articleOrm::TABLE.' a', 'a.itemObjId=i.id')
-                ->where('a.urlTpl = ""')
+        $objItemPropOrm = new objItemProp();
+
+        // Получаем список данных по событию сохранения в таблице objItem
+        $eventBuffData = $pEventBuffer
+            ->select('userId as objItemId, userData')
+            ->where(['eventName' => eventBase::ACTION_TABLE_SAVE])
+            ->group('userId')
+            ->comment(__METHOD__)
+            ->fetchAll();
+
+        $objItemOrm = new objItemOrm();
+        // Бегаем по событиям
+        foreach ($eventBuffData as $eventBuffItem) {
+            // Получаем ContId для объекта, по которому произошло событие
+            $eventContId = \unserialize($eventBuffItem['userData'])['contId'];
+
+            $contPropData = compCore::findCompPropBytContId((int)$eventContId);
+            if ( !isset($contPropData['classname']) ){
+                continue;
+            }
+
+            // Имя класса который задали в настройках
+            $classFile = $contPropData['classFile'] ? : '/base/' . $contPropData['classname'] . '.php';
+            $compNs = $contPropData['ns'];
+            $className = compCore::fullNameClassAdmin($classFile, $compNs);
+
+            $contrObj = new $className('', '');
+            // Получаем имя таблицы, с котороым работает данных класс
+            $ormTable = $contrObj->getTableCustom();
+
+            // Получаем все объекты, у которых не выставленно свойство urlTpl
+            $eventBuffList = $objItemOrm->select('i.treeId', 'i')
+                ->join($ormTable . ' a', 'a.objItemId=i.id')
+                ->where('a.urlTpl = "" and i.treeId=' . $eventContId)
                 ->group('i.treeId')
                 ->toList('treeId');
 
-            foreach ($idList as $contId) {
+            // Бегаем по объектам без urlTpl, ищем для них ближайщую настройку c urlTpl и в ставляем в поле urlTpl
+            foreach ($eventBuffList as $contId) {
+
                 $urlList = (new tree())->getTreeUrlById(compContTree::TABLE, (int)$contId);
-                $urlList = array_map(function($pItem) {
+                $urlList = array_map(function ($pItem) {
                     return $pItem['id'];
                 }, $urlList);
                 $urlList = implode('","', $urlList);
                 // Находим ближайший для нас шаблон
-                $data = (new objItemProp())->sql(
-					'SELECT ap.contId, ap.url '.
-					'FROM ' . objItemProp::TABLE . ' ap '.
-                    'JOIN ( SELECT max(contId) contId FROM ' . objItemProp::TABLE . ' WHERE contId IN ("' . $urlList . '") AND url != "" ) jn '.
-					'ON jn.contId = ap.contId#' . __METHOD__
-				)->fetchFirst();
-				if ( !$data ){
-					continue;
-				}
+                $data = $objItemPropOrm->sql(
+                    'SELECT ap.contId, ap.url ' .
+                        'FROM ' . objItemProp::TABLE . ' ap ' .
+                        'JOIN ( SELECT max(contId) contId FROM ' . objItemProp::TABLE . ' WHERE contId IN ("' . $urlList . '") AND url != "" ) jn ' .
+                        'ON jn.contId = ap.contId#' . __METHOD__
+                )->fetchFirst();
+                if (!$data) {
+                    continue;
+                }
 
                 $urlTpl = $data['url'];
-                /*$objItemOrm->update(
-                    ['urlTpl' => $urlTpl, 'urlTplContId' => $data['contId']],
-                    'treeId=' . $contId
-                );*/
                 // Обновляем шаблоны ссылки и какой ветке настроек шаблон пренадлежит
                 $objItemOrm->sql(
-                    'UPDATE '.articleOrm::TABLE.' a '.
-                    'JOIN '.objItemOrm::TABLE.' i '.
-                    'ON i.id=a.itemObjId '.
-                    'SET a.urlTpl="'. $urlTpl.'", a.urlTplContId='.$data['contId'].' '.
-                    'WHERE i.treeId='.$contId.' #'.__METHOD__
+                    'UPDATE ' . $ormTable . ' a ' .
+                        'JOIN ' . objItemOrm::TABLE . ' i ' .
+                        'ON i.id=a.objItemId ' .
+                        'SET a.urlTpl="' . $urlTpl . '", a.urlTplContId=' . $data['contId'] . ' ' .
+                        'WHERE i.treeId=' . $contId . ' #' . __METHOD__
                 )->query();
-
             } // foreach
-            unset($idList, $data);
-        } // if Если это сохранение
+            unset($eventBuffList, $data);
+        } // foreach
 
-        // Изменение шаблона в кастом настройках
-        $isSettChange = $pEventBuffer->selectFirst(
-            'id',
-            ['eventName' => eventBase::ACTOIN_CUSTOM_PROP_SAVE]
-        );
-        if ($isSettChange) {
-            $compContTree = new compContTree();
-            $idList = $pEventBuffer
-                ->select('userId', 'eb')
-                ->where(['eventName' => eventBase::ACTOIN_CUSTOM_PROP_SAVE])
-                ->group('userId')
-                ->toList('userId');
-            foreach ($idList as $contId) {
-                $urlList = (new tree())->getTreeUrlById(compContTree::TABLE, (int)$contId);
-                $urlList = array_map(function($pItem) {
-                    return $pItem['id'];
-                }, $urlList);
-                $urlList = implode('","', $urlList);
-                $data = (new objItemProp())
-                    ->sql('SELECT ap.contId, ap.url FROM ' . objItemProp::TABLE . ' ap
+        $compContTree = new compContTree();
+        $eventBuffList = $pEventBuffer
+            ->select('userId contId')
+            ->where(['eventName' => eventBase::ACTOIN_CUSTOM_PROP_SAVE])
+            ->group('userId')
+            ->toList('contId');
+        foreach ($eventBuffList as $eventContId) {
+
+            $contPropData = compCore::findCompPropBytContId((int)$eventContId);
+
+            // Имя класса который задали в настройках
+            $classFile = $contPropData['classFile'] ? : '/base/' . $contPropData['classname'] . '.php';
+            $compNs = $contPropData['ns'];
+            $className = compCore::fullNameClassAdmin($classFile, $compNs);
+
+            $contrObj = new $className('', '');
+            // Получаем имя таблицы, с котороым работает данных класс
+            $ormTable = $contrObj->getTableCustom();
+
+            $urlList = (new tree())->getTreeUrlById(compContTree::TABLE, (int)$eventContId);
+            $urlList = array_map(function ($pItem) {
+                return $pItem['id'];
+            }, $urlList);
+            $urlList = implode('","', $urlList);
+            $data = $objItemPropOrm
+                ->sql('SELECT ap.contId, ap.url FROM ' . objItemProp::TABLE . ' ap
                            JOIN ( SELECT max(contId) contId FROM ' . objItemProp::TABLE . ' WHERE contId IN ("' . $urlList . '")
                                AND url != "" ) jn ON jn.contId = ap.contId#' . __METHOD__)
-                    ->fetchFirst();
-                $urlTpl = $data['url'];
-                self::_rSetUrlTpl($compContTree, $objItemOrm, $contId, $data['contId'], $urlTpl);
-            } // foreach
-        } // if
+                ->fetchFirst();
+            $urlTpl = $data['url'];
+            self::_rSetUrlTpl($compContTree, $objItemOrm, $eventContId, $data['contId'], $urlTpl, $ormTable);
+        } // foreach
+
         // func. urlTplChange
     }
 
@@ -174,19 +200,19 @@ class model {
         } // if $prevData
     }
 
-    private static function _rSetUrlTpl($compContTree, $objItemOrm, $pContId, $purlTplContId, $pUrlTpl) {
+    private static function _rSetUrlTpl($compContTree, $objItemOrm, $pContId, $pUrlTplContId, $pUrlTpl, $ormTable) {
         $objItemOrm->sql(
-            'UPDATE '.articleOrm::TABLE.' a '.
-                'JOIN '.$objItemOrm::TABLE.' i '.
-                'ON i.id=a.itemObjId '.
-                'SET a.urlTpl="'. $pUrlTpl.'", a.urlTplContId='.$purlTplContId.' '.
-                'WHERE i.treeId='.$pContId.' '.
-                '#'.__METHOD__
+            'UPDATE ' . $ormTable . ' a ' .
+                'JOIN ' . $objItemOrm::TABLE . ' i ON i.id=a.objItemId ' .
+                'SET a.urlTpl="' . $pUrlTpl . '", a.urlTplContId=' . $pUrlTplContId . ' ' .
+                'WHERE i.treeId=' . $pContId . ' ' .
+                '#' . __METHOD__
         )->query();
 
         $handleArt = $objItemOrm
             ->select('a.id, cc.id contId, cc.comp_id compId', 'a')
             ->join(compContTree::TABLE . ' cc', 'cc.id = a.treeId')
+            ->comment(__METHOD__)
             ->query();
         while ($item = $handleArt->fetch_object()) {
             self::saveDataInfo((int)$item->id, $objItemOrm, (int)$item->compId, (int)$item->contId);
@@ -201,7 +227,7 @@ class model {
             ->toList('id');
         // Бегаем по детям, проставляем UrlTpl
         foreach ($childList as $contId) {
-            self::_rSetUrlTpl($compContTree, $objItemOrm, $contId, $purlTplContId, $pUrlTpl);
+            self::_rSetUrlTpl($compContTree, $objItemOrm, $contId, $pUrlTplContId, $pUrlTpl, $ormTable);
         }
         // func. setUrlTpl
     }
@@ -231,55 +257,30 @@ class model {
         $objItemDirData = baseModel::getPath($pCompId, $pContId, $pId);
         $objItemDirData = dirFunc::getSiteDataPath($objItemDirData);
 
-        // Получаем все данные по статье
-        $objItemData = $pObjItemOrm
-            ->select('i.id, i.seoUrl, i.treeId, i.caption, a.prevImgUrl, i.isPublic'
-                         . ',cc.seoName, cc.name category, a.seoKeywords, a.seoDescr, a.isCloaking'
-                         . ',DATE_FORMAT(i.date_add, "%Y-%m-%dT%h:%i+04:00") as dateISO8601'
-                         . ',DATE_FORMAT(i.date_add, "%d.%m.%y %H:%i") date_add, i.date_add dateunf, a.urlTpl', 'i')
-            ->joinLeftOuter(articleOrm::TABLE. ' a', 'i.id=a.itemObjId')
-            ->join(compContTree::TABLE . ' cc', 'i.treeId=cc.id')
-            ->where('i.id=' . $pId)
-            ->comment(__METHOD__)
-            ->fetchFirst();
+        $contPropData = compCore::findCompPropBytContId($pContId);
+        // Имя класса который задали в настройках
+        $classFile = $contPropData['classFile'] ? : '/base/' . $contPropData['classname'] . '.php';
+        $compNs = $contPropData['ns'];
+        $className = compCore::fullNameClassAdmin($classFile, $compNs);
+        ;
+        $contrObj = new $className('', '');
 
-        // Данные предыдушей статьи
-        $prevData = $pObjItemOrm
-            ->select('i.id, i.seoUrl, i.caption, cc.seoName, a.urlTpl', 'i')
-            ->joinLeftOuter(articleOrm::TABLE. ' a', 'i.id=a.itemObjId')
-            ->join(compContTree::TABLE . ' cc', 'i.treeId=cc.id')
-            ->where(
-            'date("' . $objItemData['dateunf'] . ' ") >= date(i.date_add)
-                AND i.isPublic = "yes"
-                AND i.isDel = 0
-                And i.treeId = ' . $objItemData['treeId'] . '
-                AND i.id < ' . $objItemData['id'])
-            ->order('i.date_add DESC, i.id desc')
-            ->fetchFirst();
+        if (!method_exists($contrObj, 'saveDataInfo')) {
+            return;
+        }
+        $saveDataInfo = $contrObj->saveDataInfo($pId, $pObjItemOrm);
+        if (!$saveDataInfo['obj']) {
+            return;
+        }
 
-        // Данные следующей статьи
-        $nextData = $pObjItemOrm
-            ->select('i.id, i.seoUrl, i.caption, cc.seoName, a.urlTpl', 'i')
-            ->joinLeftOuter(articleOrm::TABLE. ' a', 'i.id=a.itemObjId')
-            ->join(compContTree::TABLE . ' cc', 'i.treeId=cc.id')
-            ->where(
-            'date("' . $objItemData['dateunf'] . ' ") <= date(i.date_add)
-                AND i.isPublic = "yes"
-                AND i.isDel = 0
-                And i.treeId = ' . $objItemData['treeId'] . '
-                AND i.id > ' . $objItemData['id'])
-            ->order('i.date_add ASC')
-            ->fetchFirst();
+        if ($saveDataInfo['prev']) {
+            self::_modifyDataInfo($saveDataInfo['prev'], $pCompId, $pContId, $saveDataInfo['obj'], 'next', $saveDataInfo['next'], 'prev');
+        }
+        if ($saveDataInfo['next']) {
+            self::_modifyDataInfo($saveDataInfo['next'], $pCompId, $pContId, $saveDataInfo['obj'], 'prev', $saveDataInfo['prev'], 'next');
+        }
 
-        $objItemData['canonical'] = sprintf($objItemData['urlTpl'], $objItemData['seoName'], $objItemData['seoUrl']);
-
-        // Если что обрабатывать с предыдущей ссылкой
-        self::_modifyDataInfo($prevData, $pCompId, $pContId, $objItemData, 'next', $nextData, 'prev');
-        self::_modifyDataInfo($nextData, $pCompId, $pContId, $objItemData, 'prev', $prevData, 'next');
-
-        unset($objItemData['seoUrl'], $objItemData['urlTpl'], $objItemData['treeId'], $objItemData['dateunf']);
-
-        $objItemData = serialize($objItemData);
+        $objItemData = serialize($saveDataInfo['obj']);
         filesystem::saveFile($objItemDirData, 'info.txt', $objItemData);
 
         // Выдача прав на директорию пользователю www
@@ -288,6 +289,7 @@ class model {
         if (strToLower(substr(PHP_OS, 0, 3)) !== 'win') {
             exec('sudo chown -R www-data:www-data ' . $objItemDirData);
         }
+
         // func. saveDataInfo
     }
 

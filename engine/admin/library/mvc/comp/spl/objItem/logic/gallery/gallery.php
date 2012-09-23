@@ -297,5 +297,13 @@ class gallery extends \core\classes\component\abstr\admin\comp implements \core\
         // func. saveDataAction
     }
 
+
+    /*public function saveDataInfo(){
+        return ['obj'=>false, 'prev'=>false, 'next'=>false];
+        // func. saveDataInfo
+    }*/
+
+
+
     // class gallery
 }

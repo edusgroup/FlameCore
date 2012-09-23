@@ -163,7 +163,6 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
 
     /**
      * Получаем табличный контент, если у компонента onlyFolder = 1
-     * @throws \Exception если метод getTableData у класса не найден
      */
     public function loadCompTableAction() {
         $this->view->setRenderType(render::JSON);
@@ -179,10 +178,15 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $className = comp::fullNameClassAdmin($classFile, $compData['ns']);;
         $adminObj = new $className('', '');
 
-        if (!method_exists($adminObj, 'getTableData')) {
-            throw new \Exception(' getTableData не найден: ' . $contId, 24);
-        }
-        $contList = $adminObj->getTableData($contId);
+        /*if (!method_exists($adminObj, 'getTableOrm')) {
+            throw new \Exception(' getTableOrm не найден: ' . $contId, 24);
+        }*/
+        $contList = $adminObj
+            ->getTableOrm()
+            ->select('id, caption')
+            ->where('treeId=' . $contId . ' AND isPublic="yes" AND isDel=0')
+            ->comment(__METHOD__)
+            ->fetchAll();
         self::setVar('json', $contList);
         // func. loadCompTableAction
     }
@@ -301,14 +305,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $custContId = self::postInt('contid');
 
         // Получаем настройки ветки
-        $objProp = comp::getBrunchPropByContId($custContId);
-        if ( !$objProp ){
-            $objProp = comp::findCompPropUpToRoot($custContId);
-        }
-        // Проверяем нашли мы что то, если нет то говорит что ошибка поиска
-        if ( !$objProp ){
-            throw new \Exception('Prop on contId: ' . $custContId . ' not found', 345);
-        } // if
+        $objProp = compCore::findCompPropBytContId($custContId);
 
         // Имя класса который задали в настройках
         $classFile = $objProp['classFile']?: '/base/'.$objProp['classname'].'.php';

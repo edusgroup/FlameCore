@@ -42,32 +42,17 @@ class compprop extends \core\classes\mvc\controllerAbstract {
         // ID компонента
         self::setVar('contId', $contId);
 
-        $compProp = comp::getCompPropByContId($contId);
-        // Есть ли такой компонент
-        if (!$compProp || $contId == 0) {
-            throw new \Exception('ContId: ' . $contId . ' not found', 234);
-        } // if
-
-        // Получаем Ns пусть до компонента
-        $nsPath = filesystem::nsToPath($compProp['ns']);
-
-        // Сохранённые настройки
-        $loadData = model::loadData($contId);
-        // Если настроек нет
-        if (!$loadData) {
-            // Выставляем их по умолчанию или ищем выше веткой
-            $loadData = comp::findCompPropUpToRoot($contId);
-        } // if
+        $loadData = comp::findCompPropBytContId($contId);
+        $nsPath = filesystem::nsToPath($loadData['ns']);
 
         $extendsSettings = 0;
         // Если настроеки были или мы их нашли
-        if ( $loadData ){
+        if ( $loadData['classFile'] ){
             // Есть ли рассширенные настройки
-            $extendsSettings = model::isClassHasExtendsProp($loadData['classFile'], $compProp['ns']);
+            $extendsSettings = model::isClassHasExtendsProp($loadData['classFile'], $loadData['ns']);
         } // if
 
         self::setJSON('loadData', $loadData);
-        self::setJSON('compProp', $compProp);
         self::setVar('extSettings', $extendsSettings);
 
         $tree = model::getClassTree($nsPath);

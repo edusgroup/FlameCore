@@ -74,7 +74,7 @@
 <script type="text/javascript">
     var reviewData = {
         contid: <?= self::get('contId') ?>,
-        itemObjId: <?= self::get('objItemId') ?>,
+        objItemId: <?= self::get('objItemId') ?>,
 		prevImgUrl: '<?= self::get('imgPrevUrl') ?>'
     };
 
@@ -93,7 +93,7 @@
 
             var propData = $('#' + options.propBox).serialize();
             propData += '&prevImgUrl=' + reviewData.prevImgUrl;
-            propData += '&itemObjId=' + reviewData.itemObjId;
+            propData += '&objItemId=' + reviewData.objItemId;
 
             HAjax.saveData({
                 data: propData,
@@ -125,7 +125,7 @@
 		function prevImgBtnClick(){
 			var urlWindow = utils.url({
 				method: 'fileManager', 
-				query: {CKEditorFuncNum: '25', type: 'img', id: reviewData.itemObjId}
+				query: {CKEditorFuncNum: '25', type: 'img', id: reviewData.objItemId}
 			});
 			window.open( urlWindow, 'Выберите файл', 
 				'width=800,height=600,scrollbars=yes,resizable=yes,'

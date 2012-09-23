@@ -413,14 +413,7 @@ class eventModel {
         $custContId = (int)($item['custContId'] ? : $item['statId']);
         if ($custContId) {
             // Получаем настройки ветки
-            $objProp = comp::getBrunchPropByContId($custContId);
-            if ( !$objProp ){
-                $objProp = comp::findCompPropUpToRoot($custContId);
-            }
-            // Проверяем нашли мы что то, если нет то говорит что ошибка поиска
-            if ( !$objProp ){
-                throw new \Exception('Prop on contId: ' . $custContId . ' not found', 345);
-            } // if
+            $objProp = compCore::findCompPropBytContId($custContId);
 
             // Имя класса который задали в настройках
             $classFile = $objProp['classFile']?: '/base/'.$objProp['classname'].'.php';
