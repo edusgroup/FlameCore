@@ -40,10 +40,10 @@ echo '
 // ====== Varible TREE('.$name.')
 $name = \''.$name.'\';
 dbus::$vars[$name.\'Name\'] = request::get($name);
-dbus::$vars[$name] = $compContTree->selectFirst(\'id, name as caption, seoname\', array(
+dbus::$vars[$name] = $compContTree->selectFirst(\'id, name as caption, seoname, tree_id as treeId\', [
     \'seoname\'=>dbus::$vars[$name.\'Name\']
     ,\'tree_id\' => '.$treeId.'
-)
+]
 );
 if ( !dbus::$vars[$name] ){
     //echo \'ERROR: 404 \'.$name;

@@ -79,6 +79,11 @@ class event {
             $className = compCore::fullNameBuildClassAdmin($classFile, $objItemProp['ns']);
             $objItemCatEvent = new $className();
 
+            $advField = [];
+            if ( method_exists($objItemCatEvent, 'setAdvField')){
+                $advField = $objItemCatEvent->setAdvField($advField);
+            } // if
+
             // Тут, мы провереим пересечение, если оно есть, то выбирим все нужные элементы objItem
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
@@ -86,7 +91,8 @@ class event {
                 $oiListOrm,
                 new compContTreeOrm(),
                 $childList,
-				$buffTreeIdList
+				$buffTreeIdList,
+                $advField
             );
 
             // Если данное условие верно, то скорей всего, мы не в той ветке oiList, переходим на след ветку

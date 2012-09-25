@@ -16,6 +16,7 @@ use core\classes\render;
 use core\classes\comp;
 use core\classes\arrays;
 use core\classes\admin\dirFunc;
+use core\classes\comp as compCore;
 
 // ORM
 use ORM\urlTreePropVar;

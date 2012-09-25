@@ -82,6 +82,11 @@ class event {
             // Получаем подтип objItem и создаём его класс
             $className = compCore::fullNameBuildClassAdmin($classFile, $objItemProp['ns']);
             $objItemCatEvent = new $className();
+
+            $advField = ['limit'=>$itemsCount];
+            if ( method_exists($objItemCatEvent, 'setAdvField')){
+                $advField = $objItemCatEvent->setAdvField($advField);
+            } // if
 				
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
@@ -90,7 +95,7 @@ class event {
                 new compContTreeOrm(),
                 $childList,
 				$buffTreeIdList,
-                ['limit'=>$itemsCount]
+                $advField
             );
 			
 			// Выборка представляем ли смысл

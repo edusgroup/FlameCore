@@ -120,12 +120,9 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
 
         if ($acId) {
             $routeTree = new routeTree();
-            //$treeUrl = $routeTree->getTreeUrlById(routeTree::TABLE, $acId);
-            //if ($treeUrl) {
                 $varList = varModel::getVarList($routeTree, $acId);
                 array_unshift($varList, ['name' => '---', 'id' => '']);
                 self::setVar('varList', ['list' => $varList]);
-           // } // if
         } // if ($acId)
 
         if ($itemData['isSaveProp']) {

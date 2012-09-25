@@ -80,6 +80,11 @@ class event {
 
             $itemsCount = (int)$rndObjItemProp['itemsCount'];
 
+            $advField = ['order' => 'rand()', 'limit' => 30 * $itemsCount];
+            if ( method_exists($objItemCatEvent, 'setAdvField')){
+                $advField = $objItemCatEvent->setAdvField($advField);
+            } // if
+
             // число 30 взято набом, в целом нужно взять блок, побольше, его посортировать и записать
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
@@ -88,7 +93,7 @@ class event {
                 new compContTreeOrm(),
                 $childList,
                 $buffTreeIdList,
-                ['order' => 'rand()', 'limit' => 30 * $itemsCount]
+                $advField
             );
 
             // Выборка представляем ли смысл

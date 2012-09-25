@@ -84,6 +84,11 @@ class event {
 
             $itemsCount = $oiPopularItemProp['itemsCount'];
 
+            $advField = ['order' => 'dayCount desc, RAND()', 'limit' => $itemsCount];
+            if ( method_exists($objItemCatEvent, 'setAdvField')){
+                $advField = $objItemCatEvent->setAdvField($advField);
+            } // if
+
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
                 $objItemCatEvent::getTable(),
@@ -91,7 +96,7 @@ class event {
                 new compContTreeOrm(),
                 $childList,
                 $buffTreeIdList,
-                ['order' => 'dayCount desc, RAND()', 'limit' => $itemsCount]
+                $advField
             );
 
             // Выборка представляем ли смысл

@@ -88,7 +88,7 @@ class event {
 
         nginx::createConf($routeTree);
 
-        $idList = implode(',', $idList);
+        $idList = implode(',', $itemList);
         $routeTree->update('isCreate="no"', 'id in (' . $idList . ')');
         // func. createFolder
     }

@@ -116,14 +116,17 @@ class model {
         // Вполне возможно класс, может быть удалён с файловой системы, а уже используется
         // тогда системы выдаст исключение, от том что файла нет, исключение нужно перехватить
         try{
+
             $compObj = new $className();
             $methodList = get_class_methods($compObj);
+
             // Фильтруем методы. Нам нужны только в окончанием Action
             $methodList = array_filter($methodList, function($pItem) {
                 return substr($pItem, -6) == 'Action';
             });
             $urlTplList = isset($compObj::$urlTplList) ? array_keys($compObj::$urlTplList) : [];
         }catch (\Exception $ex){
+            var_dump($ex->getMessage());
             // если мы тут, значит файл был удалён и при этом используется в системе
             $methodList = [];
             $urlTplList = [];
