@@ -155,13 +155,13 @@ class eventModel {
             } // if
 
             // Если контент был удалён, то пишем ошибку и берём следующий компонент
-            if (!$biItem['statId'] && !$biItem['varId']) {
-                var_dump($biItem);
+            /*if (!$biItem['statId'] && !$biItem['varId']) {
+                //var_dump($biItem);
                 echo "\tERROR(" . __METHOD__ . "):" . PHP_EOL;
                 echo "\tBlockId({$biItem['id']}) AcId($pAcId) SysName({$biItem['sysname']})" . PHP_EOL;
                 echo "\tNot set contId in blockItem.";
                 continue;
-            } // if
+            } // if*/
             // Если табличные данные контента были удалёны, то пишем ошибку и берём следующий компонент
             if (!$biItem['tableId'] && $biItem['onlyFolder'] && !$biItem['varId']) {
                 print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tTableId not found. BlockId: [{$biItem['id']}]. AcId: $pAcId" . PHP_EOL;
