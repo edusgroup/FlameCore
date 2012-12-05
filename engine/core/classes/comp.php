@@ -185,6 +185,16 @@ class comp {
         // func. getBuildCompClassPath
     }
 
+    public static function getAjaxCompClassPath($pIsOut, $pNsPath){
+        // Проверяем существование класса
+        if ( $pIsOut){
+            return dirFunc::getSiteClassCore($pNsPath).'ajax/';
+        }else{
+            return dirFunc::getCoreScript().'comp/'.$pNsPath.'ajax/';
+        } // if
+        // func. getAjaxCompClassPath
+    }
+
     public static function fullNameClassAdmin($pClassFileName, $pNs){
         $classNameData = self::getClassName($pClassFileName);
         if ( $classNameData['isOut']){

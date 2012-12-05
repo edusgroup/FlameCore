@@ -2,11 +2,7 @@
 
 namespace admin\library\mvc\manager\compprop;
 
-// Model
-use admin\library\mvc\manager\complist\model as complistModel;
-
 // Engine
-use core\classes\html\element as htmlelem;
 use core\classes\render;
 use core\classes\filesystem;
 use core\classes\comp;
@@ -14,16 +10,10 @@ use core\classes\validation\filesystem as filevalid;
 
 // Conf
 use \DIR;
-use \CONSTANT;
 
 // ORM
 use ORM\compprop as compPropOrm;
 
-// Init
-use admin\library\init\comp as compInit;
-
-// Plugin
-use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
 
 /**
  *

@@ -39,7 +39,7 @@ class complist extends \core\classes\mvc\controllerAbstract {
         $contId = self::getInt('contid');
         $compId = self::getInt('compid');
 
-        dhtmlxTree::setField(array('onlyFolder'));
+        dhtmlxTree::setField(['onlyFolder']);
         $compTree = dhtmlxTree::createTreeOfTable(new componentTree());
         dhtmlxTree::clear();
         self::setJson('compTree', $compTree);
@@ -58,7 +58,7 @@ class complist extends \core\classes\mvc\controllerAbstract {
     public function loadContTreeAction() {
         $this->view->setRenderType(render::JSON);
         $compId = self::getInt('compid');
-        $return = [];
+
         $return['tree'] = model::getTreeCompCont($compId);
         self::setVar('json', $return);
         // func. loadContTreeAction
@@ -76,7 +76,7 @@ class complist extends \core\classes\mvc\controllerAbstract {
         $name = self::post('name');
 
         $contData = comp::getCompPropByContId($contId);
-        $compId = self::postInt('compid');//$contData['compId'];
+        $compId = self::postInt('compid');
         $className = $contData['classname'];
 
         eventCore::callOffline($className, 'tree:diradd', ['compId' => $compId], $contId);
