@@ -47,6 +47,20 @@ trait table {
         // func. indexAction
     }
 
+    public function showTableItemAction(){
+        $contId = self::getInt('id', null);
+        if ( $contId === null ){
+            return;
+        }
+
+        $list = model\table\model::getList($contId);
+        $this->view->setVar('list', $list);
+
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('comp').$this->nsPath);
+        $this->view->setMainTpl('help/tableChoose.tpl.php');
+        // func. showTableItemAction
+    }
+
     /**
      * Сохранение заголовка, системного имени и публикации.
      * т.е. сохранение в общей таблице статей
