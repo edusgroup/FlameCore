@@ -79,6 +79,11 @@ class event {
             $className = compCore::fullNameBuildClassAdmin($classFile, $objItemProp['ns']);
             $objItemCatEvent = new $className();
 
+            $advField = [];
+            if ( method_exists($objItemCatEvent, 'setAdvField')){
+                $advField = $objItemCatEvent->setAdvField($advField);
+            } // if
+
             // Тут, мы провереим пересечение, если оно есть, то выбирим все нужные элементы objItem
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
@@ -86,7 +91,8 @@ class event {
                 $oiListOrm,
                 new compContTreeOrm(),
                 $childList,
-				$buffTreeIdList
+				$buffTreeIdList,
+                $advField
             );
 
             // Если данное условие верно, то скорей всего, мы не в той ветке oiList, переходим на след ветку
@@ -96,7 +102,7 @@ class event {
 
             // Если данных нет, то переходим к след обработке oiList
             if ($handleObjitem->num_rows == 0) {
-                echo "\tioList[acId:$pAcId contId:$oiListItemContId] Not data found. Error".PHP_EOL;
+                echo "\tioList[contId:$oiListItemContId] Not data found. Error".PHP_EOL;
                 continue;
             } // if
 

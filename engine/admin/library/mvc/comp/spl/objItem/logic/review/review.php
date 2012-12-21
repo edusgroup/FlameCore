@@ -45,21 +45,21 @@ class review extends \core\classes\component\abstr\admin\comp implements \core\c
         self::setVar('contId', $contId);
         $compId = $this->compId;
 
-        $itemObjId = self::getInt('id');
-        self::setVar('objItemId', $itemObjId, -1);
+        $objItemId = self::getInt('id');
+        self::setVar('objItemId', $objItemId, -1);
 
         // Получаем параметры статьи и ранее сохранёные настройки (если они есть)
         $objItemData = (new objItemOrm())
             ->select('a.*, i.*', 'i')
-            ->joinLeftOuter(reviewOrm::TABLE.' a', 'a.itemObjId=i.id')
-            ->where('i.id=' . $itemObjId)
+            ->joinLeftOuter(reviewOrm::TABLE.' a', 'a.objItemId=i.id')
+            ->where('i.id=' . $objItemId)
             ->fetchFirst();
         foreach( $objItemData as $key=>$val){
             self::setVar($key, $val);
         }
 
         // Получаем путь до папки, где храняться данные превью
-        $loadDir = baseModel::getPath($compId, $contId, $itemObjId);
+        $loadDir = baseModel::getPath($compId, $contId, $objItemId);
         $loadDir = dirFunc::getSiteDataPath($loadDir);
         if (is_readable($loadDir . 'text.txt')) {
             self::setVar('textDesc', file_get_contents($loadDir . 'text.txt'));
@@ -77,7 +77,7 @@ class review extends \core\classes\component\abstr\admin\comp implements \core\c
         $contId = $this->contId;
         $compId = $this->compId;
 
-        $itemObjId= self::postInt('itemObjId');
+        $objItemId= self::postInt('objItemId');
 
         $caption = self::post('caption');
         $prevImgUrl = self::post('prevImgUrl');
@@ -87,16 +87,16 @@ class review extends \core\classes\component\abstr\admin\comp implements \core\c
             eventBase::NAME,
             eventArticle::ACTION_SAVE,
             ['compId' => $compId, 'contId' => $contId],
-            $itemObjId
+            $objItemId
         );
 
-        (new reviewOrm())->saveExt(['itemObjId' => $itemObjId],
+        (new reviewOrm())->saveExt(['objItemId' => $objItemId],
                                    ['caption' => $caption,
                                    'imgPrevUrl' => $prevImgUrl,
                                    'videoUrl' => $videoUrl]);
 
         // Директория с данными статьи
-        $saveDir = baseModel::getPath($compId, $contId, $itemObjId);
+        $saveDir = baseModel::getPath($compId, $contId, $objItemId);
         $saveDir = dirFunc::getSiteDataPath($saveDir);
 
         $textDesc = self::post('textDesc');
@@ -110,6 +110,15 @@ class review extends \core\classes\component\abstr\admin\comp implements \core\c
         echo 'article::blockItemShowAction() | No settings in this';
         // func. blockItemShowAction
     }
+
+    /*public function saveDataInfo(){
+        return ['obj'=>false, 'prev'=>false, 'next'=>false];
+        // func. saveDataInfo
+    }*/
+
+    /*public function getTableCustom(){
+        return articleOrm::TABLE;
+    }*/
 
     // class review
 }

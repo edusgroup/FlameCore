@@ -102,8 +102,7 @@ class oiPopular extends \core\classes\component\abstr\admin\comp {
             $selData = explode(',', $selData);
             $selData = array_map('intVal', $selData);
 
-            $oiPopularOrm->insertMulti(['selContId' => $selData]);
-            $oiPopularOrm->update('contId='.$contId, 'contId=0');
+            $oiPopularOrm->insertMulti(['selContId' => $selData], ['contId' => $contId]);
         } // if selData
 
         $classFile = self::post('classFile');

@@ -44,7 +44,7 @@ class comp {
      * @param integer $pContId ID контента
      * @return array
      */
-    public static function findCompPropUpToRoot(integer $pContId) {
+    private static function _findCompPropUpToRoot(integer $pContId) {
 
         $compContTree = new compContTree();
         // получаем список папок-родителей в виде массива
@@ -72,7 +72,7 @@ class comp {
             ->comment(__METHOD__)
             ->fetchFirst();
         return $propData;
-        // func. findCompPropUpToRoot
+        // func. _findCompPropUpToRoot
     }
 
     /**
@@ -94,6 +94,30 @@ class comp {
             ->fetchFirst();
         return $data;
         // func. getContData
+    }
+
+    public static function findCompPropBytContId(integer $pContId, $ex=null){
+        // Получаем настройки конкретной ветки
+        $objProp = self::getBrunchPropByContId($pContId);
+
+        if ( !$objProp['classFile'] ){
+            // Если нет конкретных настроек веток, надо пройтись вверх и посмореть выше настройки по веткам
+            $objProp = self::_findCompPropUpToRoot($pContId);
+        }
+
+        // Если ни чего не нашли, то берём настройки и пытаемся загрузить по умолчанию классы
+        if ( !$objProp ){
+            // Берём просто настройки по компоненту
+            $objProp = self::getCompPropByContId($pContId);
+            $objProp['classFile'] = '';
+            $objProp['tplFile'] = '';
+        } // if
+        if ( !isset($objProp['classname']) && $ex){
+            /** @var $ex \Exception */
+            throw $ex;
+        } // if
+        return $objProp;
+        // func.
     }
 
     public static function getBrunchPropByContId(integer $pContId){
@@ -138,7 +162,7 @@ class comp {
         if ( $pIsOut){
             return dirFunc::getAdminCompClassPathOut($pNsPath).'logic/';
         }else{
-            return dirFunc::getAdminCompClassPathIn().$pNsPath.'logic/';
+            return dirFunc::getAdminCompClassPathIn($pNsPath).'logic/';
         } // if
         // func. getAdminCompClassPath
     }
@@ -161,16 +185,56 @@ class comp {
         // func. getBuildCompClassPath
     }
 
-    public static function fullNameClassAdmin($pClassFileName, $pNs){
+    public static function getAjaxCompClassPath($pIsOut, $pNsPath){
+        // Проверяем существование класса
+        if ( $pIsOut){
+            return dirFunc::getAdminCompClassPathOut($pNsPath).'ajax/';
+        }else{
+            return dirFunc::getAdminCompClassPathIn($pNsPath).'ajax/';
+        } // if
+        // func. getAjaxCompClassPath
+    }
+
+    /**
+     * Получает полное имя файла для админки сайта<br/>
+     * Пример:<br/>
+     * <b>'[o]/eng/eng.php'</b> вернёт <b>'\site\core\admin\comp\$NS\logic\eng\eng'</b><br/>
+     * <b>'/eng/eng.php'</b> вернёт <b>'\admin\library\mvc\comp\$NS\logic\eng\eng'</b><br/>
+     * @param $pClassFileName string имя класса
+     * @param $pNs NS путь
+     * @return string полноем имя класса
+     */
+    public static function fullNameClassAdmin($pClassFileName, $pNs, $catFolder='logic'){
         $classNameData = self::getClassName($pClassFileName);
         if ( $classNameData['isOut']){
-            $className = '\\site\\core\\admin\\comp\\'.$pNs.'logic\\';
+            $className = '\\site\\core\\admin\\comp\\'.$pNs.$catFolder.'\\';
         }else{
-            $className = '\\admin\\library\\mvc\\comp\\'.$pNs.'logic\\';
+            $className = '\\admin\\library\\mvc\\comp\\'.$pNs.$catFolder.'\\';
         } // if
         $className .= $classNameData['file'];
         return $className;
         // func. fullNameClassAdmin
+    }
+
+    /**
+     * Получает полное имя файла для сайта<br/>
+     * Пример:<br/>
+     * <b>'[o]/eng/eng.php'</b> вернёт <b>'\site\core\site\comp\$NS\logic\eng\eng'</b><br/>
+     * <b>'/eng/eng.php'</b> вернёт <b>'\core\comp\$NS\logic\eng\eng'</b><br/>
+     * @param $pClassFileName string имя класса
+     * @param $pNs NS путь
+     * @return string полноем имя класса
+     */
+    public static function fullNameClassSite($pClassFileName, $pNs){
+        $classNameData = self::getClassName($pClassFileName);
+        if ( $classNameData['isOut']){
+            $className = '\\site\\core\\site\\comp\\'.$pNs.'logic\\';
+        }else{
+            $className = '\\core\\comp\\'.$pNs.'logic\\';
+        } // if
+        $className .= $classNameData['file'];
+        return $className;
+        // func. fullNameClassSite
     }
 
     public static function fullNameBuildClassAdmin($pClassFileName, $pNs){
@@ -183,18 +247,6 @@ class comp {
         $className .= $classNameData['file'];
         return $className;
         // func. fullNameClassAdmin
-    }
-
-    public static function fullNameClassSite($pClassFileName, $pNs){
-        $classNameData = self::getClassName($pClassFileName);
-        if ( $classNameData['isOut']){
-            $className = '\\site\\core\\comp\\'.$pNs.'logic\\';
-        }else{
-            $className = '\\core\\comp\\'.$pNs.'logic\\';
-        } // if
-        $className .= $classNameData['file'];
-        return $className;
-        // func. fullNameClassSite
     }
 
     public static function fullNameVarClass($classNameData, $pNs){

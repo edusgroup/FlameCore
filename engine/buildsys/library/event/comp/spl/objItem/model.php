@@ -122,7 +122,6 @@ class model {
         foreach ($pTableJoinList as $num => $tableName) {
             $selectDefault .= ',a' . $num . '.*';
         }
-        ;
 
         $select = isset($pQuery['select']) ? $pQuery['select'] : $selectDefault;
         $where = isset($pQuery['where']) ? $pQuery['where'] : 'i.isPublic="yes" AND i.isDel=0 AND i.treeId in (' . $where . ')';
@@ -131,7 +130,7 @@ class model {
         $handleObjitem = (new objItemOrm())->select($select, 'i');
 
         foreach ($pTableJoinList as $num => $tableName) {
-            $handleObjitem->joinLeftOuter($tableName . ' a' . $num, 'a' . $num . '.itemObjId=i.id');
+            $handleObjitem->joinLeftOuter($tableName . ' a' . $num, 'a' . $num . '.objItemId=i.id');
         }
 
         return $handleObjitem->join(compContTreeOrm::TABLE . ' cc', 'cc.id=i.treeId')

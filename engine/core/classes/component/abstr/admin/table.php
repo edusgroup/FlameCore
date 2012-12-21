@@ -7,7 +7,7 @@ interface table{
      * Может быть пустым. Нужно только если onlyFolder=1
      * @param integer $pContId ID родителя(категории)
      */
-    public function getTableData($pContId);
+    //public function getTableData($pContId);
 
     /**
      * Возврашает имя записи в таблице

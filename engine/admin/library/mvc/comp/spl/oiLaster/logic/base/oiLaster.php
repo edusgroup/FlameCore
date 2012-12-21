@@ -122,9 +122,7 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
             // Для безопастности преобразуем их в числа
             $selData = array_map('intVal', $selData);
             // Делаем мульти вставку новых данных
-            $oiLasterOrm->insertMulti(['selContId' => $selData]);
-            // Для всех новых данных, выставляем contId
-            $oiLasterOrm->update('contId=' . $contId, 'contId=0');
+            $oiLasterOrm->insertMulti(['selContId' => $selData], ['contId' => $contId]);
         } // if selData
 
         $classFile = self::post('class');

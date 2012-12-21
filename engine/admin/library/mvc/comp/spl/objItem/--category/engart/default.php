@@ -97,7 +97,7 @@ trait category{
                             'seoKeywords' => $seoKeywords,
                             'isCloaking' => trim($cloakingText) != '',
                             'seoDescr' => $seoDescr]
-            , 'itemObjId=' . $objItemId);
+            , 'objItemId=' . $objItemId);
 
         // TODO: добавить настройку фильтрации кода HTML
         //class_exists('admin\library\comp\spl\objItem\htmlvalid\full');

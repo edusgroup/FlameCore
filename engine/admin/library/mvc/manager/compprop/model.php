@@ -37,11 +37,6 @@ class model {
         // func. _getBrunchParam
     }
 
-    public static function loadData(integer $pContId) {
-        return (new compPropOrm())->selectFirst('*', 'contId=' . $pContId);
-        // func. loadData
-    }
-
     public static function getClassTree($pNsPath) {
         // ==================== Преоопределённые классы компонента для сайта
         $classFilePath = comp::getAdminCompClassPath(false, $pNsPath);

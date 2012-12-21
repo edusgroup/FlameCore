@@ -33,15 +33,7 @@ class comp {
         $contId = request::getVarInt('$c');
 
         // Получаем настройки ветки
-        $objProp = compCore::getBrunchPropByContId($contId);
-
-        if ( !$objProp['classFile'] ){
-            $objProp = compCore::findCompPropUpToRoot($contId);
-        }
-        // Проверяем нашли мы что то, если нет то говорит что ошибка поиска
-        if ( !$objProp ){
-            throw new \Exception('Prop on contId: ' . $contId . ' not found', 345);
-        } // if
+        $objProp = compCore::findCompPropBytContId($contId);
 
         // Имя класса который задали в настройках
         $classFile = $objProp['classFile']?: '/base/'.$objProp['classname'].'.php';

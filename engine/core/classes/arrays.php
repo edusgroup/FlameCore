@@ -34,5 +34,16 @@ class arrays {
         return $return;
         // func. dbQueryToAssoc
     }
+	
+	public static function dbQueryToAssocAll($pListArr, $pName='name'){
+        $return = [];
+        foreach( $pListArr as $item){
+			$name = $item[$pName];
+			unset($item[$pName]);
+            $return[$name] = $item;
+        } // foreach
+        return $return;
+        // func. dbQueryToAssocAll
+    }
 // class arrays
 }

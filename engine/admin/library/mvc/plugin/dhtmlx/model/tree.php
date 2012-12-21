@@ -202,6 +202,7 @@ class tree {
                   $endBrunch($dist, $type, $pSource, $i, $pParam); */
                 if (self::$endBrunch) {
                     $endBrunch = self::$endBrunch;
+                    /** @var $endBrunch string */
                     $endBrunch($dist, $type, $pSource, $i, $pParam);
                 } else {
                     self::endBrunch($dist, $type, $pSource, $i, $pParam);

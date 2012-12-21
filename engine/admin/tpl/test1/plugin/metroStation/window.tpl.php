@@ -64,7 +64,7 @@
 <div id="markerBox">
     <img name="map" src="http://theme.codecampus.ru/plugin/metroStation/img/moscow.png" width="809" height="863" id="map" usemap="#stationCoor" alt=""/>
 </div>
-<map id="stationCoor">
+<map id="stationCoor" name="stationCoor">
 <area shape="rect" coords="348,610,368,625" href="#1" title="Шаболовская" alt="Шаболовская"/>
 <area shape="rect" coords="281,606,350,621" href="#1" title="Шаболовская" alt="Шаболовская"/>
 <area shape="rect" coords="530,709,591,721" href="#2" title="Каширская" alt="Каширская"/>

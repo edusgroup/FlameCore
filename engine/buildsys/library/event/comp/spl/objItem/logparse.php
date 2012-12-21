@@ -75,7 +75,7 @@ class logparse {
         self::$tableDb->sql('UPDATE ' . articleOrm::TABLE . ' a '.
                 'JOIN ( SELECT la.id, count(1) as `count` FROM '.
                 self::TABLE . ' la WHERE la.id is not NULL GROUP BY la.id '.
-                ') la on a.itemObjId = la.id '.
+                ') la on a.objItemId = la.id '.
                 ' SET a.dayCount = la.`count`')->query();
 
         self::$tableDb->drop(self::TABLE);

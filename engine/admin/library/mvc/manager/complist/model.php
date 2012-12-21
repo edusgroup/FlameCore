@@ -29,11 +29,11 @@ use core\classes\event;
  */
 class model {
 
-    public static function getCompIdBySysname(string $pName) {
+    /*public static function getCompIdBySysname(string $pName) {
         $ext = new \Exception('Component sysname: ' . $pName . ' не найден', 23);
         return (int)(new componentTree())->get('id', ['sysname' => $pName], $ext);
         // func. getClassDataByCompIds
-    }
+    }*/
 
     // Возвращает дерево с форматированными картинками
     public static function getTreeCompCont(integer $pCompId) {

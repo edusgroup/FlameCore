@@ -16,6 +16,7 @@ use core\classes\render;
 use core\classes\comp;
 use core\classes\arrays;
 use core\classes\admin\dirFunc;
+use core\classes\comp as compCore;
 
 // ORM
 use ORM\urlTreePropVar;
@@ -154,13 +155,13 @@ class eventModel {
             } // if
 
             // Если контент был удалён, то пишем ошибку и берём следующий компонент
-            if (!$biItem['statId'] && !$biItem['varId']) {
-                var_dump($biItem);
+            /*if (!$biItem['statId'] && !$biItem['varId']) {
+                //var_dump($biItem);
                 echo "\tERROR(" . __METHOD__ . "):" . PHP_EOL;
                 echo "\tBlockId({$biItem['id']}) AcId($pAcId) SysName({$biItem['sysname']})" . PHP_EOL;
                 echo "\tNot set contId in blockItem.";
                 continue;
-            } // if
+            } // if*/
             // Если табличные данные контента были удалёны, то пишем ошибку и берём следующий компонент
             if (!$biItem['tableId'] && $biItem['onlyFolder'] && !$biItem['varId']) {
                 print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tTableId not found. BlockId: [{$biItem['id']}]. AcId: $pAcId" . PHP_EOL;
@@ -413,14 +414,7 @@ class eventModel {
         $custContId = (int)($item['custContId'] ? : $item['statId']);
         if ($custContId) {
             // Получаем настройки ветки
-            $objProp = comp::getBrunchPropByContId($custContId);
-            if ( !$objProp ){
-                $objProp = comp::findCompPropUpToRoot($custContId);
-            }
-            // Проверяем нашли мы что то, если нет то говорит что ошибка поиска
-            if ( !$objProp ){
-                throw new \Exception('Prop on contId: ' . $custContId . ' not found', 345);
-            } // if
+            $objProp = compCore::findCompPropBytContId($custContId);
 
             // Имя класса который задали в настройках
             $classFile = $objProp['classFile']?: '/base/'.$objProp['classname'].'.php';

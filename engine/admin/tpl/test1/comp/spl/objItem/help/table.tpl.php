@@ -88,138 +88,164 @@
     <!-- end panel right panel -->
 </div><!-- end panel right column -->
 <script type="text/javascript">
-    var objItem = {
-        grid:null,
-        imgTheme:'<?= self::res('images/') ?>',
-        gridData:'<?= self::get('listXML'); ?>',
+    var objItemData = {
+        imgTheme: '<?= self::res('images/') ?>',
+        gridData: '<?= self::get('listXML'); ?>',
         contid: <?=self::get('contId')?>
     }
 
-    var contrName = objItem.contid;
+    var contrName = objItemData.contid;
     var callType = 'comp';
     utils.setType(callType);
     utils.setContr(contrName);
     HAjax.setContr(contrName);
     HAjax.setType(callType);
 
-    /**
-     * Добавление в таблицу новой строки
-     */
-    objItem.addBtnClick = function () {
-        objItem.grid.addRow(objItem.grid.newId, [0, '', '', '', 0], 0);//objItem.grid.getRowsNum());
-        --objItem.grid.newId;
-    }
+    var objItemMvc = (function () {
+        var options = {};
+        var grid = null;
 
-    /**
-     * Сохранение данных из таблицы
-     */
-    objItem.saveBtnClick = function () {
-        var json = objItem.grid.serializeToJSON();
-        if (json.total_count == 0) {
-            return false;
-        }
-        var data = 'data=' + $.toJSON(json.rows);
-        HAjax.saveTableItemData({data:data, methodType:'POST'});
-        // func. saveBtnClick  
-    }
-
-    objItem.saveTableItemDataSuccess = function (pData) {
-        if (pData['error']) {
-            alert(pData['error']['msg']);
-            return;
-        }
-        var grid = objItem.grid;
-        for (var oldId in pData['newId']) {
-            var newId = pData['newId'][oldId];
-            var img = objItem.setGridImgEdit(newId);
-            grid.cells(oldId, 1).setValue(img);
-            grid.changeRowId(oldId, newId);
+        /**
+         * Добавление в таблицу новой строки
+         */
+        function addBtnClick() {
+            grid.addRow(grid.newId, [0, '', '', '', 0], 0);//grid.getRowsNum());
+            --grid.newId;
+            // func. addBtnClick
         }
 
-        if ( pData['seoUrl'] ){
-            for (var id in pData['seoUrl']) {
-                var seoUrl = pData['seoUrl'][id];
-                grid.cells(id, 3).setValue(seoUrl);
+        /**
+         * Сохранение данных из таблицы
+         */
+        function saveBtnClick() {
+            var json = grid.serializeToJSON();
+            if (json.total_count == 0) {
+                return false;
+            }
+            var data = 'data=' + $.toJSON(json.rows);
+            HAjax.saveTableItemData({data:data, methodType:'POST'});
+            // func. saveBtnClick
+        }
+
+        function cbSaveTableItemDataSuccess(pData) {
+            if (pData['error']) {
+                alert(pData['error']['msg']);
+                return;
+            }
+
+            if ( pData['seoUrl'] ){
+                for (var id in pData['seoUrl']) {
+                    var seoUrl = pData['seoUrl'][id];
+                    grid.cells(id, 3).setValue(seoUrl);
+                } // for
+            } // if
+
+            for (var oldId in pData['newId']) {
+                var newId = pData['newId'][oldId];
+                var img = setGridImgEdit(newId);
+                grid.cells(oldId, 1).setValue(img);
+                grid.changeRowId(oldId, newId);
             } // for
-        } // if
-        grid.clearChangedState();
-        alert('Данные сохранены');
-    }
-
-    objItem.rmBtnClick = function () {
-        if (!confirm('Уверены что хотите удалить?')) {
-            return false;
+            grid.clearChangedState();
+            alert('Данные сохранены');
+            // func. cbSaveTableItemDataSuccess
         }
-        // Берём все выделенные строчки по 0 столбцу
-        var rowsId = objItem.grid.getCheckedRows(0);
-        HAjax.rmTableItem({data:{rowsId:rowsId}, methodType:'POST'});
-        // func. rmBtnClick 
-    }
 
-    objItem.rmTableItemSuccess = function (pData) {
-        if (pData['error']) {
-            alert(pData['error']['msg']);
-            return;
+        function rmBtnClick() {
+            if (!confirm('Уверены что хотите удалить?')) {
+                return false;
+            }
+            // Берём все выделенные строчки по 0 столбцу
+            var rowsId = grid.getCheckedRows(0);
+            HAjax.rmTableItem({data:{rowsId:rowsId}, methodType:'POST'});
+            // func. rmBtnClick
         }
-        for (var num in pData['list']) {
-            objItem.grid.deleteRow(pData['list'][num]);
+
+        function cbRmTableItemSuccess(pData) {
+            if (pData['error']) {
+                alert(pData['error']['msg']);
+                return;
+            }
+            for (var num in pData['list']) {
+                grid.deleteRow(pData['list'][num]);
+            }
+            alert('Данные удалены');
+            // func. cbRmTableItemSuccess
         }
-        alert('Данные удалены');
-    }
 
-    objItem.loadGridSuccess = function (pData) {
-        var grid = objItem.grid;
-        grid.clearAll();
-        grid.parse(pData, 'xml');
+        function cbLoadGridSuccess(pData) {
+            if ( !pData ){
+                return false;
+            }
+            grid.clearAll();
+            grid.parse(pData, 'xml');
 
-        for (var i = 0; i < grid.rowsCol.length; i++) {
-            var id = grid.getRowId(i);
-            var img = objItem.setGridImgEdit(id);
-            grid.cells(id, 1).setValue(img);
+            for (var i = 0; i < grid.rowsCol.length; i++) {
+                var id = grid.getRowId(i);
+                var img = setGridImgEdit(id);
+                grid.cells(id, 1).setValue(img);
+            }
+            // func. cbLoadGridSuccess
         }
-    }
 
-    objItem.setGridImgEdit = function (pId) {
-        return objItem.imgTheme + 'edit_16.png^Настройки^javascript:objItem.editobjItem(' + pId + ')^_self';
-    }
+        function setGridImgEdit(pId) {
+            return objItemData.imgTheme + 'edit_16.png^Настройки^javascript:objItemMvc.editobjItem(' + pId + ')^_self';
+            // func. setGridImgEdit
+        }
 
-    objItem.editobjItem = function (pId) {
-        var url = utils.url({method:'item', query:{id:pId}});
-        utils.go(url);
+        function editobjItem(pId) {
+            var url = utils.url({method:'item', query:{id:pId}});
+            utils.go(url);
+            // func. editobjItem
+        }
+
+        function init(pOptions) {
+            options = pOptions;
+            $('#tableBoxLoad').html($('#objItemTmpBox').html());
+
+            // Создаём таблицу
+            grid = new dhtmlXGridObject('gridItem');
+            grid.newId = -1;
+            grid.setImagePath("res/plugin/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
+            grid.setHeader(",,Заголовок,СЕО URL,Публ");
+            grid.setColTypes("ch,img,ed,ed,ch");
+            grid.setColAlign("center,center,left,left,center");
+            grid.setInitWidths("32,32,*,250,50");
+            grid.setColsName(['', '', 'caption', 'seoUrl', 'isPublic']);
+            grid.setSkin("light");
+            grid.enableAutoHeight(true);
+            grid.init();
+
+            cbLoadGridSuccess(objItemData.gridData);
+
+            HAjax.create({
+                rmTableItem:cbRmTableItemSuccess,
+                saveTableItemData:cbSaveTableItemDataSuccess
+            });
+
+            // OnClick на Кнопку добавить
+            $('#gridAddItem').click(addBtnClick);
+            // onClick на Кнопку Сохранить
+            $('#gridSaveItem').click(saveBtnClick);
+            // onClick на Кнопку Удалить
+            $('#gridRmItem').click(rmBtnClick);
+
+            var url = utils.url({type:'manager', contr:'complist', query:{contid:objItemData.contid}});
+            $('#backBtn').attr('href', url);
+            // func. init
+        }
+
+    return {
+        init: init,
+        editobjItem: editobjItem
     }
+    // func. imgGalleryMvc
+    })();
 
     $(document).ready(function () {
-        $('#tableBoxLoad').html($('#objItemTmpBox').html());
+        objItemMvc.init({
 
-        // Создаём таблицу
-        objItem.grid = new dhtmlXGridObject('gridItem');
-        objItem.grid.newId = -1;
-        objItem.grid.setImagePath("res/plugin/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
-        objItem.grid.setHeader(",,Заголовок,СЕО URL,Публ");
-        objItem.grid.setColTypes("ch,img,ed,ed,ch");
-        objItem.grid.setColAlign("center,center,left,left,center");
-        objItem.grid.setInitWidths("32,32,*,250,50");
-        objItem.grid.setColsName(['', '', 'caption', 'seoUrl', 'isPublic']);
-        objItem.grid.setSkin("light");
-        objItem.grid.enableAutoHeight(true);
-        objItem.grid.init();
-
-        objItem.loadGridSuccess(objItem.gridData);
-
-        HAjax.create({
-            rmTableItem:objItem.rmTableItemSuccess,
-            saveTableItemData:objItem.saveTableItemDataSuccess
         });
-
-        // OnClick на Кнопку добавить
-        $('#gridAddItem').click(objItem.addBtnClick);
-        // onClick на Кнопку Сохранить
-        $('#gridSaveItem').click(objItem.saveBtnClick);
-        // onClick на Кнопку Удалить 
-        $('#gridRmItem').click(objItem.rmBtnClick);
-
-        var url = utils.url({type:'manager', contr:'complist', query:{contid:objItem.contid}});
-        $('#backBtn').attr('href', url);
 
         // end $(document).ready
     });

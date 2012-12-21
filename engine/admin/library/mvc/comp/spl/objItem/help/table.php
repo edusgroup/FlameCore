@@ -47,6 +47,20 @@ trait table {
         // func. indexAction
     }
 
+    public function showTableItemAction(){
+        $contId = self::getInt('id', null);
+        if ( $contId === null ){
+            return;
+        }
+
+        $list = model\table\model::getList($contId);
+        $this->view->setVar('list', $list);
+
+        $this->view->setTplPath(dirFunc::getAdminTplPathIn('comp').$this->nsPath);
+        $this->view->setMainTpl('help/tableChoose.tpl.php');
+        // func. showTableItemAction
+    }
+
     /**
      * Сохранение заголовка, системного имени и публикации.
      * т.е. сохранение в общей таблице статей
@@ -91,21 +105,21 @@ trait table {
     }
 
     /**
+     * Используется в blockItem, в методе loadCompTableAction()
      * Возврашает список табличных данных, пренадлежащех категории $pContId
      * Может быть пустым. Нужно только если onlyFolder=1
      * @param integer $pContId ID родителя(категории)
      */
-    public function getTableData($pContId) {
-        $objItemOrm = new objItemOrm();
-        return $objItemOrm->select('id, caption')
+    /*public function getTableData($pContId) {
+        return (new objItemOrm())->select('id, caption')
             ->where('treeId=' . $pContId . ' AND isPublic="yes" AND isDel=0')
             ->comment(__METHOD__)
             ->fetchAll();
         // func. getTableData
-    }
+    }*/
 
     /**
-     * Возврашает имя записи в таблице
+     * Возврашает ORM таблицы для компонентов использующих таблицы. используется в blockItem
      * Может быть пустым. Нужно только если onlyFolder=1
      * @param integer $pTableId ID таблицы
      */

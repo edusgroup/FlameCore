@@ -148,6 +148,11 @@ class render extends html\element{
         return $this;
     }
 
+    /**
+     * Установка главного шаблона
+     * @param string $pFile имя главного шаблона
+     * @return render ссылка на самого себя
+     */
     public function setMainTpl(string $pFile){
         $this->mainTplFile = $this->siteTplPath . $pFile;
         return $this;

@@ -20,6 +20,7 @@ use admin\library\mvc\plugin\fileManager\fileManager;
 use ORM\imgSizeList;
 use ORM\tree\compContTree;
 use ORM\comp\spl\objItem\objItemProp;
+use ORM\comp\spl\objItem\article\article as articleOrm;
 
 // Event
 use admin\library\mvc\comp\spl\objItem\help\event\base\event as eventBase;
@@ -42,12 +43,12 @@ trait prop {
         $sizeList = (new imgSizeList())->selectAll('name, val, type, id', 'contid=' . $this->contId) ? : [];
         self::setJson('sizeList', $sizeList);
 
-        $objItemProp = new objItemProp();
-        $url = $objItemProp->get('url', 'contId=' . $contId);
+        $url = (new objItemProp())->get('url', 'contId=' . $contId);
         self::setVar('url', $url);
 
-        $this->view->setBlock('panel', '../prop/objItem.tpl.php');
-
+        $tplPath = dirFunc::getAdminTplPathIn('comp').$this->nsPath;
+        $this->view->setTplPath($tplPath);
+        $this->view->setBlock('panel', 'prop/objItem.tpl.php');
         $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
         // func. compPropAction
@@ -112,8 +113,6 @@ trait prop {
         // func. addSizeAction
     }
 
-
-
     public function savePropDataAction() {
         $this->view->setRenderType(render::JSON);
         $url = self::get('url');
@@ -137,6 +136,8 @@ trait prop {
 
         // savePropDataAction 
     }
+
+
 
     // trait prop
 }

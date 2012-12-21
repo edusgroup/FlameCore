@@ -51,6 +51,7 @@ class event {
 
         // Бегаем по сохранённым группам
         foreach ($contList as $oiPopularItemProp) {
+            $oiPopularItemContId = (int)$oiPopularItemProp['contId'];
             // Получаем список детей в выбранной группе
             // т.е. получаем всех выбранные ветки в дереве objItem, которые мы приозвели
             // при настройке oiList в админке
@@ -58,7 +59,7 @@ class event {
             $childList = $oiPopularOrm->selectList(
                 'selContId as contId',
                 'contId',
-                'contId=' . $oiPopularItemProp['contId']
+                'contId=' . $oiPopularItemContId
             );
 
             // Теперь нужно проверить, а есть ли пересечения из выбранных веток в дереве и в
@@ -67,13 +68,13 @@ class event {
             $buffTreeIdList = eventModelObjitem::getBuffTreeIdList(
                 $pEventBuffer,
                 $childList,
-                $oiPopularItemProp['contId'],
+                $oiPopularItemContId,
                 eventoiPopular::ACTION_SAVE
             );
 
             $classFile = $oiPopularItemProp['classFile'];
             if ( !$classFile || $classFile == '/base/build.php' ){
-                echo "\tioPopular[contId:".$oiPopularItemProp['contId']."] className is default. Abort".PHP_EOL;
+                echo "\tioPopular[contId:$oiPopularItemContId] className is default. Abort".PHP_EOL;
                 continue;
             }
 
@@ -83,6 +84,11 @@ class event {
 
             $itemsCount = $oiPopularItemProp['itemsCount'];
 
+            $advField = ['order' => 'dayCount desc, RAND()', 'limit' => $itemsCount];
+            if ( method_exists($objItemCatEvent, 'setAdvField')){
+                $advField = $objItemCatEvent->setAdvField($advField);
+            } // if
+
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
                 $objItemCatEvent::getTable(),
@@ -90,7 +96,7 @@ class event {
                 new compContTreeOrm(),
                 $childList,
                 $buffTreeIdList,
-                ['order' => 'dayCount desc, RAND()', 'limit' => $itemsCount]
+                $advField
             );
 
             // Выборка представляем ли смысл
@@ -99,16 +105,16 @@ class event {
             }
 
             if ($handleObjitem->num_rows == 0) {
-                echo "\tioPopular[contId:".$oiPopularItemProp['contId']."] not data found. Abort".PHP_EOL;
+                echo "\tioPopular[contId:$oiPopularItemContId] not data found. Abort".PHP_EOL;
                 continue;
             }
 
             // Директория к данным группы
-            $saveDir = 'comp/' . $oiPopularItemProp['comp_id'] . '/' . $oiPopularItemProp['contId'] . '/';
+            $saveDir = 'comp/' . $oiPopularItemProp['comp_id'] . '/' . $oiPopularItemContId . '/';
             $saveDir = dirFunc::getSiteDataPath($saveDir);
 
             $numRows = $handleObjitem->num_rows;
-            echo "\tioPopular[contId:".$oiPopularItemProp['contId']."] Row:$numRows itemC: $itemsCount".PHP_EOL;
+            echo "\tioPopular[contId:$oiPopularItemContId] Row:$numRows itemC: $itemsCount".PHP_EOL;
             echo "\t$classFile".PHP_EOL;
             echo "\t$saveDir".PHP_EOL.PHP_EOL;
 

@@ -110,8 +110,6 @@
         tplTreeJson: <?= self::get('tplTree') ?>,
         // Ранее сохранёные данные (если они есть )
         loadData: <?=self::get('loadData') ?>,
-        // Свойства компонента, который мы настраиваем
-        compProp: <?=self::get('compProp') ?>
     } // var compPropData
 
     var compPropMvc = (function(){
@@ -256,7 +254,7 @@
 
         function initLoadData(){
             // Есть ли ранее сохрённые данные по объекту
-            if ( compPropData.loadData ){
+            if ( compPropData.loadData['classFile'] ){
                 // Значение ранее сохранённого файла классов для админки
                 var classBrId = compPropData.loadData['classFile'];
                 var classText = utils.getTreeUrl(classTree, classBrId);
@@ -265,12 +263,12 @@
                 var tplText = utils.getTreeUrl(tplTree, tplBrId);
             }else{
                 // Выставляем значения по умолчанию
-                var compName = compPropData.compProp['classname'];
+                var compName = compPropData.loadData['classname'];
                 var classBrId = '/base/'+compName+'.php';
                 var classText = utils.getTreeUrl(classTree, classBrId );
 
                 var tplBrId = '/base/'+compName+'.tpl.php';
-                var tplTtext = utils.getTreeUrl(tplTree, tplBrId );
+                var tplText = utils.getTreeUrl(tplTree, tplBrId );
             } // if
 
             $(options.classFileText).html(classText);

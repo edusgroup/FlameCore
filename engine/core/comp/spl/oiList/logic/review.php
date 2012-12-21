@@ -5,6 +5,7 @@ namespace core\comp\spl\oiList\logic;
 // Conf
 use site\conf\DIR;
 use site\conf\SITE;
+
 // Engine
 use core\classes\dbus;
 use core\classes\render;
@@ -18,35 +19,35 @@ use core\classes\site\dir as sitePath;
  */
 class review {
 
-	public static $urlTplList = [];
+    public static $urlTplList = [];
 
     /**
      * Отображение отзывов.
-     * @param type $pName 
+     * @param type $pName
      */
     public static function renderAction($pName) {
         $comp = dbus::$comp[$pName];
         $compId = $comp['compId'];
         $contId = $comp['contId'];
 
-		$file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/1.txt';
-		$data = @file_get_contents($file);
+        $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/1.txt';
+        $data = @file_get_contents($file);
         if (!$data) {
             return;
         }
         $oiListData = \unserialize($data);
-		if ( $oiListData ){
-			$tpl = userUtils::getCompTpl($comp);
+        if ($oiListData) {
+            $tpl = userUtils::getCompTpl($comp);
             $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
             (new render($tplPath, ''))
                 ->setVar('oiListData', $oiListData)
                 ->setMainTpl($tpl)
                 ->setContentType(null)
                 ->render();
-		} // if ( $oiListData )
-		
+        } // if ( $oiListData )
+
         // func. renderAction
     }
-	
+
     // class. main
 }

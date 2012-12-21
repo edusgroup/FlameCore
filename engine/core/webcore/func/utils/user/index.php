@@ -14,7 +14,7 @@ use ORM\users\group as userGroupOrm;
 use ORM\users\relation as userGroupRelationOrm;
 
 // Config DIR
-include '/home/www/SiteCoreFlame/seoforbeginners.ru/conf/DIR.php';
+include '../conf/DIR.php';
 include DIR::CORE . 'site/function/autoload.php';
 include DIR::CORE . 'core/function/errorHandler.php';
 include DIR::CORE . 'core/classes/DB/adapter/mysql/adapter.php';
