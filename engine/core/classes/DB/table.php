@@ -336,9 +336,9 @@ class table extends adapter\adapter {
 
     /**
      * Получаем единичное значение. Если значение не найденно возвращает null
-     * @param string $pField какое поле получаем
-     * @param mixid $pFWhere условия для выборки
-     * @param Exception $pException. По умолчанию NULL
+     * @param \string $pField какое поле получаем
+     * @param \mixed $pFWhere условия для выборки
+     * @param \Exception $pException. По умолчанию NULL
      * @return mixed|null
      */
     public function get(string $pField, $pFWhere, $pException = null) {

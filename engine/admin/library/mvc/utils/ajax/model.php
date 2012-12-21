@@ -32,5 +32,10 @@ class model {
         // func. getAjaxTree
     }
 
+    public static function createClass($pClassName){
+
+        // func. createClass
+    }
+
     // class model
 }

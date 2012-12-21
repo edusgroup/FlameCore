@@ -50,6 +50,8 @@ server {
     location ^~ /sitemap.xml {
     }
 
+    <?=self::get('textData')?>
+
     #gzip on;
     #gzip_comp_level 8;
 

@@ -6,9 +6,9 @@ class word {
 
     /**
      * Проверяет слово на содержание только 0-9a-Z_
-     * @param string $pWord проверяемая строка
-     * @param Exception $pExc Поумол: null. Исключение в случае отсуствия объекта
-     * @return boolean
+     * @param \string $pWord проверяемая строка
+     * @param \Exception $pExc Поумол: null. Исключение в случае отсуствия объекта
+     * @return \boolean
      * @sample
      * isLatin('test');// true<br/>
      * isLatin('t^st');// false

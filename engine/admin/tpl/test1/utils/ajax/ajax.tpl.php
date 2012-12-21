@@ -22,6 +22,14 @@
     #recordBox .methodSel{
         width: 120px;
     }
+
+    .bold{
+        font-weight: bold;
+    }
+
+    .button{
+        cursor: pointer;
+    }
 </style>
 
 <!-- start panel right column -->
@@ -64,12 +72,6 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="#save" id="saveBtn" title="Сохранить">
-                            <img src="<?= self::res('images/save_32.png') ?>" alt="Сохранить" /><span>Сохранить</span>
-                        </a>
-                    </li>
-
                 </ul>
             </div>
 
@@ -104,7 +106,8 @@
    
     var ajaxData = {
         resUrl:'<?= self::res('images/') ?>',
-        compTreeJson: <?=self::get('compTreeJson')?>
+        compTreeJson: <?=self::get('compTreeJson')?>,
+        saveData: <?=self::get('saveData') ?>
     } // ajaxData
     
     var ajaxMvc = (function(){
@@ -112,7 +115,7 @@
         var options = {};
         // Буффер записей на удаление
         var recRmBuff = [];
-        // буффер записей
+        // Буффер данных по записям Ajax. Содержит выбранные contId, compid и др. данные
         var recLoadBuff = {};
         // Вылеленный record Id
         var selRecordId;
@@ -120,12 +123,12 @@
         var compTree, classTree;
         
         // Клик по кноке Сохранить
-        function saveBtnClick(pEvent){
+        //function saveBtnClick(pEvent){
             //var data = $(options.editor).val();
-            var data = $(options.mainForm).serialize();
-            HAjax.saveData({data: data, methodType: 'POST'});
+            //var data = $(options.mainForm).serialize();
+            //HAjax.saveData({data: data, methodType: 'POST'});
             // func. saveBtnClick
-        }
+       // }
         
         // callback сохранения данных
         function saveDataSuccess(pData){
@@ -133,6 +136,17 @@
                 alert(pData['error']['msg']);
                 return;
             }
+
+            var oldId = pData['oldId'];
+            var newId = pData['newId'];
+            if ( oldId != newId && newId != 0 ){
+                $('#rec'+oldId).attr('id', 'rec'+newId);
+                recLoadBuff[newId] = recLoadBuff[oldId];
+                delete recLoadBuff[oldId];
+                settingsMvc[newId] = settingsMvc[oldId];
+                delete settingsMvc[oldId];
+            }
+
             alert('Данные успешно сохранены');
             // func. saveDataSuccess
         }
@@ -140,10 +154,11 @@
         function recordBoxAdd(pId){
             var html = '<div class="record" id="rec'+pId+'">\
             <div>\
-                <a href="#" title="Удалить"><img src="' + ajaxData.resUrl + 'del_16.png" type="rmRec"/> Удалить</a>\
+                <img src="' + ajaxData.resUrl + 'del_16.png" class="button" type="rmRec" title="Удалить" alt="Удалить"/>\
+                <img src="' + ajaxData.resUrl + 'save_16.png" class="button" type="saveRec" title="Сохранить" alt="Сохранить"/>\
             </div>\
             <div>\
-                Название: <input type="text" class="recName" name="rec'+pId+'"/>\
+                Название: <input type="text" class="recName" name="name"/>\
             </div>\
             \
             <div>\
@@ -157,9 +172,8 @@
                 <img alt="Выбрать класс" src="'+ajaxData.resUrl+'folder_16.png" type="selClass"/>\
                 <span class="text classText" type="selClass">*</span></a>\
             </div>\
-            \
-            <div>\
-                Метод: <select class="methodSel"></select>\
+            <div class="bold">Настройки</div>\
+            <div class="settings">\
             </div>\
             </div>';
 
@@ -184,7 +198,7 @@
             selRecordId = pRecId;
             var compId = '0';
             if ( recLoadBuff[pRecId] ){
-                compId = recLoadBuff[selRecordId].compId
+                compId = recLoadBuff[pRecId].compId
             }
             compTree.selectItem(compId);
             $.fancybox({href: '#compTreeBox'});
@@ -198,16 +212,36 @@
                 return;
             }
             var compId = recLoadBuff[selRecordId].compId
-            HAjax.loadClassTree({query:{compId: compId }});
+            HAjax.loadClassTree({query:{compId: compId, num: pRecId }});
             // func. recordSelClass
+        }
+
+        function saveRec(pRecId){
+            var name = $('#rec'+pRecId+' input[name="name"]').val();
+
+            var data = settingsMvc[pRecId] ? settingsMvc[pRecId].getSaveData() : '';
+
+            var data = {
+                num: pRecId,
+                name: name,
+                classFile: recLoadBuff[pRecId].classFile,
+                compId: recLoadBuff[pRecId].compId,
+                data: data
+            };
+            HAjax.saveData({data: data, methodType: 'POST'});
+            // func. saveRec
         }
 
         function recordBoxClick(pEvent){
             var recId = $(pEvent.target).parents('.record:first').attr('id').substr(3);
+
             var recType = $(pEvent.target).attr('type');
 
             recId = parseInt(recId);
             switch(recType){
+                case 'saveRec':
+                    saveRec(recId);
+                    break;
                 case 'rmRec':
                     recordRm(recId);
                     break;
@@ -244,15 +278,6 @@
             //func. compTreeDbClick
         }
 
-        function cbLoadClassMethodSuccess(pData){
-            if ( pData['error'] ){
-                alert(pData['error']['msg']);
-                return;
-            }
-
-            // func. cbLoadClassMethodSuccess
-        }
-
         function cbLoadClassTreeSuccess(pData){
             if ( pData['error'] ){
                 alert(pData['error']['msg']);
@@ -262,7 +287,10 @@
             classTree.deleteChildItems(0);
             // Грузим новое дерево
             classTree.loadJSONObject(pData['classTreeJson']);
-            //selCompId = pBrunchId;
+
+            var classFile = recLoadBuff[pData['num']].classFile;
+            classTree.selectItem(classFile);
+
             $.fancybox({href: '#classTreeBox'});
             // func. cbLoadClassTreeSuccess
         }
@@ -272,8 +300,17 @@
             $('#rec'+selRecordId+' .classText:first').html(text);
             recLoadBuff[selRecordId].classFile = pBrunchId;
             $.fancybox.close();
+
             var compId = recLoadBuff[selRecordId].compId;
-            HAjax.loadClassMethod({query:{compIp: compId, classFile: pBrunchId}});
+            var urlLoad = utils.url({
+                method: 'loadSettings',
+                query:{
+                    compId: compId,
+                    classFile: pBrunchId,
+                    num: selRecordId
+                }
+            });
+            $('#rec'+selRecordId+' div.settings').load(urlLoad);
             // func. classTreeDbClick
         }
 
@@ -300,6 +337,43 @@
             classTree = dhtmlxInit.tree['class'];
             // func. initTree
         }
+
+        function initSaveData(){
+
+            for( var i in ajaxData.saveData ){
+                var rec = ajaxData.saveData[i];
+                recordBoxAdd(rec.id);
+                $('#rec'+rec.id+' input[name="name"]').val(rec.name);
+
+                var text = utils.getTreeUrl(compTree, rec.compId);
+                $('#rec'+rec.id+' .compText:first').html(text);
+
+                text = rec.classFile.substr(0, 3) == '[o]' ? ('/Внешние'+rec.classFile.substr(3)) : ('/Встроенные'+rec.classFile);
+                $('#rec'+rec.id+' .classText:first').html(text);
+                recLoadBuff[rec.id] = {
+                    compId: rec.compId,
+                    classFile: rec.classFile
+                }
+
+                var urlLoad = utils.url({
+                    method: 'loadSettings',
+                    query:{
+                        compId: rec.compId,
+                        classFile: rec.classFile,
+                        num: rec.id
+                    }
+                });
+                $('#rec'+rec.id+' div.settings').attr('num', i).load(urlLoad, function(){
+                    var num = $(this).attr('num');
+                    var rec = ajaxData.saveData[num];
+                    if (settingsMvc[rec.id]){
+                        settingsMvc[rec.id].initSaveData(rec.data);
+                    }
+                });
+
+            } // for( ajaxData.saveData )
+            // func. initSaveData
+        }
         
         function init(pOptions){
             options = pOptions;
@@ -311,16 +385,15 @@
                 contr:'tree'
             }));
 
-            // Кнопка Сохранить
-            $(options.saveBtn).click(saveBtnClick);
             $(options.addRecordBtn).click(addRecordBtnClick);
             $(options.recordBox).click(recordBoxClick);
 
             HAjax.create({
                 saveData: saveDataSuccess,
-                loadClassTree: cbLoadClassTreeSuccess,
-                loadClassMethod: cbLoadClassMethodSuccess
+                loadClassTree: cbLoadClassTreeSuccess
             });
+
+            initSaveData();
             // func. init
         }
         
@@ -328,11 +401,12 @@
             init: init
         }  
     })();
+
+    var settingsMvc = {};
     
     $(document).ready(function(){
         ajaxMvc.init({
             backBtn: '#backBtn',
-            saveBtn: '#saveBtn',
             mainForm: '#mainForm',
             addRecordBtn: '#addRecordBtn',
             recordBox: '#recordBox'

@@ -133,6 +133,10 @@ class nginx {
         $render->setVar('siteRoot', dirFunc::getSiteRoot());
         $render->setVar('coreScript', $webCoreScript);
 
+        $loadDir = dirFunc::getSiteDataPath('utils/nginx/');
+        $textData = filesystem::loadFileContent($loadDir . 'data.txt');
+        $render->setVar('textData', $textData);
+
         ob_start();
         $render->render();
         $nginxConfData = ob_get_clean();

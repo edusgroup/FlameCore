@@ -268,9 +268,9 @@ class filesystem {
 
     /**
      * Рекусивное удаление файлов
-     * @param type $pPath
-     * @param type $pFileType
-     * @param type $pFilter 
+     * @param \string $pPath
+     * @param \int $pFileType
+     * @param \string $pFilter
      */
     public static function rUnlink($pPath, $pFileType = self::ALL, $pFilter=null) {
         // TODO: Задумать над rm -rf *file*
@@ -288,7 +288,7 @@ class filesystem {
 
     /**
      * @static
-     * @param string $pFile полное имя файла
+     * @param \string $pFile полное имя файла
      * @return bool
      * Удаляем файл с файловой системы. Возвращает TRUE в случае успеха, FALSE в ином
      */

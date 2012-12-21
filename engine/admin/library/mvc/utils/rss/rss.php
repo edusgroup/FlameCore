@@ -34,8 +34,7 @@ class rss extends controllerAbstract {
 
     public function indexAction() {
 
-        $compcontTree = new compcontTree();
-        $contData = $compcontTree->select('cc.*', 'cc')
+        $contData = (new compcontTree())->select('cc.*', 'cc')
             ->join(componentTree::TABLE . ' c', 'c.id=cc.comp_id')
             ->where('c.sysname="objItem" AND cc.isDel="no"')
             ->fetchAll();
