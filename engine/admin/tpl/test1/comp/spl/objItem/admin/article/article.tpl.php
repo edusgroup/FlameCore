@@ -162,25 +162,35 @@
         objItem.cloakingEditor.setData(objItem.editor.getData());
         // func. getMainobjItemBtnClick
     }
+	
+	function getContentCallBack(pFuncNum , pUrl){
+		if ( pFuncNum == '25'){
+            objItem.prevImgUrl = pUrl;
+            $('#preImgUrl').show().attr('href', pUrl);
+        }else{
+            CKEDITOR.tools.callFunction(pFuncNum, pUrl);
+        }
+		// func. getContentCallBack
+	}
     
     objItem.prevImgBtnClick = function(){
         var urlWindow = utils.url({
             method: 'fileManager', 
             query: {CKEditorFuncNum: '25', type: 'img', id: objItem.objItemId}
         });
-        window.open( urlWindow, 'Выберите файл', 
+        var win = window.open( urlWindow, 'Выберите файл', 
              'width=800,height=600,scrollbars=yes,resizable=yes,'
             +'location=no,status=yes,menubar=yes');
+		win.onload = function() {
+            win.funcNameCallBack = getContentCallBack;
+            win.callBackUsedData = {};
+       };
+		// func. prevImgBtnClick
     }
     
-    fileManagerCallBack = function(pFuncNum, pUrl){
-        if ( pFuncNum == '25'){
-            objItem.prevImgUrl = pUrl;
-            $('#preImgUrl').show().attr('href', pUrl);
-        }else{
-            CKEDITOR.tools.callFunction(pFuncNum, pUrl);
-        }
-    }
+    /*fileManagerCallBack = function(pFuncNum, pUrl){
+        
+    }*/
 
     $(document).ready(function(){
         // Кнопка Назад

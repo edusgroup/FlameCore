@@ -61,6 +61,10 @@ class model {
             $contrObj = new $className('', '');
             // Получаем имя таблицы, с котороым работает данных класс
             $ormTable = $contrObj->getTableCustom();
+			if ( $ormTable == '' ){
+				echo 'Warning: For contId[ '.$eventContId.'] not set urlTPl'.PHP_EOL;
+				continue;
+			}
 
             // Получаем все объекты, у которых не выставленно свойство urlTpl
             $eventBuffList = $objItemOrm->select('i.treeId', 'i')
@@ -262,10 +266,11 @@ class model {
         $classFile = $contPropData['classFile'] ? : '/base/' . $contPropData['classname'] . '.php';
         $compNs = $contPropData['ns'];
         $className = compCore::fullNameClassAdmin($classFile, $compNs);
-        ;
+		
         $contrObj = new $className('', '');
-
+		
         if (!method_exists($contrObj, 'saveDataInfo')) {
+			echo 'Warning: '.$className.' does not have saveDataInfo'.PHP_EOL;
             return;
         }
         $saveDataInfo = $contrObj->saveDataInfo($pId, $pObjItemOrm);

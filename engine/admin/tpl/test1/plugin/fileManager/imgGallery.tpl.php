@@ -121,7 +121,7 @@
 // -----------------------------------------------------------------------------
 var file = {
     fileList: <?= self::get('fileList') ?>,
-    funcNameCallBack: <?= self::get('funcNameCallBack') ?>,
+    //funcNameCallBack: <?= self::get('funcNameCallBack') ?>,
     fileDistUrl:'<?= self::get('fileDistUrl') ?>',
     filePreviewUrl:'<?= self::get('filePreviewUrl') ?>',
     maxFileId:0,
@@ -311,7 +311,7 @@ var imgGalleryManager = (function () {
 
 
 $(document).ready(function () {
-    fileManager.funcNameCallBack = file.funcNameCallBack;
+    //fileManager.funcNameCallBack = file.funcNameCallBack;
 
     $('#btnImgSelect').click(file.btnImgSelect);
 

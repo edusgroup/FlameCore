@@ -489,13 +489,14 @@ var wareframeMvc = (function(){
         }
 
         if ( pData['treeBox'] == 'linkBlockTree'){
-            wareframeMvc.createLinkBlockTree();
-            var blockTree = wareframeMvc.getTree().blockLink;
+            createLinkBlockTree();
+            var blockTree = getTree().blockLink;
         }else{
-            var blockTree = wareframeMvc.getTree().block;
+            var blockTree = getTree().block;
             // Записываем выбранный ID ветки страниц
             wareframeData.wfId = pData['wfid'];
         }
+		
         blockTree.deleteChildItems(0);
         if (!pData['tree']) {
             //TODO: Вывести о том что блоков нет, выбирете файл из шаблонов

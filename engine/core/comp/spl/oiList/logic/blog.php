@@ -17,7 +17,7 @@ use core\classes\site\dir as sitePath;
  * @author Козленко В.Л.
  */
 class blog{
-    use core\comp\spl\oiList\help\blog;
+    use \core\comp\spl\oiList\help\blog;
     
     public static $urlTplList = [
         'pageNav' => null,
