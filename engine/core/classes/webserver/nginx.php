@@ -127,6 +127,7 @@ class nginx {
         if (SITE::IS_DEVELOPER) {
             $siteName = preg_replace('/(com|ru|org)$/', 'lo', $siteName);
         } // if
+
         $render->setVar('siteName', $siteName);
         $render->setVar('fastcgiPass', SITE::FASTCGI_PASS);
         $render->setVar('nginxLog', dirFunc::getSiteNginxLog());
@@ -141,6 +142,7 @@ class nginx {
         $render->render();
         $nginxConfData = ob_get_clean();
         filesystem::saveFile(DIR::NGINX_CONF, $siteName . '.conf', $nginxConfData);
+		echo "Nginx conf saved".PHP_EOL;
         // func. createConf
     }
     // class nginx

@@ -130,6 +130,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         $saveDir = dirFunc::getSiteDataPath($saveDir);
         $seoKeywords = self::post('seoKeywords');
         $seoDescr = self::post('seoDescr');
+        $divArticle = self::postInt('divArticle');
 
         // Статья клоакинга
         $cloakingText = self::post('cloakingText');
@@ -140,6 +141,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
             [ 'objItemId' => $objItemId ]
             ,['prevImgUrl' => $prevImgUrl,
              'seoKeywords' => $seoKeywords,
+			 'divArticle' => $divArticle,
              'isCloaking' => trim($cloakingText) != '',
              'seoDescr' => $seoDescr]
         );

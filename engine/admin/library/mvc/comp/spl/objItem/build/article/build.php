@@ -41,7 +41,8 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
             // Сео название категории
             'seoName' => $objItemItem->seoName,
             'dateAdd' => $objItemItem->date_add,
-            'prevImgUrl' => $objItemItem->prevImgUrl
+            'prevImgUrl' => $objItemItem->prevImgUrl/*,
+			'divArticle' => $objItemItem->divArticle,*/
         ];
         // func. getOIListArray
     }

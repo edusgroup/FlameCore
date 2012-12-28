@@ -68,6 +68,11 @@
                     Посмотреть
                 </a><br />
             </div>
+			<div class="dt">Разделять описание</div>
+            <div class="dd">
+                <input type="checkbox" value="1" id="divArticle"/>
+                
+            </div>
 
             <div>
                 <textarea id="articleTxtId"><?= self::get('text') ?></textarea>
@@ -125,7 +130,8 @@
             'seoKeywords': objItem.objItemData['seoKeywords'],
             'seoDescr': objItem.objItemData['seoDescr'],
             'cloakingText': $('#cloakingText').val(),
-            'miniDescrText': $('#descrBox textarea[name="miniDescrText"]').val()
+            'miniDescrText': $('#descrBox textarea[name="miniDescrText"]').val(),
+			'divArticle': $('#divArticle').attr("checked")=="checked" ? 1 : 0
         }
         HAjax.saveData({data: data, methodType: 'POST'});
         return false;
@@ -188,9 +194,9 @@
 		// func. prevImgBtnClick
     }
     
-    /*fileManagerCallBack = function(pFuncNum, pUrl){
-        
-    }*/
+    fileManagerCallBack = function(pFuncNum, pUrl){
+        getContentCallBack(pFuncNum, pUrl);
+    }
 
     $(document).ready(function(){
         // Кнопка Назад
@@ -223,11 +229,15 @@
         //fileManager.initCkEditor(urlParam);
         
         if ( objItem.objItemData['prevImgUrl']){
-            fileManagerCallBack('25', objItem.objItemData['prevImgUrl']);
+            getContentCallBack('25', objItem.objItemData['prevImgUrl']);
         }
         var $seoBox = $('#seoBox');
         $seoBox.find('textarea[name="keywords"]').val(objItem.objItemData['seoKeywords']);
         $seoBox.find('textarea[name="descr"]').val(objItem.objItemData['seoDescr']);
+		
+		if ( objItem.objItemData['divArticle'] == '1' ){
+			$('#divArticle').attr("checked", 'checked');
+		}
 
         CKEDITOR.config.filebrowserBrowseUrl = utils.url({method: 'fileManager', query: {type: 'file', id: id}});
         CKEDITOR.config.filebrowserImageBrowseUrl = utils.url({method: 'fileManager', query: {type: 'img', id: id}});

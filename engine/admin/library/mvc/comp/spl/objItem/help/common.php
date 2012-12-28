@@ -17,7 +17,7 @@ trait common {
     */
     public function saveDataInfo($pObjItemId, $pObjItemOrm){
         $objItemData = $pObjItemOrm
-            ->select('i.id, i.seoUrl, i.treeId, i.caption, a.prevImgUrl, i.isPublic'
+            ->select('i.id, i.seoUrl, i.treeId, i.caption, a.prevImgUrl, i.isPublic, a.divArticle'
                          . ',cc.seoName, cc.name category, a.seoKeywords, a.seoDescr, a.isCloaking'
                          . ',DATE_FORMAT(i.date_add, "%Y-%m-%dT%h:%i+04:00") as dateISO8601'
                          . ',DATE_FORMAT(i.date_add, "%d.%m.%y %H:%i") date_add, i.date_add dateunf, a.urlTpl', 'i')

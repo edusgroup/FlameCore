@@ -20,6 +20,9 @@ use core\classes\site\dir as sitePath;
 class breadCrumbs {
 
     public static function renderAction($pName) {
+		if ( $_SERVER['DOCUMENT_URI'] == '/' ){
+			return;
+		}
         $comp = dbus::$comp[$pName];
         $breadcrumbs = $comp['breadcrumbs'];
         foreach ($breadcrumbs as &$item) {
