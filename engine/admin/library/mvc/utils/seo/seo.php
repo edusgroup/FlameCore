@@ -45,6 +45,7 @@ class seo extends \core\classes\component\abstr\admin\comp {
     public function loadParamAction() {
         // Action ID ветки
         $actionId = self::getInt('itemid');
+
         $actionProp = (new urlTreePropVar())->selectFirst('isRedir, enable', 'acId=' . $actionId);
         if ($actionProp['isRedir'] || !$actionProp['enable']) {
             echo 'Недоступно: ';
@@ -57,14 +58,23 @@ class seo extends \core\classes\component\abstr\admin\comp {
 
         $seoData = model::getLoadData($actionId);
         if ($seoData) {
-            self::setVar('title', $seoData['title']);
-            self::setVar('descr', $seoData['descr']);
-            self::setVar('keywords', $seoData['keywords']);
+            $seoList = \unserialize($seoData['seoData']);
+            foreach($seoList as $key => $val ){
+                $seoList['seoData['.$key.']'] = $val;
+                unset($seoList[$key]);
+            }
+            self::setJson('seoData', $seoList);
+            //self::setVar('title', $seoData['title']);
+            //self::setVar('descr', $seoData['descr']);
+            //self::setVar('keywords', $seoData['keywords']);
             $complist['val'] = $seoData['blItemId'];
             self::setVar('linkNextUrl', $seoData['linkNextUrl']);
             self::setVar('linkNextTitle', $seoData['linkNextTitle']);
-
-            $methods['list'] = model::getMethodListByBlockItemId((int)$seoData['blItemId']);
+            $blItemId = (int)$seoData['blItemId'];
+            // blockItemId >= 0, то block
+            if (  $blItemId >= 0 ){
+                $methods['list'] = model::getMethodListByBlockItemId($blItemId);
+            }
             $methods['val'] = $seoData['method'];
 
         } // if
@@ -85,9 +95,9 @@ class seo extends \core\classes\component\abstr\admin\comp {
         $this->view->setRenderType(render::JSON);
         // Action ID ветки
         $actionId = self::postInt('itemid');
-        $title = self::post('title');
-        $descr = self::post('descr');
-        $keywords = self::post('keywords');
+        //$title = self::post('title');
+        //$descr = self::post('descr');
+        //$keywords = self::post('keywords');
         $blCompId = self::post('blCompId');
         $linkNextUrl = self::post('linkNextUrl');
         $linkNextTitle = self::post('linkNextTitle');
@@ -97,12 +107,15 @@ class seo extends \core\classes\component\abstr\admin\comp {
 
         (new routeTree())->update('isSave="yes"', 'id=' . $actionId);
 
+        $seoData = self::post('seoData');
+
         // Сохраняем выбранные данные
         (new seoOrm())->saveExt(
             ['acId' => $actionId],
-            ['title' => $title,
-            'descr' => $descr,
-            'keywords' => $keywords,
+            [//'title' => $title,
+            //'descr' => $descr,
+            //'keywords' => $keywords,
+            'seoData' => serialize($seoData),
             'blItemId' => $blCompId,
             'linkNextUrl' => $linkNextUrl,
             'method' => $method,

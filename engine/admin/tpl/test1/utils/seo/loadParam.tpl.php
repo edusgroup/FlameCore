@@ -1,16 +1,22 @@
 <div class="left">
     <div class="dt">Примеры</div>
-    <div class="dd">{vars|objItem|caption}</div>
-    <div class="dd">{comp|objItem|data|seoDescr}</div>
-    <div class="dd">{comp|objItem|data|seoKeywords}</div>
+    <div class="dd">{vars|<i>{varName}</i>|caption}</div>
+    <div class="dd">{comp|<i>{compName}</i>|data|seo|descr}</div>
+    <div class="dd">{comp|<i>{compName}</i>|data|seo|keywords}</div>
     <div class="dt">Title</div>
-    <div class="dd"><?=self::textarea('name="title" class="textareabox"', self::get('title'))?></div>
+    <div class="dd"><textarea name="seoData[title]" class="textareabox"></textarea></div>
 
     <div class="dt">Description</div>
-    <div class="dd"><?=self::textarea('name="descr" class="textareabox"', self::get('descr'))?></div>
+    <div class="dd"><textarea name="seoData[descr]" class="textareabox"></textarea></div>
 
     <div class="dt">Keywords</div>
-    <div class="dd"><?=self::textarea('name="keywords" class="textareabox"', self::get('keywords'))?></div>
+    <div class="dd"><textarea name="seoData[keywords]" class="textareabox"></textarea></div>
+
+    <div class="dt">Img Url</div>
+    <div class="dd"><textarea name="seoData[imgUrl]" class="textareabox"></textarea></div>
+
+    <div class="dt">Video Url</div>
+    <div class="dd"><textarea name="seoData[videoUrl]" class="textareabox"></textarea></div>
 
     <div class="dt">Компонент</div>
     <div class="dd"><?=self::selectIdName(self::get('complist'), 'name="blCompId"')?></div>
@@ -35,4 +41,7 @@
 </div>
 <script>
     $('#paramBox select[name=blCompId]').change(seoMvc.compListChange);
+
+    unserializeForm('#paramBox', <?=self::get('seoData', '{}'); ?>);
+
 </script>

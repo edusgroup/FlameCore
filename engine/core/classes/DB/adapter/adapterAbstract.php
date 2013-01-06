@@ -11,6 +11,8 @@ abstract class adapterAbstract {
     const HOST = 2;
     const NAME = 3;
     const CHARSET = 4;
+    const PORT = 5;
+    const SOCKET = 6;
     
     //protected $connectionName = 'site';
     protected $_handleName = '';

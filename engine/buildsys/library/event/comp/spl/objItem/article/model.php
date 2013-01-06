@@ -285,7 +285,12 @@ class model {
             self::_modifyDataInfo($saveDataInfo['next'], $pCompId, $pContId, $saveDataInfo['obj'], 'prev', $saveDataInfo['prev'], 'next');
         }
 
+        if ( is_readable($objItemDirData.'seo.txt')){
+            $saveDataInfo['obj']['seo'] = filesystem::loadFileContentUnSerialize($objItemDirData.'seo.txt');
+        }
+
         $objItemData = serialize($saveDataInfo['obj']);
+
         filesystem::saveFile($objItemDirData, 'info.txt', $objItemData);
 
         // Выдача прав на директорию пользователю www
@@ -294,6 +299,8 @@ class model {
         if (strToLower(substr(PHP_OS, 0, 3)) !== 'win') {
             exec('sudo chown -R www-data:www-data ' . $objItemDirData);
         }
+
+
 
         // func. saveDataInfo
     }

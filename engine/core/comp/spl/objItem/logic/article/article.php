@@ -92,10 +92,15 @@ class article {
 
         $comp = dbus::$comp[$pName];
 
+        //var_dump($_SERVER);
+
         $isCanonical = isset($comp['varTableName']);
         $isCanonical =  $isCanonical && isset(dbus::$vars[$comp['varTableName']]['seoUrl']);
         if ($isCanonical) {
-            echo '<link rel="canonical" href="' . $infoData['canonical'] . '" />';
+            $canonicalUrl = 'http://'.SITE::DISPLAY_NAME.$infoData['canonical'];
+            echo '<link rel="canonical" href="' . $canonicalUrl . '" />';
+            echo '<link rel="canonical" href="' . $canonicalUrl . '" />';
+            echo '<meta property="og:url" content="' . $canonicalUrl . '"/>';
         } // if
         if (isset($infoData['prev'])) {
             echo '<link rel="prev" '

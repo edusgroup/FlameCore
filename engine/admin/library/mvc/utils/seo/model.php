@@ -35,7 +35,7 @@ class model {
     public static function getLoadData($pAcId) {
         // Получаем сохранённые данные
         $seoData = (new seoOrm())->select(
-            's.title, s.descr, s.keywords, s.blItemId, s.method, bis.classFile'
+            's.seoData, s.blItemId, s.method, bis.classFile'
                 . ', s.linkNextTitle, s.linkNextUrl, ct.ns', 's')
             ->joinLeftOuter(blockItemSettingsOrm::TABLE . ' bis', 'bis.blockItemId = s.blItemId')
             ->joinLeftOuter(blockItemOrm::TABLE . ' bi', 'bi.id = s.blItemId')

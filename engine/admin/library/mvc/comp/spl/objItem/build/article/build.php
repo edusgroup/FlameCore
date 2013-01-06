@@ -40,6 +40,7 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
             'category' => $objItemItem->category,
             // Сео название категории
             'seoName' => $objItemItem->seoName,
+            'isPrivate' => $objItemItem->isPrivate,
             'dateAdd' => $objItemItem->date_add,
             'prevImgUrl' => $objItemItem->prevImgUrl/*,
 			'divArticle' => $objItemItem->divArticle,*/

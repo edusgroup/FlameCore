@@ -36,15 +36,19 @@ if ( !request::isPost() ){
 	exit;
 }
 
+$password = new password(10);
+$userOrm = new usersOrm();
+
 $type = request::post('type');
-if ($type == 'checkLogin' ){
+if ($type == 'regist' ){
 	$userLogin = request::post('login');
 	$isExist = true;
 	if ( trim($userLogin)){
-		$isExist = (boolean)(new usersOrm())->selectFirst('1', ['login' => $userLogin]);	
+		$isExist = (boolean)$userOrm->selectFirst('1', ['login' => $userLogin]);
 	}
 	
 	if (!$isExist){
+
 		$tmpfname = tempnam(DIR_SITE::APP_DATA.'mail/', "mail_");
 		$handle = fopen($tmpfname, "w");
 		$vars['pwd'] = password::generate(6, 1, 2);
@@ -57,6 +61,14 @@ if ($type == 'checkLogin' ){
 		]));
 		fclose($handle);
 		chmod($tmpfname, 0666);
+
+        $insert = [
+            'login' => $userLogin,
+            'pwd' => $password->hash($vars['pwd']),
+            'uniq' => md5($userLogin.time()),
+            'enable' => 1
+        ];
+        (new usersOrm())->insert($insert);
 	}
 	
 	echo json_encode([
@@ -66,15 +78,52 @@ if ($type == 'checkLogin' ){
 } // if
 
 
+if ( $type == 'restore' ){
+    // Логин пользователя
+    $userLogin = request::post('login');
+    // Создаём уникальный ключ для восстановления
+    $restoreCode = password::generate(6, 1, 2);
+    // Обновляем поле в таблице пользователей
+    $isUpdate = $userOrm->update( ['restoreCode'=>$restoreCode], ['login' => $userLogin]);
+    // Если ни чего нет, то пользователя не существует
+    if ( !$userOrm->getHandle()->affected_rows ){
+        echo json_encode([
+            'error'=>'noexists'
+        ]);
+        exit;
+    } // if
+
+    // Создаём файл для письма
+    $tmpfname = tempnam(DIR_SITE::APP_DATA.'mail/', "mail_");
+    $handle = fopen($tmpfname, "w");
+    // Указываем ссылку для восстановления
+    $vars['url'] = '/user/?type=restore&email='.$userLogin.'&code='.$restoreCode;
+    fwrite($handle, \serialize([
+           'email' => $userLogin,
+           'vars' => $vars,
+           'tpl' => 'user/restore',
+           'site' => $_SERVER['SERVER_NAME'],
+           'theme' => \site\conf\SITE::THEME_NAME
+    ]));
+    fclose($handle);
+    chmod($tmpfname, 0666);
+    echo json_encode([
+        'type'=>'ok'
+    ]);
+    exit;
+} // if
+
 
 $userLogin = request::post('login');
 $userPwd = request::post('pwd');
 
-$userData = (new usersOrm())->selectFirst('uniq, fio', [
+$userData = (new usersOrm())->selectFirst('uniq, fio, pwd, id', [
 	'enable' => 1,
-    'login' => $userLogin,
-    'pwd' => md5($userPwd)
+    'login' => $userLogin
 ]);
+
+
+$userData = !$userData ?: $password->verify($userPwd, $userData['pwd']) ? $userData : null;
 
 if ($userData) {
 	/*$userGroupRelationOrm = new userGroupRelationOrm();

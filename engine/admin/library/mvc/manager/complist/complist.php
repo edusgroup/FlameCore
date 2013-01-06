@@ -69,8 +69,9 @@ class complist extends \core\classes\mvc\controllerAbstract {
      */
     public function dirAddAction() {
         $this->view->setRenderType(render::JSON);
-        if (!self::isPost())
+        if (!self::isPost()){
             return;
+        }
 
         $contId = self::postInt('treeid', 0);
         $name = self::post('name');
@@ -83,9 +84,18 @@ class complist extends \core\classes\mvc\controllerAbstract {
 
         $compContTree = new compContTree();
 
+        $name = explode('|', $name, 2);
+        if ( count($name) == 2 ){
+            $seoName = $name[1];
+            $name = $name[0];
+        }else{
+            $name = $name[0];
+            $seoName = word::wordToUrl($name);
+        }
+
         $userData = [
             'comp_id' => $compId,
-            'seoName' => word::wordToUrl($name)
+            'seoName' => $seoName
         ];
 
         $objJson = dhtmlxTree::add($compContTree, $name, $contId, dhtmlxTree::FOLDER, $userData);
@@ -96,8 +106,9 @@ class complist extends \core\classes\mvc\controllerAbstract {
 
     public function fileAddAction() {
         $this->view->setRenderType(render::JSON);
-        if (!self::isPost())
+        if (!self::isPost()){
             return;
+        }
 
         $treeId = self::postInt('treeid', 0);
         $compId = self::postInt('compid', -1);
@@ -119,8 +130,9 @@ class complist extends \core\classes\mvc\controllerAbstract {
 
     public function renameObjAction() {
         $this->view->setRenderType(render::JSON);
-        if (!self::isPost())
+        if (!self::isPost()){
             return;
+        }
 
         $contId = self::postInt('id', -1);
         $name = self::post('name');
@@ -143,8 +155,9 @@ class complist extends \core\classes\mvc\controllerAbstract {
      */
     public function rmObjAction() {
         $this->view->setRenderType(render::JSON);
-        if (!self::isPost())
+        if (!self::isPost()){
             return;
+        }
         $contId = self::postInt('id', -1);
 
         $contData = comp::getCompPropByContId($contId);

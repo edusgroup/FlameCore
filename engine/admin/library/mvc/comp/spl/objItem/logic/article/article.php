@@ -90,7 +90,12 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
 
         if (is_readable($loadDir . 'minidescr.txt')) {
             self::setVar('miniDescrText', file_get_contents($loadDir . 'minidescr.txt'));
+
         } // if is_readable
+
+        if (is_readable($loadDir . 'seo.txt')) {
+            self::setJson('seoData', filesystem::loadFileContentUnSerialize($loadDir . 'seo.txt'));
+        }
 
         // Загружаем данные клоакинга
         if ($objItemData['isCloaking']) {
@@ -128,8 +133,8 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         // Директория с данными статьи
         $saveDir = baseModel::getPath($compId, $contId, $objItemId);
         $saveDir = dirFunc::getSiteDataPath($saveDir);
-        $seoKeywords = self::post('seoKeywords');
-        $seoDescr = self::post('seoDescr');
+        //$seoKeywords = self::post('seoKeywords');
+        //$seoDescr = self::post('seoDescr');
         $divArticle = self::postInt('divArticle');
 
         // Статья клоакинга
@@ -140,11 +145,13 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         (new articleOrm())->saveExt(
             [ 'objItemId' => $objItemId ]
             ,['prevImgUrl' => $prevImgUrl,
-             'seoKeywords' => $seoKeywords,
 			 'divArticle' => $divArticle,
              'isCloaking' => trim($cloakingText) != '',
-             'seoDescr' => $seoDescr]
+             'isPrivate' => self::postInt('isPrivate') ]
         );
+
+        $seoData = serialize(self::post('seo'));
+        filesystem::saveFile($saveDir, 'seo.txt', $seoData);
 
         // TODO: добавить настройку фильтрации кода HTML
         //class_exists('admin\library\comp\spl\objItem\htmlvalid\full');

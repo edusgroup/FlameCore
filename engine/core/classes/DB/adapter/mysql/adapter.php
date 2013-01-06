@@ -47,10 +47,12 @@ class adapter extends adapterAbstract {
             }
             $handle = self::connect(
                     $param[self::HOST], 
-                    $param[self::USER], 
+                    $param[self::PORT],
+                    $param[self::USER],
                     $param[self::PWD], 
                     $param[self::NAME],  
-                    $param[self::CHARSET]
+                    $param[self::CHARSET],
+                    $param[self::SOCKET]
                );
             DBCore::addHandle($handleName, $handle);
         } // if
@@ -71,13 +73,13 @@ class adapter extends adapterAbstract {
      * @param \string $p_charset Используемая кодировка
      * @return DBHandle 
      */
-    public static function connect(\string $p_host, \string $p_user, \string $p_pwd, \string $p_db_name, \string $p_charset) {
-        $handle = \mysqli_connect($p_host, $p_user, $p_pwd, $p_db_name);
+    public static function connect($pHost,$pPort, $pUser, $pPwd, $pDbName, $p_charset, $pSocket) {
+        $handle = \mysqli_connect($pHost, $pUser, $pPwd, $pDbName, $pPort, $pSocket);
         if ( !$handle ){
-            throw new DBException(1, 'DB not connect');
+            throw new DBException('DB not connect', 1);
         }
         if ($handle->connect_error){
-           throw new DBException($handle->connect_errno, $handle->connect_error);
+           throw new DBException($handle->connect_error, $handle->connect_errno);
         }
         $handle->set_charset($p_charset);
         return $handle;//$this->dbHandle = $handle;

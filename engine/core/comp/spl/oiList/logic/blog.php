@@ -135,6 +135,7 @@ class blog{
 			self::$_paginationPageNum = $pageNum;
 			
             $categoryUrlTpl = isset($comp['urlTpl']['category'])?$comp['urlTpl']['category']:'';
+
             $nsPath = $comp['nsPath'];
             $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
             (new render($tplPath, ''))

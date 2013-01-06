@@ -10,8 +10,17 @@
 <style>
     div .dt{font-weight: bold}
     div .dd{ padding-left: 25px}
-    div.hidden{display: none}
+    .hidden{display: none}
     #cloakingBox{width: 800px}
+    .leftChild>div{
+        float: left;
+        margin-right: 10px;
+        /*border: 1px solid black;*/
+        padding: 5px;
+    }
+    .clear{
+        clear: both;
+    }
 </style>
 
 <div class="column" >
@@ -56,23 +65,35 @@
 
 
         <div class="content">
+            <div class="leftChild">
+                <div>
+                    <div class="dt">Начальное изображение</div>
+                    <div class="dd">
+                        <a href="#" id="prevImgBtn">
+                            <img src="<?= self::res('images/folder_16.png') ?>" alt="Выбрать" />
+                            Выбрать
+                        </a>
+                        <a id="preImgUrl" href="#" style="display: none" target="_blank">
+                            <img src="<?= self::res('images/file_16.png') ?>" alt="Посмотреть" />
+                            Посмотреть
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <div class="dt">Разделять описание</div>
+                    <div class="dd">
+                        <input type="checkbox" value="1" id="divArticle"/>
+                    </div>
+                </div>
 
-            <div class="dt">Начальное изображение</div>
-            <div class="dd">
-                <a href="#" id="prevImgBtn">
-                    <img src="<?= self::res('images/folder_16.png') ?>" alt="Выбрать" />
-                    Выбрать
-                </a>
-                <a id="preImgUrl" href="#" style="display: none" target="_blank">
-                    <img src="<?= self::res('images/file_16.png') ?>" alt="Посмотреть" />
-                    Посмотреть
-                </a><br />
+                <div>
+                    <div class="dt">Приват. доступ</div>
+                    <div class="dd">
+                        <input type="checkbox" value="1" id="isPrivate"/>
+                    </div>
+                </div>
             </div>
-			<div class="dt">Разделять описание</div>
-            <div class="dd">
-                <input type="checkbox" value="1" id="divArticle"/>
-                
-            </div>
+            <div class="clear"></div>
 
             <div>
                 <textarea id="articleTxtId"><?= self::get('text') ?></textarea>
@@ -81,13 +102,21 @@
 
     </div>
 </div>
-<div class="hidden" id="seoBox">
+
+<form class="hidden" id="seoBox">
     <div class="dt">Keywords</div>
     <div class="dd"><textarea name="keywords"></textarea></div>
 
-    <div class="dt">Описание</div>
+    <div class="dt">Description</div>
     <div class="dd"><textarea rows="5" cols="30" name="descr"></textarea></div>
-</div>
+
+    <div class="dt">Img Url</div>
+    <div class="dd"><input type="text" name="imgUrl"/></div>
+
+    <div class="dt">Video Url</div>
+    <div class="dd"><input type="text" name="videoUrl"/></div>
+</form>
+
 <div class="hidden" id="cloakingBox">
     <div class="boxmenu corners">
         <ul class="menu-items">
@@ -112,7 +141,8 @@
         objItemData: <?= self::get('objItemData') ?>,
         editor: null,
         prevImgUrl: '',
-        cloakingEditor: null
+        cloakingEditor: null,
+        seo: <?= self::get('seoData', '{}') ?>
     }
     
     var contrName = objItem.contid;
@@ -127,11 +157,11 @@
             'contid': objItem.contid,
             'id': objItem.objItemId,
             'prevImgUrl': objItem.prevImgUrl,
-            'seoKeywords': objItem.objItemData['seoKeywords'],
-            'seoDescr': objItem.objItemData['seoDescr'],
             'cloakingText': $('#cloakingText').val(),
             'miniDescrText': $('#descrBox textarea[name="miniDescrText"]').val(),
-			'divArticle': $('#divArticle').attr("checked")=="checked" ? 1 : 0
+			'divArticle': $('#divArticle').attr("checked")=="checked" ? 1 : 0,
+            seo: objItem.seo,
+            isPrivate: $('#isPrivate').attr("checked")=="checked" ? 1 : 0
         }
         HAjax.saveData({data: data, methodType: 'POST'});
         return false;
@@ -146,9 +176,10 @@
     }
 
     objItem.seoBtnBeforeClose = function(){
-        var $seoBox = $('#seoBox');
-        objItem.objItemData['seoKeywords'] = $seoBox.find('textarea[name="keywords"]').val();
-        objItem.objItemData['seoDescr'] = $seoBox.find('textarea[name="descr"]').val();
+        var serialArr = $('#seoBox').serializeArray();
+        for( var i in serialArr ){
+            objItem.seo[serialArr[i].name] = serialArr[i].value;
+        }
         // func. objItem.setSeoClick
     }
 
@@ -231,13 +262,16 @@
         if ( objItem.objItemData['prevImgUrl']){
             getContentCallBack('25', objItem.objItemData['prevImgUrl']);
         }
-        var $seoBox = $('#seoBox');
-        $seoBox.find('textarea[name="keywords"]').val(objItem.objItemData['seoKeywords']);
-        $seoBox.find('textarea[name="descr"]').val(objItem.objItemData['seoDescr']);
+
+        unserializeForm('#seoBox', objItem.seo);
 		
 		if ( objItem.objItemData['divArticle'] == '1' ){
-			$('#divArticle').attr("checked", 'checked');
-		}
+            $('#divArticle').attr("checked", 'checked');
+        }
+
+        if ( objItem.objItemData['isPrivate'] == '1' ){
+            $('#isPrivate').attr("checked", 'checked');
+        }
 
         CKEDITOR.config.filebrowserBrowseUrl = utils.url({method: 'fileManager', query: {type: 'file', id: id}});
         CKEDITOR.config.filebrowserImageBrowseUrl = utils.url({method: 'fileManager', query: {type: 'img', id: id}});

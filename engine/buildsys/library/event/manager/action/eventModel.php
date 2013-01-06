@@ -317,8 +317,11 @@ class eventModel {
         $tplBlockCreator->setScriptData($scriptStaticData, $scriptDynData);
         unset($scriptOnlineData, $scriptOfflineData);
 
+        // Устанавливаем название файлов, которые формируеют шаблон
         $tplBlockCreator->setBlockFileList($blockFileList);
+        // Устанавливаем классы, которые формируют компоненты
         $tplBlockCreator->setBlockItemList($buffBlockToClass);
+        // Устанавливаем ссылки, которые ссылаются на другие блоки, что бы взять компоненты от туда
         $tplBlockCreator->setBlockLinkList($blockLinkData);
 
         $tplBlockCreator->start($blockFileList[':']['file']);
@@ -460,9 +463,13 @@ class eventModel {
             ',bi.userReg, bi.tplAccess, bis.custContId' .
             ',bis.statId, bis.tableId, bis.varId, bis.varTableId, bi.position';
 
+        // Получаем все залинкованные блоки для $pAcId
+        $linkMainList = (new blockLinkOrm())->selectList('linkMainId', 'linkMainId', ['acId' => $pAcId]);
+        $linkMainList[] = $pAcId;
+
         // Сортировка данных для следующего запроса
         $orderPrefix = '';
-        $position = (new blockItemOrderOrm())->selectList('position', 'position', ['acId' => $pAcId]);
+        $position = (new blockItemOrderOrm())->selectList('position', 'position', ['acId' => $linkMainList]);
         $position = implode(',', $position);
         if ($position) {
             $orderPrefix = 'field(t.id, ' . $position . '),';
@@ -598,7 +605,7 @@ CODE_STRING;
         // Получаем даныне по сео. Настраиваются в Utils->SEO
         $seoData = (new seoOrm())
             ->select(
-            's.title, s.descr, s.keywords, bi.sysname name, s.linkNextUrl, bi.id,'
+            's.seoData, bi.sysname name, s.linkNextUrl, bi.id,'
                 . 's.linkNextTitle, c.ns, c.sysname, s.method, bis.classFile', 's')
             ->joinLeftOuter(blockItem::TABLE . ' bi', 'bi.id = s.blItemId')
             ->joinLeftOuter(componentTree::TABLE . ' c', 'c.id=bi.compId')
@@ -609,23 +616,38 @@ CODE_STRING;
         if (!$seoData) {
             return '<!-- ' . __METHOD__ . '() | No DATA -->';
         }
-        // Заголовок
-        $title = $seoData['title'];
-        // Ключевые слова
-        $keywords = $seoData['keywords'];
-        // Описание
-        $descr = $seoData['descr'];
-        // Парсим данные на наличие переменных
-        $title = self::parseTag($title);
-        $keywords = self::parseTag($keywords);
-        $descr = self::parseTag($descr);
+
+        $seoList = unserialize($seoData['seoData']);
+
+
 
         // Добавляем теги описания, ключевых слов и заголовка страницы
-        $headData = "<?
-        echo '<title>$title</title>'.PHP_EOL;
-        echo '<meta name=\"description\" content=\"$descr\" />'.PHP_EOL;
-        echo '<meta name=\"keywords\" content=\"$keywords\" />'.PHP_EOL;
-        ";
+        $headData = "<?";
+
+        if ( $seoList['descr'] ){
+            $pageDescr = self::parseTag($seoList['descr']);
+            $headData .= "echo '<meta name=\"description\" content=\"".$pageDescr."\" /><meta property=\"og:description\" content=\"".$pageDescr."\"/>';";
+        }
+
+        if ( $seoList['keywords'] ){
+            $pageKeywords = self::parseTag($seoList['keywords']);
+            $headData .= "echo '<meta name=\"keywords\" content=\"".$pageKeywords."\" />';";
+        }
+
+        if ( $seoList['title'] ){
+            $pageTitle = self::parseTag($seoList['title']);
+            $headData .= "echo '<title>".$pageTitle."</title><meta property=\"og:title\" content=\"".$pageTitle."\"/>';";
+        }
+
+        if ( $seoList['imgUrl'] ){
+            $imgUrl = self::parseTag($seoList['imgUrl']);
+            $headData .= "echo '<meta property=\"og:image\" content=\"". $imgUrl."\"/><link rel=\"image_src\" href=\"". $imgUrl."\" />';";
+        }
+
+        if ( $seoList['videoUrl'] ){
+            $videoUrl = self::parseTag($seoList['videoUrl']);
+            $headData .= "echo '<meta property=\"og:video\" content=\"". $videoUrl."\"/>';";
+        }
 
         if ($seoData['sysname']) {
             $headData .= comp::fullNameClassSite($seoData['classFile'], $seoData['ns']);

@@ -99,7 +99,7 @@ class tplBlockCreator {
         $key = $pName . ':' . $this->blockId;
         // Проверяем может блок является ссылкой на другой блок, если да, то получаем новый номер блока
         $key = isset($this->blockLinkList[$key])?$this->blockLinkList[$key]:$key;
-        //echo '<!--BEGIN['.$key.']-->';
+        // echo '<!--BEGIN['.$key.']-->';
         if (isset($this->blockFileList[$key])) {
             $oldId = $this->blockId;
             $this->blockId = $this->blockFileList[$key]['id'];
@@ -111,7 +111,6 @@ class tplBlockCreator {
                     echo '<?php ' . $item['class'] . '::' . $item['method'] . $item['callParam'] . ' ?>' . PHP_EOL;
                 }
             } // if
-
         // func. block
     }
 
