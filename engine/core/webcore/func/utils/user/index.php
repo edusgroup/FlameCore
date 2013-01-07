@@ -7,6 +7,7 @@ use core\classes\request;
 use core\classes\dbus;
 use core\classes\DB\DB as DBCore;
 use core\classes\password;
+use core\classes\validation\word;
 
 // ORM
 use ORM\tree\compContTree;
@@ -15,8 +16,8 @@ use ORM\users as usersOrm;
 // Conf
 use \DIR as DIR_ADMIN;
 use \site\conf\DIR as DIR_SITE;
+use \site\conf\SITE as SITE_SITE;
 
-use core\classes\validation\word;
 
 // Config DIR
 include '../../../../../admin/conf/DIR.php';
@@ -103,7 +104,7 @@ if ( $type == 'restore' ){
            'vars' => $vars,
            'tpl' => 'user/restore',
            'site' => $_SERVER['SERVER_NAME'],
-           'theme' => \site\conf\SITE::THEME_NAME
+           'theme' => SITE_SITE::THEME_NAME
     ]));
     fclose($handle);
     chmod($tmpfname, 0666);
@@ -117,7 +118,7 @@ if ( $type == 'restore' ){
 $userLogin = request::post('login');
 $userPwd = request::post('pwd');
 
-$userData = (new usersOrm())->selectFirst('uniq, fio, pwd, id', [
+$userData = (new usersOrm())->selectFirst(SITE_SITE::USER_DATA_FIELD, [
 	'enable' => 1,
     'login' => $userLogin
 ]);
@@ -143,7 +144,9 @@ if ($userData) {
 	$time = time() + 60 * 60 * 24;*/
 
 	session_start();
+    unset($userData['pwd']);
 	$_SESSION['userData'] = $userData;
+
 	///$_SESSION['userGroupId'] = $userGroupsId;
 	//$_SESSION['userGroupSysname'] = $userGroupsSysname;
 	
