@@ -64,7 +64,7 @@ foreach( DIR::$domainList as $domain ){
 
         preg_match('/@(.*)$/', $data['email'], $domainMail);
         if ( !$domainMail || gethostbyname($domainMail[1]) == $domainMail[1]){
-            echo "Email ".$data['mail'].' is bad'.PHP_EOL;
+            echo "Email ".(isset($data['mail'])?$data['mail']:'').' is bad'.PHP_EOL;
             copyFile($mailDir, $fileList[$i]);
             continue;
         }
@@ -122,7 +122,8 @@ foreach( DIR::$domainList as $domain ){
 		  //$mail->AddCustomHeader('Date: Tue, 21 Jul 2012 13:34:59 +0400');
 		  $mail->CharSet = 'utf-8';
 
-		  $mail->Subject = "=?UTF-8?B?" . base64_encode(html_entity_decode($param['subject'], ENT_COMPAT, 'UTF-8')) . "?=";
+          $subject = isset($data['subject'])?$data['subject']: $param['subject'];
+		  $mail->Subject = "=?UTF-8?B?" . base64_encode(html_entity_decode($subject, ENT_COMPAT, 'UTF-8')) . "?=";
 		  $mail->AltBody = 'To view the message, please use an HTML compatible email viewer!'; // optional - MsgHTML will create an alternate automatically
 		  $mail->MsgHTML($htmlCode);
 		  $mail->Send();

@@ -38,7 +38,8 @@
     $isDirNotExist = !$siteName || !is_dir(SITE_CORE . $siteName);
     if ($isDirNotExist) {
         // TODO: Сделать что бы нормально выдавало ошибку в браузере
-        print 'Error: siteName not exists or Dir(' . htmlspecialchars(SITE_CORE . $siteName) . ') not found';
+        //print 'Error: Site Name not found'.PHP_EOL.' OR Dir(' . htmlspecialchars(SITE_CORE . $siteName) . ') not found'.PHP_EOL;
+        echo 'Use php nginxConf.php siteName={sitename}'.PHP_EOL;
         exit;
     }
 

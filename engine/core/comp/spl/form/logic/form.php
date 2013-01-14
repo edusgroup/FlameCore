@@ -38,7 +38,7 @@ class form {
     }
 
     public static function init(){
-        dbus::addJsDyn('/res/core/js/comp/spl/form/universal.js');
+       // dbus::addJsDyn('/res/core/js/comp/spl/form/universal.js');
         // func. init
     }
     // class. form

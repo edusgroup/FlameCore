@@ -192,44 +192,40 @@ class eventModel {
             $isTplFileOut = $tplFileData['isOut'];
             $urlTplList = (new urlTplListOrm())->selectAll('name, acId', 'blockItemId=' . $biItem['id']);
 
-            $codeTmp = "[\n" .
-                "\t'tpl' => '$tplFile'," . PHP_EOL .
-                "\t'isTplOut' => $isTplFileOut,".PHP_EOL.
-                "\t'compId' => '{$biItem['compId']}'," . PHP_EOL .
-                "\t'nsPath' => '$nsPath'," . PHP_EOL;
+            $codeTmp = ['tpl' => $tplFile, 'isTplOut' =>$isTplFileOut, 'compId'=>$biItem['compId'], 'nsPath'=> $nsPath];
+
 
             // Если ограничения по авторизации пользователя
             if ($biItem['userReg']) {
                 $groupList = $biGroupRelationOrm->selectList('groupId', 'groupId', 'biId=' . $biItem['id']);
                 if ($groupList) {
-                    $codeTmp .= "\t'userGroup' => [" . implode(',', $groupList) . "]," . PHP_EOL;
+                    $codeTmp['userGroup'] = implode(',', $groupList);
                 }
                 // Есть ли доступы для авторизованных пользователей
                 if ($biItem['tplAccess']) {
-                    $codeTmp .= "\t'tplAccess' => '{$biItem['tplAccess']}'," . PHP_EOL;
+                    $codeTmp['tplAccess'] = $biItem['tplAccess'];
                 } // if $item[userReg]
             } // if
 
             // Переменная в настройках blockItem должна быть задана в настройках
             if ($biItem['varId']) {
                 $varName = $varIdtoName[$biItem['varId']];
-                $codeTmp .= "\t'varName' => '$varName'," . PHP_EOL;
+                $codeTmp['varName'] = $varName;
             } // if
 
-            $codeTmp .= "\t'contId' => '{$biItem['statId']}'," . PHP_EOL;
+            $codeTmp['contId'] = $biItem['statId'];
 
             if ($biItem['onlyFolder']) {
                 if ($biItem['varTableId']) {
                     $varName = $varIdtoName[$biItem['varTableId']];
-                    $codeTmp .= "\t// Component has onlyFolder, varTableName - name vars of category" . PHP_EOL;
-                    $codeTmp .= "\t'varTableName' => '$varName'," . PHP_EOL;
+                    //$codeTmp .= "\t// Component has onlyFolder, varTableName - name vars of category" . PHP_EOL;
+                    $codeTmp['varTableName'] = $varName;
                 } else {
-                    $codeTmp .= "\t'tableId' => '{$biItem['tableId']}'," . PHP_EOL;
+                    $codeTmp['tableId'] = $biItem['tableId'];
                 } // if
             } // if onlyFolder
 
             if ($urlTplList) {
-                $codeTmp .= "\t'urlTpl' => [" . PHP_EOL;
                 foreach ($urlTplList as $urlTpl) {
                     // Строим шаблон для URL
                     $urlArr = $pRouteTree->getActionUrlById((int)$urlTpl['acId']);
@@ -238,18 +234,17 @@ class eventModel {
                     }, $urlArr);
                     $urlArr = array_reverse($urlArr);
                     $url = implode('/', $urlArr);
-                    $codeTmp .= "\t\t'{$urlTpl['name']}'=>'/$url/'," . PHP_EOL;
+                    $codeTmp['urlTpl'][$urlTpl['name']] = $url;
                 } // foreach
-                $codeTmp .= "\t]" . PHP_EOL;
             } // if ( $urlTplList )
 
             // ================= Создание блока для кастомных настроек ===================
             if ($biItem['custContId'] || $biItem['statId']) {
-                $codeTmp .= self::_getCodeBlSettCust($biItem, $pAcId);
+                self::_getCodeBlSettCust($codeTmp, $biItem, $pAcId);
             } // if ($item['custContId'] || $item['statId'])
             // ---------------------------------------------------------------------------
 
-            $codeTmp .= "];\n";
+            $codeTmp = var_export($codeTmp, true).';';
 
             $blockItemInitList[$sysname][] = $codeTmp;
 
@@ -277,7 +272,7 @@ class eventModel {
         // Инициализация(объявление в коде) компонентов
         $codeBuffer .= self::_getCodeCompInit($blockItemInitList);
 
-        // Создание кода classs::init()
+        // Создание кода class::init()
         $codeBuffer .= self::_getInitClassCode($buffBlockToClass);
         $codeBuffer .= "\n\n?>";
 
@@ -332,6 +327,8 @@ class eventModel {
         if ( $propData['controller'] ){
             $codeBuffer .= '<?$bodyCustom->onDestroy();?>';
         } // if
+
+        //exit;
 
         return $codeBuffer;
         // func. createFileTpl
@@ -412,8 +409,7 @@ class eventModel {
         // func. _initVarible
     }
 
-    private static function _getCodeBlSettCust($item, $pAcId){
-        $codeTmp = '';
+    private static function _getCodeBlSettCust(&$codeTmp, $item, $pAcId){
         $custContId = (int)($item['custContId'] ? : $item['statId']);
         if ($custContId) {
             // Получаем настройки ветки
@@ -426,10 +422,9 @@ class eventModel {
             $compAdmObj = new $classNameAdmin('', '');
 
             if (method_exists($compAdmObj, 'getBlockItemParam')) {
-                $codeTmp .= $compAdmObj->getBlockItemParam($item['id'], $pAcId);
+                $compAdmObj->getBlockItemParam($codeTmp, $item['id'], $pAcId);
             } // if method_exists
         } // if $custContId
-        return $codeTmp;
         // func. _getCodeBlSettCust
     }
 
@@ -485,9 +480,7 @@ class eventModel {
          то они сохранятся и будут доступны через blockItemOrderOrm, для этого сверху была подготовка позиций, если
          сохранения и растоновки не было, то идёт простая сортировка по position
         */
-        $blockItem = new blockItem();
-        return $blockItem->sql(
-            'SELECT * FROM (
+        $sql = 'SELECT * FROM (
     (SELECT ' . $selectField . ' FROM ' . blockItem::TABLE . ' bi
         LEFT OUTER JOIN ' . blockItemSettings::TABLE . ' bis  ON bis.blockItemId = bi.id
         JOIN ' . componentTree::TABLE . ' c  ON bi.compId = c.id
@@ -495,13 +488,13 @@ class eventModel {
     UNION
         (SELECT ' . $selectField . ' FROM ' . blockLinkOrm::TABLE . ' bl
         LEFT OUTER JOIN ' . urlTreePropVar::TABLE . ' utp ON utp.acId = bl.linkMainId
-        JOIN ' . blockItem::TABLE . ' bi ON ((bl.acId = 0 AND bi.wf_id = bl.linkMainId) OR bl.acId ='.$pAcId.') AND bi.block_id = bl.linkBlockId
+        JOIN ' . blockItem::TABLE . ' bi ON ( bi.acId = bl.linkMainId OR bl.acId = 0 ) AND bi.block_id = bl.linkBlockId
         LEFT OUTER JOIN ' . blockItemSettings::TABLE . ' bis ON bis.blockItemId = bi.id
         JOIN ' . componentTree::TABLE . ' c ON bi.compId = c.id
-        WHERE bl.wfId = ' . $wfId . ')) t
-            ORDER BY ' . $orderPrefix . ' t.position')
-            ->comment(__METHOD__)
-            ->fetchAll();
+        WHERE bl.acId = '.$pAcId.')) t
+            ORDER BY ' . $orderPrefix . ' t.position';
+        //echo $sql;
+        return (new blockItem())->sql($sql)->comment(__METHOD__)->fetchAll();
         // func. _getAllBlockItem
     }
 

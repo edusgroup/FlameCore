@@ -89,8 +89,8 @@ class breadCrumbs extends \core\classes\component\abstr\admin\comp {
         // func. saveDataAction
     }
 
-    public function getBlockItemParam($pBlockItemId, $pAcId) {
-        return model::createCrumbs($pBlockItemId, $pAcId);
+    public function getBlockItemParam(&$codeTmp, $pBlockItemId, $pAcId) {
+        model::createCrumbs($codeTmp, $pBlockItemId, $pAcId);
         // func. getBlockItemParam
     }
 

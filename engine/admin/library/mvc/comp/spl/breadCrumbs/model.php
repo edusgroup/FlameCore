@@ -31,7 +31,7 @@ class model {
         // func. loadCompList
     }*/
 
-    public static function createCrumbs($pBlockItemId, $pAcId) {
+    public static function createCrumbs(&$codeTmp, $pBlockItemId, $pAcId) {
         $pathUrl = (new routeTree())->getTreeUrlById(routeTree::TABLE, $pAcId);
         $pathUrl = array_map(function($pItem) {
             return $pItem['id'];
@@ -44,14 +44,9 @@ class model {
             ->where('bc.acId in (' . $pathUrl . ')')
             ->order('field(bc.acId, ' . $pathUrl . ')')
             ->fetchAll();
-
-        $return = "\t'breadcrumbs' => [" . PHP_EOL;
         foreach ($data as $item) {
-            $return .=
-                "\t\t['caption' => '{$item['caption']}','name' => '{$item['name']}']," . PHP_EOL;
+            $codeTmp['breadcrumbs'] = ['caption' => $item['caption'], 'name' => $item['name']];
         }
-        $return .= "\t]" . PHP_EOL;
-        return $return;
         // func. createCrums
     }
     // class model breadCrumbs

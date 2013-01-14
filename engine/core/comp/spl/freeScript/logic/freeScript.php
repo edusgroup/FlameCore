@@ -18,7 +18,7 @@ use core\classes\admin\dirFunc;
 /**
  * Description of html
  *
- * @author Козленко В.Л.
+ * @author РљРѕР·Р»РµРЅРєРѕ Р’.Р›.
  */
 class freeScript {
 
@@ -41,10 +41,14 @@ class freeScript {
 		}
 		$data = \unserialize($data);
 		
-		// Дерево с файловой системой шаблонов сайта
+		// Р”РµСЂРµРІРѕ СЃ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјРѕР№ С€Р°Р±Р»РѕРЅРѕРІ СЃР°Р№С‚Р°
         $freeScriptName = dirFunc::getSiteClassCore($comp['nsPath']).'script/'.$data['file'];
-		@include($freeScriptName);
-		$className = '\\core\\comp\\spl\\freeScript\\logic\\'.substr($data['file'], 0, strlen($data['file']) - 4).'Mvc';
+        // echo $pName. ' '.$freeScriptName."<br/>";
+        $className = '\\core\\comp\\spl\\freeScript\\logic\\'.substr($data['file'], 0, strlen($data['file']) - 4).'Mvc';
+        if ( @!class_exists($className)){
+            @include($freeScriptName);
+        }
+
 		$comp['obj'] = new $className();
 		$comp['obj']->init($comp);
 		// func. init

@@ -9,5 +9,5 @@ namespace ORM\comp\spl\form;
  */
 class form extends \core\classes\DB\table {
     const TABLE = 'pr_comp_form';
-// class oiList
+    // class oiList
 }

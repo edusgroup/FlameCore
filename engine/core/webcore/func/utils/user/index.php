@@ -143,6 +143,9 @@ if ($userData) {
 
 	$time = time() + 60 * 60 * 24;*/
 
+    ini_set('session.gc_maxlifetime', 120960);
+    ini_set('session.cookie_lifetime', 120960);
+
 	session_start();
     unset($userData['pwd']);
 	$_SESSION['userData'] = $userData;
@@ -152,6 +155,9 @@ if ($userData) {
 	
 	//setCookie("userData", json_encode($userData), $time, '/') ;
 	setCookie("userId", $userData['uniq'], $time, '/');
+	setCookie("userData", json_encode(['email'=>$userLogin]), $time, '/');
+
+
 	
 	echo json_encode([
 		'type'=>'ok'

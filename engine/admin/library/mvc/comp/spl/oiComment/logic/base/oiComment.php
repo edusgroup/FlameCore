@@ -74,7 +74,7 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
      * @param $pBlockItemId
      * @return string
      */
-    public function getBlockItemParam($pBlockItemId, $pAcId) {
+    public function getBlockItemParam(&$codeTmp, $pBlockItemId, $pAcId) {
         $data = (new oiCommentBiOrm())->select('r.name, acp.type', 'acb')
             ->join(routeTree::TABLE . ' r', 'r.id=acb.actionId')
             ->join(blockItemSettings::TABLE . ' bis', 'bis.blockItemId=acb.blockItemId')
@@ -83,9 +83,9 @@ class oiComment extends \core\classes\component\abstr\admin\comp {
             ->comment(__METHOD__)
             ->fetchFirst();
 
-        return "\t'varible' => '{$data['name']}'," . PHP_EOL .
-            "\t'blockItemId' => '$pBlockItemId'," . PHP_EOL .
-            "\t'type' => '{$data['type']}'" . PHP_EOL;
+        $codeTmp['varible'] = $data['name'];
+        $codeTmp['blockItemId'] = $pBlockItemId;
+        $codeTmp['type'] = $data['type'];
         // func. getBlockItemParam
     }
 

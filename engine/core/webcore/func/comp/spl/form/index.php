@@ -1,41 +1,56 @@
 <?
+
 // Core
-use core\classes\DB\DB as DBCore;
-use core\classes\validation\filesystem as fileValid;
 use core\classes\request;
+use core\classes\dbus;
+use core\classes\DB\DB as DBCore;
+use core\classes\validation\word;
+use core\classes\validation\filesystem as fileValid;
+
+// ORM
+use ORM\tree\compContTree;
 
 // Conf
-use \site\conf\DIR;
+use \DIR as DIR_ADMIN;
+use \site\conf\DIR as DIR_SITE;
+use \site\conf\SITE as SITE_SITE;
 
 // Config DIR
-include '../../../../../conf/DIR.php';
+include '../../../../../../admin/conf/DIR.php';
+$httpHost = str_replace('.lo', '.ru', $_SERVER['HTTP_HOST']);
+if (!include DIR_ADMIN::SITE_CORE . $httpHost . '/conf/DIR.php') {
+    die('Conf file ' . $_SERVER['HTTP_HOST'] . ' not found');
+}
+
 include DIR::CORE . 'site/function/autoload.php';
+
 include DIR::CORE . 'core/function/errorHandler.php';
 include DIR::CORE . 'core/classes/DB/adapter/mysql/adapter.php';
 // Add DB conf param
 DBCore::addParam('site', \site\conf\DB::$conf);
-umask(0002);
+
 header('Content-Type: application/json');
+
+umask(0002);
 
 try {
 
-    $form = request::getVar('$form');
+    $form = request::getVar('form');
     if ( !isset($form['action']) || !fileValid::isSafe($form['action'])){
-        new \Exception('Bad type name', 234);
+        die(json_encode(['status' => 1, 'msg' => 'Bad request']));
     } // if
 
-    if ( !isset($form['formId']) || !$form['formId']){
-        new \Exception('Bad formId name', 235);
-    } // if
+    $className = '\core\comp\spl\form\action\\' . $form['action'];
+    if ( !@class_exists($className)){
+        die(json_encode(['status' => 2, 'msg' => 'Bad form name']));
+    }
 
-    $className = 'site\core\comp\spl\form\action\\' . $form['action'];
-    $classObj = new $className();
+   $classObj = new $className();
 
-    $return = $classObj->run($form);
-    $return['formId'] = $form['formId'];
-    echo json_encode($return);
+   $return = $classObj->run($form);
+   $return['status'] = 0;
+   echo json_encode($return);
 }catch (\Exception $ex) {
-
-    echo json_encode(['error' => $ex->getCode(),
+    echo json_encode(['status' => $ex->getCode(),
                      'msg' => $ex->getMessage()]);
 }

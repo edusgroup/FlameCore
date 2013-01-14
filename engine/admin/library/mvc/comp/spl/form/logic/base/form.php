@@ -103,14 +103,14 @@ class form extends \core\classes\component\abstr\admin\comp {
      * @param $pBlockItemId
      * @return string
      */
-    public function getBlockItemParam($pBlockItemId, $pAcId) {
+    public function getBlockItemParam(&$codeTmp, $pBlockItemId, $pAcId) {
         $formOrm = new formOrm();
         $data = $formOrm->select('f.action', 'f')
             ->join(blockItemSettings::TABLE . ' bis', 'bis.statId = f.contId')
             ->where('bis.blockItemId=' . $pBlockItemId)
             ->comment(__METHOD__)
             ->fetchFirst();
-        return "\t'action' => '{$data['action']}'" . PHP_EOL;
+        $codeTmp['action'] = $data['action'];
         // func. getBlockItemParam
     }
 
