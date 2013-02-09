@@ -84,9 +84,10 @@ class filesystem {
             if ( is_dir($item)){
                 $tmpList = self::rDir2Arr($item, $pFilter);
                 $list = array_merge($list, $tmpList);
+				$list[] = $item;
             }else{
                 $isAdd = true;
-                // Еслть ли фильтр
+                // Есть ли фильтр
                 if ($pFilter) {
                     // Regexp ли это
                     if ($pFilter[0] != '/') {

@@ -101,6 +101,7 @@ class eventModel {
 
         // Начинем создовать код
         $codeBuffer = '<?php $time = microtime(true);'.PHP_EOL;
+
         // Если есть кастомный контроллер, мы его должны за инклюдить и вызывать его методы
         if ( $propData['controller'] ){
             $controllerBody = 'include(\''.SITE_DIR_CONF::SITE_CORE . 'core/logic/'.$propData['controller'].'\');'.PHP_EOL;
@@ -111,6 +112,17 @@ class eventModel {
         ob_start();
         $render->render();
         $codeBuffer .= ob_get_clean();
+		
+		// получаем значение выставленных переменных для шаблонов сайта
+        $tplVarList = (new tplvarOrm())->sql('select * from (
+              select name, value
+              from ' . tplvarOrm::TABLE . '
+              where acid=' . $pAcId . ' or acid = 0
+              order by acid desc
+              ) t group by t.name')->fetchAll();
+
+        $tplVarList = arrays::dbQueryToAssoc($tplVarList);
+		$codeBuffer .= 'dbus::$tplVarible = '.var_export($tplVarList, true).';'.PHP_EOL;
 
         $biGroupRelationOrm = new biGroupRelationOrm();
 
@@ -233,7 +245,7 @@ class eventModel {
                         return $pItem['propType'] == 1 ? '%s' : $pItem['name'];
                     }, $urlArr);
                     $urlArr = array_reverse($urlArr);
-                    $url = implode('/', $urlArr);
+                    $url = '/'.implode('/', $urlArr).'/';
                     $codeTmp['urlTpl'][$urlTpl['name']] = $url;
                 } // foreach
             } // if ( $urlTplList )
@@ -276,16 +288,6 @@ class eventModel {
         $codeBuffer .= self::_getInitClassCode($buffBlockToClass);
         $codeBuffer .= "\n\n?>";
 
-        // получаем значение выставленных переменных для шаблонов сайта
-        $tplVarList = (new tplvarOrm())->sql('select * from (
-              select name, value
-              from ' . tplvarOrm::TABLE . '
-              where acid=' . $pAcId . ' or acid = 0
-              order by acid desc
-              ) t group by t.name')->fetchAll();
-
-        $tplVarList = arrays::dbQueryToAssoc($tplVarList);
-
         // Включаем шаблонизатор, что бы получить код страницы
         $tplSitePath = dirFunc::getSiteTplPath();
         $resSiteUrl = dirFunc::getSiteResUrl();
@@ -305,7 +307,7 @@ class eventModel {
         $tplBlockCreator->setHeadData($headData);
         unset($headData);
 
-        $tplBlockCreator->setVaribleList($tplVarList);
+        //$tplBlockCreator->setVaribleList($tplVarList);
 
         $scriptStaticData = self::getScriptStaticData();
         $scriptDynData = self::getScriptDynData();
@@ -491,9 +493,11 @@ class eventModel {
         JOIN ' . blockItem::TABLE . ' bi ON ( bi.acId = bl.linkMainId OR bl.acId = 0 ) AND bi.block_id = bl.linkBlockId
         LEFT OUTER JOIN ' . blockItemSettings::TABLE . ' bis ON bis.blockItemId = bi.id
         JOIN ' . componentTree::TABLE . ' c ON bi.compId = c.id
-        WHERE bl.acId = '.$pAcId.')) t
-            ORDER BY ' . $orderPrefix . ' t.position';
-        //echo $sql;
+        WHERE bl.acId = '.$pAcId.' or bl.acId = 0)) t
+            ORDER BY ' . $orderPrefix . ' t.position, t.id';
+
+       // die($sql);
+
         return (new blockItem())->sql($sql)->comment(__METHOD__)->fetchAll();
         // func. _getAllBlockItem
     }
@@ -611,8 +615,6 @@ CODE_STRING;
         }
 
         $seoList = unserialize($seoData['seoData']);
-
-
 
         // Добавляем теги описания, ключевых слов и заголовка страницы
         $headData = "<?";

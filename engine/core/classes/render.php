@@ -129,6 +129,11 @@ class render extends html\element{
         $return .= ($pQuery ? '&' . $pQuery : '');
         return $return;
     }
+	
+	public static function tplVarible($pName){
+		return isset(dbus::$tplVarible[$pName])?dbus::$tplVarible[$pName]:'';
+		// func. tplVarible
+	}
 
     /**
      * Заносит соотвествие в какой блок какой файл грузить<br/>

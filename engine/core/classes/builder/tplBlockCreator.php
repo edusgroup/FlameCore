@@ -31,9 +31,9 @@ class tplBlockCreator {
         // func. setHeadData
     }
 
-    public function setVaribleList($pVarList){
+    /*public function setVaribleList($pVarList){
         $this->_varibleList = $pVarList;
-    }
+    }*/
 
     public function setScriptData($pStaic, $pDyn) {
         $this->scriptStaticData = $pStaic;
@@ -70,7 +70,7 @@ class tplBlockCreator {
     }
 
     public function varible($pName, $pTitle = ''){
-        return isset($this->_varibleList[$pName])?$this->_varibleList[$pName]:'';
+        return "<?=isset(dbus::\$tplVarible['$pName'])?dbus::\$tplVarible['$pName']:'';?>";
         // func. varible
     }
 	
