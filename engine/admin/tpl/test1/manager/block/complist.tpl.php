@@ -100,8 +100,8 @@
                 comp: null
             }
         },
-        compid: <?= self::get('compId') ?>,
-        contid: <?= self::get('contId') ?>,
+        compid: <?= self::get('compId', 'null') ?>,
+        contid: <?= self::get('contId', 'null') ?>,
         // Содержит старый compId, нужно что бы не делать запрос
         // при клике на один и тот же элемент
         lastCompId: null
@@ -139,7 +139,7 @@
         contTree.loadJSONObject(pData['tree']);
         
         // Если к странице вернулись, нужно открыть где мы были
-        if ( comp.contid != -1 ){
+        if ( comp.contid != null ){
             contTree.selectItem(comp.contid);
         }
         contTree.treeId = 0;
@@ -209,9 +209,9 @@
         HAjax.create({
             loadContTree: comp.loadContTree
         });
-        
+
         // Если к странице вернулись, нужно открыть где мы были
-        if ( comp.compid != -1 ){
+        if ( comp.compid != null){
             comp.tree.comp.selectItem(comp.compid, true);
         }
 

@@ -169,7 +169,7 @@ class render extends html\element{
      * @see setBlock для задания соотвествия между блоком и именем файла
      * @param string $pBlockName 
      */
-    public function includeBlock(string $pBlockName) {
+    protected  function includeBlock(string $pBlockName) {
         // Есть ли такой блок
         if (!(isset($this->arBlock[$pBlockName]) && $this->arBlock[$pBlockName]))
             return;
@@ -211,6 +211,25 @@ class render extends html\element{
     public function setContentType($pValue){
         $this->contentType = $pValue;
         return $this;
+    }
+
+    public function renderToFile($pFile, $pPrefix='<?php '){
+        self::setContentType(null);
+        ob_start();
+        $this->render();
+        $data = ob_get_clean();
+
+        $fw = fopen($pFile, 'w');
+        if ( !$fw ){
+            return false;
+        }
+        if ( !fwrite($fw, $pPrefix.$data) ){
+            return false;
+        }
+
+        fclose($fw);
+        return true;
+        // func. renderToFile
     }
 
     public function render(){

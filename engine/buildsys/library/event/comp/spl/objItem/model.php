@@ -56,6 +56,11 @@ class model {
             $resize = new resize();
             $resize->setWidth($pImgPreviewWidth);
             $resize->setType($pResizeType == 'prop' ? resize::PROPORTIONAL : resize::SQUARE);
+			
+			if ( !is_readable(dirFunc::getSiteRoot() . $imgFile)){
+				return;
+			}
+
             $resize->resize(dirFunc::getSiteRoot() . $imgFile, $fileResizePath . $resizeFile);
             //print $fileResizePath . $resizeFile." $pResizeType".PHP_EOL;
             $pObjItemObj->prevImgUrl = dirFunc::getSiteImgResizeUrl() . $resizeFile . '?' . time();

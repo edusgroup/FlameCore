@@ -76,7 +76,7 @@ class table extends adapter\adapter {
             $isKeyTypeNumeric = \is_numeric(key($pFields));
             // Если тип числовой, то тут хранятся просто поля
             if ($isKeyTypeNumeric) {
-                $this->sSQL .= implode(',', $pFields);
+                $this->sSQL .= '`'.implode('`,`', $pFields).'`';
             } else {
                 // Иначе, хранятся поля с алиансами
                 $tmp = '';
@@ -357,6 +357,11 @@ class table extends adapter\adapter {
     protected function _fieldSet(array $pFields, integer $pFieldSet) {
         $fields = self::_prepare($pFields);
         foreach ($fields as $pKey => &$pItem) {
+            $anti = substr($pKey, -1) == '!';
+            $pKey =  $anti ? substr($pKey, 0, strlen($pKey)-1) : $pKey;
+
+            $pKey = '`'.$pKey.'`';
+            $pKey .=  $anti ? '!' : '';
             // Обработка в выражении WHERE field is NULL
             $eq = ($pFieldSet == self::FIELD_WHERE) && ($pItem === 'null') ? ' is ' : '=';
             if (is_array($pItem)) {

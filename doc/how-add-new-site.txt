@@ -1,0 +1,16 @@
+Порядок создания сайта:
+cd /opt/www/SiteCoreFlame/
+php /opt/www/SiteCoreFlame/createSite.php -n={sitename}
+
+Правим конфиги
+/opt/www/SiteCoreFlame/{sitename}/conf/DB.php
+/opt/www/SiteCoreFlame/{sitename}/conf/DIR.php
+/opt/www/SiteCoreFlame/{sitename}/conf/SITE.php
+
+Создать БД и пользователя
+
+Создать конфиг для nginx
+php nginxConf.php siteName="uplandingpage.com"
+
+Рестарт nginx
+kill -HUP `cat /opt/nginx-1.2.0/logs/nginx.pid`

@@ -6,10 +6,7 @@ namespace core\classes;
 class filesystem {
 
     public static function andEndSlash(string $path) {
-        $last_char = substr($path, strlen($path) - 1, 1);
-        if ($last_char != '/')
-            $path .= '/';
-        return $path;
+        return substr($path, strlen($path) - 1, 1) != '/' ? $path.'/' : $path;
     }
 
     // TODO: описать переменные
@@ -182,6 +179,13 @@ class filesystem {
         return copy($pFileSource, $pathDist . $pFileName);
     }
 
+    public static function copyR($pPathSource, $pPathDist, $pBackGround=false) {
+        self::mkdir($pPathDist);
+        $bg = $pBackGround ? ' &' : '';
+        exec('cp -r '.$pPathSource.' '.$pPathDist. ' '.$bg );
+        // func. copyR
+    }
+
     public static function getMimeType(string $pFileName) {
         $finfo = new \finfo(FILEINFO_MIME);
         if (!$finfo) {
@@ -191,6 +195,12 @@ class filesystem {
         $list = explode(';', $finfo->file($pFileName));
         $charset = substr($list[1], 9);
         return array('type' => $list[0], 'charset' => $charset);
+    }
+
+    public static function rmdirR($pPathSource, $pBackGround=false){
+        $bg = $pBackGround ? ' &' : '';
+        exec('rm -rf '.$pPathSource.' '.$bg );
+        // func. rmdirR
     }
 
     /**

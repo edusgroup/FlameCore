@@ -36,16 +36,21 @@ class complist extends \core\classes\mvc\controllerAbstract {
 
     public function indexAction() {
 
-        $contId = self::getInt('contid');
-        $compId = self::getInt('compid');
+        $contId = self::getInt('contid', null);
+        //$compId = self::getInt('compid');
 
         dhtmlxTree::setField(['onlyFolder']);
         $compTree = dhtmlxTree::createTreeOfTable(new componentTree());
         dhtmlxTree::clear();
         self::setJson('compTree', $compTree);
 
-        self::setVar('contId', $contId, -1);
-        self::setVar('compId', $compId, -1);
+        $compId = null;
+        if ( $contId != null ){
+            $compId = (new compContTree())->getCompId($contId);
+        }
+
+        self::setVar('contId', $contId);
+        self::setVar('compId', $compId);
 
         $this->view->setBlock('panel', 'block/complist.tpl.php');
         $this->view->setMainTpl('main.tpl.php');
@@ -78,11 +83,8 @@ class complist extends \core\classes\mvc\controllerAbstract {
 
         $contData = comp::getCompPropByContId($contId);
         $compId = self::postInt('compid');
-        $className = $contData['classname'];
 
-        eventCore::callOffline($className, 'tree:diradd', ['compId' => $compId], $contId);
-
-        $compContTree = new compContTree();
+        eventCore::callOffline($contData['classname'], 'tree:diradd', ['compId' => $compId], $contId);
 
         $name = explode('|', $name, 2);
         if ( count($name) == 2 ){
@@ -93,12 +95,10 @@ class complist extends \core\classes\mvc\controllerAbstract {
             $seoName = word::wordToUrl($name);
         }
 
-        $userData = [
-            'comp_id' => $compId,
-            'seoName' => $seoName
-        ];
+        $userData['comp_id'] = $compId;
+        $userData['seoName'] = $seoName;
 
-        $objJson = dhtmlxTree::add($compContTree, $name, $contId, dhtmlxTree::FOLDER, $userData);
+        $objJson = dhtmlxTree::add((new compContTree()), $name, $contId, dhtmlxTree::FOLDER, $userData);
         $objJson['treeName'] = self::post('treeName');
         self::setVar('json', $objJson);
         // func. dirAddAction
@@ -111,17 +111,12 @@ class complist extends \core\classes\mvc\controllerAbstract {
         }
 
         $treeId = self::postInt('treeid', 0);
-        $compId = self::postInt('compid', -1);
         $name = self::post('name');
 
-        $compContTree = new compContTree();
+        $userData['comp_id'] = self::postInt('compid', -1);
+        $userData['seoName'] = word::wordToUrl($name);
 
-        $userData = [
-            'comp_id' => $compId,
-            'seoName' => word::wordToUrl($name)
-        ];
-
-        $objData = dhtmlxTree::add($compContTree, $name, $treeId, dhtmlxTree::FILE, $userData);
+        $objData = dhtmlxTree::add((new compContTree()), $name, $treeId, dhtmlxTree::FILE, $userData);
 
         $objData['treeName'] = self::post('treeName');
         self::setVar('json', $objData);
@@ -166,8 +161,7 @@ class complist extends \core\classes\mvc\controllerAbstract {
 
         eventCore::callOffline($className, eventCompList::DELETE, ['compId' => $compId], $contId);
 
-        $compContTree = new compContTree();
-        $compContTree->update('isDel="yes"', 'id=' . $contId);
+        (new compContTree())->update('isDel="yes"', 'id=' . $contId);
 
         self::setVar('json',['id' => $contId,
                              'treeName' => self::post('treeName')]);

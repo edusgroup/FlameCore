@@ -45,7 +45,7 @@ class model {
             ->order('field(bc.acId, ' . $pathUrl . ')')
             ->fetchAll();
         foreach ($data as $item) {
-            $codeTmp['breadcrumbs'] = ['caption' => $item['caption'], 'name' => $item['name']];
+            $codeTmp['breadcrumbs'][] = ['caption' => $item['caption'], 'name' => $item['name']];
         }
         // func. createCrums
     }

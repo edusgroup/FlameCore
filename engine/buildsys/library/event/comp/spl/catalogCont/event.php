@@ -19,7 +19,7 @@ use core\classes\admin\dirFunc;
 use \DIR;
 
 /**
- * Обработчик событий для меню
+ * Обработчик событий для категорий
  *
  * @author Козленко В.Л.
  */
@@ -82,11 +82,12 @@ class event {
 				echo 'Error: urltpl not found ('.__METHOD__.')'.PHP_EOL;
 				continue;
 			}
-			
+
             foreach ($data as &$item) {
                 $item['url'] = sprintf($prop['urltpl'], $item['seoName']);
                 unset($item['seoName']);
             } // foreach
+
 
             $data = \serialize($data);
             filesystem::saveFile($saveDir . $contId . '/', 'list.txt', $data);

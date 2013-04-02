@@ -143,7 +143,7 @@ class model {
                     'linkBlockId'=>$val->linkBlockId]
                 );
             }else{
-                $blockLinkOrm->delete(['wfId' => $pWfId, 'blockId' => $blockId]);
+                $blockLinkOrm->delete(['wfId' => $pWfId, 'blockId' => $blockId, 'acId'=>$pAcId]);
             }
         } // foreach
         // func. saveBlockLink

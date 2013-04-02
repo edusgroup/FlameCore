@@ -50,11 +50,15 @@ class event {
                 $compTree = tree::createTreeOfTable(new menuOrm(), 'contId=' . $contId);
                 // Сортируем по полю sortValue
                 model::rSortTree($compTree);
-                // Сериализуем
-                $data = \serialize($compTree);
 
                 $saveDir = 'comp/' . $item['compId'] . '/' . $contId . '/';
                 $saveDir = dirFunc::getSiteDataPath($saveDir);
+
+                $compTree['public'] = filesystem::loadFileContentUnSerialize($saveDir.'public.txt');
+
+                // Сериализуем
+                $data = \serialize($compTree);
+
                 // Записываем в файл
                 filesystem::saveFile($saveDir, 'menu.txt', $data);
             } // foreach

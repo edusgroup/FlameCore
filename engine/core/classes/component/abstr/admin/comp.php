@@ -46,43 +46,5 @@ abstract class comp extends \core\classes\mvc\controllerAbstract {
         // func. __call
     }
 
-    /*public function getTplFile() {
-        $tplType = $this->objProp['tplType'];
-        $category = $this->objProp['category'];
-        $categoryDir = '';
-        if ( $category ){
-            $categoryDir = 'category/'.$category.'/';
-        }
-        switch ($tplType) {
-            case compCore::DEFAULT_VALUE:
-                $defaultName = !$category ? $this->objProp['classname'] : ('category/'.$category.'/'.$category);
-                  return $defaultName . '.tpl.php';
-            case 'user':
-                return $categoryDir.'user/' . $this->objProp['tplUserFile'];
-            case 'ext':
-                return $categoryDir.'ext/' . $this->objProp['tplExtFile'];
-            case 'builder':
-                throw new \Exception('builder no create');
-        }
-        throw new \Exception('Не известнный тип tplType');
-        // func. getTplFile
-    }*/
-
-    /**
-     * Возврашает список табличных данных, пренадлежащех категории $pContId
-     * Может быть пустым. Нужно только если onlyFolder=1
-     * @param integer $pContId ID родителя(категории)
-     */
-    //public abstract function getTableData($pContId);
-
-    /**
-     * Возврашает имя записи в таблице
-     * Может быть пустым. Нужно только если onlyFolder=1
-     * @param integer $pTableId ID таблицы
-     */
-    //public abstract function getTableOrm();
-
-    //public abstract function blockItemShowAction();
-
     // class comp
 }

@@ -278,8 +278,6 @@ class eventModel {
 
         } // foreach
 
-        $blockLinkData = (new blockLinkOrm())->selectAll('blockId, linkBlockId', 'wfId=' . $wfId);
-        $blockLinkData = arrays::dbQueryToAssoc($blockLinkData, 'blockId', 'linkBlockId');
 
         // Инициализация(объявление в коде) компонентов
         $codeBuffer .= self::_getCodeCompInit($blockItemInitList);
@@ -313,8 +311,12 @@ class eventModel {
         $scriptDynData = self::getScriptDynData();
         $tplBlockCreator->setScriptData($scriptStaticData, $scriptDynData);
         unset($scriptOnlineData, $scriptOfflineData);
+		
+		$blockLinkData = (new blockLinkOrm())->selectAll('blockId, linkBlockId', 'wfId=' . $wfId);
+        $blockLinkData = arrays::dbQueryToAssoc($blockLinkData, 'blockId', 'linkBlockId');
+		
 
-        // Устанавливаем название файлов, которые формируеют шаблон
+        // Устанавливаем название файлов, которые формируют шаблон
         $tplBlockCreator->setBlockFileList($blockFileList);
         // Устанавливаем классы, которые формируют компоненты
         $tplBlockCreator->setBlockItemList($buffBlockToClass);
@@ -490,13 +492,22 @@ class eventModel {
     UNION
         (SELECT ' . $selectField . ' FROM ' . blockLinkOrm::TABLE . ' bl
         LEFT OUTER JOIN ' . urlTreePropVar::TABLE . ' utp ON utp.acId = bl.linkMainId
-        JOIN ' . blockItem::TABLE . ' bi ON ( bi.acId = bl.linkMainId OR bl.acId = 0 ) AND bi.block_id = bl.linkBlockId
+        JOIN ' . blockItem::TABLE . ' bi ON ( bi.acId = bl.linkMainId OR bl.acId = 0 OR bi.acId = 0  ) AND bi.block_id = bl.linkBlockId
         LEFT OUTER JOIN ' . blockItemSettings::TABLE . ' bis ON bis.blockItemId = bi.id
         JOIN ' . componentTree::TABLE . ' c ON bi.compId = c.id
         WHERE bl.acId = '.$pAcId.' or bl.acId = 0)) t
             ORDER BY ' . $orderPrefix . ' t.position, t.id';
 
-       // die($sql);
+        //die($sql);
+		
+		/* 
+		#Вспомогательные/объяснительные запросы
+		# Выводит все компоненты, которые были созданы на уровне root-wareframe, а не action
+		SELECT * FROM pr_blockitem bi where bi.acId = 0;
+
+		# Выводит все линки на компоненты, которые были указаны для actionId = 0 и root-wareframe
+		select * from pr_block_link bl WHERE  bl.acId = 3 or bl.acId = 0;
+		*/
 
         return (new blockItem())->sql($sql)->comment(__METHOD__)->fetchAll();
         // func. _getAllBlockItem
