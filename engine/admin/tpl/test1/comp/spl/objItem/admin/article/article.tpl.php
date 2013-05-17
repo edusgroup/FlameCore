@@ -273,8 +273,12 @@
             $('#isPrivate').attr("checked", 'checked');
         }
 
+
         CKEDITOR.config.filebrowserBrowseUrl = utils.url({method: 'fileManager', query: {type: 'file', id: id}});
+
         CKEDITOR.config.filebrowserImageBrowseUrl = utils.url({method: 'fileManager', query: {type: 'img', id: id}});
+        //CKEDITOR.config.filebrowserImageBrowseUrl = 'http://files.codecampus.ru/?group=p'+id+'&subgroup=article&profile=article&single=1';//utils.url({method: 'fileManager', query: {type: 'img', id: id}});
+
         CKEDITOR.config.filebrowserFlashBrowseUrl = utils.url({method: 'fileManager', query: {type: 'flash', id: id}});
         CKEDITOR.config.filebrowserUploadUrl = 'res/plugin/kcfinder/upload.php?type=files';
         CKEDITOR.config.filebrowserImageUploadUrl = 'res/plugin/kcfinder/upload.php?type=images';

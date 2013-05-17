@@ -70,10 +70,14 @@ class model {
 
 
     public static function getMethodListByBlockItemId(integer $pBlockItemId){
-        $blItemProp = blockItemModel::getCompData($pBlockItemId);
-        if ( !$blItemProp){
-            throw new \Exception('BlockItem '.$pBlockItemId.' not found');
-        } // if
+        try{
+            $blItemProp = blockItemModel::getCompData($pBlockItemId);
+        }catch(\Exception $ex){
+            return [];
+        }
+        //if ( !$blItemProp){
+        //    throw new \Exception('BlockItem '.$pBlockItemId.' not found');
+        //} // if
         if ( !$blItemProp['classFile'] ){
             throw new \Exception('ClassFile not set in blID: '.$pBlockItemId);
         } // if

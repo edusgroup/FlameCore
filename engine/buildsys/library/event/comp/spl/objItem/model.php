@@ -89,8 +89,6 @@ class model {
      * @return bool|\core\classes\DB\adapter\type
      */
     public static function objItemChange(eventBufferOrm $eventBufferOrm, array $pTableJoinList, tableDb $pTreeTableOrm, compContTreeOrm $compContTreeOrm, array $childList, array $buffTreeIdList, $pQuery = null) {
-
-        $where = [];
         // Если не было изменений, в статьях,
         // может были изменений UrlTpl для статей
         // (см. кастом настройки в дереве контента статьи )
@@ -100,8 +98,6 @@ class model {
         foreach ($childList as $contId) {
             // Получаем рекурсивно все папки входящие в выбранные пользователем при настройках компонента
             self::_rGetChildList($pTreeTableOrm, $compContTreeOrm, $childList, $contId);
-
-            //$where = array_merge($childList, $parentList);
         } // foreach
         unset($parentList);
 
@@ -128,8 +124,8 @@ class model {
             $selectDefault .= ',a' . $num . '.*';
         }
 
-        $select = isset($pQuery['select']) ? $pQuery['select'] : $selectDefault;
-        $where = isset($pQuery['where']) ? $pQuery['where'] : 'i.isPublic="yes" AND i.isDel=0 AND i.treeId in (' . $where . ')';
+        $select = isset($pQuery['select']) ? str_replace('%select%', $selectDefault, $pQuery['select']) : $selectDefault;
+        $where = isset($pQuery['where']) ? str_replace('%where%', $where, $pQuery['where']) : 'i.isPublic="yes" AND i.isDel=0 AND i.treeId in (' . $where . ')';
         $order = isset($pQuery['order']) ? $pQuery['order'] : 'date_add DESC, id desc';
         $limit = isset($pQuery['limit']) ? $pQuery['limit'] : null;
         $handleObjitem = (new objItemOrm())->select($select, 'i');
@@ -143,7 +139,10 @@ class model {
             ->order($order)
             ->limit($limit)
             ->comment(__METHOD__)
+            //->printSql()
             ->query();
+
+
         // func. objItemChange
     }
 

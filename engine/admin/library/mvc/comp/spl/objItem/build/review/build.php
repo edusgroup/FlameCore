@@ -42,7 +42,6 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
             'id' => $objItemItem->id,
             'idSplit' => $idSplit,
             // Сео название категории
-            'caption' => $objItemItem->caption,
             'videoUrl' => $objItemItem->videoUrl,
             'prevImgUrl' => $objItemItem->imgPrevUrl,
             'text' => $text

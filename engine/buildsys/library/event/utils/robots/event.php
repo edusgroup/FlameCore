@@ -34,7 +34,15 @@ class event {
 
         $routeTree = new routeTree();
         $actionList = $routeTree->selectAll('id, robots', 'robots != "none"', 'brunchNum DESC');
+
+        $loadDir = dirFunc::getSiteDataPath('utils/robots/');
+        $textData = filesystem::loadFileContent($loadDir . 'data.txt');
+
         ob_start();
+
+        echo 'Host: ' . SITE_CONF::NAME . PHP_EOL . PHP_EOL;
+        echo 'Sitemap: http://' . SITE_CONF::NAME . '/sitemap.xml'.PHP_EOL;
+
         foreach ($robotsData as $robots) {
             echo 'User-agent: ' . $robots['userAgent'] . PHP_EOL;
             echo 'Crawl-delay: ' . $robots['crawlDelay'] . PHP_EOL;
@@ -44,24 +52,23 @@ class event {
             /*if (!$actionList) {
                 echo 'Allow: /' . PHP_EOL;
             }*/
+
+            echo 'Disallow:'. PHP_EOL;
+            echo $textData.PHP_EOL;
+
+            foreach ($actionList as $actionItem) {
+                $url = $routeTree->getActionUrlById((int)$actionItem['id']);
+                $url = array_map(function($pItem) {
+                    return $pItem['name'];
+                }, $url);
+                $url = array_reverse($url);
+                echo $actionItem['robots'] == 'disallow' ? 'Disallow' : 'Allow';
+                $url = ': /' . implode('/', $url) . '/';
+                echo $url . PHP_EOL;
+            } // foreach actionList
             
         } // foreach robots
 
-        echo 'Disallow:'. PHP_EOL;
-		echo 'Host: ' . SITE_CONF::NAME . PHP_EOL . PHP_EOL;
-
-        foreach ($actionList as $actionItem) {
-            $url = $routeTree->getActionUrlById((int)$actionItem['id']);
-            $url = array_map(function($pItem) {
-                return $pItem['name'];
-            }, $url);
-            $url = array_reverse($url);
-            echo $actionItem['robots'] == 'disallow' ? 'Disallow' : 'Allow';
-            $url = ': /' . implode('/', $url) . '/';
-            echo $url . PHP_EOL;
-        } // foreach actionList
-
-        echo 'Sitemap: http://' . SITE_CONF::NAME . '/sitemap.xml';
         $codeData = ob_get_clean();
 
         $path = dirFunc::getSiteRoot();

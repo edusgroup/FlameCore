@@ -43,6 +43,8 @@ class event{
         $objItemCompId = $componentTree->get('id', 'sysname="objItem"');
         $oiCommentCompId = $componentTree->get('id', 'sysname="oiComment"');
 
+
+
         $delListCount = count($delList);
         for ($i = 0; $i < $delListCount; $i++) {
             $delItem = $delList[$i];
@@ -51,11 +53,12 @@ class event{
 
             // Удаляем загруженные файлы
             $pathPrefix = baseModel::getPath($delItem['comp_id'], $delItem['treeId'], $delItem['id']);
+
             userUtils::rmFolder($pathPrefix);
 
             // Удаляем кешированные файлы комментариев
-            $pPathPrefix = 'comp/'.$oiCommentCompId.'/objItem/'.$delItem['id'].'/';
-            $path = dirFunc::getSiteDataPath($pPathPrefix);
+            $pathPrefix = 'comp/'.$oiCommentCompId.'/objItem/'.$delItem['id'].'/';
+            $path = dirFunc::getSiteDataPath($pathPrefix);
             filesystem::rmdir($path);
         } // for($i)
 

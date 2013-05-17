@@ -36,6 +36,10 @@ class robots extends controllerAbstract {
         $engineList = $robotsOrm->selectAll('*');
         self::setVar('engineList', $engineList);
 
+        $loadDir = dirFunc::getSiteDataPath('utils/robots/');
+        $textData = filesystem::loadFileContent($loadDir . 'data.txt');
+        self::setVar('robotsText', $textData);
+
         $this->view->setBlock('panel', 'robots/robots.tpl.php');
         $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
@@ -64,6 +68,10 @@ class robots extends controllerAbstract {
                 $robotsOrm->update($saveData, 'id=' . $id);
             } // foreach
         } // if
+
+        $robotsText = self::post('robotsText');
+        $saveDir = dirFunc::getSiteDataPath('utils/robots/');
+        filesystem::saveFile($saveDir, 'data.txt', $robotsText);
         // func. saveDataAction
     }
 

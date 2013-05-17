@@ -40,7 +40,12 @@ try {
         die(json_encode(['status' => 1, 'msg' => 'Bad request']));
     } // if
 
-    $className = '\core\comp\spl\form\action\\' . $form['action'];
+    if ( !isset($form['type']) || $form['type'] == 'in' ){
+        $className = '\core\comp\spl\form\action\\' . $form['action'];
+    }else{
+        $className = '\site\core\site\comp\spl\form\action\\' . $form['action'];
+    }
+
     if ( !@class_exists($className)){
         die(json_encode(['status' => 2, 'msg' => 'Bad form name']));
     }

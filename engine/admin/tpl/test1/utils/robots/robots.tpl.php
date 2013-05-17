@@ -9,7 +9,7 @@
 <script src="res/plugin/classes/utils.js" type="text/javascript"></script>
 <!--<script src="res/plugin/classes/html.js" type="text/javascript"></script>-->
 <style>
-    /*.editor{ width: 600px; height: 300px}*/
+    .editor{ width: 600px; height: 300px}
     div .dt{font-weight: bold}
     div .dd{ padding-left: 25px}
 </style>
@@ -78,11 +78,12 @@
                         echo '</div>';
                     } // foreach
                     ?>
+
+                    <div>Данные файла robots.txt в ручном режиме</div>
+                    <div>
+                        <textarea class="editor" name="robotsText"><?= self::get('robotsText') ?></textarea>
+                    </div>
                 </form>
-                <!--<div>Данные файла robots.txt</div>
-                <div>
-                    <textarea class="editor" name="editor"></textarea>
-                </div>-->
             </div><!-- end panel right content -->
         </div><!-- end panel right content -->
     </div><!-- end panel right panel -->

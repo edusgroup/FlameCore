@@ -47,6 +47,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
      * @throws \Exception
      */
     public function itemAction() {
+
         $contId = $this->contId;
         self::setVar('contId', $contId);
         $compId = $this->compId;
@@ -54,6 +55,9 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         // ID статьи
         $objItemId = self::getInt('id');
         self::setVar('objItemId', $objItemId, -1);
+
+        $_SESSION['siteName'] = $_COOKIE['siteName'];
+        $_SESSION['group'] = 'p'.$objItemId;
 
         // Получаем параметры статьи и ранее сохранёные настройки (если они есть)
         $objItemData = (new objItemOrm())
@@ -71,6 +75,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         self::setJson('objItemData', $objItemData);
         // Заголовок статьи
         self::setVar('caption', $objItemData['caption']);
+        self::setVar('siteName', $_COOKIE['siteName']);
 
         // Получаем путь до папки, где храняться данные статьи
         $loadDir = baseModel::getPath($compId, $contId, $objItemId);

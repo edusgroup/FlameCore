@@ -30,6 +30,7 @@ class menu {
         if ($data) {
             $menuTree = \unserialize($data);
         }
+		
         if ($menuTree) {
             $tpl = $comp['tpl'];
             $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);

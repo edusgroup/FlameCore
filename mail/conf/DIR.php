@@ -3,12 +3,13 @@
 namespace site\conf;
 
 class DIR {
-// ================= Скрипты
-    // Папка с общий библиотекой
+// ================= РЎРєСЂРёРїС‚С‹
+    // РџР°РїРєР° СЃ РѕР±С‰РёР№ Р±РёР±Р»РёРѕС‚РµРєРѕР№
     const CORE = '/opt/www/FlameCore/engine/';
 	const APP_DATA = '/opt/www/SiteCoreFlame/';
 	
 	public static $domainList = [
-		'iandenglish.com'
+		'iandenglish.com',
+		'askalex.ru'
 	];
 }

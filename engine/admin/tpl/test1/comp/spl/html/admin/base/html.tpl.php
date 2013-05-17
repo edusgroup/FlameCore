@@ -107,7 +107,8 @@
             // Кнопка Назад
             $(options.backBtn).attr('href', utils.url({
                 type: 'manager',
-                contr: 'complist'
+                contr: 'complist',
+				query: 'contid='+htmlData.contid
             }));
             // Кнопка Сохранить
             $(options.saveBtn).click(saveBtnClick);

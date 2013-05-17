@@ -96,7 +96,7 @@
                 </li>
 
                 <li>
-                    <a href="?$t=manager&$c=action" title="Comp List">
+                    <a href="?$t=manager&$c=complist" title="Comp List">
                         <img src="<?= self::res('images/refresh_32.png') ?>" alt="Comp List"/><span>Comp List</span>
                     </a>
                 </li>

@@ -15,6 +15,8 @@ class adapter extends adapterAbstract {
     const FETCH_NUM = MYSQLI_NUM;
     const FETCH_BOTH = MYSQLI_BOTH;
     const FETCH_OBJECT = 10;
+	
+	private $isPrint = false;
     
     /**
      * Комментарий к запросу
@@ -31,9 +33,16 @@ class adapter extends adapterAbstract {
         }
         // func. disconnect
     }
+	
+	public function printSql(){
+		$this->isPrint = true;
+		return $this;
+		// func. printSql
+	}
 
     public function setHandleName($pHandleName){
         $this->_handleName = $pHandleName;
+		return $this;
         // func. setHandle
     }
     
@@ -209,6 +218,9 @@ class adapter extends adapterAbstract {
             $sql .= '#' . $this->_comment;
         }
         $result = $this->getHandle()->query($sql);
+		if ( $this->isPrint ){
+			echo $sql.PHP_EOL;
+		}
         if (!$result){
             throw new DBException($this->getHandle()->error . "\nSQL: " . $sql, $this->getHandle()->errno);
         }

@@ -129,6 +129,7 @@ class model {
                 return $pItem['id'];
             }, $urlList);
             $urlList = implode('","', $urlList);
+
             $data = $objItemPropOrm
                 ->sql('SELECT ap.contId, ap.url FROM ' . objItemProp::TABLE . ' ap
                            JOIN ( SELECT max(contId) contId FROM ' . objItemProp::TABLE . ' WHERE contId IN ("' . $urlList . '")

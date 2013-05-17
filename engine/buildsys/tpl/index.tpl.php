@@ -1,5 +1,8 @@
 
 header('Content-Type: text/html;charset=UTF-8');
+$num=mt_rand(2000,10000);
+header('Last-Modified: '.gmdate('D, d M Y H:i:s \G\M\T', time()-$num));
+
 // Core
 use core\classes\request;
 use core\classes\dbus;

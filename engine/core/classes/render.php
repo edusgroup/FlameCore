@@ -65,6 +65,7 @@ class render extends html\element{
 
     public function setTplPath(string $pTplPath){
         $this->siteTplPath = $pTplPath;
+        return $this;
     }
     
     public function getTplPath(){
@@ -73,10 +74,12 @@ class render extends html\element{
     
     public function setThemeResUrl(string $pThemeResUrl){
         $this->themeResUrl = $pThemeResUrl;
+        return $this;
     }
 
     public function setRenderType(integer $pType) {
         $this->renderType = $pType;
+        return $this;
     }
 
     public function clear() {
@@ -189,13 +192,17 @@ class render extends html\element{
      */
     public function loadFile(string $pName, $pNameIsFile = true) {
         $file = $pName;
-        if (!$pNameIsFile)
+        if (!$pNameIsFile){
             $file = self::get($pName);
-        if (!$file)
+        }
+        if (!$file){
             return;
-        $fr = fopen($file, 'r');
-        if (!$fr)
+        }
+        // @ стоит, что бы избежать лишнего муссора в лог файлы
+        $fr = @fopen($file, 'r');
+        if (!$fr){
             return;
+        }
         fpassthru($fr);
         fclose($fr);
 		return true;

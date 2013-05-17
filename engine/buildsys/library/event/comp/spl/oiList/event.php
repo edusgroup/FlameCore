@@ -46,9 +46,11 @@ class event {
             ->join(compContTreeOrm::TABLE . ' cc', 'cc.id=alp.contId')
             ->fetchAll();
 
+        $oiListOrm = new oiListOrm();
+
         // Бегаем по сохранённым oiList
         foreach ($oiListPropList as $oiListPropItem){
-            $oiListOrm = new oiListOrm();
+
 			$oiListItemContId = (int)$oiListPropItem['contId'];
             // Получаем список детей в выбранной группе
             // т.е. получаем всех выбранные ветки в дереве objItem, которые мы приозвели
@@ -113,7 +115,7 @@ class event {
             // Получаем какое должно быть количество объектов в файле
             $itemsCount = $oiListPropItem['itemsCount'];
             $numRows = $handleObjitem->num_rows;
-            echo "\tioList[contId:$oiListItemContId] Row:$numRows itemC: $itemsCount".PHP_EOL;
+            echo "\tioList[contId:$oiListItemContId]\trowCount:$numRows\tmaxRowCount:$itemsCount".PHP_EOL;
             echo "\t$classFile".PHP_EOL;
             echo "\t$saveDir".PHP_EOL.PHP_EOL;
 
@@ -122,10 +124,14 @@ class event {
             $fileNum = 0;
 			// Бегаем по всех полученным ItemObj и сохраняем результаты
             while ($objItemItem = $handleObjitem->fetch_object()) {
+                //var_dump($objItemItem);
 				// Получаем массив данных, которые нужно сохранить
                 $artData = $objItemCatEvent::getOIListArray($objItemItem, $objItemProp['id']);
 
                 $catBuff = &$categoryBuffer[$objItemItem->treeId];
+                if ( isset($objItemItem->dopItemId) && $objItemItem->dopItemId && $objItemItem->dopItemId != $objItemItem->treeId){
+                    $categoryBuffer[$objItemItem->dopItemId]['data'][] = $artData;
+                }
 
                 $catBuff['data'][] = $artData;
                 $listArr[] = $artData;
@@ -146,7 +152,7 @@ class event {
                     $catBuff['data'] = [];
                 } // if
             } // while
-			
+
 			// Есть ли что сохранять
 			if ( $listArr ){
 				$data = serialize($listArr);
@@ -175,6 +181,8 @@ class event {
             unset($data, $categoryBuffer);
 
         } // foreach
+
+        //exit;
 
         // func. createOIList
     }

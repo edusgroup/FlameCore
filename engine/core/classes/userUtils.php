@@ -4,6 +4,7 @@ namespace core\classes;
 
 // Conf
 use \DIR;
+use site\conf\DIR as SITE_DIR;
 
 // Engine
 use core\classes\filesystem;
@@ -32,18 +33,22 @@ class userUtils {
     }
 
     public static function rmFolder($pPathPrefix) {
-        $path = dirFunc::getSiteUploadPathData() . $pPathPrefix;
-
+        //$path = dirFunc::getSiteUploadPathData() . $pPathPrefix;
+        $path = SITE_DIR::IMG_RESIZE_DATA.$pPathPrefix;
         filesystem::rmdir($path);
-        // Удаляем пресью в админке
+
+        // Удаляем превью в админке
         $path = dirFunc::getPreviewImgPath($pPathPrefix);
         filesystem::rmdir($path);
+
         // Удаляем маштабируемые изображения
-        $path = dirFunc::getSiteImgResizePath() . $pPathPrefix;
-        filesystem::rmdir($path);
+        //$path = dirFunc::getSiteImgResizePath() . $pPathPrefix;
+        //filesystem::rmdir($path);
         // Удаляем данные по компоненту
         $path = dirFunc::getSiteDataPath($pPathPrefix);
         filesystem::rmdir($path);
+
+
         // func. rmFolder
     }
 

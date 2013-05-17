@@ -17,7 +17,6 @@ use site\conf\DIR as SITE_DIR;
 use core\classes\mvc\controllerAbstract;
 use core\classes\arrays;
 use core\classes\validation\word;
-use core\classes\filesystem;
 use core\classes\comp;
 use core\classes\site\dir as sitePath;
 
@@ -45,6 +44,7 @@ class model {
             ->joinLeftOuter(blockItemSettings::TABLE.' bis', 'bis.blockItemId=t.id')
             ->where('t.id=' . $pItemId)
             ->comment(__METHOD__)
+            //->printSql()
             ->fetchFirst();
 
         // Если данных нет, то генерим исключение, потому что не найден blockItem

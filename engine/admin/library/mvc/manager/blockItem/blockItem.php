@@ -13,6 +13,7 @@ use core\classes\render;
 use core\classes\filesystem;
 use core\classes\comp;
 use core\classes\event as eventsys;
+use core\classes\site\dir as sitePath;
 
 // Plugin
 use admin\library\mvc\plugin\dhtmlx\model\tree as dhtmlxTree;
@@ -33,6 +34,7 @@ use admin\library\mvc\manager\complist\model as complistModel;
 
 // Init
 use admin\library\init\comp as compInit;
+
 
 /**
  *
@@ -137,6 +139,11 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
             } // foreach
             self::setJson('urlTplList', $urlTplList);
         } // if
+
+        self::setVar('classOutFilePath', comp::getSiteCompClassPath(true, $nsPath));
+        self::setVar('classInFilePath', comp::getSiteCompClassPath(false, $nsPath));
+        self::setVar('tplOutFilePath', sitePath::getSiteCompTplPath(true, $nsPath));
+        self::setVar('tplInFilePath', sitePath::getSiteCompTplPath(false, $nsPath));
 
         $this->view->setBlock('panel', 'block/blockItem.tpl.php');
         $this->view->setMainTpl('main.tpl.php');

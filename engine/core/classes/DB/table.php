@@ -8,21 +8,24 @@ class table extends adapter\adapter {
     private $sTable = '';
     //private static $aReturn = [];
     const ASC = 1, DESC = 2;
-    const FIELD_WHERE = 1, /*' AND '*/
-        FIELD_SET = 2 /*','*/
-    ;
+    const FIELD_WHERE = 1, FIELD_SET = 2;
+	
     private $isUserUnion = false;
 
     //public $exception = false;
 
-    public function __construct($pTable = '' /*, $pDBHandle=null*/) {
-        // self::setConnect($pDBHandle);
+    public function __construct($pTable = '') {
         self::setTable($pTable);
     }
 
     public function setTable($pTable) {
         $this->sTable = $pTable ? $pTable : $this::TABLE;
         // func. setTable
+    }
+	
+	public function getTable() {
+        return $this->sTable ?: $this::TABLE;
+        // func. getTable
     }
 
     /**
@@ -424,7 +427,7 @@ class table extends adapter\adapter {
 
         $static = '';
         if ( $pStatic ){
-            $static = ',\''.implode('\',', array_values($pStatic)).'\'';
+            $static = ',\''.implode('\',\'', array_values($pStatic)).'\'';
         }
 
         for ($i = 0; $i < $count; $i++) {

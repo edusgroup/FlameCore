@@ -34,13 +34,16 @@ class filesystem {
             return [];
         $return = [];
         foreach (scandir($pDir) as $item) {
-            if ($item == '.' || $item == '..' || $item[0] == '.')
+            if ($item == '.' || $item == '..' || $item[0] == '.'){
                 continue;
+            }
             $isDir = is_dir($pDir . $item);
-            if ($pFileType == self::DIR && !$isDir)
+            if ($pFileType == self::DIR && !$isDir){
                 continue;
-            if ($pFileType == self::FILE && $isDir)
+            }
+            if ($pFileType == self::FILE && $isDir){
                 continue;
+            }
 
             $isAdd = true;
             $pFilter = $pFileType == self::ALL_NO_FILTER_FOLDER && $isDir ? null : $pFilter;
@@ -110,16 +113,17 @@ class filesystem {
     }
 
     public static function formatBytes($pSize, $pPrecision=2) {
-        if ($pSize < 1024)
+        if ($pSize < 1024){
             return $pSize . ' B';
-        elseif ($pSize < 1048576)
+        }elseif ($pSize < 1048576){
             return round($pSize / 1024, $pPrecision) . ' KB';
-        elseif ($pSize < 1073741824)
+        }elseif ($pSize < 1073741824){
             return round($pSize / 1048576, $pPrecision) . ' MB';
-        elseif ($pSize < 1099511627776)
+        }elseif ($pSize < 1099511627776){
             return round($pSize / 1073741824, $pPrecision) . ' GB';
-        else
+        }else{
             return round($pSize / 1099511627776, $pPrecision) . ' TB';
+        }
         // func. formatBytes
     }
 
@@ -134,15 +138,19 @@ class filesystem {
      * @return string имя объекта из папки
      */
     public static function getFirstObjectInFolder(string $p_dir, $p_file_type = self::ALL, $p_regex = '') {
-        if (!is_dir($p_dir))
+        if (!is_dir($p_dir)){
             return;
+        }
         foreach (scandir($p_dir) as $item) {
-            if ($item == '.' || $item == '..' || $item[0] == '.')
+            if ($item == '.' || $item == '..' || $item[0] == '.'){
                 continue;
-            if ($p_file_type == self::DIR && is_file($p_dir . $item))
+            }
+            if ($p_file_type == self::DIR && is_file($p_dir . $item)){
                 continue;
-            if ($p_file_type == self::FILE && is_dir($p_dir . $item))
+            }
+            if ($p_file_type == self::FILE && is_dir($p_dir . $item)){
                 continue;
+            }
 
             if (!$p_regex || preg_match($p_regex, $item)) {
                 return $item;
@@ -194,7 +202,7 @@ class filesystem {
 
         $list = explode(';', $finfo->file($pFileName));
         $charset = substr($list[1], 9);
-        return array('type' => $list[0], 'charset' => $charset);
+        return ['type' => $list[0], 'charset' => $charset];
     }
 
     public static function rmdirR($pPathSource, $pBackGround=false){
@@ -255,11 +263,13 @@ class filesystem {
      * @return mixed
      */
     public static function printFile($pFilename) {
-        if (!is_readable($pFilename))
+        if (!is_readable($pFilename)){
             return;
+        }
         $fr = fopen($pFilename, 'r');
-        if (!$fr)
+        if (!$fr){
             return;
+        }
         fpassthru($fr);
         fclose($fr);
     }
@@ -333,8 +343,9 @@ class filesystem {
         $parent = $pParentId;
         foreach (scandir($pDir) as $itemName) {
             // Выкидываем системные папки и скрытые
-            if ($itemName == '.' || $itemName == '..' || $itemName[0] == '.')
+            if ($itemName == '.' || $itemName == '..' || $itemName[0] == '.'){
                 continue;
+            }
             // Имя оъекта в папке
             $file = $pDir . "/" . $itemName;
 
@@ -365,11 +376,14 @@ class filesystem {
      * @throws exception\filesystem
      */
     public static function mkdir(string $pDir, $pRules = 0777) {
-        if (is_dir($pDir))
+        if (is_dir($pDir)){
             return true;
-        if (mkdir($pDir, $pRules, true))
+        }
+        if (mkdir($pDir, $pRules, true)){
             return true;
+        }
         throw new exception\filesystem('Не возможно создать папку: ' . $pDir, 24);
+        // func. mkdir
     }
 
     /**

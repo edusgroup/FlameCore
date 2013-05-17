@@ -44,6 +44,12 @@ class compprop extends \core\classes\mvc\controllerAbstract {
 
         self::setJSON('loadData', $loadData);
         self::setVar('extSettings', $extendsSettings);
+		
+		$classFilePath = comp::getAdminCompClassPath(true, $nsPath);
+		$this->view->setVar('classOutFilePath', $classFilePath);
+		
+		$tplFilePath = comp::getAdminCompTplPath(true, $nsPath);
+		$this->view->setVar('tplOutFilePath', $tplFilePath);
 
         $tree = model::getClassTree($nsPath);
         self::setJson('classTree', $tree);

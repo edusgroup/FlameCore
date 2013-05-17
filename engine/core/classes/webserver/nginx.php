@@ -50,6 +50,7 @@ class nginx {
             // Получаем URL для переменной, вдруг там еще есть переменные
             $actionId = (int)$varIdList[$i];
             $pathUrl = $pRouteTree->getActionUrlById($actionId);
+            //echo "$pathUrl\n";
             $pathUrlCount = count($pathUrl);
             for ($j = $pathUrlCount - 1; $j >= 0; $j--) {
                 $name = $pathUrl[$j]['name'];
@@ -60,6 +61,8 @@ class nginx {
                 $varName = $propType == 1 ? $name . '=$' . ($varCount++) . '&' : '';
                 $queryString .= $varName;
             } // for $j
+
+            //echo $regexp."\n";
 
             // Смотрим, вдруг есть в папке с переменой, статичные блоки
             $statFolderList = $pRouteTree->selectList(
@@ -75,17 +78,23 @@ class nginx {
                echo PHP_EOL.PHP_EOL;
                */
 
-            // Если есть, то их нужно добавить перед конфигом nginx
+            // Если папки на одном уровне с переменными папками, то их нужно добавить перед конфигом nginx
             if ($statFolderList) {
                 foreach ($statFolderList as $name) {
+                    // Получаем статический Regexp
+                    // /lessons/([^/]+) -> /lessons/page/
                     $count = strlen($regexp) - strlen(self::REGEX_VARIBLE);
                     $stRegexp = substr($regexp, 0, $count) . $name . '/';
 
                     $count = strlen($queryString) - strlen($varName);
                     $stQueryString = substr($queryString, 0, $count);
 
-                    $count = strlen($scriptFile) - strlen($name);
+                    // Получаем адрес скрипта
+                    // /lessons/category -> /lessons/page/
+                    $count = strrpos($scriptFile, '/') + 1;
                     $stScriptFile = substr($scriptFile, 0, $count) . $name . '/';
+
+                    //echo "$scriptFile\t$stScriptFile\t$count\n";
                     $varList[] = [
                         'regexp' => $stRegexp,
                         'scriptFile' => $stScriptFile,
@@ -117,6 +126,7 @@ class nginx {
         $render->setMainTpl('site_nginx.conf.php')
             ->setContentType(null);
         $render->setVar('vars', $varList);
+
 
         $webCoreScript = dirFunc::getCoreScript();
         $webCoreScript = rtrim($webCoreScript, '/');

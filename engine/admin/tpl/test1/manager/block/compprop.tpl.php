@@ -58,10 +58,13 @@
                     <form id="mainForm">
                         <div class="dt">Наследовать от родителя</div>
                         <div class="dd">
-                            <label><?= self::checkbox('name="parentLoad" value="1"', self::get('parentLoad') == 1); ?></label>
+                            <label><input type="checkbox" name="parentLoad" value="1"/></label>
                         </div>
 
-                        <div class="dt">Шаблон админки</div>
+                        <div class="dt">Шаблон админки(
+								in - 
+								<a href="file://<?=self::get('tplOutFilePath');?>" title="<?=self::get('tplOutFilePath');?>">out</a>
+							) </div>
                         <div class="dd">
                             <a id="tplBtn" href="#tplTreeDlg" class="btn">
                                 <img src="<?= self::res('images/folder_16.png') ?>" alt="Класс компонента"/>
@@ -69,7 +72,10 @@
                             </a>
                         </div>
 
-                        <div class="dt">Функциональный класс</div>
+                        <div class="dt">Функциональный класс(
+									in - 
+								<a href="file://<?=self::get('classOutFilePath');?>" title="<?=self::get('classOutFilePath');?>">out</a>
+							)</div>
                         <div class="dd">
                             <a id="classBtn" href="#classTreeDlg" class="btn">
                                 <img src="<?= self::res('images/folder_16.png') ?>" alt="Класс компонента"/>
@@ -318,6 +324,11 @@
             $(options.tplBtn).fancybox({
                 beforeShow: beforeTplDlgShow
             });
+			
+			// Если галочка "Наследовать от родителя" раньше уже была выбрана, показываем это пользователю
+			if ( compPropData.loadData.parentLoad == '1' ){
+				jQuery('#mainForm input[name="parentLoad"]').attr('checked', 'checked');
+			}
             // func. init
         }
 

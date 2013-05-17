@@ -106,7 +106,11 @@
                         </a>
                     </div>
 
-                    <div class="dt">Шаблон компонента</div>
+                    <div class="dt">Шаблон компонента(
+                        <a href="file://<?=self::get('tplInFilePath')?>" title="<?=self::get('tplIntFilePath')?>">in</a>
+                        -
+                        <a href="file://<?=self::get('tplOutFilePath')?>" title="<?=self::get('tplOutFilePath')?>">out</a>
+                    )</div>
                     <div class="dd">
                         <a id="tplBtn" href="#tplDlg" class="btn">
                             <img class="folderBtn" alt="Шаблон компонента"/>
@@ -114,7 +118,11 @@
                         </a>
                     </div>
 
-                    <div class="dt">Класс компонента</div>
+                    <div class="dt">Класс компонента(
+                        <a href="file://<?=self::get('classInFilePath')?>" title="<?=self::get('classInFilePath')?>">in</a>
+                        -
+                        <a href="file://<?=self::get('classOutFilePath')?>" title="<?=self::get('classOutFilePath')?>">out</a>
+                    )</div>
                     <div class="dd">
                         <a id="classBtn" href="#classDlg" class="btn">
                             <img class="folderBtn" alt="Класс компонента"/>

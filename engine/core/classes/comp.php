@@ -99,7 +99,6 @@ class comp {
     public static function findCompPropBytContId(integer $pContId, $ex=null){
         // Получаем настройки конкретной ветки
         $objProp = self::getBrunchPropByContId($pContId);
-
         if ( !$objProp['classFile'] ){
             // Если нет конкретных настроек веток, надо пройтись вверх и посмореть выше настройки по веткам
             $objProp = self::_findCompPropUpToRoot($pContId);
@@ -124,7 +123,7 @@ class comp {
         $data = (new compContTree())
             ->select('c.ns, c.classname, c.id as compId, cp.*', 'cc')
             ->join(componentTree::TABLE . ' c', 'c.id = cc.comp_id')
-            ->joinLeftOuter(compPropOrm::TABLE . ' cp', 'cp.contId = cc.id ')
+            ->joinLeftOuter(compPropOrm::TABLE . ' cp', 'cp.contId = cc.id  AND cp.parentLoad  != 1')
             ->where('cc.id=' . $pContId)
             ->comment(__METHOD__)
             ->fetchFirst();

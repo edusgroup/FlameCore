@@ -50,47 +50,91 @@ foreach( DIR::$domainList as $domain ){
 	
 	$iCount = count($fileList);
 	for( $i = 0; $i < $iCount; $i++ ){
-		$data = filesystem::loadFileContentUnSerialize($mailDir.$fileList[$i]);
-        if ( !isset($data['tpl']) ){
+        $mailData = filesystem::loadFileContent($mailDir.$fileList[$i]);
+        if ( !$mailData ){
+            echo '[0] File '.$mailDir.$fileList[$i].' is empty'.PHP_EOL;
+            copyFile($mailDir, $fileList[$i]);
+            continue;
+        }
+        $mailData = json_decode($mailData, true);
+        //var_dump($mailData);
+        //exit;
+
+        if ( !isset($mailData['file']) ){
+            echo '[1] data[file] not found'.PHP_EOL;
+            copyFile($mailDir, $fileList[$i]);
+            continue;
+        }
+
+        if ( !isset($mailData['email']) ){
+            echo '[2] data[email] not found'.PHP_EOL;
             copyFile($mailDir, $fileList[$i]);
             continue;
         }
 		
-		if ( !isset($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL) ){
-			echo "File ".$mailDir.$fileList[$i].' has bad-valid email'.PHP_EOL;
+		if ( !filter_var($mailData['email'], FILTER_VALIDATE_EMAIL) ){
+			echo "[3] File ".$mailDir.$fileList[$i].' has bad-valid email'.PHP_EOL;
             copyFile($mailDir, $fileList[$i]);
 			continue;
 		}
 
-        preg_match('/@(.*)$/', $data['email'], $domainMail);
+        preg_match('/@(.*)$/', $mailData['email'], $domainMail);
         if ( !$domainMail || gethostbyname($domainMail[1]) == $domainMail[1]){
-            echo "Email ".(isset($data['mail'])?$data['mail']:'').' is bad'.PHP_EOL;
+            echo "[4] Email ".(isset($mailData['mail'])?$mailData['mail']:'').' is bad'.PHP_EOL;
             copyFile($mailDir, $fileList[$i]);
             continue;
         }
-		
-		chdir(DIR::APP_DATA.'theme-res/'.$data['theme'].'/images/');
 
-		$param = filesystem::loadFileContent(DIR::APP_DATA.$domain.'/tpl/mail/'.$data['tpl'].'.json');
+        $file = DIR::APP_DATA.$domain.'/tpl/mail/'.$mailData['file'];
+		$param = filesystem::loadFileContent($file);
         if ( !$param ){
-            echo "File ".$data['tpl'].'.json no found'.PHP_EOL;
+            echo "[5] File ".$file.'.json no found or data is empty'.PHP_EOL;
             copyFile($mailDir, $fileList[$i]);
             continue;
         }
+
 		$param = json_decode($param, true);
-        if ( !isset($param['subject'])){
-            echo 'Param file: subject not found'.PHP_EOL;
+        if ( !isset($param['subject']) && !isset($mailData['subject']) && !$mailData['subject']){
+            echo '[6] Param file: subject not found'.PHP_EOL;
             copyFile($mailDir, $fileList[$i]);
             continue;
         }
+
+        if ( !isset($param['imgDir'])){
+            echo '[7] Param file: imgDir not found'.PHP_EOL;
+            copyFile($mailDir, $fileList[$i]);
+            continue;
+        }
+
+        $imgDir = str_replace('%siteDir%', DIR::APP_DATA, $param['imgDir'] );
+        if ( !is_dir($imgDir) ){
+            echo '[8] Param file: Dir '.$imgDir.' not found'.PHP_EOL;
+            copyFile($mailDir, $fileList[$i]);
+            continue;
+        }
+
+        chdir($imgDir);
 
         if ( !isset($param['fromMail'])){
-            echo 'Param file: fromMail not found'.PHP_EOL;
+            echo '[9] Param file: fromMail not found'.PHP_EOL;
             copyFile($mailDir, $fileList[$i]);
             continue;
         }
         if ( !isset($param['fromName']) ){
-            echo 'Param file: fromName not found'.PHP_EOL;
+            echo '[10] Param file: fromName not found'.PHP_EOL;
+            copyFile($mailDir, $fileList[$i]);
+            continue;
+        }
+
+        $dir = DIR::APP_DATA.$domain.'/tpl/mail/';
+        if ( !is_dir($dir)){
+            echo '[11] Dir '.$dir.' not found'.PHP_EOL;
+            continue;
+        }
+
+        $file = DIR::APP_DATA.$domain.'/tpl/mail/'.$param['tpl'];
+        if ( !is_readable($file)){
+            echo '[12] File '.$file.' not found'.PHP_EOL;
             copyFile($mailDir, $fileList[$i]);
             continue;
         }
@@ -98,10 +142,10 @@ foreach( DIR::$domainList as $domain ){
 		$render->clear();
 		$render->setTplPath(DIR::APP_DATA.$domain.'/tpl/mail/');
 		$render->setContentType('');
-		$render->setMainTpl($data['tpl'].'.html');
+		$render->setMainTpl($param['tpl']);
 
-        if ( isset($data['vars'])){
-            foreach( $data['vars'] as $varName=>$varValue){
+        if ( isset($mailData['vars'])){
+            foreach( $mailData['vars'] as $varName=>$varValue){
                 $render->setVar($varName, $varValue);
             } // foreach
         } // if
@@ -116,13 +160,13 @@ foreach( DIR::$domainList as $domain ){
 		  $mail->ClearReplyTos();
 		  $mail->ClearAttachments();
 		  
-		  $mail->AddAddress($data['email']);
+		  $mail->AddAddress($mailData['email']);
 		  $mail->SetFrom($param['fromMail'], $param['fromName']);
 		  //$mail->AddCustomHeader('Return-Receipt-To: "VK" <www.dft@mail.ru>');
 		  //$mail->AddCustomHeader('Date: Tue, 21 Jul 2012 13:34:59 +0400');
 		  $mail->CharSet = 'utf-8';
 
-          $subject = isset($data['subject'])?$data['subject']: $param['subject'];
+          $subject = isset($mailData['subject']) ? $mailData['subject']: $param['subject'];
 		  $mail->Subject = "=?UTF-8?B?" . base64_encode(html_entity_decode($subject, ENT_COMPAT, 'UTF-8')) . "?=";
 		  $mail->AltBody = 'To view the message, please use an HTML compatible email viewer!'; // optional - MsgHTML will create an alternate automatically
 		  $mail->MsgHTML($htmlCode);
