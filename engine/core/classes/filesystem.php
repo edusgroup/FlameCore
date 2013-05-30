@@ -436,5 +436,12 @@ class filesystem {
         return \unserialize($data);
         // func. loadFileContent
     }
+
+    public static function rename($pOldFile, $pNewFile){
+        if (is_file($pOldFile)){
+            \rename($pOldFile, $pNewFile);
+        }
+        // func. rename
+    }
 // class. filesystem
 }

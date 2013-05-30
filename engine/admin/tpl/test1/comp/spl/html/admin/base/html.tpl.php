@@ -50,6 +50,8 @@
             </div>
             <div>
                 <form id="mainForm">
+                    <div class="dt">Путь</div>
+                    <div class="dd"><?=self::get('savedir');?></div>
                     <div class="dt">Название:</div>
                     <div class="dd"><?=self::text('name="caption"', self::get('caption'))?></div>
 

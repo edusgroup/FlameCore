@@ -78,19 +78,21 @@ class adminBlockParser {
 
     public function varible($pName, $pTitle = '', $isHidden=false){
         $caption = $pTitle ?: $pName;
-        if ( !$isHidden){
+        if ( !$isHidden || $this->_returnType == self::RETURN_TYPE_RETURN  ){
             $varVal = null;
-            foreach($this->_dataJson['varible'] as $varList){
-                foreach( $varList as $name=>$val){
-                    if ( $name == $pName ){
-                        $varVal = $val;
+            if ( isset($this->_dataJson['varible']) ){
+                foreach($this->_dataJson['varible'] as $varList){
+                    foreach( $varList as $name=>$val){
+                        if ( $name == $pName ){
+                            $varVal = $val;
+                            break;
+                        } // if
+                    } // foreach
+                    if ( $varVal != null ){
                         break;
                     } // if
-                } // foreach
-                if ( $varVal != null ){
-                    break;
-                } // if
-            } // foreach Поиск значения переменной
+                } // foreach Поиск значения переменной
+            } // if ( isset($this->_dataJson['varible']) )
             self::_echoVarible($pName, $caption, $varVal);
         }else{
            $this->_varibleHiddenList[] = ['name' => $pName, 'caption' => $caption ];

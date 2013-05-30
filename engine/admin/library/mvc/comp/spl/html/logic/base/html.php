@@ -34,6 +34,8 @@ class html extends \core\classes\component\abstr\admin\comp {
         $htmlCodeData = filesystem::loadFileContent($loadDir . 'source.txt');
         self::setVar('htmlCode', $htmlCodeData);
 
+        self::setVar('savedir', $loadDir);
+
         $saveData = filesystem::loadFileContentUnSerialize($loadDir . 'private.txt');
         if ($saveData) {
             foreach ($saveData as $key => $item) {
