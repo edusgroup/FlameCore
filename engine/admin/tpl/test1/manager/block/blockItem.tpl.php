@@ -240,11 +240,11 @@ var blockItemData = {
     // Есть ли у компонента таблицы
     onlyFolder: <?= self::get('onlyfolder') ?>,
     // Сохранённые данные
-    saveData: <?= self::get('saveData', 'null') ?>,
+    saveData: <?= self::get('saveData')?:'null' ?>,
     // Методы сохранённого класса
-    classData: <?= self::get('classData', '[]') ?>,
+    classData: <?= self::get('classData')?: '[]' ?>,
     // Значаение contId выбранные для regexp Url
-    regxList: <?= self::get('regxList', '{}') ?>,
+    regxList: <?= self::get('regxList')?:'{}' ?>,
     // Название табличной части у статичного компонента.
     // Используется только при onlyFolder=1 и при сохранённых данных
     statName:'<?= self::get('statName') ?>',
@@ -252,7 +252,7 @@ var blockItemData = {
     // URL tree или через Wareframe
     isLock: <?= self::get('isLock') ?>,
     // Для тех компонентов у которых в классе нужно заполнить urlTpl
-    urlTplList: <?= self::get('urlTplList', '{}') ?>,
+    urlTplList: <?= self::get('urlTplList')?:'{}' ?>,
     actionTreeJson: <?= self::get('actionTree') ?>,
     contTreeJson: <?= self::get('contTree') ?>,
     tplTreeJson: <?= self::get('tplTree') ?>

@@ -43,12 +43,12 @@ class element {
         if (!$pData)
             return;
         $selValue = $pSelectValue;
-
         if ($selValue == -1 && isset($pData['val'])) {
             $selValue = $pData['val'];
         }
         $list = $pData['list'];
         echo '<SELECT ', $pAttributes, '>';
+
         foreach ($list as $key => $value) {
             $selected = $key == $selValue ? ' selected="selected"' : '';
             echo '<OPTION VALUE="', $key, '"', $selected, '>', $value, '</OPTION>';

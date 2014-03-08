@@ -19,6 +19,7 @@ use core\classes\admin\dirFunc;
 
 // Event
 use admin\library\mvc\comp\spl\objItem\event as eventObjitem;
+use admin\library\mvc\comp\spl\objItem\help\event\article\event as eventArticle;
 
 // Conf
 use \DIR;
@@ -44,7 +45,8 @@ class model {
 
         // Обработка превью картинок. Отсекаем http://{hostname}/
         // TODO: Тут костыль, надо переделать хранение картинок для статей, превью
-        if ($pObjItemObj->prevImgUrl) {
+        
+		if ($pObjItemObj->prevImgUrl) {
             $imgFile = substr($pObjItemObj->prevImgUrl, 7 + 1 + strlen(SITE_CONF::NAME));
             // Формируем имя файла, в который будет сохранять картинку
             $resizeFile = 'comp/' . $pCompId . '/' . $pContId . '/' . $pObjItemObj->treeId . '/' . word::idToSplit($pObjItemObj->id) . '/';
@@ -104,6 +106,7 @@ class model {
         // Когда все дети и родители получены можно просмотреть изменения Url Tpl
         $where = array_unique($childList);
         if (!$where) {
+            echo 'Select brunch not found'.PHP_EOL;
             return;
         }
 
@@ -142,7 +145,6 @@ class model {
             //->printSql()
             ->query();
 
-
         // func. objItemChange
     }
 
@@ -151,9 +153,10 @@ class model {
         // что бы понять какие из oiList нужно перегенерить, без этого, генерилось бы
         // все oiList
         $buffTreeIdList = $pEventBuffer->select('cc.treeId', 'eb')
-            ->join(objItemOrm::TABLE . ' cc', 'cc.id=eb.userId')
+            ->join(objItemOrm::TABLE . ' cc', 'cc.id=eb.userId and eventName="'.eventArticle::ACTION_SAVE.'"')
             ->group('cc.treeId')
             ->toList('treeId');
+
         // Если данных в $buffTreeIdList нет, то скорей всего было сохранение по настройкам компонента
         if (!$buffTreeIdList) {
             // Проверяем были ли настройки компонента

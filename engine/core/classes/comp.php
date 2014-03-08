@@ -227,7 +227,7 @@ class comp {
     public static function fullNameClassSite($pClassFileName, $pNs){
         $classNameData = self::getClassName($pClassFileName);
         if ( $classNameData['isOut']){
-            $className = '\\site\\core\\site\\comp\\'.$pNs.'logic\\';
+            $className = '\\site\\core\\comp\\'.$pNs.'logic\\';
         }else{
             $className = '\\core\\comp\\'.$pNs.'logic\\';
         } // if
@@ -294,5 +294,6 @@ class comp {
         } // if
         // func. getSiteVarClassPath
     }
+
     // class comp
 }

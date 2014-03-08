@@ -53,13 +53,15 @@ if ($type == 'regist' ){
 		$tmpfname = tempnam(DIR_SITE::APP_DATA.'mail/', "mail_");
 		$handle = fopen($tmpfname, "w");
 		$vars['pwd'] = password::generate(6, 1, 2);
-		fwrite($handle, \serialize([
-			'email' => $userLogin, 
-			'vars' => $vars, 
-			'tpl' => 'user/reg', 
-			'site' => $_SERVER['SERVER_NAME'],
-			'theme' => \site\conf\SITE::THEME_NAME
-		]));
+
+        $jsonText = json_encode([
+            'email' => $userLogin,
+            'vars' => $vars,
+            'file' => 'user/reg.json',
+            'site' => $_SERVER['SERVER_NAME']
+        ]);
+        fwrite($handle, $jsonText);
+
 		fclose($handle);
 		chmod($tmpfname, 0666);
 
@@ -99,13 +101,14 @@ if ( $type == 'restore' ){
     $handle = fopen($tmpfname, "w");
     // Указываем ссылку для восстановления
     $vars['url'] = '/user/?type=restore&email='.$userLogin.'&code='.$restoreCode;
-    fwrite($handle, \serialize([
-           'email' => $userLogin,
-           'vars' => $vars,
-           'tpl' => 'user/restore',
-           'site' => $_SERVER['SERVER_NAME'],
-           'theme' => SITE_SITE::THEME_NAME
-    ]));
+
+    $jsonText = json_encode([
+        'email' => $userLogin,
+        'vars' => $vars,
+        'file' => 'user/restore.json',
+        'site' => $_SERVER['SERVER_NAME']
+    ]);
+    fwrite($handle, $jsonText);
     fclose($handle);
     chmod($tmpfname, 0666);
     echo json_encode([

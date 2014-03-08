@@ -124,6 +124,11 @@ class model {
             // Получаем имя таблицы, с котороым работает данных класс
             $ormTable = $contrObj->getTableCustom();
 
+            if ( !$ormTable ){
+                echo 'Warning: getTableCustom not found '.__FILE__.'('.__LINE__.')'.PHP_EOL;
+                continue;
+            }
+
             $urlList = (new tree())->getTreeUrlById(compContTree::TABLE, (int)$eventContId);
             $urlList = array_map(function ($pItem) {
                 return $pItem['id'];
@@ -136,6 +141,7 @@ class model {
                                AND url != "" ) jn ON jn.contId = ap.contId#' . __METHOD__)
                 ->fetchFirst();
             $urlTpl = $data['url'];
+
             self::_rSetUrlTpl($compContTree, $objItemOrm, $eventContId, $data['contId'], $urlTpl, $ormTable);
         } // foreach
 

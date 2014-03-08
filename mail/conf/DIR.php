@@ -9,7 +9,8 @@ class DIR {
 	const APP_DATA = '/opt/www/SiteCoreFlame/';
 	
 	public static $domainList = [
-		'iandenglish.com',
-		'askalex.ru'
+		'iandenglish.com'
+		//,'askalex.ru'
+		,'iorator.ru'
 	];
 }

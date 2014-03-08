@@ -117,8 +117,9 @@ class render extends html\element{
     }
 
     public function setJSON(string $pName, $pValue) {
-        $this->arVarible[$pName] = \json_encode($pValue);
+        $this->arVarible[$pName] = $pValue ? \json_encode($pValue) : '';
         return $this;
+        // func. setJSON
     }
 
     public static function url(string $pURL, $pQuery='') {
@@ -145,12 +146,11 @@ class render extends html\element{
      * @param string $pBlockName имя блока
      * @param string $pFile  имя файла
      */
-    public function setBlock(string $pBlockName, string $pFile) {
+    public function setBlock(string $pBlockName, string $pFile, $pPath='') {
+        $file = $pPath ? $pPath.$pFile : $this->siteTplPath . $pFile;
         // Если указано полный путь (windows или linux )
         if ( substr($pFile, 1, 2) == ':/' || $pFile[0] == '/' ){
             $file = $pFile;
-        }else{
-            $file = $this->siteTplPath . $pFile;
         }
         $this->arBlock[$pBlockName] = $file;
         return $this;
@@ -242,10 +242,10 @@ class render extends html\element{
     public function render(){
         $renderType = $this->renderType;
         if ($renderType & self::JSON) {
-            $json = self::get('json', array());
+            $json = self::get('json', []);
             $msgbox = self::get('msgbox');
             if ($msgbox){
-                $json = \array_merge($json, array('msgbox' => $msgbox));
+                $json = \array_merge($json, ['msgbox' => $msgbox]);
             }
             echo \json_encode($json);
             return;

@@ -71,8 +71,12 @@ class event {
         $codeData = ob_get_clean();
 
         $path = dirFunc::getSiteRoot();
+        //echo $buildTpl;
         // Запись готового sitemap в файл
         filesystem::saveFile($path, 'sitemap.xml', $codeData);
+
+        // DIR::APP_DATA.'sitemap/';
+        //exit;
 
         //echo 'sitemap.xml createFile END' . PHP_EOL;
         // func. createFile

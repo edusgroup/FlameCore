@@ -57,7 +57,7 @@
             // -----------------------------------------------------------------------------
 
             var file = {
-                fileList: <?= self::get('fileList') ?>,
+                fileList: <?= self::get('fileList')?:'[]' ?>,
                 funcNameCallBack: <?= self::get('funcNameCallBack') ?>,
                 fileDistUrl: '<?= self::get('fileDistUrl') ?>',
                 filePreviewUrl: '<?= self::get('filePreviewUrl') ?>',

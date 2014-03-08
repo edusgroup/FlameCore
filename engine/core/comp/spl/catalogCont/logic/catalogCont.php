@@ -31,12 +31,18 @@ class catalogCont {
             return;
         }
         $list = \unserialize($data);
+
+        $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/public.txt';
+        $data = file_get_contents($file);
+        $public = \unserialize($data);
         unset($data);
+
         if ($list) {
             $tpl = userUtils::getCompTpl($comp);
             $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
             (new render($tplPath, ''))
                 ->setVar('list', $list)
+                ->setVar('public', $public)
                 ->setMainTpl($tpl)
                 ->setContentType(null)
                 ->render();

@@ -61,6 +61,9 @@ class oiList extends \core\classes\component\abstr\admin\comp {
         $classTree = model::getBuildClassTree($nsPath);
         self::setJson('classTree', $classTree);
 
+        self::setVar('buildClassPathIn', comp::getBuildCompClassPath(false, $nsPath));
+        self::setVar('buildClassPathOut', comp::getBuildCompClassPath(true, $nsPath));
+
         // Получаем список id веток ранее выбранных и сохранённых
         $selItem = (new oiListOrm)->selectList('*', 'selContId', 'contId=' . $contId);
         self::setJson('selItem', $selItem);

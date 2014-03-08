@@ -23,9 +23,9 @@
     div .dt{font-weight: bold}
     div .dd{ padding-left: 25px}
 
-    #textData{
-        width: 600px;
-        height: 300px;
+    #textData, #servData{
+        width: 500px;
+        height: 200px;
     }
 </style>
 
@@ -67,8 +67,11 @@
 
 
             <div class="content">
+                <div>Serv</div>
+                <div><textarea id="textData"><?= self::get('textData') ?></textarea></div>
 
-                <textarea id="textData"><?= self::get('textData') ?></textarea>
+                <div>Pre Serv</div>
+                <div><textarea id="servData"><?= self::get('servData') ?></textarea></div>
 
             </div><!-- end panel right content -->
         </div><!-- end panel right content -->
@@ -91,7 +94,7 @@
         // Клик по кноке Сохранить
         function saveBtnClick(){
             HAjax.saveData({
-                data: 'data=' + $('#textData').val(),
+                data: {data: jQuery('#textData').val(), servdata: jQuery('#servData').val()},
                 methodType: 'POST'
             });
             // func. saveBtnClick

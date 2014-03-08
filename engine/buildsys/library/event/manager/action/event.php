@@ -130,10 +130,18 @@ class event {
                 $folder = dirFunc::getSiteRoot() . $path;
 				echo "\tcrAction[acId:$acId]".PHP_EOL;
 				echo "\tPath: $folder".$filename.PHP_EOL;
-                $codeBuffer = eventModel::createFileTpl($folder, $acId, $itemList[$i]['propType'], $routeTree);
+                $isInclude = false;
+                $codeBuffer = eventModel::createFileTpl($folder, $acId, $itemList[$i]['propType'], $routeTree, $isInclude);
                 if ($codeBuffer) {
                     filesystem::saveFile($folder, $filename, $codeBuffer);
                 }
+
+                if ( $isInclude ){
+                    $isInclude = true;
+                    $codeBuffer = eventModel::createFileTpl($folder, $acId, $itemList[$i]['propType'], $routeTree, $isInclude);
+                    filesystem::saveFile($folder, 'h_index.php', $codeBuffer);
+                }
+
 				echo PHP_EOL;
                 //echo 'Func: createFileTpl() end'.PHP_EOL;
             }

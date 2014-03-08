@@ -44,6 +44,7 @@ $mail->SMTPAuth  = false;                  // enable SMTP authentication
 //$mail->Username   = "mail@mail.ru"; // SMTP account username
 //$mail->Password   = "pwf";  // SMTP account password
 
+
 foreach( DIR::$domainList as $domain ){
 	$mailDir = DIR::APP_DATA.$domain.'/data/mail/';
 	$fileList = filesystem::dir2array($mailDir, filesystem::FILE, '/^mail/');

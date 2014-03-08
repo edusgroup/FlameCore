@@ -15,6 +15,7 @@ use core\classes\admin\dirFunc;
 
 // Conf
 use \DIR;
+use \site\conf\DIR as SITE_DIR;
 
 /**
  * Description of event
@@ -61,6 +62,8 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
             );
         } // if isCreatePreview
 
+        $objItemDataDir = baseModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
+
         $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
         $listArr = [
             'caption' => $objItemObj->caption,
@@ -68,12 +71,13 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
             'url' => $url,
             'dateAdd' => $objItemObj->date_add,
             'prevImgUrl' => $objItemObj->prevImgUrl,
-            'miniDesck' => ''
+            'miniDesck' => '',
+            'itemPath' => $objItemDataDir
         ];
 
         if ( $oiLasterItemProp['isAddMiniText']){
-            $objItemDataDir = baseModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
             $miniDescrFile = dirFunc::getSiteDataPath($objItemDataDir) . 'minidescr.txt';
+            //echo $miniDescrFile, PHP_EOL;
             if (is_readable($miniDescrFile)) {
                 $listArr['miniDesck'] = file_get_contents($miniDescrFile);
             }
@@ -117,7 +121,7 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
         // func. getOIPopularArray
     }
 
-    public static function getOIRandomArray($objItemObj, $objItemCompId, $rndObjItemProp, $listCount, $arrCount){
+    public static function getOIRandomArray($objItemObj, $objItemCompId, $rndObjItemProp, $listCount, $fileNum){
         if ( $rndObjItemProp['isCreatePreview']){
             // Создаём превью
             $objItemObj = eventModelObjitem::createMiniPreview(
@@ -125,7 +129,7 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
                 $rndObjItemProp['contId'],
                 $rndObjItemProp['comp_id'],
                 $rndObjItemProp['previewWidth'],
-                $arrCount,
+                $fileNum,
                 $rndObjItemProp['resizeType']
             );
         } // if isCreatePreview

@@ -407,6 +407,13 @@ class table extends adapter\adapter {
         $this->sSQL .= 'VALUES(' . implode(',', $field) . ')';
         return $pExec ? self::query() : $this;
     }
+	
+	public function truncate(){
+		$this->sSQL = 'TRUNCATE TABLE `' . $this->sTable . '`';
+		self::query();
+		return $this;
+		// func. truncate
+	}
 
     public function insertMulti(array $pField, $pStatic=[], $pExec = true) {
         $this->sSQL = 'INSERT INTO `' . $this->sTable . '`';

@@ -1,4 +1,4 @@
-<rss version="2.0" xmlns:ya="http://blogs.yandex.ru/yarss/" xmlns:wfw="http://wellformedweb.org/CommentAPI/">
+<rss version="2.0" xmlns:ya="http://blogs.yandex.ru/yarss/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" encoding="UTF-8">
     <channel>
         <title><?=self::get('title')?></title>
         <link>http://<?=self::get('host')?>/</link>

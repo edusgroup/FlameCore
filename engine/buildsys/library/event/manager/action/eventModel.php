@@ -48,7 +48,7 @@ use admin\library\init\comp as compInit;
 class eventModel {
 
     // TODO: разобрать эту процедуру на несколько маленьких
-    public static function createFileTpl($pFolder, $pAcId, $pPropType, $pRouteTree) {
+    public static function createFileTpl($pFolder, $pAcId, $pPropType, $pRouteTree, &$pIsInc) {
         // Настройки папки
         $urlTreePropVar = new urlTreePropVar();
         $propData = $urlTreePropVar->selectFirst('*', 'acId=' . $pAcId);
@@ -59,10 +59,24 @@ class eventModel {
             return;
         }
 
+		if ( $propData['controller'] && !$pIsInc ){
+			$ext = filesystem::getExt($propData['controller']);
+			$filename = SITE_DIR_CONF::SITE_CORE . 'core/logic/'.$propData['controller'];
+			if (is_file($filename)){
+                $pIsInc = true;
+				if ( $ext == 'html' || $ext == 'htm' ){
+					return "<?php \$fr = fopen('$filename', 'r'); fpassthru(\$fr); fclose(\$fr);";
+				}else{
+					 return '<?php include(\''.$filename.'\');';
+				}	
+			} // if (is_file(filename))
+		} // if ( $propData['controller'] )
+
+
         // ========  Есть ли редирект, то выставляем его и выходим изобработки ==========
         if ($propData['isRedir']) {
             // Создаём код на редирект
-            return '<?php header(\'Location: ' . $propData['redirect'] . '\', true, 301); ?>';
+            return '<?php header(\'Location: ' . $propData['redirect'] . '\', true, 301);';
         }
         // if ===========================================================================
 
@@ -77,6 +91,7 @@ class eventModel {
 
         // ====================== Работа с переменными==========================
         $varList = varibleModel::getVarList($pRouteTree, $pAcId);
+
         // Теперь в $varList храняться переменные, которые были заданы в URL
         // Буффер для доступных переменных
         $varListRender = [];
@@ -97,17 +112,17 @@ class eventModel {
         $render->setVar('siteConf', SITE_DIR_CONF::SITE_CORE);
         $render->setVar('varList', $varListRender);
         $render->setVar('isUsecompContTree', $isUsecompContTree);
-        $render->setVar('controller', $propData['controller']);
+        //$render->setVar('controller', $propData['controller']);
 
         // Начинем создовать код
         $codeBuffer = '<?php $time = microtime(true);'.PHP_EOL;
 
         // Если есть кастомный контроллер, мы его должны за инклюдить и вызывать его методы
-        if ( $propData['controller'] ){
+        /*if ( $propData['controller'] ){
             $controllerBody = 'include(\''.SITE_DIR_CONF::SITE_CORE . 'core/logic/'.$propData['controller'].'\');'.PHP_EOL;
             $controllerBody .= '$bodyCustom = new bodyCustom(); $bodyCustom->onCreate();'.PHP_EOL;
             $render->setVar('controllerBody', $controllerBody, false);
-        } // if
+        } // if */
 
         ob_start();
         $render->render();
@@ -174,11 +189,12 @@ class eventModel {
                 echo "\tNot set contId in blockItem.";
                 continue;
             } // if*/
+
             // Если табличные данные контента были удалёны, то пишем ошибку и берём следующий компонент
-            if (!$biItem['tableId'] && $biItem['onlyFolder'] && !$biItem['varId']) {
+            /*if (!$biItem['tableId'] && $biItem['onlyFolder'] && !$biItem['varId']) {
                 print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tTableId not found. BlockId: [{$biItem['id']}]. AcId: $pAcId" . PHP_EOL;
                 continue;
-            } // if
+            } // if */
             // Если табличные данные контента были удалёны, то пишем ошибку и берём следующий компонент
             if (!$biItem['methodName']) {
                 print "ERROR(" . __METHOD__ . "):" . PHP_EOL . "\tMethodName not found. BlockId: [{$biItem['id']}]. AcId: $pAcId" . PHP_EOL;
@@ -294,13 +310,16 @@ class eventModel {
             $resSiteUrl,
             $blockFileList[':']['id']);
 
+        //echo SITE_DIR_CONF::SITE_CANONICAL;
+        //exit;
+
         // Данные блока Head
         $headData = self::getHeadData($pAcId);
         // Если есть контроллер, мы должны добавить вызов метода onAfterHead
-        if ( $propData['controller']){
+        /*if ( $propData['controller']){
             $headData .= '<? $bodyCustom->onAfterHead(); ?>';
 			$tplBlockCreator->setBodyBeginHtml('<? $bodyCustom->onAfterBody(); ?>');
-        } // if
+        } // if*/
 
         $tplBlockCreator->setHeadData($headData);
         unset($headData);
@@ -328,9 +347,9 @@ class eventModel {
         // Создаём php файл по шаблону
         $codeBuffer .= $tplBlockCreator->getCodeBuffer();
         $codeBuffer .= "<? echo '<!-- '.(microtime(true) - \$time).' -->'; ?>";
-        if ( $propData['controller'] ){
+        /*if ( $propData['controller'] ){
             $codeBuffer .= '<?$bodyCustom->onDestroy();?>';
-        } // if
+        } // if*/
 
         //exit;
 
@@ -361,7 +380,7 @@ class eventModel {
             // Тип переменной: tree или comp
             $varListRender[$name]['type'] = $acProp['varType'];
             // Если переменная имеет тип дерево
-            if ($acProp['varType'] == 'tree') {
+            if ($acProp['varType'] == varibleModel::VAR_TYPE_TREE) {
                 // Меняем флаг, если флаг стоит, то в шаблоне будет создана переменная
                 // $compContTree
                 $isUsecompContTree = true;
@@ -375,13 +394,14 @@ class eventModel {
                 $varListRender[$name]['treeId'] = $treeId;
             } else
                 // Если тип переменной компонент
-                if ($acProp['varType'] == 'comp') {
+                if ($acProp['varType'] == varibleModel::VAR_TYPE_COMP) {
                     // Получаем настройки переременной
                     $varCompData = $varComp->select('vc.*, c.ns', 'vc')
                         ->join(componentTree::TABLE . ' c', 'vc.compId=c.id')
                         ->comment(__METHOD__)
-                        ->where('acId=' . $pAcId)
+                        ->where('acId=' . $acItem['id'])
                         ->fetchFirst();
+
                     // Переменная может быть удалена или что то с ней случится,
                     // если её нет, берём следующую переменную
                     if (!$varCompData) {
@@ -409,6 +429,7 @@ class eventModel {
                     $varListRender[$name]['compId'] = $varCompData['compId'];
                 } // if varType == comp
         } // foreach
+
 		return true;
         // func. _initVarible
     }
@@ -628,11 +649,18 @@ CODE_STRING;
         $seoList = unserialize($seoData['seoData']);
 
         // Добавляем теги описания, ключевых слов и заголовка страницы
-        $headData = "<?";
+
+        $headData = "<?  dbus::\$seo['canonical'] = '".SITE_DIR_CONF::SITE_CANONICAL."'.preg_replace('/\?.*$/si', '', \$_SERVER['REQUEST_URI']); ?>".PHP_EOL;
+
+        $headData .= '<link rel="canonical" href="<?=dbus::$seo[\'canonical\']?>"/>'.PHP_EOL.
+                     '<meta property="og:url" content="<?=dbus::$seo[\'canonical\']?>"/>'.PHP_EOL.
+                     '<meta itemprop="url" href="<?=dbus::$seo[\'canonical\']?>"/>'.PHP_EOL;
+
+        $headData .= '<? ';
 
         if ( $seoList['descr'] ){
             $pageDescr = self::parseTag($seoList['descr']);
-            $headData .= "echo '<meta name=\"description\" content=\"".$pageDescr."\" /><meta property=\"og:description\" content=\"".$pageDescr."\"/>';";
+            $headData .= "echo '<meta name=\"description\" content=\"".$pageDescr."\" /><meta property=\"og:description\" content=\"".$pageDescr."\"/>';".PHP_EOL;
         }
 
         if ( $seoList['keywords'] ){
@@ -642,17 +670,18 @@ CODE_STRING;
 
         if ( $seoList['title'] ){
             $pageTitle = self::parseTag($seoList['title']);
-            $headData .= "echo '<title>".$pageTitle."</title><meta property=\"og:title\" content=\"".$pageTitle."\"/>';";
+            $headData .= "dbus::\$seo['title'] = '".$pageTitle."';".PHP_EOL;
+            $headData .= "echo '<title>".$pageTitle."</title><meta property=\"og:title\" content=\"".$pageTitle."\"/>';".PHP_EOL;
         }
 
         if ( $seoList['imgUrl'] ){
             $imgUrl = self::parseTag($seoList['imgUrl']);
-            $headData .= "echo '<meta property=\"og:image\" content=\"". $imgUrl."\"/><link rel=\"image_src\" href=\"". $imgUrl."\" />';";
+            $headData .= "echo '<meta property=\"og:image\" content=\"". $imgUrl."\"/><link rel=\"image_src\" href=\"". $imgUrl."\" />';".PHP_EOL;
         }
 
         if ( $seoList['videoUrl'] ){
             $videoUrl = self::parseTag($seoList['videoUrl']);
-            $headData .= "echo '<meta property=\"og:video\" content=\"". $videoUrl."\"/>';";
+            $headData .= "echo '<meta property=\"og:video\" content=\"". $videoUrl."\"/>';".PHP_EOL;
         }
 
         if ($seoData['sysname']) {
@@ -669,15 +698,18 @@ CODE_STRING;
     }
 
     public static function parseTag($pWord) {
-        preg_match_all('/{([\w|]+)}/', $pWord, $data);
+        preg_match_all('/{([\s*\w\s*|]+)}/', $pWord, $data);
         if (!isset($data[1])) {
             return $pWord;
         } // if
         foreach ($data[1] as $item) {
             $code = explode('|', $item);
+            $code = array_map('trim', $code);
             $varName = array_shift($code);
             $code = implode("']['", $code);
-            $code = "'.dbus::$" . $varName . "['" . $code . "'].'";
+			// @ специально добавлен, чтобы не захломлять error_log в случаем если данных в $varName
+			// не существет
+            $code = "'.@dbus::$" . $varName . "['" . $code . "'].'";
             $pWord = str_replace('{' . $item . '}', $code, $pWord);
         } // foreach
         return $pWord;

@@ -33,6 +33,10 @@ try{
     }
     $oldName = '';
     $varList = self::get('varList');
+    // Указываем все пременные на странице, мало ли какой скрипту это нужно
+    echo PHP_EOL.'dbus::$varList = [\''.implode('\',\'', array_keys($varList) ).'\'];'.PHP_EOL;
+
+
     $varNum = 0;
     foreach($varList as $name => $item ){
         if ( $item['type'] == 'tree'){

@@ -396,7 +396,7 @@ class filesystem {
     public static function saveFile($pDirSave, $pFile, $pData) {
         self::mkdir($pDirSave);
         $filename = self::andEndSlash($pDirSave) . $pFile;
-        file_put_contents($filename, $pData);
+        return file_put_contents($filename, $pData);
         // func. saveFile
     }
 

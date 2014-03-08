@@ -121,9 +121,9 @@
     var catalogContData = {
         contTree: <?= self::get('contTree') ?>,
         routeTree: <?= self::get('routeTree') ?>,
-        catalog: <?= self::get('catalog') ?>,
+        catalog: <?= self::get('catalog')?:'{}' ?>,
         contid: <?= self::get('contId') ?>,
-        tplUrl: <?= self::get('tplUrl') ?>
+        tplUrl: <?= self::get('tplUrl')?:'""' ?>
     };
 
     var contrName = catalogContData.contid;

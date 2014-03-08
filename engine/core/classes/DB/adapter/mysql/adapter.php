@@ -90,6 +90,7 @@ class adapter extends adapterAbstract {
         if ($handle->connect_error){
            throw new DBException($handle->connect_error, $handle->connect_errno);
         }
+		
         $handle->set_charset($p_charset);
         return $handle;//$this->dbHandle = $handle;
     }

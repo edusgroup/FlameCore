@@ -40,9 +40,11 @@ class main {
         $data = file_get_contents($file);
         // Если данных нет, то выходим
         if (!$data) {
+            echo 'Data not found : '.$file;
             return;
         }
         $list = \unserialize($data);
+
         // Преобразум данные в список
         unset($data);
         if ($list) {
@@ -52,6 +54,7 @@ class main {
             $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
             (new render($tplPath, ''))
                 ->setVar('list', $list)
+                ->setVar('appDataDir', DIR::APP_DATA)
                 ->setMainTpl($tpl)
                 ->setContentType(null)
                 ->render();

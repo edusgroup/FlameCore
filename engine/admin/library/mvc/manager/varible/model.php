@@ -36,13 +36,20 @@ class model {
     const VAR_TYPE_COMP = 'comp';
 
     /**
+     * Любое значение данных подойдёт
+     * @var integer
+     */
+    const VAR_TYPE_ALL = 'all';
+
+    /**
      * Список типо источников данных переменных
      * @var array
      */
     public static $typeList = [
         self::VARR_TYPE_NONE => 'Выбирите тип',
         self::VAR_TYPE_COMP => 'Компонент',
-        self::VAR_TYPE_TREE => 'Tree'
+        self::VAR_TYPE_TREE => 'Tree',
+        self::VAR_TYPE_ALL => 'All'
     ];
 
     /**

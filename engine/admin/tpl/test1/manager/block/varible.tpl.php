@@ -19,6 +19,7 @@
     div .items .dd{ padding-left: 25px}
 </style>
 
+
 <script type="text/javascript">
     
     var contrName = 'varible';
@@ -30,21 +31,26 @@
     
     var varible = {
         acid:  <?= self::get('acId') ?>,
-        varCount:  <?= self::get('varCount') ?>
+        varCount:  <?= self::get('varCount') ?>,
+        varTypeVal: '<?=$this->get('varType')['val']?>'
+    }
+
+    function typeVarChange(type){
+        // Подгрузаем HTML блок в код
+        var query = { acid: varible.acid, type: type};
+        var url = utils.url({method: 'loadTypeVar', query:query});
+        $('#typeBox').load(url);
+        // func. pElement
     }
     
     /**
      * Подгрузает данные, когда выбран определённый тип переменной
      * @param selectObj pElement элемент select-html
      */
-    varible.typeVarChange = function(pElement){
+    function onVarTypeChange(pElem){
         // Получаем тип переменной: Дерево, компонент
-        var type = pElement.currentTarget.value;
-
-        // Подгрузаем HTML блок в код
-        var query = { acid: varible.acid, type: type};
-        var url = utils.url({method: 'loadTypeVar', query:query});
-        $('#typeBox').load(url);
+        var type = pElem.currentTarget.value;
+        typeVarChange(type);
     }
     
     varible.saveDataClick = function(){
@@ -57,10 +63,12 @@
     }
 
     $(document).ready(function(){
-        $('#varType').change(varible.typeVarChange);
+        $('#varType').change(onVarTypeChange);
         $('#saveBtn').click(varible.saveBtnClick);
         $('#backBtn').attr('href', utils.url({contr:'action', query:{'acid': varible.acid}}));
         $('#acid').val(varible.acid);
+        typeVarChange(varible.varTypeVal);
+
     });
  
 </script>

@@ -48,16 +48,20 @@ class event {
                 // sortValue - должен быть на первом месте, иначе сортировка будет неверной
                 tree::setField(['sortValue', 'name', 'tree_id', 'id', 'link', 'nofollow', 'class']);
                 $compTree = tree::createTreeOfTable(new menuOrm(), 'contId=' . $contId);
+
                 // Сортируем по полю sortValue
                 model::rSortTree($compTree);
 
                 $saveDir = 'comp/' . $item['compId'] . '/' . $contId . '/';
                 $saveDir = dirFunc::getSiteDataPath($saveDir);
 
+                // Общие данные по меню: название меню и т.п.
                 $compTree['public'] = filesystem::loadFileContentUnSerialize($saveDir.'public.txt');
 
                 // Сериализуем
                 $data = \serialize($compTree);
+                //var_dump($compTree);
+                //exit;
 
                 // Записываем в файл
                 filesystem::saveFile($saveDir, 'menu.txt', $data);

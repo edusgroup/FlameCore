@@ -91,6 +91,8 @@ class wareframe extends controllerAbstract {
 
         // Дерево с файловой системой шаблонов сайта
         $siteTplPath = dirFunc::getSiteTplPath();
+        self::setVar('tplPath', $siteTplPath);
+
         $treeFS = dhtmlxTree::createTreeOfDir($siteTplPath);
         self::setJson('filesysTree', $treeFS);
 

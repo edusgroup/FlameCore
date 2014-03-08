@@ -65,14 +65,18 @@ class html extends \core\classes\component\abstr\admin\comp {
         // Данные HTML
         $htmlCode = self::post('htmlCode');
         // Исходный файл
-        filesystem::saveFile($saveDir, 'source.txt', $htmlCode);
+        if ( !filesystem::saveFile($saveDir, 'source.txt', $htmlCode) ){
+            throw new \Exception('Error: Save source.txt fail');
+        }
         // Нужно ли применять функцию
         $isOnlyText = self::postInt('isOnlyText');
         if ($isOnlyText) {
             $htmlCode = htmlspecialchars($htmlCode);
         }
         // Обработанный файл
-        filesystem::saveFile($saveDir, 'html.txt', $htmlCode);
+        if ( !filesystem::saveFile($saveDir, 'html.txt', $htmlCode) ){
+            throw new \Exception('Error: Save html.txt fail');
+        }
 
         // Заголовок
         $caption = self::post('caption');
@@ -83,7 +87,9 @@ class html extends \core\classes\component\abstr\admin\comp {
             'caption' => $caption
         ];
         $dataPublic = \serialize($dataPublic);
-        filesystem::saveFile($saveDir, 'public.txt', $dataPublic);
+        if ( !filesystem::saveFile($saveDir, 'public.txt', $dataPublic) ){
+            throw new \Exception('Error: Save public.txt fail');
+        }
 
         // Данные для настроек, т.е. для админки, запоминаем что было введено
         $dataPrivate = [
@@ -91,7 +97,9 @@ class html extends \core\classes\component\abstr\admin\comp {
             'isOnlyText' => $isOnlyText
         ];
         $dataPrivate = \serialize($dataPrivate);
-        filesystem::saveFile($saveDir, 'private.txt', $dataPrivate);
+        if ( !filesystem::saveFile($saveDir, 'private.txt', $dataPrivate)){
+            throw new \Exception('Error: Save private.txt fail');
+        }
         // func. saveDataAction
     }
 

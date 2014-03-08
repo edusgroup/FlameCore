@@ -37,6 +37,8 @@ class nginx {
             ->order('brunchNum DESC, varCount')
             ->toList('id');
 
+        //var_dump($varIdList);
+
         $varIdListCount = count($varIdList);
         for ($i = 0; $i < $varIdListCount; $i++) {
             // Regexp для location в конфиге
@@ -50,7 +52,6 @@ class nginx {
             // Получаем URL для переменной, вдруг там еще есть переменные
             $actionId = (int)$varIdList[$i];
             $pathUrl = $pRouteTree->getActionUrlById($actionId);
-            //echo "$pathUrl\n";
             $pathUrlCount = count($pathUrl);
             for ($j = $pathUrlCount - 1; $j >= 0; $j--) {
                 $name = $pathUrl[$j]['name'];
@@ -62,14 +63,14 @@ class nginx {
                 $queryString .= $varName;
             } // for $j
 
-            //echo $regexp."\n";
+            //echo $i,' ', $queryString.PHP_EOL;
 
             // Смотрим, вдруг есть в папке с переменой, статичные блоки
             $statFolderList = $pRouteTree->selectList(
                 'name', 'name', 'propType = 0 and isDel=0 and tree_id=' . $pathUrl[0]['treeId']
             );
 
-            /* Debug info
+            /* // Debug info
                foreach( $pathUrl as $item){
                    echo $item['name'].'/';
                }
@@ -145,8 +146,12 @@ class nginx {
         $render->setVar('coreScript', $webCoreScript);
 
         $loadDir = dirFunc::getSiteDataPath('utils/nginx/');
+
         $textData = filesystem::loadFileContent($loadDir . 'data.txt');
         $render->setVar('textData', $textData);
+
+        $textData = filesystem::loadFileContent($loadDir . 'servData.txt');
+        $render->setVar('servData', $textData);
 
         ob_start();
         $render->render();

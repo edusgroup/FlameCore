@@ -64,7 +64,7 @@ class varible extends controllerAbstract {
                       'val' => $actData['varType']]);
 
         // Тип уже выбранного значаения, может быть пустым
-        switch ($actData['varType']) {
+        /*switch ($actData['varType']) {
             // Тип переменной дерево
             case model::VAR_TYPE_TREE:
                 varTree::show($this, $actionId, 'typeBox', $varCount);
@@ -73,7 +73,7 @@ class varible extends controllerAbstract {
             case model::VAR_TYPE_COMP:
                 varComp::show($this, $actionId, 'typeBox');
                 break;
-        }
+        }*/
 
         $this->view->setBlock('panel', 'block/varible.tpl.php');
         $this->view->setMainTpl('main.tpl.php');
@@ -108,6 +108,9 @@ class varible extends controllerAbstract {
             // Таблица
             case model::VAR_TYPE_COMP:
                 varComp::saveData($this, $acId);
+                break;
+            case model::VAR_TYPE_ALL:
+                (new urlTreePropVar())->saveExt(['acId' => $acId ], ['varType' => model::VAR_TYPE_ALL]);
                 break;
         } // switch
         // func. saveDataAction
@@ -170,10 +173,15 @@ class varible extends controllerAbstract {
 
         switch ($type) {
             case model::VAR_TYPE_TREE:
-                varTree::show($this, $actionId, '', $varCount);
+                varTree::show($this, $actionId, $varCount);
                 break;
             case model::VAR_TYPE_COMP:
-                varComp::show($this, $actionId, '');
+                varComp::show($this, $actionId);
+                break;
+            case model::VAR_TYPE_ALL:
+                $this->view->setRenderType(render::NONE);
+                $file = $this->view->getTplPath().'block/vartype/all.tpl.php';
+                $this->view->loadFile($file);
                 break;
             default :
                 $this->view->setRenderType(render::NONE);

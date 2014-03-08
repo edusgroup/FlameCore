@@ -139,7 +139,7 @@
 <script type="text/javascript">
     var oiRandomData = {
         contTree: <?= self::get('contTree') ?>,
-        selItem: <?= self::get('selItem') ?>,
+        selItem: <?= self::get('selItem')?:'{}' ?>,
         contid: <?= self::get('contId') ?>,
         resizeType: '<?= self::get('resizeType') ?>',
         classTreeJson: <?= self::get('classTree') ?>,

@@ -23,11 +23,10 @@ class varTree {
      * @param type $pController
      * @param integer $pActionId 
      */
-    public static function show($pController, integer $pActionId, $pInclude = null, $varCount) {
+    public static function show($pController, integer $pActionId, $varCount) {
 
-        $varTreeOrm = new varTreeOrm();
         // Получаем сохранёные данные
-        $data = $varTreeOrm->selectFirst('*', 'action_id=' . $pActionId);
+        $data = (new varTreeOrm())->selectFirst('*', 'action_id=' . $pActionId);
         // Есть ли сохранёные данные
         if ($data) {
             $compId = (int) $data['comp_id'];
@@ -55,22 +54,20 @@ class varTree {
             $varType = 'block/vartype/treefree.tpl.php';
         } // if
         
-        if ($pInclude) {
-            $pController->view->setBlock($pInclude, $varType);
-        } else {
+        //if ($pInclude) {
+        //    $pController->view->setBlock($pInclude, $varType);
+        //} else {
             $pController->view->setMainTpl($varType);
-        } // if
+        //} // if
         // func. show
     }
 
     // Сохранение данные, если выбран типо переменной дерево
     public static function saveData($pController, integer $pAcId) {
-
         // Описание переменной
         $descrip = $pController->post('descrip');
         $treeIdStat = $pController->postInt('contId');
         $compId = $pController->postInt('compId');
-
 
         $saveArr = [
             'action_id' => $pAcId,

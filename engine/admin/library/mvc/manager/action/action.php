@@ -272,6 +272,7 @@ class action extends controllerAbstract {
 
     public function loadPropTplVar($pLoadData, $routeData, $pAcId) {
         // Формируем доступных список контроллеров для переопределиния на сайте
+		
         $contrPath = SITE_DIR::SITE_CORE . 'core/logic/';
         $contrList = [];
         $contrList['list'] = filesystem::dir2array($contrPath);

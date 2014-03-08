@@ -78,9 +78,9 @@ class event {
             $className = compCore::fullNameBuildClassAdmin($classFile, $objItemProp['ns']);
             $objItemCatEvent = new $className();
 
-            $itemsCount = (int)$rndObjItemProp['itemsCount'];
+            $maxItemsCount = (int)$rndObjItemProp['itemsCount'];
 
-            $advField = ['order' => 'rand()', 'limit' => 30 * $itemsCount];
+            $advField = ['order' => 'rand()', 'limit' => 30 * $maxItemsCount];
             if ( method_exists($objItemCatEvent, 'setAdvField')){
                 $advField = $objItemCatEvent->setAdvField($advField);
             } // if
@@ -112,38 +112,37 @@ class event {
 
             $numRows = $handleObjitem->num_rows;
 
-            echo "\tioRandom[contId:" . $rndObjItemProp['contId'] . "] Row:$numRows itemC: $itemsCount" . PHP_EOL;
+            echo "\tioRandom[contId:" . $rndObjItemProp['contId'] . "] Row:$numRows itemC: $maxItemsCount" . PHP_EOL;
             echo "\t$classFile".PHP_EOL;
             echo "\t$saveDir" . PHP_EOL . PHP_EOL;
 
-            $listArr = [];
-            $arrCount = 1;
-            $listCount = 0;
+            //$listArr = [];
+            //$arrCount = 1;
+            $fileNum = 0;
+			
+			$listArticleData = [];
+			// Бегаем по статьям и получаем их ID
             while ($objItemObj = $handleObjitem->fetch_object()) {
-                $listArr[$listCount] = $objItemCatEvent::getOIRandomArray($objItemObj, $objItemProp['id'], $rndObjItemProp, $listCount, $arrCount);
+				// Получаем, какие поля необходимо записать в файлы
+				$listArticleData[] = $objItemCatEvent::getOIRandomArray($objItemObj, $objItemProp['id'], $rndObjItemProp, null, $fileNum);
+				if ( count($listArticleData) == $maxItemsCount ){
+					$data = serialize($listArticleData);
+                    filesystem::saveFile($saveDir, 'rnd' . $fileNum . '.txt', $data);
+					$listArticleData = [];
+					++$fileNum;
+				} // if
+            } // while
 
-                if ($itemsCount == $arrCount) {
-                    $data = serialize($listArr);
-                    filesystem::saveFile($saveDir, 'rnd' . ($listCount + 1) . '.txt', $data);
-                    $arrCount = 0;
-                    $listArr = [];
-                } // if
+            if ($listArticleData) {
+                $data = serialize($listArticleData);
+                filesystem::saveFile($saveDir, 'rnd' . $fileNum . '.txt', $data);
+            } // if
 
-                ++$arrCount;
-                ++$listCount;
-
-            }
-            // while
-
-            if ($listArr) {
-                $data = serialize($listArr);
-                filesystem::saveFile($saveDir, 'rnd' . ($listCount + 1) . '.txt', $data);
-            }
-
-            $data = serialize(['fileNum' => ($listCount + 1)]);
+            $data = serialize(['fileNum' => $fileNum]);
             filesystem::saveFile($saveDir, 'data.txt', $data);
         } // foreach ($contList as $rndObj)
 
+		//exit;
         // func. createoiRandom
     }
 

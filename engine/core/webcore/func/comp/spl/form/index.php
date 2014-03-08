@@ -18,6 +18,7 @@ use \site\conf\SITE as SITE_SITE;
 // Config DIR
 include '../../../../../../admin/conf/DIR.php';
 $httpHost = str_replace('.lo', '.ru', $_SERVER['HTTP_HOST']);
+$httpHost = str_replace('.codecampus', '', $httpHost);
 if (!include DIR_ADMIN::SITE_CORE . $httpHost . '/conf/DIR.php') {
     die('Conf file ' . $_SERVER['HTTP_HOST'] . ' not found');
 }
@@ -43,12 +44,13 @@ try {
     if ( !isset($form['type']) || $form['type'] == 'in' ){
         $className = '\core\comp\spl\form\action\\' . $form['action'];
     }else{
-        $className = '\site\core\site\comp\spl\form\action\\' . $form['action'];
+        $className = '\site\core\comp\spl\form\action\\' . $form['action'];
     }
 
     if ( !@class_exists($className)){
         die(json_encode(['status' => 2, 'msg' => 'Bad form name']));
     }
+
 
    $classObj = new $className();
 

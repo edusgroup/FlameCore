@@ -104,7 +104,7 @@ class SMTP {
         $announce = $this->get_lines();
 
         if ($this->do_debug >= 2) {
-            echo "SMTP -> FROM SERVER:" . $announce . $this->CRLF;
+            echo "SMTP -> FROM SERVER[1]:" . $announce . $this->CRLF;
         }
 
         return true;
@@ -133,7 +133,7 @@ class SMTP {
         $code = substr($rply, 0, 3);
 
         if ($this->do_debug >= 2) {
-            echo "SMTP -> FROM SERVER:" . $rply . $this->CRLF;
+            echo "SMTP -> FROM SERVER[2]:" . $rply . $this->CRLF;
         }
 
         if ($code != 220) {
@@ -292,7 +292,7 @@ class SMTP {
         $code = substr($rply, 0, 3);
 
         if ($this->do_debug >= 2) {
-            echo "SMTP -> FROM SERVER:" . $rply . $this->CRLF;
+            echo "SMTP -> FROM SERVER[3]:" . $rply . $this->CRLF;
         }
 
         if ($code != 354) {
@@ -385,7 +385,7 @@ class SMTP {
         $code = substr($rply, 0, 3);
 
         if ($this->do_debug >= 2) {
-            echo "SMTP -> FROM SERVER:" . $rply . $this->CRLF;
+            echo "SMTP -> FROM SERVER[4]:" . $rply . $this->CRLF;
         }
 
         if ($code != 250) {
@@ -398,7 +398,14 @@ class SMTP {
             }
             return false;
         }
+
+        preg_match('/250 OK id=(.*)/', $rply, $idMessage);
+        if ( isset($idMessage[1])){
+            return trim($idMessage[1]);
+        }
+
         return true;
+        // func. Data
     }
 
     /**
@@ -450,7 +457,7 @@ class SMTP {
         $code = substr($rply, 0, 3);
 
         if ($this->do_debug >= 2) {
-            echo "SMTP -> FROM SERVER: " . $rply . $this->CRLF;
+            echo "SMTP -> FROM SERVER[5]: " . $rply . $this->CRLF;
         }
 
         if ($code != 250) {
@@ -499,7 +506,7 @@ class SMTP {
         $code = substr($rply, 0, 3);
 
         if ($this->do_debug >= 2) {
-            echo "SMTP -> FROM SERVER:" . $rply . $this->CRLF;
+            echo "SMTP -> FROM SERVER[6]:" . $rply . $this->CRLF;
         }
 
         if ($code != 250) {
@@ -542,7 +549,7 @@ class SMTP {
         $byemsg = $this->get_lines();
 
         if ($this->do_debug >= 2) {
-            echo "SMTP -> FROM SERVER:" . $byemsg . $this->CRLF;
+            echo "SMTP -> FROM SERVER[7]:" . $byemsg . $this->CRLF;
         }
 
         $rval = true;
@@ -593,7 +600,7 @@ class SMTP {
         $code = substr($rply, 0, 3);
 
         if ($this->do_debug >= 2) {
-            echo "SMTP -> FROM SERVER:" . $rply . $this->CRLF;
+            echo "SMTP -> FROM SERVER[8]:" . $rply . $this->CRLF;
         }
 
         if ($code != 250 && $code != 251) {
@@ -636,7 +643,7 @@ class SMTP {
         $code = substr($rply, 0, 3);
 
         if ($this->do_debug >= 2) {
-            echo "SMTP -> FROM SERVER:" . $rply . $this->CRLF;
+            echo "SMTP -> FROM SERVER[9]:" . $rply . $this->CRLF;
         }
 
         if ($code != 250) {
@@ -684,7 +691,7 @@ class SMTP {
         $code = substr($rply, 0, 3);
 
         if ($this->do_debug >= 2) {
-            echo "SMTP -> FROM SERVER:" . $rply . $this->CRLF;
+            echo "SMTP -> FROM SERVER[10]:" . $rply . $this->CRLF;
         }
 
         if ($code != 250) {

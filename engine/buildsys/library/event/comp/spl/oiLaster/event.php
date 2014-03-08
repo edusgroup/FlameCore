@@ -87,7 +87,7 @@ class event {
             if ( method_exists($objItemCatEvent, 'setAdvField')){
                 $advField = $objItemCatEvent->setAdvField($advField);
             } // if
-				
+
             $handleObjitem = eventModelObjitem::objItemChange(
                 $pEventBuffer,
                 $objItemCatEvent::getTable(),
@@ -97,11 +97,12 @@ class event {
 				$buffTreeIdList,
                 $advField
             );
-			
+
 			// Выборка представляем ли смысл
             if ( !$handleObjitem ){
                 continue;
             }
+
 			// Больше ли данных нуля
 			if ( !$handleObjitem->num_rows ){
                 echo "\tioLaster[contId:".$oiLasterItemContId."] not data found. Error".PHP_EOL;

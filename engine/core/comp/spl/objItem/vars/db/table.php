@@ -14,13 +14,13 @@ use core\classes\dbus;
  */
 class table {
     public static function getIdByName($pName, $pPrevVarName) {
-        $categoryId = dbus::$vars[$pPrevVarName]['id'];
-        return (new objItemOrm())->selectFirst(
-            'id, caption, seoUrl',
-            ['seoUrl' => $pName,
-            'treeId' => $categoryId,
-            'isDel' => 0,
-            'isPublic' => "yes"]);
+        $where = ['seoUrl' => $pName, 'isDel' => 0, 'isPublic' => "yes"];
+
+        if ( isset(dbus::$vars[$pPrevVarName]) ){
+            $where['treeId'] = dbus::$vars[$pPrevVarName]['id'];
+        }
+
+        return (new objItemOrm())->selectFirst('id, caption, seoUrl, treeId', $where);
         // func. getIdByName
     }
     // class table

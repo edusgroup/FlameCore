@@ -753,13 +753,16 @@ class PHPMailer {
       $badaddresses = implode(', ', $bad_rcpt);
       throw new phpmailerException($this->Lang('recipients_failed') . $badaddresses);
     }
-    if(!$this->smtp->Data($header . $body)) {
+
+    $msgId = $this->smtp->Data($header . $body);
+    if(!$msgId) {
       throw new phpmailerException($this->Lang('data_not_accepted'), self::STOP_CRITICAL);
     }
     if($this->SMTPKeepAlive == true) {
       $this->smtp->Reset();
     }
-    return true;
+    return $msgId;
+    // func. SmtpSend
   }
 
   /**

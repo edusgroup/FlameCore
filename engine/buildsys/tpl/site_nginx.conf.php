@@ -1,11 +1,16 @@
+<?
+    $sitename = self::get('siteName');
+    echo self::get('textData')
+?>
+
 server {
   listen 80;
-  server_name www.<?=self::get('siteName')?>;
-  rewrite ^/(.*) http://<?=self::get('siteName')?>/$1 permanent;
+  server_name www.<?=$sitename?>;
+  rewrite ^/(.*) http://<?=$sitename?>/$1 permanent;
 }
 server {
 	listen 80;
-    server_name  <?=self::get('siteName')?>;
+    server_name  <?=$sitename?>, <?=preg_replace('/\.\w+$/', '', $sitename)?>.codecampus.ru;
 
     access_log  <?=self::get('nginxLog')?>access.log  main;
     error_log   <?=self::get('nginxLog')?>error.log;
@@ -29,6 +34,8 @@ server {
         }
 	}
 
+    <?=self::get('servData')?>
+
     location ^~ /webcore/ {
         location ~ /webcore/func/ {
             include fastcgi_params;
@@ -49,8 +56,9 @@ server {
 
     location ^~ /sitemap.xml {
     }
-
-    <?=self::get('textData')?>
+	
+	location ^~ /favicon.ico {
+    }
 
     #gzip on;
     #gzip_comp_level 8;

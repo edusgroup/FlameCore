@@ -40,6 +40,14 @@ class comp {
         $compNs = $objProp['ns'];
         // Создаём контроллер класса
         $className = compCore::fullNameClassAdmin($classFile, $compNs);
+        if ( !isClassExists($className) ){
+            //throw new \Exception('Class not found '.$className);
+            // TODO: сделать нормально отображение ошибки с помощью вёрстки
+            echo 'Class not found <b>'.$className.'</b> - ';
+            echo getClassPath($className).'<br/>';
+            echo 'In: '.__CLASS__.' - '.__FILE__.'('.__LINE__.')';
+            exit;
+        }
         $contrObj = new $className('', '');
         // Получаем путь до ресурсов админки
         $themeResUrl = sprintf(DIR::THEME_RES_URL, SITE::THEME_NAME);

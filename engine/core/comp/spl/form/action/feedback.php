@@ -25,13 +25,14 @@ class feedback{
 
         $subject = isset($feedbackData['title'])?$feedbackData['title']:'';
 
-        fwrite($handle, \serialize([
-                                   'email' => SITE_SITE::FEEDBACK_EMAIL,
-                                   'vars' => $feedbackData,
-                                   'tpl' => 'feedback/feedback',
-                                   'subject' => 'Feedback '.$_SERVER['SERVER_NAME'].': '.$subject,
-                                   'theme' => SITE_SITE::THEME_NAME
-                                   ]));
+        $jsonText = json_encode([
+            'email' => SITE_SITE::FEEDBACK_EMAIL,
+            'vars' => $feedbackData,
+            'file' => 'feedback/feedback.json',
+            'subject' => 'Feedback '.$_SERVER['SERVER_NAME'].': '.$subject,
+        ]);
+
+        fwrite($handle, $jsonText);
         fclose($handle);
         chmod($tmpfname, 0666);
         // func. run

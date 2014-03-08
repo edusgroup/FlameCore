@@ -85,7 +85,7 @@
    
     var sitemapsData = {
         contTree: <?= self::get('contTree') ?>,
-        sitemaps: <?= self::get('sitemaps') ?>
+        sitemaps: <?= self::get('sitemaps')?:'{}' ?>
     };
     
     var sitemapsMvc = (function(){

@@ -24,6 +24,12 @@ class article {
         'category' => null
     ];
 
+    public static function articleAction($pName){
+        $comp = dbus::$comp[$pName];
+        render::loadFile($comp['dir'].'data.txt');
+        // func. articleAction
+    }
+
     public static function renderAction($pName) {
         $comp = dbus::$comp[$pName];
         $infoData = $comp['data'];
@@ -31,6 +37,10 @@ class article {
 
         // Получаем шаблон для статьи
         $tpl = userUtils::getCompTpl($comp);
+        if ( !$tpl){
+            echo 'Choose tpl or  in settings!';
+            return;
+        }
 
         // Директорию, где храняться шаблоны компонента
         // Кастомный ли это шаблон или нет
@@ -41,6 +51,7 @@ class article {
         if (isset($comp['urlTpl']['category'])) {
             $render->setVar('categoryUrlTpl', $comp['urlTpl']['category']);
         }
+
 
         $render->setMainTpl($tpl)
             ->setVar('dir', $comp['dir'])
@@ -58,6 +69,12 @@ class article {
             $contId = $comp['contId'];
         } else {
             $contId = dbus::$vars[$comp['varName']]['id'];
+        }
+
+        // Если мы используем не древовидную структуру, а сразу указываем на статьи
+        // то в этом случаем надо сразу взянть $conId из treeId у статьи
+        if ( !$contId && isset(dbus::$vars[$comp['varTableName']])){
+            $contId = dbus::$vars[$comp['varTableName']]['treeId'];
         }
 
         $isCompGetDatainVar = isset($comp['varTableName']);
@@ -79,6 +96,11 @@ class article {
         dbus::$comp[$pName]['data'] = $infoData;
         dbus::$comp[$pName]['dir'] = $dir;
 
+        $infoData = file_get_contents($dir . 'seo.txt');
+        if ( $infoData ){
+            dbus::$comp[$pName]['data']['seo'] = @unserialize($infoData);
+        }
+
         // func. init
     }
 
@@ -98,8 +120,7 @@ class article {
         $isCanonical =  $isCanonical && isset(dbus::$vars[$comp['varTableName']]['seoUrl']);
         if ($isCanonical) {
             $canonicalUrl = 'http://'.SITE::DISPLAY_NAME.$infoData['canonical'];
-            echo '<link rel="canonical" href="' . $canonicalUrl . '" />';
-            echo '<link rel="canonical" href="' . $canonicalUrl . '" />';
+            //echo '<link rel="canonical" href="' . $canonicalUrl . '" />';
             echo '<meta property="og:url" content="' . $canonicalUrl . '"/>';
         } // if
         if (isset($infoData['prev'])) {

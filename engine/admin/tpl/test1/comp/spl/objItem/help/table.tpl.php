@@ -75,7 +75,7 @@
                             <img id="gridSaveItem" class="button" src="<?= self::res('images/save_24.png') ?>"
                                  alt="Сохранить"/>
 
-                            <div id="gridItem" style="width:700px;height:150px;"></div>
+                            <div id="gridItem" style="width:900px;height:350px;"></div>
                         </div>
                     </div>
                 </div>
@@ -210,10 +210,10 @@
             grid.setHeader(",,Заголовок,СЕО URL,Публ");
             grid.setColTypes("ch,img,ed,ed,ch");
             grid.setColAlign("center,center,left,left,center");
-            grid.setInitWidths("32,32,*,250,50");
+            grid.setInitWidths("32,32,*,*,50");
             grid.setColsName(['', '', 'caption', 'seoUrl', 'isPublic']);
             grid.setSkin("light");
-            grid.enableAutoHeight(true);
+            grid.enableAutoHeight(false);
             grid.init();
 
             cbLoadGridSuccess(objItemData.gridData);

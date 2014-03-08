@@ -10,7 +10,9 @@ namespace core\classes;
 class dbus {
     public static $vars = [];
     public static $comp = [];
-    
+    public static $seo = [];
+    public static $varList = [];
+
     /**
      * Параметры авторизированного пользователя
      */

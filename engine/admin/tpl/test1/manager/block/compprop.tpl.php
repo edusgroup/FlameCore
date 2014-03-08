@@ -115,7 +115,7 @@
         // Json данные для построение дерева шаблонов
         tplTreeJson: <?= self::get('tplTree') ?>,
         // Ранее сохранёные данные (если они есть )
-        loadData: <?=self::get('loadData') ?>,
+        loadData: <?=self::get('loadData') ?>
     } // var compPropData
 
     var compPropMvc = (function(){

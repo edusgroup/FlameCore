@@ -83,6 +83,10 @@
 
             <div class="content">
                 <h6>Агрегация объектов</h6>
+
+                <div>In <?=self::get('buildClassPathIn')?></div>
+                <div>Out <?=self::get('buildClassPathOut')?></div>
+
                 <div class="bothpanel">
                     <div id="contDiv" class="treePanel"></div>
                     <div style="border-left: 1px solid blue ; padding-left: 5px">
@@ -125,7 +129,7 @@
         contTree: <?= self::get('contTree') ?>,
         classTreeJson: <?= self::get('classTree') ?>,
         // Выделенные ID элементов дерева compContTree
-        selItem: <?= self::get('selItem') ?>,
+        selItem: <?= self::get('selItem')?:'{}' ?>,
         contid: <?= self::get('contId') ?>,
         // Выбранное значение в дереве классов
         classTreeSelectId: '<?=self::get('classFile')?>'

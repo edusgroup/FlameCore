@@ -116,7 +116,6 @@ class model {
         // Вполне возможно класс, может быть удалён с файловой системы, а уже используется
         // тогда системы выдаст исключение, от том что файла нет, исключение нужно перехватить
         try{
-
             $compObj = new $className();
             $methodList = get_class_methods($compObj);
 
@@ -126,7 +125,6 @@ class model {
             });
             $urlTplList = isset($compObj::$urlTplList) ? array_keys($compObj::$urlTplList) : [];
         }catch (\Exception $ex){
-            var_dump($ex->getMessage());
             // если мы тут, значит файл был удалён и при этом используется в системе
             $methodList = [];
             $urlTplList = [];

@@ -165,9 +165,11 @@ class adminBlockParser {
                 break;
             case '::bodyEnd':
                 echo $this->_bodyEndData;
-                foreach($this->_varibleHiddenList as $data ){
-                    self::_echoVarible($data['name'], $data['caption'], '', 'class="hidden"');
-                }
+                if ( $this->_varibleHiddenList ){
+                    foreach($this->_varibleHiddenList as $data ){
+                        self::_echoVarible($data['name'], $data['caption'], '', 'class="hidden"');
+                    }
+                } // if ($this->_varibleHiddenList)
                 break;
             case '::adminHead':
                 if ( $this->_returnType != self::RETURN_TYPE_RETURN ){

@@ -58,6 +58,7 @@ class blog{
             return;
         }
         $oiListData = \unserialize($data);
+
         //var_dump($data);
         if ($oiListData) {
             $tpl = userUtils::getCompTpl($comp);

@@ -64,7 +64,7 @@
 <script>
     action.wfId = <?= self::get('wfId', -1) ?>;
     action.varCount = <?= self::get('varCount') ?>;
-    action.usGroupData = <?= self::get('usGroupData') ?>;
+    action.usGroupData = <?= self::get('usGroupData')?:'{}' ?>;
 
     var relationBox = '';
     for( var i in action.usGroupData ){

@@ -14,10 +14,11 @@ use core\classes\DB\DB as DBCore;
  * @return string
  */
 function getClassPath($pClassName) {
-    $className = str_replace('\\', '/', $pClassName);
+    $className = ltrim(str_replace('\\', '/', $pClassName), '/');
     $codeNs = substr($className, 0, 4);
+    //echo $className.'<br/>';
     if ( $codeNs == 'site') {
-        return DIR_CONF::SITE_CORE . substr($className, 4) . '.php';
+        return DIR_CONF::SITE_CORE . substr($className, 5) . '.php';
     }
     return DIR::CORE . $className . '.php';
 }

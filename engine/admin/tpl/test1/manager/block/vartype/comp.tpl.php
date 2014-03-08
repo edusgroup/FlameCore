@@ -1,5 +1,10 @@
 <div class="dt">Компонент:</div>
 <div class="dd">
+    In <?=self::get('pathClassIn')?><br/>Out <?=self::get('pathClassOut')?>
+</div>
+
+<div class="dt">Компонент:</div>
+<div class="dd">
     <a href="#compDlg" id="compBtn">
         <img src="<?= self::res('images/folder_16.png') ?>" />
     </a>
@@ -37,7 +42,7 @@
 <script type="text/javascript">
 
 varible.saveDataClick = function () {
-    var data = $('#contentForm').serialize();
+    var data = jQuery('#contentForm').serialize();
     data += '&compId=' + varibleData.compTreeSelectId;
     data += '&' + varibleMvc.getSaveData();
     data += '&contId=' + varibleData.contTreeSelectId;
@@ -114,15 +119,15 @@ var varibleMvc = (function () {
         var itemId = varibleData.classTreeSelectId;
         classTree.selectItem(itemId);
         var text = utils.getTreeUrl(classTree, itemId);
-        $(options.classFileText).html(text);
+        jQuery(options.classFileText).html(text);
 
         cbCompLoadMethods(varibleData.methodList)
 
         text = utils.getTreeUrl(contTree, varibleData.contTreeSelectId);
-        $('#contPath').html(text);
+        jQuery('#contPath').html(text);
         
         text = utils.getTreeUrl(compTree, varibleData.compTreeSelectId);
-        $('#compPath').html(text);
+        jQuery('#compPath').html(text);
         // func. initLoad
     }
 
@@ -131,10 +136,10 @@ var varibleMvc = (function () {
             alert(pData['error']['msg']);
             return;
         }
-        var $methodName = $('#methodName').find('option').remove().end();
+        var $methodName = jQuery('#methodName').find('option').remove().end();
         $.each(pData, function (key, value) {
             $methodName
-                    .append($("<option></option>")
+                    .append(jQuery("<option></option>")
                     .attr("value", value)
                     .text(value));
         });
@@ -155,10 +160,10 @@ var varibleMvc = (function () {
         varibleData.classTreeSelectId = pItemId;
         // Отображаем на странице наш выбор
         var text = utils.getTreeUrl(pTree, pItemId);
-        $(options.classFileText).html(text);
+        jQuery(options.classFileText).html(text);
         // Удаляем все ненужные ветки
 
-        var varStorage = $('#varStorage').val();
+        var varStorage = jQuery('#varStorage').val();
 
         // Загружаем методы класса
         HAjax.compLoadMethods({
@@ -179,7 +184,7 @@ var varibleMvc = (function () {
     function contTreeDbClick(pItemId, pTree) {
         varibleData.contTreeSelectId = pItemId;
         var text = utils.getTreeUrl(pTree, pItemId);
-        $('#contPath').html(text);
+        jQuery('#contPath').html(text);
         $.fancybox.close();
         // func. contTreeDbClick
     }
@@ -221,10 +226,10 @@ var varibleMvc = (function () {
         }
 
         varibleData.compTreeSelectId = pItemId;
-        $('#compPath').html(utils.getTreeUrl(pTree, pItemId));
+        jQuery('#compPath').html(utils.getTreeUrl(pTree, pItemId));
 
         // Убираем старый текст у classTree
-        $(options.classFileText).html('');
+        jQuery(options.classFileText).html('');
         // Убираем ранее сохранённое значение у classTree
         varibleData.classTreeSelectId = '';
         varibleData.contTreeSelectId = '';
@@ -237,7 +242,7 @@ var varibleMvc = (function () {
         // Чистим дерево класса
         classTree.deleteChildItems(0);
 
-        $('#contPath').html('');
+        jQuery('#contPath').html('');
 
         HAjax.compLoadCompData({data:{
             compid: pItemId
@@ -253,7 +258,7 @@ var varibleMvc = (function () {
             return;
         }
         varibleData.contTreeSelectId = '';
-        $('#contPath').html('');
+        jQuery('#contPath').html('');
         // func. rmContDataBtnClick
     }
 
@@ -269,21 +274,21 @@ var varibleMvc = (function () {
             saveData: cbSaveDataSuccess
         });
 
-        $(options.classBtn).fancybox({
+        jQuery(options.classBtn).fancybox({
             beforeShow:beforeClassDlgShow
         });
 
-        $(options.contBtn).fancybox({
+        jQuery(options.contBtn).fancybox({
             beforeShow:beforeContDlgShow
         });
 
-        $(options.methodNameObj).val(varibleData.methodName);
+        jQuery(options.methodNameObj).val(varibleData.methodName);
 
-        $(options.compBtn).fancybox({
+        jQuery(options.compBtn).fancybox({
             beforeShow:beforeCompDlgShow
         });
 
-        $(options.rmContDataBtn).click(rmContDataBtnClick);
+        jQuery(options.rmContDataBtn).click(rmContDataBtnClick);
 
         // func. init
     }
@@ -294,10 +299,10 @@ var varibleMvc = (function () {
     }
 })();
 
-$(document).ready(function () {
+jQuery(document).ready(function () {
 
     varibleMvc.init({
-        methodNameObj:'methodName',
+        methodNameObj:'#methodName',
         classBtn:'#classBtn',
         classFileText:'#classFileText',
         contBtn: '#contBtn',

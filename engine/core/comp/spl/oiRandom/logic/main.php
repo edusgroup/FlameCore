@@ -31,7 +31,7 @@ class main {
         }
 		$data = \unserialize($data);
 		if ( $data['fileNum'] ){
-			$rnd = mt_rand(1, $data['fileNum']);
+			$rnd = mt_rand(1, $data['fileNum']-1);
 			$rndData = file_get_contents($file.'rnd'.$rnd.'.txt');
 			$list = \unserialize($rndData);
 			

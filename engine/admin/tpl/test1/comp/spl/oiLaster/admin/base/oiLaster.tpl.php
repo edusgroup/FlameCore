@@ -83,6 +83,9 @@
 
             <div class="content">
                 <h6>Последние добавл. объекты</h6>
+                <div>In <?=self::get('buildClassPathIn')?></div>
+                <div>Out <?=self::get('buildClassPathOut')?></div>
+
                 <div class="bothpanel">
                     <div id="contDiv" class="treePanel"></div>
                     <div style="border-left: 1px solid blue ; padding-left: 5px">
@@ -141,7 +144,7 @@
     var oiLasterData = {
         contTreeJson: <?= self::get('contTree') ?>,
         // Выделенные ID элементов дерева compContTree
-        selItem: <?= self::get('selItem') ?>,
+        selItem: <?= self::get('selItem')?:'{}' ?>,
         contid: <?= self::get('contId') ?>,
         resizeType: '<?= self::get('resizeType') ?>',
         classTreeJson: <?= self::get('classTree') ?>,

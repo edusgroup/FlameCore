@@ -139,7 +139,7 @@
     var oiPopularData = {
         contTree: <?= self::get('contTree') ?>,
         // Выделенные ID элементов дерева compContTree
-        selItem: <?= self::get('selItem') ?>,
+        selItem: <?= self::get('selItem')?:'{}' ?>,
         contid: <?= self::get('contId') ?>,
         resizeType: '<?= self::get('resizeType') ?>',
         classTreeJson: <?= self::get('classTree') ?>,

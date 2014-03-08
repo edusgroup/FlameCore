@@ -84,7 +84,7 @@
     HAjax.setContr(contrName);
     HAjax.setType(callType);
     
-    objItemProp.sizeList = <?= self::get('sizeList') ?>;
+    objItemProp.sizeList = <?= self::get('sizeList')?:'[]' ?>;
     objItemProp.imgSrc = '<?= self::res('images/') ?>';
     
     objItemProp.btnSaveAddSizeClick = function(){

@@ -33,7 +33,7 @@ class varComp {
      * @param type $pController
      * @param integer $pActionId
      */
-    public static function show($pController, integer $pActionId, $pInclude = null) {
+    public static function show($pController, integer $pActionId) {
         // Получаем сохранёные данные
         $dataLoad = (new varCompOrm())->select('vc.*, c.ns', 'vc')
             ->joinLeftOuter(componentTree::TABLE . ' c', 'c.id=vc.compId')
@@ -72,7 +72,6 @@ class varComp {
             } // if
             $pController->setJson('methodList', $methodList);
 
-
             $classTree = model::getVarClassTree($nsPath);
             $pController->setJson('classTree', $classTree);
         } // if ($dataLoad)
@@ -81,12 +80,18 @@ class varComp {
         $compTree = dhtmlxTree::createTreeOfTable(new componentTree());
         $pController->setJson('compTree', $compTree);
 
+        $pathClassIn = comp::getSiteVarClassPath(false, '{comp-name}/');
+        $pathClassOut = comp::getSiteVarClassPath(true, '{comp-name}/');
+
+        $pController->setVar('pathClassIn', $pathClassIn);
+        $pController->setVar('pathClassOut', $pathClassOut);
+
         $file = 'block/vartype/comp.tpl.php';
-        if ($pInclude) {
-            $pController->view->setBlock($pInclude, $file);
-        } else {
+        //if ($pInclude) {
+        //    $pController->view->setBlock($pInclude, $file);
+        //} else {
             $pController->view->setMainTpl($file);
-        }
+       //}
         // func. show
     }
 

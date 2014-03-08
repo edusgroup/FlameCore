@@ -104,6 +104,8 @@
         </div>
 
         <div class="content" id="mainpanel">
+            <div>Шаблоны: <?=self::get('tplPath');?></div>
+
             <table>
                 <tr class="bold">
                     <td class="vmiddle button tdWF">
@@ -1111,9 +1113,9 @@ var wareframeMvc = (function(){
 
 var wareframeData = {
     // Данные для построения дерева блоков
-    blockTreeJson: <?= self::get('blockTree') ?>,
+    blockTreeJson: <?= self::get('blockTree')?:'null' ?>,
     // Данные для построение дерева wareframe
-    wfTreeJson: <?= self::get('wfTree') ?>,
+    wfTreeJson: <?= self::get('wfTree')?:'null' ?>,
     // Данные для построение дерева с шаблонами сайта
     fsTreeJson: <?= self::get('filesysTree') ?>,
     // Данные для построения дерева с доступными компонентами в админке

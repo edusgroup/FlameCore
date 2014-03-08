@@ -1,10 +1,13 @@
 <?php
 use core\classes\DB\DB as DBCore;
+
 $autoload = function ($pClassName) {
             $className = str_replace('\\', '/', $pClassName);
             if ( substr($className, 0, 4) == 'site'){
                 //print \site\conf\DIR::SITE_CORE.substr($className, 5)."<br/>";
-                //print $pClassName."<br/>";
+                //print $pClassName."\r\n <br/>";
+                //var_dump( debug_backtrace() );
+                // debug_print_backtrace();
                 $classFileName = \site\conf\DIR::SITE_CORE.substr($className, 5) . '.php';
             }else{
                 $classFileName =  \site\conf\DIR::CORE . $className . '.php';

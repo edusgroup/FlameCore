@@ -41,7 +41,7 @@ class dirFunc {
      * @return string
      */
     public static function getSiteClassCore($pNsPath) {
-        return DIR_SITE::SITE_CORE . 'core/site/comp/' . $pNsPath;
+        return DIR_SITE::SITE_CORE . 'core/comp/' . $pNsPath;
     }
 
     // ================== Логика адмники ================

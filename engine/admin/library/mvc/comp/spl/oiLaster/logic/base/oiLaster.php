@@ -10,6 +10,7 @@ use core\classes\render;
 use core\classes\event as eventCore;
 use core\classes\filesystem;
 use core\classes\admin\dirFunc;
+use core\classes\comp;
 
 // ORM
 use ORM\comp\spl\oiLaster\oiLaster as oiLasterOrm;
@@ -75,6 +76,9 @@ class oiLaster extends \core\classes\component\abstr\admin\comp {
         // Дерево классов для builder
         $classTree = model::getBuildClassTree($nsPath);
         self::setJson('classTree', $classTree);
+
+        self::setVar('buildClassPathIn', comp::getBuildCompClassPath(false, $nsPath));
+        self::setVar('buildClassPathOut', comp::getBuildCompClassPath(true, $nsPath));
 
         // Получаем названия шаблона. Настраиваеться в настройках компонента
         $this->view->setBlock('panel', $this->tplFile);

@@ -37,8 +37,8 @@ class word {
             $wordRus = iconv('UTF-8', 'cp1251', $wordRus);
         } // if
         $return = '';
-		// Если не поставить cp1251, то strToLower не переводит в нижний регистр буквы Я и Ч (вернего регистра)
-        $wordRus = strToLower($wordRus, 'cp1251');
+        // Если не поставить cp1251, то strToLower не переводит в нижний регистр буквы Я и Ч (вернего регистра)
+        $wordRus = mb_strtolower($wordRus, 'cp1251');
         $wordLenght = strlen($wordRus);
         for ($i = 0; $i < $wordLenght; $i++) {
             $char = $wordRus[$i];
@@ -51,8 +51,11 @@ class word {
             if (isset(self::$translitCombi1251[$ord])) {
                 $return .= self::$translitCombi1251[$ord];
             }
-        }
+        } // for($i)
+        $return = preg_replace('/-{2,}/', '-', $return);
+        $return = trim($return, '-');
         return $return;
+        // func. wordToUrl
     }
 
     public static function idToSplit($pId) {
@@ -61,6 +64,31 @@ class word {
             $return .= '/';
         }
         return $return;
+    }
+
+    function toBase($num, $b=62){
+        $base='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $r = $num  % $b ;
+        $res = $base[$r];
+        $q = floor($num/$b);
+        while ($q) {
+            $r = $q % $b;
+            $q =floor($q/$b);
+            $res = $base[$r].$res;
+        }
+        return $res;
+        // func. toBase
+    }
+
+    function to10( $num, $b=62){
+        $base='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $limit = strlen($num);
+        $res=strpos($base,$num[0]);
+        for($i=1;$i<$limit;$i++) {
+            $res = $b * $res + strpos($base,$num[$i]);
+        }
+        return $res;
+        // func. to10
     }
 
 }

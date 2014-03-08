@@ -10,7 +10,8 @@ class model {
     public static function rSortTree(&$pTreeArray){
         foreach( $pTreeArray as $brunchKey=>$brunch ){
             if ($brunchKey == 'item'){
-                arsort($pTreeArray[$brunchKey]);
+                //arsort($pTreeArray[$brunchKey]);
+                rsort($pTreeArray[$brunchKey]);
                 foreach( $brunch as $itemKey => $item){
                     self::rSortTree($pTreeArray[$brunchKey][$itemKey]);
                 } //foreach

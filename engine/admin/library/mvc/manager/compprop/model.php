@@ -74,9 +74,12 @@ class model {
     }
 
     public static function isClassHasExtendsProp($pClassFile, $pNs) {
-        $className = comp::fullNameClassAdmin($pClassFile, $pNs);;
-        $classObj = new $className('', '');
-        return (int)method_exists($classObj, 'compPropAction');
+        $className = comp::fullNameClassAdmin($pClassFile, $pNs);
+        if ( isClassExists($className) ){
+            $classObj = new $className('', '');
+            return (int)method_exists($classObj, 'compPropAction');
+        }
+        return 0;
         // func. isClassHasExtendsProp
     }
 

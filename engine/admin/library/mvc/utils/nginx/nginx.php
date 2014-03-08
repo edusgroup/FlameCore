@@ -29,6 +29,9 @@ class nginx extends controllerAbstract {
         $textData = filesystem::loadFileContent($loadDir . 'data.txt');
         self::setVar('textData', $textData);
 
+        $textData = filesystem::loadFileContent($loadDir . 'servData.txt');
+        self::setVar('servData', $textData);
+
         $this->view->setBlock('panel', 'nginx/nginx.tpl.php');
         $this->view->setTplPath(dirFunc::getAdminTplPathIn('manager'));
         $this->view->setMainTpl('main.tpl.php');
@@ -42,10 +45,13 @@ class nginx extends controllerAbstract {
             return;
         }
 
-        $data = self::post('data');
         $saveDir = dirFunc::getSiteDataPath('utils/nginx');
+
+        $data = self::post('data');
         filesystem::saveFile($saveDir,  'data.txt', $data);
 
+        $data = self::post('servdata');
+        filesystem::saveFile($saveDir,  'servData.txt', $data);
         // func. saveDataAction
     }
 

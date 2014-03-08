@@ -353,6 +353,7 @@ class model {
             // funct. endBrunch
         };
 
+
         $tree = dhtmlxTree::all($treeData, 0);
         dhtmlxTree::clear();
 

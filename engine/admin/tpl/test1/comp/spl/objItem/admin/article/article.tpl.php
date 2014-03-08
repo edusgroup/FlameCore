@@ -1,6 +1,9 @@
 <script src="res/plugin/classes/utils.js" type="text/javascript"></script>
-<script type="text/javascript" src="res/plugin/ckeditor/ckeditor.js"></script>
-<script type="text/javascript" src="res/plugin/ckeditor/config.js"></script>
+<!--<script type="text/javascript" src="res/plugin/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="res/plugin/ckeditor/config.js"></script>-->
+
+<script type="text/javascript" src="http://theme.codecampus.ru/plugin/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="http://theme.codecampus.ru/plugin/ckeditor/config.js"></script>
 
 <script src="res/plugin/fileManager/fileManager.js" type="text/javascript"></script>
 
@@ -142,9 +145,9 @@
         editor: null,
         prevImgUrl: '',
         cloakingEditor: null,
-        seo: <?= self::get('seoData', '{}') ?>
+        seo: <?= self::get('seoData') ? self::get('seoData') : '{}' ?>
     }
-    
+
     var contrName = objItem.contid;
     var callType = 'comp';
     utils.setType(callType);
@@ -157,11 +160,11 @@
             'contid': objItem.contid,
             'id': objItem.objItemId,
             'prevImgUrl': objItem.prevImgUrl,
-            'cloakingText': $('#cloakingText').val(),
-            'miniDescrText': $('#descrBox textarea[name="miniDescrText"]').val(),
-			'divArticle': $('#divArticle').attr("checked")=="checked" ? 1 : 0,
+            'cloakingText': jQuery('#cloakingText').val(),
+            'miniDescrText': jQuery('#descrBox textarea[name="miniDescrText"]').val(),
+			'divArticle': jQuery('#divArticle').attr("checked")=="checked" ? 1 : 0,
             seo: objItem.seo,
-            isPrivate: $('#isPrivate').attr("checked")=="checked" ? 1 : 0
+            isPrivate: jQuery('#isPrivate').attr("checked")=="checked" ? 1 : 0
         }
         HAjax.saveData({data: data, methodType: 'POST'});
         return false;
@@ -176,7 +179,7 @@
     }
 
     objItem.seoBtnBeforeClose = function(){
-        var serialArr = $('#seoBox').serializeArray();
+        var serialArr = jQuery('#seoBox').serializeArray();
         for( var i in serialArr ){
             objItem.seo[serialArr[i].name] = serialArr[i].value;
         }
@@ -203,7 +206,7 @@
 	function getContentCallBack(pFuncNum , pUrl){
 		if ( pFuncNum == '25'){
             objItem.prevImgUrl = pUrl;
-            $('#preImgUrl').show().attr('href', pUrl);
+            jQuery('#preImgUrl').show().attr('href', pUrl);
         }else{
             CKEDITOR.tools.callFunction(pFuncNum, pUrl);
         }
@@ -229,26 +232,26 @@
         getContentCallBack(pFuncNum, pUrl);
     }
 
-    $(document).ready(function(){
+    jQuery(document).ready(function(){
         // Кнопка Назад
-        $('#backBtn').attr('href', utils.url({}));
-        $('#saveBtn').click(objItem.saveBtnClick);
+        jQuery('#backBtn').attr('href', utils.url({}));
+        jQuery('#saveBtn').click(objItem.saveBtnClick);
         
-        $('#prevImgBtn').click(objItem.prevImgBtnClick);
-        $('#seoBtn').fancybox({
+        jQuery('#prevImgBtn').click(objItem.prevImgBtnClick);
+        jQuery('#seoBtn').fancybox({
             beforeClose: objItem.seoBtnBeforeClose
         });
-        $('#cloakingBtn').fancybox({
+        jQuery('#cloakingBtn').fancybox({
             beforeShow: objItem.cloakingBtnBeforeShow,
             afterClose: objItem.cloakingBtnAfterClose
         });
-        $('#descrBtn').fancybox({
+        jQuery('#descrBtn').fancybox({
             openEffect	: 'elastic',
             closeEffect	: 'elastic',
             maxWidth: 450
         });
 
-        $('#getMainobjItemBtn').click(objItem.getMainobjItemBtnClick);
+        jQuery('#getMainobjItemBtn').click(objItem.getMainobjItemBtnClick);
 
         
         HAjax.create({
@@ -266,11 +269,11 @@
         unserializeForm('#seoBox', objItem.seo);
 		
 		if ( objItem.objItemData['divArticle'] == '1' ){
-            $('#divArticle').attr("checked", 'checked');
+            jQuery('#divArticle').attr("checked", 'checked');
         }
 
         if ( objItem.objItemData['isPrivate'] == '1' ){
-            $('#isPrivate').attr("checked", 'checked');
+            jQuery('#isPrivate').attr("checked", 'checked');
         }
 
 
@@ -284,7 +287,10 @@
         CKEDITOR.config.filebrowserImageUploadUrl = 'res/plugin/kcfinder/upload.php?type=images';
         CKEDITOR.config.filebrowserFlashUploadUrl = 'res/plugin/kcfinder/upload.php?type=flash';
         
-        objItem.editor = CKEDITOR.replace( 'articleTxtId', {toolbar: 'Article'} );
+        objItem.editor = CKEDITOR.replace( 'articleTxtId', {
+			toolbar: 'Article',
+			height: '550px'
+		} );
 
     });
 </script>
