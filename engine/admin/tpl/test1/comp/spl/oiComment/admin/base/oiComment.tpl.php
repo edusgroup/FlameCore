@@ -76,7 +76,7 @@
   
     var oiCommentData = {
         contid: <?= self::get('contId') ?>,
-        data: <?=self::get('data', null)?>
+        data: <?=self::get('data')?:'null'?>
     }
     
     var contrName = oiCommentData.contid;

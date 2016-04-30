@@ -1,0 +1,10 @@
+<?php
+
+namespace core\classes\user\exception;
+
+class RegistrationException
+{
+
+
+
+}

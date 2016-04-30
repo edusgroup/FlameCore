@@ -81,6 +81,8 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
         $loadDir = baseModel::getPath($compId, $contId, $objItemId);
         $loadDir = dirFunc::getSiteDataPath($loadDir);
 
+        self::setVar('path', $loadDir);
+
         $textData = '';
         if (is_readable($loadDir . 'data.txt')) {
             $textData = file_get_contents($loadDir . 'data.txt');
@@ -125,6 +127,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
 
         $contId = $this->contId;
         $compId = $this->compId;
+
         // ID статьи
         $objItemId = self::postInt('id');
 
@@ -154,6 +157,7 @@ class article extends \core\classes\component\abstr\admin\comp implements \core\
              'isCloaking' => trim($cloakingText) != '',
              'isPrivate' => self::postInt('isPrivate') ]
         );
+
 
         $seoData = serialize(self::post('seo'));
         filesystem::saveFile($saveDir, 'seo.txt', $seoData);

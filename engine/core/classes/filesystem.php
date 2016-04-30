@@ -260,18 +260,21 @@ class filesystem {
      * Не рекомендуется для public
      * @static
      * @param $pFilename
-     * @return mixed
+     * @return boolean true - в случае успеха
      */
     public static function printFile($pFilename) {
         if (!is_readable($pFilename)){
-            return;
+            return false;
         }
         $fr = fopen($pFilename, 'r');
         if (!$fr){
-            return;
+            return false;
         }
         fpassthru($fr);
         fclose($fr);
+
+        return true;
+        // func. printFile
     }
 
     /**

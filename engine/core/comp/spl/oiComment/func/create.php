@@ -16,6 +16,7 @@ use ORM\tree\componentTree as componentOrm;
 use ORM\tree\compContTree as compContTreeOrm;
 use ORM\blockItemSettings;
 use core\classes\site\dir as sitePath;
+use ORM\users as usersOrm;
 
 // Conf
 use \site\conf\DIR;
@@ -27,6 +28,8 @@ use \site\conf\SITE;
  * @author Козленко В.Л.
  */
 class create {
+
+	const COMP_OICOMPONENT_ID = 11;
 
     private function makeList($id, $comList, &$data) {
 
@@ -64,18 +67,8 @@ class create {
 
         // Получаем настроечные данные
         $oiCommentBiOrm = new oiCommentBiOrm();
-        $oiCommentData = $oiCommentBiOrm
-            ->select('acb.tplListFile, acb.tplComFile, acp.type, c.ns, c.id as compId', 'acb')
-            ->join(blockItemSettings::TABLE . ' bis', 'bis.blockItemId=acb.blockItemId')
-            ->join(oiCommentpPropOrm::TABLE . ' acp', 'acp.contId=bis.custContId')
-            ->join(compContTreeOrm::TABLE . ' cc', 'cc.id = bis.custContId')
-            ->join(componentOrm::TABLE . ' c', 'c.id = cc.comp_id')
-            ->where('acb.blockItemId=' . $blockItemId)
-            ->comment(__METHOD__)
-            ->fetchFirst();
-        if (!$oiCommentData) {
-            throw new \Exception('No data from blockItemId=' . $blockItemId);
-        }
+        $oiCommentData = $this->_getOiCOmmentData($blockItemId);
+		
         // Название шаблона для комментариев
         // TODO: Сделать обработку внешних шаблонов. Убрать [o],
         // TODO: внизу заменить sitePath::getSiteCompTplPath(false, на sitePath::getSiteCompTplPath($isOut,
@@ -83,21 +76,25 @@ class create {
         $tplComFile = substr($oiCommentData['tplComFile'], 1);
         // Тип комментариев
         $oiCommentType = $oiCommentData['type'];
-		
-        $oiCommentOrm = new oiCommentOrm();
-        $comList = $oiCommentOrm->selectFirst(
-            'id',
-            ['type' => $oiCommentType, 'objId' => $objItemId]
-        );
-        $isFirst = !(boolean)$comList;
-        unset($comList);
 
-        $oiCommentOrm->insert(['userName' => $author,
-                           'comment' => $comment,
-                           'tree_id' => $parentId,
-                           'type' => $oiCommentType,
-                           'objId' => $objItemId
-                           ]);
+         $oiCommentOrm = new oiCommentOrm();
+         $comList = $oiCommentOrm->selectFirst(
+             'id',
+             ['type' => $oiCommentType, 'objId' => $objItemId]
+         );
+         $isFirst = !(boolean)$comList;
+         unset($comList);
+
+         $userId = isset($_SESSION['userData']['id']) ? (int)$_SESSION['userData']['id'] : null;
+         $previewUrl = (new usersOrm())->get('previewurl', ['id'=>$userId]);
+
+         $oiCommentOrm->insert(['userName' => $author,
+                            'comment' => $comment,
+                            'tree_id' => $parentId,
+                            'type' => $oiCommentType,
+                            'objId' => $objItemId,
+                            'userId' => $userId
+                            ]);
         $newId = $oiCommentOrm->insertId();
 
         // ======= Создаём код Комментария
@@ -111,29 +108,87 @@ class create {
             ->setVar('comment', $comment)
             ->setVar('id', $newId)
             ->setVar('isFirst', $isFirst)
+            ->setVar('previewurl', $previewUrl)
             ->setVar('dateAdd', date("d-m-y H:i"))
             ->render();
 
-        // Формируем правильное дерево 
-        $comList = $oiCommentOrm->selectAll(
+	   $this->updateFile($render, $oiCommentOrm, $objItemId, $oiCommentType, $tplListFile, $tplComFile, $oiCommentData['compId']);
+        // func. save
+    }
+	
+	protected function _getOiCOmmentData($blockItemId){
+		// Получаем настроечные данные
+        $oiCommentBiOrm = new oiCommentBiOrm();
+        $oiCommentData = $oiCommentBiOrm
+            ->select('acb.tplListFile, acb.tplComFile, acp.type, c.ns, c.id as compId', 'acb')
+            ->join(blockItemSettings::TABLE . ' bis', 'bis.blockItemId=acb.blockItemId')
+            ->join(oiCommentpPropOrm::TABLE . ' acp', 'acp.contId=bis.custContId')
+            ->join(compContTreeOrm::TABLE . ' cc', 'cc.id = bis.custContId')
+            ->join(componentOrm::TABLE . ' c', 'c.id = cc.comp_id')
+            ->where('acb.blockItemId=' . $blockItemId)
+            ->comment(__METHOD__)
+            ->fetchFirst();
+        if (!$oiCommentData) {
+            throw new \Exception('No data from blockItemId=' . $blockItemId);
+        }
+		return $oiCommentData;
+		// func. _getOiCOmmentData
+	}
+	
+	public function delete(){
+		$commenId = request::postInt('commentId');
+	
+		$blockItemId = request::getInt('blockItemId');
+		$oiCommentData = $this->_getOiCOmmentData($blockItemId);
+		
+		$objItemId = request::getInt('objItemId');
+		
+		$oiCommentType = $oiCommentData['type'];
+		
+		$tplListFile = substr($oiCommentData['tplListFile'], 1);
+        $tplComFile = substr($oiCommentData['tplComFile'], 1);	
+	
+		$nsPath = filesystem::nsToPath($oiCommentData['ns']);
+        $tplPath = sitePath::getSiteCompTplPath(false, $nsPath);
+	
+	
+		$oiCommentOrm = new oiCommentOrm();
+		$oiCommentOrm->delete(['id'=>$commenId]);
+		
+		$render = new render($tplPath, '');
+		
+		return $this->updateFile($render, $oiCommentOrm, $objItemId, $oiCommentType, $tplListFile, $tplComFile, $oiCommentData['compId']);
+		// func. delete
+	}
+
+    public function updateFile($render, $oiCommentOrm, $objItemId, $oiCommentType, $tplListFile, $tplComFile, $compId) {
+	
+	 // Формируем правильное дерево
+       $comList = $oiCommentOrm->selectAll(
             'id, tree_id',
             ['type' => $oiCommentType, 'objId' => $objItemId],
             'tree_id, date_add');
-
-        $idString = '';
-        // Получаем правильную последовательность ID
-        self::makeList(0, $comList, $idString);
-        $idString = substr($idString, 1);
-        unset($comList);
+			
+		if ( $comList){
+			$idString = '';
+			// Получаем правильную последовательность ID
+			self::makeList(0, $comList, $idString);
+			$idString = substr($idString, 1);
+		}else{
+			$idString = -1;
+		}
+		unset($comList);
+        
 
         // ======= Создаём код Списка комментариев и сохраняем в файл
-        $comListHandle = $oiCommentOrm
-            ->select('id, tree_id as treeId, userName, comment'
-                         . ', DATE_FORMAT(date_add, "%d-%m-%y %H:%i") dateAdd'
-                         . ', DATE_FORMAT(date_add, "%y-%m-%d") dateAddSys')
-            ->where('id in (' . $idString . ')')
-            ->order('field(id, ' . $idString . ')')
-            ->query();
+        $comListHandle = $oiCommentOrm->query('
+            SELECT cc.*, cc.tree_id as treeId, DATE_FORMAT(cc.date_add, "%y-%m-%d") dateAdd, DATE_FORMAT(cc.date_add, "%d-%m-%y %H:%i")  dateAddSys, u.previewurl
+            FROM pr_comp_oicomment cc
+            LEFT JOIN  pr_users u ON u.id = cc.userId
+            WHERE cc.id in (' . $idString . ')
+            ORDER BY field(cc.id, ' . $idString . ')
+        ');
+
 
         ob_start();
         $render->setMainTpl($tplListFile)
@@ -144,9 +199,11 @@ class create {
 
         $data = ob_get_clean();
         $objItemId = word::idToSplit($objItemId);
-        $folder = DIR::APP_DATA . 'comp/' . $oiCommentData['compId'] . '/' . $oiCommentType . '/' . $objItemId;
+        $folder = DIR::APP_DATA . 'comp/' . $compId . '/' . $oiCommentType . '/' . $objItemId;
         filesystem::saveFile($folder, 'comm.html', $data);
-        // func. save
+		
+		return ['status'=>'ok'];
+        // func. updateFile
     }
 
     // func. createArtCom

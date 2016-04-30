@@ -101,16 +101,19 @@ class event {
             if ( !$handleObjitem ){
                 continue;
             } // if
+			
+			// Директория к данным группы
+            $saveDir = 'comp/' . $oiListPropItem['comp_id'] . '/' . $oiListPropItem['contId'] . '/';
+            $saveDir = dirFunc::getSiteDataPath($saveDir);
 
             // Если данных нет, то переходим к след обработке oiList
             if ($handleObjitem->num_rows == 0) {
-                echo "\tioList[contId:$oiListItemContId] Not data found. Error".PHP_EOL;
+				filesystem::rmdirR($saveDir);
+                //echo "\tioList[contId:$oiListItemContId] Not data found. Error".PHP_EOL;
                 continue;
             } // if
 
-            // Директория к данным группы
-            $saveDir = 'comp/' . $oiListPropItem['comp_id'] . '/' . $oiListPropItem['contId'] . '/';
-            $saveDir = dirFunc::getSiteDataPath($saveDir);
+            
 
             // Получаем какое должно быть количество объектов в файле
             $itemsCount = $oiListPropItem['itemsCount'];

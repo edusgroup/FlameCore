@@ -22,6 +22,7 @@ use \site\conf\SITE as SITE_SITE;
 // Config DIR
 include '../../../../../admin/conf/DIR.php';
 $httpHost = str_replace('.lo', '.ru', $_SERVER['HTTP_HOST']);
+$httpHost = str_replace('.codecampus.ru', '.ru', $httpHost);
 if (!include DIR_ADMIN::SITE_CORE . $httpHost . '/conf/DIR.php') {
     die('Conf file ' . $_SERVER['HTTP_HOST'] . ' not found');
 }
@@ -41,8 +42,30 @@ $password = new password(10);
 $userOrm = new usersOrm();
 
 $type = request::post('type');
+if ( $type == 'exit'){
+    setCookie("userId", '', -1, '/');
+    setCookie("userData", '', -1, '/');
+	session_start();
+    session_destroy();
+    exit;
+}else
+/*if ( $type == 'lightreg' ){
+	$userLogin = request::post('email');
+	$isExist = true;
+	if ( trim($userLogin)){
+		$isExist = (boolean)$userOrm->selectFirst('1', ['login' => $userLogin]);
+	}
+	
+	if (!$isExist){
+	}
+	
+	echo json_encode([
+		'status'=> 'ok'
+	]);
+	exit;
+}else*/
 if ($type == 'regist' ){
-	$userLogin = request::post('login');
+	$userLogin = request::post('email');
 	$isExist = true;
 	if ( trim($userLogin)){
 		$isExist = (boolean)$userOrm->selectFirst('1', ['login' => $userLogin]);
@@ -50,32 +73,52 @@ if ($type == 'regist' ){
 	
 	if (!$isExist){
 
-		$tmpfname = tempnam(DIR_SITE::APP_DATA.'mail/', "mail_");
-		$handle = fopen($tmpfname, "w");
-		$vars['pwd'] = password::generate(6, 1, 2);
+        $vars['pwd'] = password::generate(6, 1, 2);
 
-        $jsonText = json_encode([
-            'email' => $userLogin,
-            'vars' => $vars,
-            'file' => 'user/reg.json',
-            'site' => $_SERVER['SERVER_NAME']
-        ]);
-        fwrite($handle, $jsonText);
+        include '/opt/www/FlameCore/mail/lib/class.phpmailer.php';
 
-		fclose($handle);
-		chmod($tmpfname, 0666);
+        $htmlCode = 'Добрый день!<br/> Вы зарегистрировались на '.$httpHost.'<br/> Ваш пароль: '.$vars['pwd'];
+
+
+        $mail = new \PHPMailer(true);
+        $mail->IsSMTP();
+        $mail->host = '127.0.0.1';
+        $mail->SMTPDebug = 0;                     // enables SMTP debug information (for testing)
+        $mail->SMTPAuth  = false;                  // enable SMTP authentication
+
+        $mail->AddAddress($userLogin);
+        $mail->SetFrom('noreplay@'.$httpHost);
+        $mail->CharSet = 'utf-8';
+
+        $subject = 'Регистрация '.$httpHost;
+        $mail->Subject = "=?UTF-8?B?" . base64_encode(html_entity_decode($subject, ENT_COMPAT, 'UTF-8')) . "?=";
+        $mail->AltBody = 'To view the message, please use an HTML compatible email viewer!'; // optional - MsgHTML will create an alternate automatically
+        $mail->MsgHTML($htmlCode);
+
+        try{
+            $mail->Send();
+        }catch(Exception $ex){
+            die(json_encode([
+                'status'=> 'err', 'code'=>'bad-send', 'msg'=>'Ошибка отправки письма'
+            ]));
+        }
 
         $insert = [
             'login' => $userLogin,
             'pwd' => $password->hash($vars['pwd']),
             'uniq' => md5($userLogin.time()),
+            'nick' => request::post('name'),
             'enable' => 1
         ];
         (new usersOrm())->insert($insert);
-	}
+	}else{
+        die(json_encode([
+            'status'=> 'err', 'code'=>'registr-user'
+        ]));
+    }
 	
 	echo json_encode([
-		'result'=>$isExist
+		'status'=> 'ok'
 	]);
 	exit;
 } // if
@@ -83,49 +126,60 @@ if ($type == 'regist' ){
 
 if ( $type == 'restore' ){
     // Логин пользователя
-    $userLogin = request::post('login');
+    $userLogin = request::post('email');
     // Создаём уникальный ключ для восстановления
-    $restoreCode = password::generate(6, 1, 2);
-    // Обновляем поле в таблице пользователей
-    $isUpdate = $userOrm->update( ['restoreCode'=>$restoreCode], ['login' => $userLogin]);
-    // Если ни чего нет, то пользователя не существует
-    if ( !$userOrm->getHandle()->affected_rows ){
-        echo json_encode([
-            'error'=>'noexists'
-        ]);
-        exit;
-    } // if
 
-    // Создаём файл для письма
-    $tmpfname = tempnam(DIR_SITE::APP_DATA.'mail/', "mail_");
-    $handle = fopen($tmpfname, "w");
-    // Указываем ссылку для восстановления
-    $vars['url'] = '/user/?type=restore&email='.$userLogin.'&code='.$restoreCode;
+    $isExist = (boolean)$userOrm->selectFirst('1', ['login' => $userLogin]);
+    if ( !$isExist ){
+        die(json_encode(['status'=>'err', 'code'=>'noexists']));
+    }
 
-    $jsonText = json_encode([
-        'email' => $userLogin,
-        'vars' => $vars,
-        'file' => 'user/restore.json',
-        'site' => $_SERVER['SERVER_NAME']
-    ]);
-    fwrite($handle, $jsonText);
-    fclose($handle);
-    chmod($tmpfname, 0666);
+    $pwd = password::generate(6, 1, 2);
+    $pwdHash = $password->hash($pwd);
+    $isUpdate = $userOrm->update( ['pwd'=>$pwdHash], ['login' => $userLogin] );
+
+    include '/opt/www/FlameCore/mail/lib/class.phpmailer.php';
+
+    $htmlCode = 'Добрый день!<br/> Вы запросили восстановление паролья на сайте '.$httpHost.'<br/> Ваш пароль: '.$pwd;
+
+
+    $mail = new \PHPMailer(true);
+    $mail->IsSMTP();
+    $mail->host = '127.0.0.1';
+    $mail->SMTPDebug = 0;                     // enables SMTP debug information (for testing)
+    $mail->SMTPAuth  = false;                  // enable SMTP authentication
+
+    $mail->AddAddress($userLogin);
+    $mail->SetFrom('noreplay@'.$httpHost);
+    $mail->CharSet = 'utf-8';
+
+    $subject = 'Восстановления пароля '.$httpHost;
+    $mail->Subject = "=?UTF-8?B?" . base64_encode(html_entity_decode($subject, ENT_COMPAT, 'UTF-8')) . "?=";
+    $mail->AltBody = 'To view the message, please use an HTML compatible email viewer!'; // optional - MsgHTML will create an alternate automatically
+    $mail->MsgHTML($htmlCode);
+
+    try{
+        $mail->Send();
+    }catch(Exception $ex){
+        die(json_encode([
+            'status'=> 'err', 'code'=>'bad-send', 'msg'=>'Ошибка отправки письма'
+        ]));
+    }
+
     echo json_encode([
-        'type'=>'ok'
+        'status'=>'ok'
     ]);
     exit;
 } // if
 
 
-$userLogin = request::post('login');
+$userLogin = request::post('email');
 $userPwd = request::post('pwd');
 
 $userData = (new usersOrm())->selectFirst(SITE_SITE::USER_DATA_FIELD, [
 	'enable' => 1,
     'login' => $userLogin
 ]);
-
 
 $userData = !$userData ?: $password->verify($userPwd, $userData['pwd']) ? $userData : null;
 
@@ -158,17 +212,17 @@ if ($userData) {
 	
 	//setCookie("userData", json_encode($userData), $time, '/') ;
 	setCookie("userId", $userData['uniq'], $time, '/');
-	setCookie("userData", json_encode(['email'=>$userLogin]), $time, '/');
+	setCookie("userData", json_encode(['email'=>$userLogin, 'nick'=>$userData['nick']]), $time, '/');
 
 
 	
 	echo json_encode([
-		'type'=>'ok'
+		'status'=>'ok'
 	]);
 } else {
     echo json_encode([
-		'type'=>'error', 
+		'status'=>'err',
 		'msg'=>'Wrong login/password', 
-		'code' => 97
+		'code' => 'wrong-pwd'
 	]);
 }

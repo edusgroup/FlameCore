@@ -102,16 +102,19 @@ class event {
             if ( !$handleObjitem ){
                 continue;
             }
+			
+			 // Директория к данным группы
+            $saveDir = 'comp/' . $oiLasterItemProp['compId'] . '/' . $oiLasterItemContId . '/';
+            $saveDir = dirFunc::getSiteDataPath($saveDir);
 
 			// Больше ли данных нуля
 			if ( !$handleObjitem->num_rows ){
-                echo "\tioLaster[contId:".$oiLasterItemContId."] not data found. Error".PHP_EOL;
+				$data = serialize([]);
+				filesystem::saveFile($saveDir, 'data.txt', $data);
                 continue;
             }
 
-            // Директория к данным группы
-            $saveDir = 'comp/' . $oiLasterItemProp['compId'] . '/' . $oiLasterItemContId . '/';
-            $saveDir = dirFunc::getSiteDataPath($saveDir);
+           
 
             $numRows = $handleObjitem->num_rows;
             echo "\tioLaster[contId:".$oiLasterItemContId."] Row:$numRows itemC: $itemsCount".PHP_EOL;

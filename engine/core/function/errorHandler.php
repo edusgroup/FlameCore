@@ -9,6 +9,9 @@
  * @return boolean
  */ 
 function errorHandler( $code, $message, $file, $line ) {
+	 //echo "Error $code happened! $message on $file line $line ".error_reporting()."<br/>";
+	//return false;
+
     if ( error_reporting() & $code ) {
         if ( $code == E_RECOVERABLE_ERROR ) { // Патч для скалярных типов данных
             $regexp = '/^Argument (\d)+ passed to (.+) must be an instance of (?<hint>.+), (?<given>.+) given/i' ;
@@ -20,7 +23,8 @@ function errorHandler( $code, $message, $file, $line ) {
             }
         }
         return false ;
-    }
+	}
+	// func. errorHandler	
 }
 
 set_error_handler('errorHandler');

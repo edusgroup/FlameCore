@@ -1,13 +1,15 @@
 <?php
+spl_autoload_register(function ($pClassName) {
+    $className = str_replace('\\', '/', $pClassName);
+    if ( substr($className, 0, 4) == 'site'){
+        $classFileName = DIR::CORE . substr($className, 4) . '.php';
+    }else{
+        $classFileName = DIR::CORE . $className . '.php';
+    }
 
-$autoload = function ($pClassName) {
-            $className = str_replace('\\', '/', $pClassName);
-            if ( substr($className, 0, 4) == 'site'){
-                $classFileName = DIR::CORE . substr($className, 4) . '.php';
-            }else{
-                $classFileName = DIR::CORE . $className . '.php';
-            }
-            include($classFileName);
-        };
+    if ( !is_file($classFileName)){
+        return false;
+    }
 
-spl_autoload_register($autoload);
+    include($classFileName);
+});

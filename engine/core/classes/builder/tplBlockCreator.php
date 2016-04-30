@@ -108,7 +108,7 @@ class tplBlockCreator {
         } else
             if (isset($this->blockItemList[$key])) {
                 foreach ($this->blockItemList[$key] as $item) {
-                    echo '<?php ' . $item['class'] . '::' . $item['method'] . $item['callParam'] . ' ?>' . PHP_EOL;
+                    echo '<?php try{ ' . $item['class'] . '::' . $item['method'] . $item['callParam'] . ' }catch(\Exception $ex){ echo  $ex->getMessage();}?>' . PHP_EOL;
                 }
             } // if
         // func. block

@@ -10,7 +10,7 @@ server {
 }
 server {
 	listen 80;
-    server_name  <?=$sitename?>, <?=preg_replace('/\.\w+$/', '', $sitename)?>.codecampus.ru;
+    server_name  <?=$sitename?> <?=preg_replace('/\.\w+$/', '', $sitename)?>.codecampus.ru;
 
     access_log  <?=self::get('nginxLog')?>access.log  main;
     error_log   <?=self::get('nginxLog')?>error.log;

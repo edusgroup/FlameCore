@@ -417,10 +417,10 @@ var wareframeMvc = (function(){
         itemGrid = new dhtmlXGridObject(options.gridBox);
         itemGrid.newId = -1;
         itemGrid.setImagePath("res/plugin/dhtmlxGrid/dhtmlxGrid/codebase/imgs/");
-        itemGrid.setHeader(",,Описание,Сист. назв,Компонент");
-        itemGrid.setInitWidths("32,32,*,125,125");
-        itemGrid.setColsName([0, '', 'name', 'sysname', 'compId']);
-        itemGrid.setColTypes("ch,img,ed,ed,stree");
+        itemGrid.setHeader(",,Описание,Сист. назв,Компонент,Вид.");
+        itemGrid.setInitWidths("32,32,*,125,125,32");
+        itemGrid.setColsName([0, '', 'name', 'sysname', 'compId', 'isview']);
+        itemGrid.setColTypes("ch,img,ed,ed,stree,ch");
         itemGrid.setSkin("dhx_skyblue");
         itemGrid.enableDragAndDrop(true);
         itemGrid.setSubTree(dhtmlxInit.tree['comp'], 4);

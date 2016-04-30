@@ -98,6 +98,8 @@
             </div>
             <div class="clear"></div>
 
+            <?=self::get('path')?>
+
             <div>
                 <textarea id="articleTxtId"><?= self::get('text') ?></textarea>
             </div>

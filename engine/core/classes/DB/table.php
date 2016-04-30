@@ -45,7 +45,7 @@ class table extends adapter\adapter {
     }
 
     /**
-     * Установка sql
+     * Установка sql. Далее необходим вызов fetchFirst(). Для разового SQL можно сразу передать SQL в query($sql)
      * @param string $pSQL sql строка
      * @return table ссылка на самого себя
      */
@@ -108,7 +108,7 @@ class table extends adapter\adapter {
      * @example
      * $t = new table();<br/>$t->selectAll('name', array('id'=>$id), 'id');
      */
-    public function selectAll($pSelectFields, $pWhereFields = null, $pOrderFields = null) {
+    public function selectAll($pSelectFields = null, $pWhereFields = null, $pOrderFields = null) {
         return self::select($pSelectFields)
             ->where($pWhereFields)
             ->order($pOrderFields)
@@ -151,7 +151,7 @@ class table extends adapter\adapter {
      * @param mixed $pException исключение если строка не найдена
      * @return array
      */
-    public function selectFirst($pSelectFields, $pWhereFields = null, $pException = null) {
+    public function selectFirst($pSelectFields = null, $pWhereFields = null, $pException = null) {
         $data = self::select($pSelectFields)
             ->where($pWhereFields)
             ->fetchFirst();
@@ -186,7 +186,11 @@ class table extends adapter\adapter {
         if (is_array($pFields)) {
             $tmp = '';
             foreach ($pFields as $key => $val) {
-                $val = $val == self::ASC ? 'ASC' : 'DESC';
+				if ( is_string($val) ){
+					$val = strtoupper($val) == 'ASC'? 'ASC' : 'DESC';
+				}else{
+					$val = $val == self::ASC ? 'ASC' : 'DESC';
+				}
                 $tmp .= ',' . $key . ' ' . $val . '';
             }
             $this->sSQL .= substr($tmp, 1);
@@ -282,7 +286,7 @@ class table extends adapter\adapter {
      * @param mixed $pFWhere поля для ограничений
      * @return array
      */
-    public function selectWhere($pFSelec, $pFWhere) {
+    public function selectWhere($pFSelec=null, $pFWhere=[]) {
         return self::select($pFSelec)->where($pFWhere);
     }
 
@@ -480,6 +484,9 @@ class table extends adapter\adapter {
     protected function _prepare(array $pData) {
         $result = $pData;
         array_walk($result, function (&$pValue, $pKey, $self) {
+            if (isset($pValue[0]) && $pValue[0] == '@') {
+                $pValue = substr($pValue, 1);
+            }else
             if (is_null($pValue)) {
                 $pValue = 'null';
             } else {

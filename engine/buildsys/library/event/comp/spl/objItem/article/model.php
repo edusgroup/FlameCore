@@ -111,9 +111,13 @@ class model {
             ->where(['eventName' => eventBase::ACTOIN_CUSTOM_PROP_SAVE])
             ->group('userId')
             ->toList('contId');
+
         foreach ($eventBuffList as $eventContId) {
 
             $contPropData = compCore::findCompPropBytContId((int)$eventContId);
+            if ( !isset($contPropData['classname'])){
+                continue;
+            }
 
             // Имя класса который задали в настройках
             $classFile = $contPropData['classFile'] ? : '/base/' . $contPropData['classname'] . '.php';

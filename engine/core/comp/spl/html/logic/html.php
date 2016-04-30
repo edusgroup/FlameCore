@@ -25,7 +25,10 @@ class html {
 
         $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/html.txt';
 
-        $fr = fopen($file, 'r');
+        $fr = @fopen($file, 'r');
+		if ( !$fr ){
+			return;
+		}
         fpassthru($fr);
         fclose($fr);
         // func. render

@@ -1,8 +1,9 @@
 <?
 // Core
 use core\classes\DB\DB as DBCore;
-// Conf  
+// Conf
 use \site\conf\DIR;
+
 
 chdir($_SERVER['DOCUMENT_ROOT']);
 
@@ -15,7 +16,6 @@ include DIR::CORE . 'core/classes/DB/adapter/mysql/adapter.php';
 DBCore::addParam('site', \site\conf\DB::$conf);
 // 
 umask(0002);
-
 $create = new core\comp\spl\oiComment\func\create();
 try{
     $create->save();

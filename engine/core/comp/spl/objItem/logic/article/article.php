@@ -30,7 +30,10 @@ class article {
         // func. articleAction
     }
 
-    public static function renderAction($pName) {
+	/**
+	* $className - опционально. Handle на статический класс, которые вызывает эту функцию
+	*/
+    public static function renderAction($pName, $className=null) {
         $comp = dbus::$comp[$pName];
         $infoData = $comp['data'];
         $infoData['isCloaking'] = $infoData['isCloaking'] && preg_match('/Google|Yandex/', $_SERVER['HTTP_USER_AGENT']);
@@ -52,10 +55,11 @@ class article {
             $render->setVar('categoryUrlTpl', $comp['urlTpl']['category']);
         }
 
-
         $render->setMainTpl($tpl)
             ->setVar('dir', $comp['dir'])
+			->setVar('dbVars', dbus::$vars)
             ->setVar('infoData', $infoData)
+			->setVar('compClass', $className)
             ->setContentType(null)
             ->render();
         // func. renderAction

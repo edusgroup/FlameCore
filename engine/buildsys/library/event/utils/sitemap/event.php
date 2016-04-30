@@ -17,6 +17,7 @@ use core\classes\admin\dirFunc;
 // Conf
 use \DIR;
 use \site\conf\SITE as SITE_CONF;
+use \site\conf\DIR as SITE_DIR;
 use admin\library\mvc\comp\spl\objItem\event as eventObjitem;
 
 // Event
@@ -46,6 +47,9 @@ class event {
         if (!$childList) {
             return;
         }
+
+		echo 'Sitemap init'.PHP_EOL;
+		
         $handleObjitem = eventModelObjitem::objItemChange(
             $eventBuffer,
             [articleOrm::TABLE],
@@ -54,6 +58,7 @@ class event {
             $childList,
             $childList
         );
+		
         if (!$handleObjitem || $handleObjitem->num_rows == 0) {
             print "ERROR(" . __METHOD__ . "() | Not found Data" . PHP_EOL;
             return;
@@ -61,24 +66,36 @@ class event {
         // Загружаем шаблон sitemap и производим построение списки
         $buildTpl = DIR::CORE . 'buildsys/tpl/';
         $host = 'http://' . SITE_CONF::NAME;
+		
         ob_start();
         (new render($buildTpl, ''))
             ->setContentType(null)
             ->setVar('host', $host)
             ->setVar('handleArt', $handleObjitem)
-            ->setMainTpl('sitemap.tpl.php')
+            ->setMainTpl('sitemap-xml.tpl.php')
+            ->render();
+        $codeData = ob_get_clean();
+		
+		$path = dirFunc::getSiteRoot();
+        // Запись готового sitemap в файл
+        filesystem::saveFile($path, 'sitemap.xml', $codeData);
+		
+		
+		$handleObjitem->data_seek(0);
+		ob_start();
+        (new render($buildTpl, ''))
+            ->setContentType(null)
+            ->setVar('host', $host)
+            ->setVar('handleArt', $handleObjitem)
+            ->setMainTpl('sitemap-html.tpl.php')
             ->render();
         $codeData = ob_get_clean();
 
-        $path = dirFunc::getSiteRoot();
-        //echo $buildTpl;
-        // Запись готового sitemap в файл
-        filesystem::saveFile($path, 'sitemap.xml', $codeData);
+		$path = SITE_DIR::APP_DATA.'sitemap/';
+		filesystem::saveFile($path, 'sitemap.html', $codeData);
+		
+		echo 'Sitemap rebuild'.PHP_EOL;
 
-        // DIR::APP_DATA.'sitemap/';
-        //exit;
-
-        //echo 'sitemap.xml createFile END' . PHP_EOL;
         // func. createFile
     }
 

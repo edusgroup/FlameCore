@@ -133,6 +133,7 @@ class nginx {
         $webCoreScript = rtrim($webCoreScript, '/');
 
         $siteName = SITE_CONF::NAME;
+
         // Если это машина разработчика, то нужно изменить адреса с боевого
         // на локальный. т.е. site.ru -> site.lo
         if (SITE::IS_DEVELOPER) {
@@ -156,6 +157,7 @@ class nginx {
         ob_start();
         $render->render();
         $nginxConfData = ob_get_clean();
+		echo DIR::NGINX_CONF, $siteName . '.conf'.PHP_EOL;
         filesystem::saveFile(DIR::NGINX_CONF, $siteName . '.conf', $nginxConfData);
 		echo "Nginx conf saved".PHP_EOL;
         // func. createConf

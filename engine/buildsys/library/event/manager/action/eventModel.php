@@ -546,7 +546,7 @@ CODE_STRING;
     }
 
     private static function getScriptDynData() {
-        return <<<'CODE_STRING'
+        /*return <<<'CODE_STRING'
         <script>
             function _importJs(src, func){
 				var scriptElem = document.createElement('script');
@@ -590,7 +590,19 @@ CODE_STRING;
 			}
         }, 700);</script>
 
+CODE_STRING;*/
+
+        return <<<'CODE_STRING'
+
+    <?php
+            $dbusHeadCount = count(dbus::$head['jsDyn']);
+            for( $i = 0; $i < $dbusHeadCount; $i++ ){
+                 echo '<script src="'.dbus::$head['jsDyn'][$i].'"></script>'.PHP_EOL;
+            } // if
+    ?>
 CODE_STRING;
+
+       // yepnope
     }
 
     /**

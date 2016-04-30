@@ -26,6 +26,8 @@ class menu {
         $file = DIR::APP_DATA . 'comp/' . $compId . '/' . $contId . '/menu.txt';
         $data = file_get_contents($file);
 
+        //var_dump($data);
+
         $menuTree = null;
         if ($data) {
             $menuTree = \unserialize($data);

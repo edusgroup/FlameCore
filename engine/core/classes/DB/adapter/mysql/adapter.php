@@ -85,7 +85,7 @@ class adapter extends adapterAbstract {
     public static function connect($pHost,$pPort, $pUser, $pPwd, $pDbName, $p_charset, $pSocket) {
         $handle = \mysqli_connect($pHost, $pUser, $pPwd, $pDbName, $pPort, $pSocket);
         if ( !$handle ){
-            throw new DBException('DB not connect', 1);
+            throw new DBException(mysqli_connect_error(), mysqli_connect_errno());
         }
         if ($handle->connect_error){
            throw new DBException($handle->connect_error, $handle->connect_errno);
@@ -219,6 +219,7 @@ class adapter extends adapterAbstract {
             $sql .= '#' . $this->_comment;
         }
         $result = $this->getHandle()->query($sql);
+		
 		if ( $this->isPrint ){
 			echo $sql.PHP_EOL;
 		}

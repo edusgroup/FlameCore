@@ -63,8 +63,11 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
         } // if isCreatePreview
 
         $objItemDataDir = baseModel::getPath($objItemObj->compId, $objItemObj->treeId, $objItemObj->id);
-
-        $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
+        if ( substr_count($objItemObj->urlTpl, '%s') == 1 ){
+            $url = sprintf($objItemObj->urlTpl, $objItemObj->seoUrl);
+        }else {
+            $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
+        }
         $listArr = [
             'caption' => $objItemObj->caption,
             'id' => $objItemObj->id,
@@ -101,7 +104,12 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
         } // if isCreatePreview
 
         // ----------------------------------------
-        $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
+        //$url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
+        if ( substr_count($objItemObj->urlTpl, '%s') == 1 ){
+            $url = sprintf($objItemObj->urlTpl, $objItemObj->seoUrl);
+        }else {
+            $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
+        }
         $listArr = [
             'caption' => $objItemObj->caption,
             'url' => $url,
@@ -135,7 +143,12 @@ class build implements \admin\library\mvc\comp\spl\objItem\help\builderAbs {
         } // if isCreatePreview
 
         // ----------------------------------------
-        $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
+        //$url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
+        if ( substr_count($objItemObj->urlTpl, '%s') == 1 ){
+            $url = sprintf($objItemObj->urlTpl, $objItemObj->seoUrl);
+        }else {
+            $url = sprintf($objItemObj->urlTpl, $objItemObj->seoName, $objItemObj->seoUrl);
+        }
         $listArr = [
             'caption' => $objItemObj->caption,
             'url' => $url,

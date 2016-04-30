@@ -37,6 +37,9 @@ if (!word::isLatin($fileName)) {
     die('Bad ajax script name');
 }
 
-if (!@include(DIR_SITE::APP_DATA . 'utils/ajax/' . $fileName . '.php')) {
-    die('Ajax script not found');
+
+$file = DIR_SITE::APP_DATA . 'utils/ajax/' . $fileName . '.php';
+
+if (!@include($file)) {
+    die('Ajax script not found '.$file);
 }

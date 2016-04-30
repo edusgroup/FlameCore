@@ -10,6 +10,7 @@ use core\classes\dbus;
 use core\classes\render;
 use core\classes\word;
 use core\classes\userUtils;
+use core\classes\request;
 use core\classes\site\dir as sitePath;
 
 /**
@@ -18,8 +19,11 @@ use core\classes\site\dir as sitePath;
  * @author Козленко В.Л.
  */
 class main {
-
-    public static function renderAction($pName) {
+	
+	/**
+	* $className - опционально. Handle на статический класс, которые вызывает эту функцию
+	*/
+    public static function renderAction($pName, $className=null) {
         $comp = dbus::$comp[$pName];
 
         $tpl = userUtils::getCompTpl($comp);
@@ -29,9 +33,14 @@ class main {
             return;
         }
         $objItemId = dbus::$vars[$comp['varible']]['id'];
-        
+
         $splitId = word::idToSplit($objItemId);
         $commFile = DIR::APP_DATA . 'comp/' . $comp['compId'] . '/' . $comp['type'] . '/'. $splitId.'comm.html';
+
+        $commupdate = request::get('commupdate');
+        if ( $commupdate == 1 ){
+
+        }
 
         $tplPath = sitePath::getSiteCompTplPath($comp['isTplOut'], $comp['nsPath']);
         $render = new render($tplPath, '');
@@ -40,6 +49,8 @@ class main {
                 ->setVar('blockItemId', $comp['blockItemId'])
                 ->setVar('objItemId', $objItemId)
                 ->setVar('commFile', $commFile)
+                ->setVar('isAuth', isset($_SESSION['userData']))
+				->setVar('compClass', $className)
                 ->render();
     }
     

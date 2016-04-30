@@ -101,7 +101,7 @@
    
     var rssData = {
         contTree: <?= self::get('contTree') ?>,
-        rss: <?= self::get('rss') ?>
+        rss: <?= self::get('rss') ?:'[]' ?>
     };
     
     var rssMvc = (function(){

@@ -1,4 +1,5 @@
 <?php
+
 namespace core\classes;
 
 use \SITE;
@@ -53,7 +54,7 @@ class render extends html\element{
     
     /**
      * Имя главного файла шаблона
-     * @var string 
+     * @var string
      */
     protected $mainTplFile = '';
 
@@ -67,11 +68,11 @@ class render extends html\element{
         $this->siteTplPath = $pTplPath;
         return $this;
     }
-    
+
     public function getTplPath(){
         return $this->siteTplPath;
     }
-    
+
     public function setThemeResUrl(string $pThemeResUrl){
         $this->themeResUrl = $pThemeResUrl;
         return $this;
@@ -93,12 +94,12 @@ class render extends html\element{
     }
 
     /**
-     * Устанавливает переменную для шаблона. 
+     * Устанавливает переменную для шаблона.
      * По умолчанию string переменная обрабатываеся функцией<br/>
      * htmlspecialchars т.е. экранирует спец. символы
      * @param string $pName название переменной
      * @param mixed $pValue значение переменной
-     * @param boolean $pSafe нужно ли экранировать строки, 
+     * @param boolean $pSafe нужно ли экранировать строки,
      * если переменная строка
      */
     public function setVar(string $pName, $pValue, $pSafe=true) {
@@ -133,7 +134,7 @@ class render extends html\element{
         $return .= ($pQuery ? '&' . $pQuery : '');
         return $return;
     }
-	
+
 	public static function tplVarible($pName){
 		return isset(dbus::$tplVarible[$pName])?dbus::$tplVarible[$pName]:'';
 		// func. tplVarible
@@ -170,25 +171,26 @@ class render extends html\element{
      * Подгружает указанный блок<br/>
      * Если имя блока начинается со знака @, то не обходимо задать абсалютное имя файла
      * @see setBlock для задания соотвествия между блоком и именем файла
-     * @param string $pBlockName 
+     * @param string $pBlockName
      */
     protected  function includeBlock(string $pBlockName) {
         // Есть ли такой блок
-        if (!(isset($this->arBlock[$pBlockName]) && $this->arBlock[$pBlockName]))
+        if (!(isset($this->arBlock[$pBlockName]) && $this->arBlock[$pBlockName])){
             return;
+		}
         $filename = $this->arBlock[$pBlockName];
         // Есть ли такой файл
         //if (!is_file($filename))
         //    throw new \Exception('File: ' . $filename . ' not include', 31);
         include($filename);
     }
-    
+
     /**
      * Ввыводит файл в поток вывода
      * @param string $pName имя файла или имя параметра
      * @param type $pNameIsFile если стоит true, то это имя параметра,
      * иначе имя файла
-     * @return void 
+     * @return void
      */
     public function loadFile(string $pName, $pNameIsFile = true) {
         $file = $pName;
@@ -240,6 +242,8 @@ class render extends html\element{
     }
 
     public function render(){
+	//var_dump($_SERVER['CONTENT_TYPE']);
+	// if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         $renderType = $this->renderType;
         if ($renderType & self::JSON) {
             $json = self::get('json', []);
@@ -255,7 +259,7 @@ class render extends html\element{
                 header($this->contentType);
             }
             $filename = $this->mainTplFile;
-            if ( !include($filename) ){
+            if ( !@include($filename) ){
                 throw new \Exception('render: File: [' . $filename . '] not include', 31);
             }
         } // if(PARSE)

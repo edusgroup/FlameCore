@@ -91,7 +91,7 @@ class upload {
         } // if($this->typeUpload)
     }
 
-    public function getFileOldName(string $pVarName, $pListNum=null) {
+    public function getFileOldName(string $pVarName, $pListNum=0) {
         return self::_getFileParam($pVarName, 'name', $pListNum);
     }
 
@@ -111,7 +111,12 @@ class upload {
         }
     }
 
-    public function getFileTmpName(string $pVarName, $pListNum=null){
+    /**
+     * @param string $pVarName
+     * @param null $pListNum set null, if you want to get a result as array
+     * @return array|string
+     */
+    public function getFileTmpName(string $pVarName, $pListNum=0){
         return self::_getFileParam($pVarName, 'tmp_name', $pListNum);
     }
 

@@ -309,7 +309,7 @@ class blockItem extends \core\classes\mvc\controllerAbstract {
         $custContId = self::postInt('contid');
 
         // Получаем настройки ветки
-        $objProp = compCore::findCompPropBytContId($custContId);
+        $objProp = comp::findCompPropBytContId($custContId);
 
         // Имя класса который задали в настройках
         $classFile = $objProp['classFile']?: '/base/'.$objProp['classname'].'.php';

@@ -1,0 +1,18 @@
+.subscribe-form{
+	padding: 5px 5px 5px 20px;
+}
+
+.subscribe-form div{
+	float: left;
+	margin-right: 10px;
+
+}
+
+.subscribe-form .field-mail{
+	width: 320px;;
+}
+
+.subscribe-form p.description{
+	font-weight: bold;
+	font-size: 14px;
+}

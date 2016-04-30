@@ -468,7 +468,7 @@ class model {
             }
         } // if
         $blockItemList = $blockItem
-            ->select('id, "" as ch, "" as img, name, sysname, compId, acId')
+            ->select('id, "" as ch, "" as img, name, sysname, compId, acId, 1 as isview')
             ->where($where)
             ->order($orderPrefix.'position')
             ->comment(__METHOD__)
